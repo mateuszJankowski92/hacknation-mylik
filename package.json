@@ -15,7 +15,8 @@
     "corpus:ingest": "tsx scripts/ingest.ts",
     "corpus:fetch": "tsx scripts/fetch-sources.ts",
     "eval": "tsx scripts/eval.ts",
-    "injection:live": "tsx scripts/injection-live.ts"
+    "injection:live": "tsx scripts/injection-live.ts",
+    "known-ops:fetch": "tsx scripts/fetch-euvsdisinfo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",

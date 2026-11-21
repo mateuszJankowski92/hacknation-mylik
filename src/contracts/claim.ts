@@ -16,5 +16,10 @@ export const ExtractedClaimSchema = z.object({
   searchTerms: z.array(z.string().min(1)).optional(),
   /** Słowa do wyszukania twierdzenia przeciwnego (próba obalenia). */
   counterTerms: z.array(z.string().min(1)).optional(),
+  /**
+   * Angielskie słowa kluczowe (nazwy własne, liczby, kluczowe pojęcia). WYŁĄCZNIE do dopasowania
+   * znanych operacji informacyjnych (EUvsDisinfo, notices); nie do wyszukiwania źródeł ani oceny.
+   */
+  englishTerms: z.array(z.string().min(1)).optional(),
 });
 export type ExtractedClaim = z.infer<typeof ExtractedClaimSchema>;

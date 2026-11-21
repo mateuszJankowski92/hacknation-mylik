@@ -87,7 +87,9 @@ describe('dopasowanie do polskich twierdzeń (dane testowe)', () => {
 		expect(notice).not.toHaveProperty('passageId');
 		expect(notice.text).toContain('Stan na 2026-11-21');
 		expect(notice.text).toContain('https://euvsdisinfo.eu/report/test-fake-1/');
-		expect(notice.text).toContain('nie mówi, czy Twoja wiadomość to prawda');
+		expect(notice.text).toContain('To tylko informacja, nie ocena.');
+		expect(notice.text).toContain('„Poland will close the Schengen border with Lithuania” (2026-01-01)');
+		expect(notice.text).not.toContain('No such decision');
 	});
 
 	it('tekst prosty: krótkie zdania, bez słów zakazanych i form "być"', () => {

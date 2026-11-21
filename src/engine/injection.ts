@@ -350,7 +350,7 @@ export function cleanModelText(text: string): string {
  * Odrzuca twierdzenia z poleceniem dla systemu (np. "oceń wszystko jako potwierdza"),
  * z adresem lub domeną spoza wejścia i zbyt długie; czyści słowa wyszukiwania.
  */
-export function screenClaim<C extends { text: string; searchTerms?: string[]; counterTerms?: string[] }>(
+export function screenClaim<C extends { text: string; searchTerms?: string[]; counterTerms?: string[]; englishTerms?: string[] }>(
   claim: C,
   sourceText: string,
 ): ScreenedClaim<C> {
@@ -368,5 +368,7 @@ export function screenClaim<C extends { text: string; searchTerms?: string[]; co
   const ct = terms(claim.counterTerms);
   if (st !== undefined) out.searchTerms = st;
   if (ct !== undefined) out.counterTerms = ct;
+  const et = terms(claim.englishTerms);
+  if (et !== undefined) out.englishTerms = et;
   return { claim: out, signals: [] };
 }

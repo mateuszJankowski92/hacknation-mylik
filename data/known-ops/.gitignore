@@ -1,2 +1,4 @@
 # Pobrane przypadki EUvsDisinfo nie trafiają do repozytorium (warunki ponownego użycia niepotwierdzone, patrz _terms.json).
 cases-*.json
+_fetch-state.json
+*.tmp

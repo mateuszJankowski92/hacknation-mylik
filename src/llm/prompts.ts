@@ -35,6 +35,7 @@ Zadanie:
    - "niejasna": zbyt ogólne, niepełne lub dwuznaczne, by je sprawdzić, także pytania i wezwania.
 5. Dla każdego twierdzenia podaj "searchTerms": od 3 do 10 słów kluczowych do przeszukania korpusu (rzeczowniki, nazwy własne, liczby, kluczowe czasowniki), w formie podstawowej oraz w formach odmienionych występujących w tekście. Bez słów funkcyjnych.
 6. Dla twierdzeń "faktograficzna" podaj też "counterTerms": od 2 do 8 słów do wyszukania źródeł, które mogłyby twierdzeniu PRZECZYĆ. Pomyśl, jak brzmiałaby wersja przeciwna: zaprzeczenie lub dementi (np. słowa typu "nieprawda", "dementuje", "nie wprowadzono"), inne możliwe liczby lub wielkości, inne daty lub okresy, inne miejsca, inne warunki. Nie twórz nowych faktów: to tylko słowa do wyszukiwania. Dla pozostałych rodzajów pomiń to pole.
+7. Dla każdego twierdzenia podaj "englishTerms": od 3 do 8 angielskich odpowiedników najważniejszych słów (nazwy własne w zapisie angielskim, liczby, kluczowe rzeczowniki), np. "Poland", "border", "vaccine". Tylko przekład słów z tekstu, bez nowych faktów i bez całych zdań.
 Jeżeli tekst nie zawiera żadnego twierdzenia, zwróć pustą listę "claims".`;
 
 export const ASSESS_SYSTEM_PROMPT = `Jesteś modułem oceny dowodów w systemie, który sprawdza doniesienia w zamkniętym zbiorze źródeł. Oceniasz, jak każdy podany fragment źródła odnosi się do jednego twierdzenia. Nie wydajesz werdyktu i nie piszesz uzasadnień; robi to system na podstawie twoich ocen.

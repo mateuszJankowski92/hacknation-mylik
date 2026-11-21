@@ -78,3 +78,21 @@ Zrobiono dwa przebiegi, razem ok. 0,009 USD.
    na ataki adaptacyjne. Warto go powiększać i uruchamiać przed każdą zmianą promptu lub modelu.
 8. Atrapa modelu (`src/llm/mock.ts`) zgłasza `injectionSuspected` starszą heurystyką `looksLikeInjection`.
    Ma to znaczenie tylko w trybie bez klucza.
+
+## R2. Źródła: znane operacje informacyjne (EUvsDisinfo, zadania 16 i 23)
+
+- **Rola:** wyłącznie neutralna informacja w `notices` (typ `dopasowanie_incydentu`, scenariusz I).
+  Nigdy dowód, cytat ani podstawa werdyktu. Treść przypadków nie trafia do modelu; dopasowanie robi kod.
+- **Licencja niepotwierdzona** (szczegóły: `data/known-ops/_terms.json`). Dlatego migawka trzyma tylko
+  id, tytuł, skrót twierdzenia (do 200 znaków), datę, słowa kluczowe, kraje i odsyłacz do opisu na
+  euvsdisinfo.eu. Bez sprostowań (pole `fact`) i bez odsyłaczy do materiałów źródłowych.
+  Pliki `data/known-ops/cases-*.json` nie trafiają do repozytorium; odtworzenie: `npm run known-ops:fetch`
+  (klucz `EUVSDISINFO_TOKEN` w `.env`, 1 żądanie na ok. 1 s, wznowienie od offsetu w `_fetch-state.json`).
+- **Fałszywe alarmy:** przypadki są po angielsku. Krok wyodrębniania twierdzeń podaje `englishTerms`
+  (tylko do tego dopasowania). Progi ostrożne (`EN_MATCH_RULES`): min. 3 wspólne słowa, min. 2 „mocne”
+  (nie państwo, nie rok, nie słowo z ponad 3% przypadków), 60% mocnych słów twierdzenia i jedno w tytule.
+  Lepiej nie pokazać ostrzeżenia niż pokazać nietrafione. Ostrzeżenie pokazuje tytuł w oryginale (bez
+  tłumaczenia), datę i odsyłacz, oraz zdanie „To tylko informacja, nie ocena.”
+- **Znane luki:** dopasowanie po słowach nie rozumie sensu (np. zaprzeczenia); progi dobrane na danych
+  testowych, nie na pełnym zbiorze. Bez `englishTerms` (np. atrapa modelu) działa tylko słabsze
+  dopasowanie po nazwach własnych i liczbach z polskiego tekstu.

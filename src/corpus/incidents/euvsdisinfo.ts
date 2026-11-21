@@ -10,8 +10,13 @@
  *   nigdy podstawa werdyktu, nigdy cytat dowodowy (brak passageId);
  * - pola claim/fact to treść zewnętrzna: dane, nie instrukcje.
  *
- * Ograniczenie językowe: przypadki są po angielsku, twierdzenia użytkowników po polsku. Nie tłumaczymy.
- * Dopasowanie opiera się na "kotwicach": nazwach własnych (słowa z wielkiej litery, skróty),
+ * Migawka (scripts/fetch-euvsdisinfo.ts) przechowuje tylko tytuł, skrót twierdzenia (do 200 znaków),
+ * datę, słowa kluczowe, kraje i odsyłacz; bez sprostowań (fact). Treść przypadków nigdy nie trafia do modelu.
+ *
+ * Ograniczenie językowe: przypadki są po angielsku, twierdzenia użytkowników po polsku. Nie tłumaczymy
+ * treści. Główna ścieżka: angielskie słowa kluczowe `englishTerms` z kroku wyodrębniania twierdzeń,
+ * porównywane w kodzie z tytułem, skrótem, słowami kluczowymi i krajami przypadku (EN_MATCH_RULES).
+ * Zapasowo (brak englishTerms) dopasowanie opiera się na "kotwicach": nazwach własnych (słowa z wielkiej litery, skróty),
  * liczbach (co najmniej 2 cyfry) i krótkim słowniku nazw państw/organizacji PL->EN.
  * Wymagamy co najmniej dwóch wspólnych kotwic, w tym jednej, która nie jest nazwą państwa ani rokiem
  * (same państwa i lata występują w tysiącach przypadków). To celowo ostrożne i niekompletne.
@@ -125,6 +130,43 @@ export function normalizeCase(row: unknown, index: number): KnownOpRecord | null
 		keywords: titles(r.keywords),
 		url: safeUrl(r.url),
 		links,
+	};
+}
+
+/** Najdłuższy skrót twierdzenia przechowywany w migawce (licencja niepotwierdzona). */
+export const KNOWN_OP_CLAIM_MAX = 200;
+
+/** Zapis przypadku w migawce: bez sprostowania (fact) i bez odsyłaczy do materiałów źródłowych. */
+export interface CompactKnownOpCase {
+	id: string;
+	title: string;
+	claim: string;
+	date: string | null;
+	keywords: string[];
+	countries: string[];
+	url: string | null;
+}
+
+function shorten(value: string, max: number): string {
+	if (value.length <= max) return value;
+	const cut = value.slice(0, max - 1);
+	const space = cut.lastIndexOf(' ');
+	return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
+}
+
+/** Przypadek z serwera -> zwięzły zapis migawki (null, gdy brak id, tytułu i twierdzenia). */
+export function compactKnownOpCase(row: unknown, index = 0): CompactKnownOpCase | null {
+	const record = normalizeCase(row, index);
+	if (!record || !text((row as Record<string, unknown>).id)) return null;
+	const url = record.url && /^https:\/\/(www\.)?euvsdisinfo\.eu\//i.test(record.url) ? record.url : null;
+	return {
+		id: record.id.slice(0, 64),
+		title: shorten(record.title, 300),
+		claim: shorten(record.claim, KNOWN_OP_CLAIM_MAX),
+		date: record.date,
+		keywords: record.keywords.slice(0, 30).map((k) => k.slice(0, 80)),
+		countries: record.countries.slice(0, 30).map((c) => c.slice(0, 80)),
+		url,
 	};
 }
 
@@ -262,8 +304,125 @@ export interface KnownOpMatchOptions {
 	minSharedAnchors?: number;
 }
 
-export function findSimilarKnownOps(claim: Pick<ExtractedClaim, 'text' | 'searchTerms'>, records: KnownOpRecord[], options: KnownOpMatchOptions = {}): KnownOpMatch[] {
+type MatchClaim = Pick<ExtractedClaim, 'text' | 'searchTerms'> & { englishTerms?: string[] };
+
+// ------------------------------------------------ dopasowanie po angielskich słowach (englishTerms)
+
+const EN_STOPWORDS = new Set(
+	('the and for with from that this these those are was were has have had not but its into about over under after before than then they them their there what which who will would could should can may might also more most very such only other some any all one two new says said claim claims').split(' '),
+);
+
+/** Lekki rdzeń angielski: małe litery, bez znaków diakrytycznych, bez typowych końcówek. */
+export function englishStem(word: string): string {
+	let w = word
+		.normalize('NFKD')
+		.replace(/\p{M}/gu, '')
+		.toLowerCase()
+		.replace(/'s$/, '');
+	if (/^\d+$/.test(w)) return `#${w}`;
+	if (w.length > 5 && w.endsWith('ies')) w = `${w.slice(0, -3)}y`;
+	else if (w.length > 5 && w.endsWith('ing')) w = w.slice(0, -3);
+	else if (w.length > 4 && w.endsWith('ed')) w = w.slice(0, -2);
+	else if (w.length > 4 && w.endsWith('es') && !w.endsWith('ses')) w = w.slice(0, -2);
+	else if (w.length > 3 && w.endsWith('s') && !w.endsWith('ss')) w = w.slice(0, -1);
+	if (w.length > 4 && w.endsWith('e')) w = w.slice(0, -1);
+	return w;
+}
+
+export function englishTokens(input: string): Set<string> {
+	const out = new Set<string>();
+	for (const raw of input.split(/[^\p{L}\p{N}']+/u)) {
+		const word = raw.replace(/^'+|'+$/g, '');
+		if (!word) continue;
+		if (/^\d+$/.test(word)) {
+			if (word.length >= 2) out.add(`#${word}`);
+			continue;
+		}
+		if (word.length < 3 && !/^\p{Lu}{2}$/u.test(word)) continue;
+		const lower = word.toLowerCase();
+		if (EN_STOPWORDS.has(lower)) continue;
+		out.add(englishStem(word));
+	}
+	return out;
+}
+
+const EN_WEAK = new Set(
+	[...EN_COUNTRIES, 'russia', 'ukraine', 'west', 'western', 'europe', 'eu', 'nato', 'usa', 'us', 'uk', 'america', 'american', 'government', 'country', 'people', 'war', 'state', 'world', 'kremlin', 'moscow', 'kyiv', 'kiev', 'washington', 'brussels', 'warsaw']
+		.map(englishStem),
+);
+
+interface KnownOpsIndex {
+	docs: Array<{ title: Set<string>; all: Set<string> }>;
+	df: Map<string, number>;
+	size: number;
+}
+
+const INDEX_CACHE = new WeakMap<KnownOpRecord[], KnownOpsIndex>();
+
+/** Indeks budowany raz dla tablicy przypadków (19 tys. przypadków: kilkaset ms). */
+function knownOpsIndex(records: KnownOpRecord[]): KnownOpsIndex {
+	const cached = INDEX_CACHE.get(records);
+	if (cached && cached.size === records.length) return cached;
+	const df = new Map<string, number>();
+	const docs = records.map((r) => {
+		const title = englishTokens(r.title);
+		const all = englishTokens([r.title, r.claim, ...r.keywords, ...r.countries].join(' '));
+		for (const t of all) df.set(t, (df.get(t) ?? 0) + 1);
+		return { title, all };
+	});
+	const index = { docs, df, size: records.length };
+	INDEX_CACHE.set(records, index);
+	return index;
+}
+
+/** Progi celowo ostrożne: lepiej nie pokazać ostrzeżenia niż pokazać nietrafione. */
+export const EN_MATCH_RULES = {
+	/** Co najmniej tyle wspólnych słów (rdzeni). */
+	minShared: 3,
+	/** Co najmniej tyle wspólnych słów "mocnych" (nie państwo, nie rok, nie słowo z > 3% przypadków). */
+	minStrong: 2,
+	/** Udział mocnych słów twierdzenia obecnych w przypadku. */
+	minStrongCoverage: 0.6,
+	/** Słowo częstsze niż ten udział przypadków (przy co najmniej 200 przypadkach) liczy się jako słabe. */
+	commonShare: 0.03,
+};
+
+function isWeakEnglish(token: string, index: KnownOpsIndex): boolean {
+	if (EN_WEAK.has(token) || /^#(19|20)\d\d$/.test(token) || /^#\d{1,2}$/.test(token)) return true;
+	return index.size >= 200 && (index.df.get(token) ?? 0) / index.size > EN_MATCH_RULES.commonShare;
+}
+
+function findByEnglishTerms(terms: string[], records: KnownOpRecord[], limit: number): KnownOpMatch[] {
+	const index = knownOpsIndex(records);
+	const claimTokens = englishTokens(terms.join(' '));
+	const strong = [...claimTokens].filter((t) => !isWeakEnglish(t, index));
+	if (claimTokens.size < EN_MATCH_RULES.minShared || strong.length < EN_MATCH_RULES.minStrong) return [];
+	const scored: Array<KnownOpMatch & { coverage: number }> = [];
+	index.docs.forEach((doc, i) => {
+		const strongShared = strong.filter((t) => doc.all.has(t));
+		if (strongShared.length < EN_MATCH_RULES.minStrong) return;
+		const coverage = strongShared.length / strong.length;
+		if (coverage < EN_MATCH_RULES.minStrongCoverage) return;
+		if (!strongShared.some((t) => doc.title.has(t))) return;
+		const shared = [...claimTokens].filter((t) => doc.all.has(t));
+		if (shared.length < EN_MATCH_RULES.minShared) return;
+		scored.push({ record: records[i]!, shared, coverage });
+	});
+	return scored
+		.sort((a, b) => b.coverage - a.coverage || b.shared.length - a.shared.length || (b.record.date ?? '').localeCompare(a.record.date ?? '') || a.record.id.localeCompare(b.record.id))
+		.slice(0, limit)
+		.map(({ record, shared }) => ({ record, shared }));
+}
+
+/**
+ * Podobne przypadki. Gdy twierdzenie ma `englishTerms` (krok wyodrębniania twierdzeń), dopasowanie
+ * idzie po angielskich słowach z ostrożnymi progami (EN_MATCH_RULES). Bez nich: kotwice z polskiego
+ * tekstu (nazwy własne, liczby, słownik PL->EN).
+ */
+export function findSimilarKnownOps(claim: MatchClaim, records: KnownOpRecord[], options: KnownOpMatchOptions = {}): KnownOpMatch[] {
 	const { limit = 2, minSharedAnchors = 2 } = options;
+	const english = (claim.englishTerms ?? []).map((t) => t.trim()).filter(Boolean);
+	if (english.length > 0) return findByEnglishTerms(english, records, limit);
 	const claimAnchors = anchorsOf([claim.text, ...(claim.searchTerms ?? [])].join('. '));
 	if (claimAnchors.size < minSharedAnchors) return [];
 	return records
@@ -277,21 +436,24 @@ export function findSimilarKnownOps(claim: Pick<ExtractedClaim, 'text' | 'search
 		.slice(0, limit);
 }
 
-/** Tekst dla obywatela: krótkie zdania, bez słów zakazanych i bez form "być". */
+/**
+ * Tekst dla obywatela: krótkie zdania, bez słów zakazanych i bez form "być".
+ * Tytuł przypadku w oryginale (po angielsku), bez tłumaczenia; data i odsyłacz do opisu.
+ */
 export function knownOpNoticeText(record: KnownOpRecord, asOf: string): string {
-	const title = (record.title || record.claim).replace(/[„”"]/g, "'").slice(0, 140);
+	const title = shorten((record.title || record.claim).replace(/[„”"«»]/g, "'").replace(/\s+/g, ' ').trim(), 140);
 	const parts = [
 		`Stan na ${asOf}.`,
-		`Podobną treść opisała wcześniej strona EUvsDisinfo, prowadzona przez służbę dyplomatyczną Unii Europejskiej.`,
-		`Tam nazwano ją fałszywą informacją.`,
-		`Tytuł opisu: „${title}”${record.date ? ` (${record.date})` : ''}.`,
+		'Podobne twierdzenie pojawiało się w znanych operacjach informacyjnych.',
+		'Opisała je strona EUvsDisinfo, prowadzona przy Unii Europejskiej.',
+		`Tytuł opisu po angielsku: „${title}”${record.date ? ` (${record.date})` : ''}.`,
 	];
 	if (record.url) parts.push(`Opis: ${record.url}`);
-	parts.push('Ta wskazówka nie mówi, czy Twoja wiadomość to prawda.', 'Opis po angielsku, więc podobieństwo może okazać się przypadkowe.');
+	parts.push('To tylko informacja, nie ocena.', 'Nie mówi, czy Twoja wiadomość to prawda.');
 	return parts.join(' ');
 }
 
-export function matchKnownOps(claim: Pick<ExtractedClaim, 'text' | 'searchTerms'>, records: KnownOpRecord[], options: KnownOpMatchOptions = {}): KnownOpNotice[] {
+export function matchKnownOps(claim: MatchClaim, records: KnownOpRecord[], options: KnownOpMatchOptions = {}): KnownOpNotice[] {
 	const asOf = (options.now ?? new Date()).toISOString().slice(0, 10);
 	return findSimilarKnownOps(claim, records, options).map(({ record }) => ({ type: 'dopasowanie_incydentu' as const, text: knownOpNoticeText(record, asOf) }));
 }
