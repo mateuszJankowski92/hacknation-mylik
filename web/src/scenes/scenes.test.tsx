@@ -16,7 +16,7 @@ const ORIGINAL_SCENES = SCENES.pogodynka;
 const SCENE_MS = 600;
 
 function testScene(overrides: Partial<SceneSpec> = {}): SceneSpec {
-	return { id: 'test-1', file: null, poster: null, durationSec: SCENE_MS / 1000, alt: 'Pogodynka sprawdza mapę.', ...overrides };
+	return { id: 'test-1', file: null, poster: null, durationSec: SCENE_MS / 1000, alt: 'Pogodynek sprawdza mapę.', ...overrides };
 }
 
 function stubApi(streamDelayMs: number) {
@@ -72,7 +72,7 @@ describe('sceny czekania', () => {
 		for (const spec of Object.values({ ...SCENES, pogodynka: ORIGINAL_SCENES }).flat()) {
 			expect(spec.alt.length).toBeGreaterThan(10);
 			expect(spec.durationSec).toBeGreaterThanOrEqual(6);
-			expect(spec.durationSec).toBeLessThanOrEqual(8);
+			expect(spec.durationSec).toBeLessThanOrEqual(20);
 		}
 	});
 

@@ -151,7 +151,7 @@ describe('scena przy pracy w hero', () => {
 		expect(HERO_SCENES.length).toBeGreaterThan(0);
 		for (const item of HERO_SCENES) {
 			expect(item.file).toMatch(/^\/postacie\/start\/.+\.mp4$/);
-			expect(item.poster).toMatch(/^\/postacie\/start\/.+\.png$/);
+			expect(item.poster).toMatch(/^\/postacie\/start\/.+\.webp$/);
 		}
 		const extra: ManifestEntry = { ...fromManifest[0], stan: 'nowy_klip', plik: 'postacie/start/nowy.mp4', plakat: 'postacie/start/nowy.png', petla: false };
 		const extended = heroScenesFor([...fromManifest, extra]);
@@ -187,6 +187,14 @@ describe('scena przy pracy w hero', () => {
 		for (const entry of heroEntries()) expect(['scena_otwierajaca', 'scena_czekania']).toContain(entry.rodzaj);
 	});
 
+	it('domyślna scena hero to scena otwierająca z manifestu, a sceny ról w niej nie grają', () => {
+		expect(HERO_SCENES.map((item) => item.id)).toEqual(['start-otwarcie']);
+		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__otwarcie.mp4');
+		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__otwarcie__plakat.webp');
+		expect(HERO_SCENES[0]?.loop).toBe(false);
+		for (const item of HERO_SCENES) expect(item.file).toMatch(/^\/postacie\/start\//);
+	});
+
 	it('odtwarza się po wejściu: wideo z plakatem, bez dźwięku, bez kontrolek', async () => {
 		stubLatest(0);
 		const { container } = render(<App />);
@@ -195,7 +203,7 @@ describe('scena przy pracy w hero', () => {
 		expect(video.muted).toBe(true);
 		expect(video.hasAttribute('playsinline')).toBe(true);
 		expect(video.hasAttribute('controls')).toBe(false);
-		expect(video.getAttribute('poster')).toMatch(/\.png$/);
+		expect(video.getAttribute('poster')).toMatch(/\.webp$/);
 		expect(video.getAttribute('src')).toMatch(/\.mp4$/);
 		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
 		expect(container.querySelector('.hero [role="img"]')?.getAttribute('aria-label')).toBeTruthy();
@@ -245,7 +253,7 @@ describe('scena przy pracy w hero', () => {
 		const { container } = render(<App />);
 		expect(container.querySelector('.hero video')).toBeNull();
 		const poster = container.querySelector('.hero img') as HTMLImageElement;
-		expect(poster.getAttribute('src')).toBe(HERO_SCENES.find((item) => item.loop)?.poster);
+		expect(poster.getAttribute('src')).toBe((HERO_SCENES.find((item) => item.loop) ?? HERO_SCENES[0])?.poster);
 		expect(poster.getAttribute('alt')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: SCENE_TEXTS.skip })).toBeNull();
 	});

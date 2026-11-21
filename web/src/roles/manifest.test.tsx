@@ -95,7 +95,7 @@ describe('manifest ilustracji', () => {
 			expect(SCENES[role].length).toBeGreaterThanOrEqual(1);
 			for (const scene of SCENES[role]) {
 				expect(scene.file).toMatch(/^\/postacie\/.+\.mp4$/);
-				expect(scene.poster).toMatch(/^\/postacie\/.+\.png$/);
+				expect(scene.poster).toMatch(/^\/postacie\/.+\.webp$/);
 				expect(scene.durationSec).toBeGreaterThan(3);
 				expect(scene.alt.length).toBeGreaterThan(5);
 			}
@@ -104,12 +104,32 @@ describe('manifest ilustracji', () => {
 		expect(sceneFromEntry(entry).file).toBe(assetUrl(entry.plik));
 	});
 
-	it('sceny wyniku są tylko dla czterech obrazów pogodynki', () => {
+	it('sceny wyniku ma każdy obraz wyniku pogodynki, a inne role ich nie mają', () => {
 		const withScene = RESULT_KEYS.filter((key) => resultSceneFor('pogodynka', key));
 		expect(withScene.sort()).toEqual(
-			['falszywe', 'nie_podlega_weryfikacji', 'potwierdzone', 'wprowadzajace_w_blad'].sort(),
+			[
+				'awaria_techniczna',
+				'brak_mozliwosci_sprawdzenia',
+				'brak_wystarczajacych_dowodow',
+				'falszywe',
+				'nie_podlega_weryfikacji',
+				'potwierdzone',
+				'wprowadzajace_w_blad',
+			].sort(),
 		);
+		expect(entriesFor('pogodynka', 'scena_wyniku')).toHaveLength(6);
+		expect(resultSceneFor('pogodynka', 'potrzeba_doprecyzowania')).toBeNull();
 		expect(resultSceneFor('sport', 'potwierdzone')).toBeNull();
+	});
+
+	it('scena otwierająca roli startowej to jeden klip bez pętli, z plakatem webp', () => {
+		const opening = entriesFor('start', 'scena_otwierajaca');
+		expect(opening).toHaveLength(1);
+		expect(opening[0]?.plik).toBe('postacie/start/scena__otwarcie.mp4');
+		expect(opening[0]?.plakat).toBe('postacie/start/scena__otwarcie__plakat.webp');
+		expect(opening[0]?.petla).toBe(false);
+		expect(opening[0]?.dlugosc_s).toBeGreaterThanOrEqual(8);
+		expect(opening[0]?.dlugosc_s).toBeLessThanOrEqual(12);
 	});
 });
 
@@ -125,11 +145,17 @@ describe('obraz wyniku z klipem', () => {
 		expect(container.querySelector('.result-image__art')).not.toBeNull();
 	});
 
-	it('brak klipu dla obrazu bez sceny wyniku', async () => {
-		const { container } = render(<ResultImage role="pogodynka" resultKey="brak_wystarczajacych_dowodow" />);
-		await new Promise((done) => setTimeout(done, 20));
-		expect(container.querySelector('video')).toBeNull();
-		expect(container.querySelector('.result-image__art')).not.toBeNull();
+	it('każdy obraz wyniku pogodynki ma klip, a stan bez obrazu nie rysuje nic', async () => {
+		for (const key of RESULT_KEYS) {
+			const { container, unmount } = render(<ResultImage role="pogodynka" resultKey={key} />);
+			if (key === 'potrzeba_doprecyzowania') {
+				expect(container.querySelector('figure')).toBeNull();
+			} else {
+				await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+				expect(container.querySelector('.result-image__art')).not.toBeNull();
+			}
+			unmount();
+		}
 	});
 
 	it('pominięcie animacji zostawia sam nieruchomy obraz', async () => {
