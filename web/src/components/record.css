@@ -1,0 +1,162 @@
+.record-claim,
+.record-card,
+.record-shortanswer {
+	margin: 1.5rem 0;
+	padding: 1rem;
+	border: 2px solid var(--border);
+	border-radius: 0.5rem;
+	background: var(--surface);
+}
+
+.record-claim__claim {
+	margin-top: 0;
+}
+
+.record-claim__label {
+	display: block;
+	font-size: 0.85rem;
+	font-weight: 400;
+	color: var(--muted);
+}
+
+.record-claim__mylik {
+	margin: 1rem 0;
+	padding: 0.75rem 1rem;
+	border: 2px dashed var(--info-fg);
+	border-radius: 0.5rem;
+	background: var(--info-bg);
+	color: var(--info-fg);
+}
+
+.record-claim__mylik h4,
+.record-claim__sources h4 {
+	margin-top: 0;
+}
+
+.record-claim__note {
+	margin: 0 0 0.5rem;
+	font-size: 0.9rem;
+	font-style: italic;
+}
+
+.record-claim__sources {
+	margin: 1rem 0;
+	padding: 0.75rem 1rem;
+	border: 2px solid var(--border);
+	border-radius: 0.5rem;
+	background: var(--bg);
+	color: var(--text);
+}
+
+.record-claim__group h5 {
+	margin: 1rem 0 0.25rem;
+	font-size: 1rem;
+}
+
+.record-claim__group--za h5 {
+	color: var(--ok-fg);
+}
+
+.record-claim__group--przeciw h5 {
+	color: var(--danger-fg);
+}
+
+.record-claim__group--kontekst h5 {
+	color: var(--warn-fg);
+}
+
+.record-evidence-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.record-evidence {
+	margin: 0.75rem 0;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--border);
+}
+
+.record-evidence__archival {
+	padding: 0.5rem 0.75rem;
+	border: 2px dashed var(--warn-fg);
+	background: var(--warn-bg);
+	color: var(--warn-fg);
+	border-radius: 0.5rem;
+}
+
+.record-evidence__mismatch {
+	margin: 0.25rem 0;
+	font-weight: 700;
+}
+
+.record-evidence__quote {
+	margin: 0.5rem 0;
+	padding: 0.25rem 1rem;
+	border-left: 6px solid var(--border);
+}
+
+.record-evidence__quote p {
+	margin: 0.25rem 0;
+}
+
+.record-evidence__meta {
+	margin: 0.5rem 0;
+	display: grid;
+	gap: 0.25rem;
+	color: var(--muted);
+	font-size: 0.9rem;
+}
+
+.record-evidence__meta dt {
+	display: inline;
+	font-weight: 700;
+}
+
+.record-evidence__meta dt::after {
+	content: ': ';
+}
+
+.record-evidence__meta dd {
+	display: inline;
+	margin: 0;
+}
+
+.record-claim__limits {
+	margin: 1rem 0 0;
+	padding: 0.75rem 1rem;
+	border: 2px solid var(--warn-fg);
+	border-radius: 0.5rem;
+	background: var(--warn-bg);
+	color: var(--warn-fg);
+}
+
+.record-claim__limits h4 {
+	margin-top: 0;
+}
+
+.record-card__image {
+	display: block;
+	width: 100%;
+	height: auto;
+	max-width: 600px;
+	border: 2px solid var(--border);
+	border-radius: 0.5rem;
+	background: #ffffff;
+}
+
+.record-card__download {
+	display: inline-block;
+	padding: 0.5rem 1rem;
+	border: 2px solid var(--primary);
+	border-radius: 0.5rem;
+	font-weight: 700;
+}
+
+@media (max-width: 600px) {
+	.record-claim,
+	.record-card,
+	.record-shortanswer {
+		padding: 0.75rem;
+	}
+}

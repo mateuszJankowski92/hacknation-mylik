@@ -1,20 +1,30 @@
 import type { VerificationRecord } from '../../../src/contracts/record';
-import { formatDateTime, shortId } from '../format';
-import { ClaimCard } from './ClaimCard';
+import { formatDate, formatDateTime, shortId } from '../format';
+import { RecordCardImage } from './RecordCardImage';
+import { RecordClaim } from './RecordClaim';
+import './record.css';
 
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
 	const permalink = `#/rekord/${record.id}`;
+	const asOfLabel = `Stan na ${formatDate(record.asOf)}.`;
 
 	return (
 		<div className="record">
+			<p className="record__asof">{asOfLabel}</p>
+
 			{record.claims.length === 0 && (
-				<p className="notice">Nie wyodrębniłem z tej treści żadnego twierdzenia do sprawdzenia.</p>
+				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
 			)}
 			{record.claims.length > 1 && <p>Znalazłem w tej treści {record.claims.length} twierdzenia. Oceniam każde osobno.</p>}
 			{record.claims.map((result) => (
-				<ClaimCard key={result.claim.id} result={result} />
+				<RecordClaim key={result.claim.id} result={result} asOfLabel={asOfLabel} />
 			))}
+
+			<section className="record-shortanswer" aria-label="Krótka odpowiedź">
+				<h3>Krótka odpowiedź</h3>
+				<p>{record.shortAnswer}</p>
+			</section>
 
 			{record.notices.length > 0 && (
 				<section className="record__notices" aria-label="Dodatkowe uwagi">
@@ -26,6 +36,10 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					</ul>
 				</section>
 			)}
+
+			{record.claims.map((result, index) => (
+				<RecordCardImage key={result.claim.id} id={record.id} claimNumber={index + 1} verdict={result.verdict} />
+			))}
 
 			<footer className="record__footer">
 				<p>
