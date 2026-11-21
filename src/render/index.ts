@@ -22,7 +22,7 @@ import { buildResultLayout } from './layout';
 import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 
-export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, pickLayoutEvidence, type ResultLayout } from './layout';
+export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, buildUncertaintyNote, isUnmeasurable, pickLayoutEvidence, type ResultLayout } from './layout';
 export * from './warning';
 export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measureLanguage } from './metrics';
 
@@ -53,7 +53,12 @@ function join(...parts: string[]): string {
 	return parts.filter((p) => p.length > 0).join(' ');
 }
 
-export function renderShortAnswer(record: VerificationRecord, cardUrl: string): string {
+function currentRecordUrl(cardUrl: string): string {
+	return cardUrl.replace('/#/rekord/', '/r/');
+}
+
+export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string): string {
+	const cardUrl = currentRecordUrl(rawCardUrl);
 	const lead = leadClaim(record);
 	const asOf = asOfStamp(record.asOf);
 	const tail = `${EVIDENCE_LINK_TEXT}: ${cardUrl}`;
@@ -70,7 +75,7 @@ export function renderShortAnswer(record: VerificationRecord, cardUrl: string): 
 			publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
 			quote,
 		});
-		const certainty = layout.certainty ? `${layout.certainty}.` : '';
+		const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
 		const text = join(layout.headline, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
 		if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
 	}

@@ -14,7 +14,7 @@ const CARD_CSP = "default-src 'none'; style-src 'unsafe-inline'; sandbox";
 
 export function cardUrlFor(baseUrl: string | undefined, id: string): string {
 	const base = (baseUrl ?? '').replace(/\/+$/, '');
-	return `${base}/#/rekord/${id}`;
+	return `${base}/r/${id}`;
 }
 
 export function createCardApp(deps: CardDeps): Hono {

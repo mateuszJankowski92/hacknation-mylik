@@ -22,6 +22,7 @@ export function nSources(n: number): string {
 }
 
 export function strengthSentence(level: StrengthLevel, reasons: StrengthReasonCode[]): string {
+	if (level === 'brak') return 'Nie znalazłem w sprawdzonych źródłach podstawy do oceny.';
 	const why = reasons.map((r) => REASON_PHRASES[r]).join(', ');
 	const head = `${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[level]}.`;
 	return why ? `${head} Powody: ${why}.` : head;
@@ -45,8 +46,18 @@ export function asOfStamp(asOf: string): string {
 	return `Stan na ${parts.day}.${parts.month}.${parts.year}, ${parts.hour}:${parts.minute}.`;
 }
 
+const WARSAW_DAY = new Intl.DateTimeFormat('pl-PL', {
+	timeZone: 'Europe/Warsaw',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+});
+
 export function asOfSentence(asOf: string): string {
-	return `Stan na ${formatDate(asOf)}.`;
+	const date = asOf.includes('T') ? new Date(asOf) : null;
+	if (!date || Number.isNaN(date.getTime())) return `Stan na ${formatDate(asOf)}.`;
+	const parts = Object.fromEntries(WARSAW_DAY.formatToParts(date).map((part) => [part.type, part.value]));
+	return `Stan na ${parts.day}.${parts.month}.${parts.year}.`;
 }
 
 export const VERDICT_SENTENCES: Record<Verdict, (source: string, date: string) => string> = {

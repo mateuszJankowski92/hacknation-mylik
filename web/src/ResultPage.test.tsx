@@ -141,7 +141,10 @@ describe('wynik "brak wystarczających dowodów"', () => {
 		const outcome = FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow as { kind: 'record'; record: VerificationRecord };
 		const { container } = render(<RecordView record={outcome.record} />);
 		expect(container.querySelector('.confidence__needle')).toBeNull();
-		expect(container.querySelector('.verdict__certainty')?.textContent).toContain('tego nie da się ocenić');
+		expect(container.querySelector('.verdict__certainty')).toBeNull();
+		expect(container.textContent).not.toContain('Na ile to pewne');
+		expect(container.textContent).not.toContain('wcale');
+		expect(container.querySelector('.verdict__note')?.textContent).toMatch(/zajrzyj na stronę właściwego urzędu/);
 		expect(container.querySelector('.record-claim__abstain p')?.textContent).toMatch(/Sprawdziłem zbiór źródeł/);
 	});
 

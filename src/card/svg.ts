@@ -132,6 +132,7 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 				headline: 'Nie znalazłem w zgłoszeniu nic do sprawdzenia.',
 				label: 'brak twierdzenia do oceny',
 				certainty: null,
+				uncertaintyNote: null,
 				asOf: asOfStamp(record.asOf),
 				evidenceLink: EVIDENCE_LINK_TEXT,
 			};

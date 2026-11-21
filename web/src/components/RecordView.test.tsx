@@ -23,7 +23,9 @@ describe('RecordView', () => {
 			const { container } = render(<RecordView record={record(verdict)} />);
 			expect(screen.getByText(VERDICT_LABELS_PL[verdict])).toBeTruthy();
 			expect(container.querySelector('.record-claim__headline')?.textContent?.length).toBeGreaterThan(10);
-			expect(container.querySelector('.verdict__certainty') !== null).toBe(verdict !== 'nie_podlega_weryfikacji');
+			expect(container.querySelector('.verdict__certainty') !== null).toBe(
+				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',
+			);
 			expect(screen.getAllByText('Stan na 10.01.2026, 09:30.').length).toBeGreaterThan(0);
 		});
 	}

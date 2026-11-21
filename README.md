@@ -30,7 +30,7 @@ curl -s -X POST localhost:8787/sms/webhook -H 'content-type: application/json' \
 curl -s localhost:8787/api/stats
 ```
 
-Symulator SMS w przeglądarce: `http://localhost:8787/sms`.
+Adapter SMS (w prototypie: symulator) jest w przeglądarce pod `http://localhost:8787/sms`. Prototyp nie ma bramki operatora: SMS nie działa pod prawdziwym numerem, a `POST /sms/webhook` jest tylko punktem, do którego bramka mogłaby kiedyś wysyłać wiadomości (koszt: `src/sms/KOSZT.md`). Odsyłacz w odpowiedzi SMS wskazuje stronę wyniku `/r/<id>` (z `PUBLIC_BASE_URL`, jeśli ustawiony). Godzina w odpowiedziach jest podawana w czasie polskim (Europe/Warsaw).
 
 Pozostałe polecenia: `npm test` (testy, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
@@ -96,7 +96,7 @@ Uwaga: `.env.example` ma `LLM_PROVIDER=anthropic`. Bez klucza zmień to w `.env`
 - Limit czasu na zgłoszenie: 22 s (`DEFAULT_DEADLINE_MS` w `src/engine/pipeline.ts`). Po nim obywatel dostaje stan „awaria techniczna” (detal `deadline`), nigdy werdykt; rekord nie jest zapisywany.
 - Model nigdy nie podaje URL-i ani metadanych źródeł; widzi tylko identyfikator i treść fragmentu. Metadane wstawia kod z bazy.
 - Brak klucza, limit, wyjątek to zawsze stan techniczny (`kind: "state"`), nigdy werdykt. Wykryte sygnały prompt injection trafiają do rekordu i do logu zdarzeń (tabela `events`, bez treści zgłoszeń).
-- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu).
+- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (adapter SMS, w prototypie: symulator; JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu, bez operatora).
 - Nagłówki bezpieczeństwa: CSP ograniczone do własnego originu, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`; brak CORS. Log na stdout: jedna linia na żądanie (metoda, ścieżka, status, czas), bez treści zgłoszeń i sekretów.
 
 ## Struktura katalogów

@@ -18,7 +18,7 @@ import {
 	renderShortAnswer,
 	renderStateMessage,
 } from '../../src/render/index';
-import { asOfStamp } from '../../src/render/templates';
+import { asOfSentence, asOfStamp } from '../../src/render/templates';
 import { buildHeadline } from '../../src/render/layout';
 import { VERDICT_SENTENCES, strengthSentence } from '../../src/render/templates';
 import {
@@ -222,7 +222,8 @@ describe('prosty język', () => {
 		}
 		for (const c of SCENARIOS) {
 			const text = renderShortAnswer(record([c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
-			expect(text).toContain(buildHeadline(c, { publisher: 30, quote: 60 }).split(':')[0]!);
+			const heads = [12, 20, 30, 40, 50, 60].map((publisher) => buildHeadline(c, { publisher, quote: 60 }).split(':')[0]!);
+			expect(heads.some((head) => text.includes(head)), text).toBe(true);
 		}
 		expect(VERDICT_EXPLANATIONS_PL.brak_wystarczajacych_dowodow).toBe(
 			'Nie znalazłem tego w sprawdzonych źródłach. Nie wiem, czy to prawda.',
@@ -237,10 +238,11 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 	it('SMS: zdanie główne, potem mała etykieta, pewność, data i odsyłacz', () => {
 		for (const c of SCENARIOS.filter((x) => x.verdict !== 'nie_podlega_weryfikacji')) {
 			const t = text(c);
+			const abstain = c.verdict === 'brak_wystarczajacych_dowodow';
 			const order = [
-				t.indexOf(c.verdict === 'brak_wystarczajacych_dowodow' ? 'Nie ' : 'podał'),
+				t.indexOf(abstain ? 'Nie ' : 'podał'),
 				t.indexOf(`[${VERDICT_LABELS_PL[c.verdict]}]`),
-				t.indexOf('Na ile to pewne: średnio'),
+				abstain ? t.indexOf('zajrzyj na stronę właściwego urzędu') : t.indexOf('Na ile to pewne: średnio'),
 				t.indexOf('Stan na'),
 				t.indexOf('Zobacz, skąd to wiem'),
 			];
@@ -266,5 +268,18 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 	it('etykieta w stanie na zawiera godzinę w czasie polskim', () => {
 		expect(asOfStamp('2026-11-21T11:05:00Z')).toBe('Stan na 21.11.2026, 12:05.');
 		expect(asOfStamp('2026-11-21')).toBe('Stan na 21.11.2026.');
+	});
+
+	it('godzina: zimą CET (+1), latem CEST (+2), data po północy też w czasie polskim', () => {
+		expect(asOfStamp('2026-01-15T10:00:00Z')).toBe('Stan na 15.01.2026, 11:00.');
+		expect(asOfStamp('2026-07-15T10:00:00Z')).toBe('Stan na 15.07.2026, 12:00.');
+		expect(asOfSentence('2026-11-21T23:30:00Z')).toBe('Stan na 22.11.2026.');
+	});
+
+	it('brak dowodów: bez wskaźnika i bez słowa "wcale", jedno zdanie co dalej', () => {
+		const t = text(SCENARIOS[3]!);
+		expect(t).not.toContain('Na ile to pewne');
+		expect(t).not.toContain('wcale');
+		expect(t).toContain('zajrzyj na stronę właściwego urzędu');
 	});
 });

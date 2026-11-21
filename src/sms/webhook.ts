@@ -18,6 +18,7 @@ const MESSAGES = {
 
 export interface SmsDeps {
 	engine: Engine;
+	publicBaseUrl?: string;
 	logEvent?: (type: string, detail: Record<string, string | number | boolean | null>) => void;
 }
 
@@ -51,8 +52,15 @@ async function readPayload(request: Request): Promise<Record<string, unknown> | 
 	return null;
 }
 
-function outcomeToText(outcome: VerifyOutcome): string {
-	return outcome.kind === 'record' ? outcome.record.shortAnswer : outcome.message;
+const RELATIVE_RECORD_LINK = /(^|\s)(?:\/#\/rekord|\/r)\/([0-9a-f]{64})/gu;
+
+export function normalizeRecordLinks(text: string, publicBaseUrl?: string): string {
+	const base = (publicBaseUrl ?? '').replace(/\/+$/u, '');
+	return text.replace(RELATIVE_RECORD_LINK, (_match, lead: string, id: string) => `${lead}${base}/r/${id}`);
+}
+
+function outcomeToText(outcome: VerifyOutcome, publicBaseUrl?: string): string {
+	return outcome.kind === 'record' ? normalizeRecordLinks(outcome.record.shortAnswer, publicBaseUrl) : outcome.message;
 }
 
 function textResponse(body: string, status: 200 | 400 | 413 = 200): Response {
@@ -88,7 +96,7 @@ export function createSmsApp(deps: SmsDeps): Hono {
 				}
 				return textResponse(MESSAGES.technical);
 			}
-			return textResponse(outcomeToText(outcome));
+			return textResponse(outcomeToText(outcome, deps.publicBaseUrl));
 		},
 	);
 

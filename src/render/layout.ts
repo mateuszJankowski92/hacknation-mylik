@@ -13,6 +13,7 @@ export interface ResultLayout {
 	headline: string;
 	label: string;
 	certainty: string | null;
+	uncertaintyNote: string | null;
 	asOf: string;
 	evidenceLink: string;
 }
@@ -79,14 +80,27 @@ export function buildHeadline(claim: ClaimResult, limits: LayoutLimits = {}): st
 	return quote ? `${lead}: „${quote}”` : `${lead}.`;
 }
 
+export function isUnmeasurable(claim: ClaimResult): boolean {
+	return claim.verdict === 'brak_wystarczajacych_dowodow' || (claim.verdict !== 'nie_podlega_weryfikacji' && claim.strength.level === 'brak');
+}
+
+export function buildUncertaintyNote(claim: ClaimResult): string | null {
+	if (!isUnmeasurable(claim)) return null;
+	const confirming = claim.evidence.some((item) => item.stance === 'potwierdza');
+	const refuting = claim.evidence.some((item) => item.stance === 'obala');
+	if (confirming && refuting) return 'Źródła mówią co innego, więc zajrzyj na stronę właściwego urzędu.';
+	return 'Nie znalazłem tego w sprawdzonych źródłach, więc zajrzyj na stronę właściwego urzędu.';
+}
+
 export function buildResultLayout(claim: ClaimResult, asOf: string, limits: LayoutLimits = {}): ResultLayout {
 	return {
 		headline: buildHeadline(claim, limits),
 		label: VERDICT_LABELS_PL[claim.verdict],
 		certainty:
-			claim.verdict === 'nie_podlega_weryfikacji'
+			claim.verdict === 'nie_podlega_weryfikacji' || isUnmeasurable(claim)
 				? null
 				: `${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[claim.strength.level]}`,
+		uncertaintyNote: buildUncertaintyNote(claim),
 		asOf: asOfStamp(asOf),
 		evidenceLink: EVIDENCE_LINK_TEXT,
 	};

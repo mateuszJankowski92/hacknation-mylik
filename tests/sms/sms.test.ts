@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Engine, VerifyInput, VerifyOutcome } from '../../src/contracts/index';
-import { createSmsApp, SMS_MAX_CHARS } from '../../src/sms/index';
+import { createSmsApp, normalizeRecordLinks, SMS_MAX_CHARS } from '../../src/sms/index';
 
 function fakeEngine(): { engine: Engine; calls: VerifyInput[] } {
 	const calls: VerifyInput[] = [];
@@ -116,5 +116,23 @@ describe('sms', () => {
 		const html = await res.text();
 		expect(html).toContain('/sms/webhook');
 		expect(html).toContain('symulator');
+	});
+});
+
+describe('odsyłacz do strony wyniku', () => {
+	const id = 'a'.repeat(64);
+
+	it('zamienia starą trasę na /r/<id> z publicznym adresem', () => {
+		expect(normalizeRecordLinks(`Zobacz: /#/rekord/${id}`, 'https://mylik.example/')).toBe(`Zobacz: https://mylik.example/r/${id}`);
+	});
+
+	it('bez adresu publicznego zostaje względny /r/<id>', () => {
+		expect(normalizeRecordLinks(`Zobacz: /#/rekord/${id}`)).toBe(`Zobacz: /r/${id}`);
+		expect(normalizeRecordLinks(`Zobacz: /r/${id}`, 'https://mylik.example')).toBe(`Zobacz: https://mylik.example/r/${id}`);
+	});
+
+	it('nie dubluje adresu, który już ma host', () => {
+		const text = `Zobacz: https://mylik.example/r/${id}`;
+		expect(normalizeRecordLinks(text, 'https://mylik.example')).toBe(text);
 	});
 });

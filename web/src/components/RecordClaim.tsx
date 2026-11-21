@@ -10,7 +10,6 @@ import { citizenText, extractCheckStats } from '../../../src/render/citizen';
 import { countNoun } from '../../../src/render/plural';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
-import { EmptyCertainty, EMPTY_CERTAINTY_HEADING, EMPTY_CERTAINTY_TITLE } from '../visuals/EmptyCertainty';
 import { ErrorDots } from '../visuals/ErrorDots';
 import type { Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
@@ -129,22 +128,6 @@ function Refutation({ result }: { result: ClaimResult }) {
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
 
-export function emptyCertaintySentence(result: ClaimResult): string {
-	const same = result.evidence.filter((item) => item.stance === 'potwierdza').length;
-	const other = result.evidence.filter((item) => item.stance === 'obala').length;
-	if (same === 0 && other === 0) {
-		return 'Nie znalazłem w sprawdzonych źródłach nic, co mówi to samo, ani nic, co mówi co innego.';
-	}
-	if (same > 0 && other > 0) {
-		return `Źródła mówią różne rzeczy: to samo ${countNoun(same, 'zrodlo')}, co innego ${countNoun(other, 'zrodlo')}. Dlatego nie da się ocenić, na ile to pewne.`;
-	}
-	return 'Znalazłem za mało, żeby ocenić, na ile to pewne.';
-}
-
-function isUnmeasurable(result: ClaimResult): boolean {
-	return result.verdict === 'brak_wystarczajacych_dowodow' || result.strength.level === 'brak';
-}
-
 interface RecordClaimProps {
 	result: ClaimResult;
 	asOf: string;
@@ -165,8 +148,7 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 	const limitations = rawLimitations.map(citizenText).filter(Boolean);
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
-	const unmeasurable = isUnmeasurable(result);
-	const certainty = unmeasurable && layout.certainty ? `${EMPTY_CERTAINTY_TITLE}: ${EMPTY_CERTAINTY_HEADING}` : layout.certainty;
+	const certainty = layout.certainty;
 	const detailsRef = useRef<HTMLDetailsElement>(null);
 
 	function showDetails() {
@@ -195,6 +177,7 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 					<strong>{layout.label}</strong>
 				</p>
 				{certainty && <p className="verdict__certainty">{certainty}</p>}
+				{layout.uncertaintyNote && <p className="verdict__note">{layout.uncertaintyNote}</p>}
 			</div>
 
 			<p className="record-claim__asof">{layout.asOf}</p>
@@ -229,8 +212,7 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 								</p>
 							)}
 							<p>{citizenText(result.explanation)}</p>
-							{layout.certainty && unmeasurable && <EmptyCertainty sentence={emptyCertaintySentence(result)} />}
-							{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
+							{layout.certainty && <ConfidenceGauge strength={result.strength} />}
 							<Refutation result={result} />
 							{profile && profile.total > 0 && <ErrorDots profile={profile} />}
 						</section>

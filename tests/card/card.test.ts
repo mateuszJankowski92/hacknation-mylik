@@ -10,7 +10,7 @@ function fixtureRecord(key: string): VerificationRecord {
 	return outcome.record;
 }
 
-const CARD_URL = 'https://mylik.example/#/rekord/abc';
+const CARD_URL = 'https://mylik.example/r/abc';
 
 describe('escapeXml', () => {
 	it('ucieka znaki specjalne i usuwa znaki sterujące', () => {
@@ -134,7 +134,7 @@ describe('createCardApp', () => {
 		expect(res.headers.get('content-disposition')).toContain('inline');
 		expect(res.headers.get('content-security-policy')).toContain("default-src 'none'");
 		const body = await res.text();
-		expect(body).toContain(`https://mylik.example/#/rekord/${record.id}`.slice(0, 40));
+		expect(body).toContain(`https://mylik.example/r/${record.id}`.slice(0, 40));
 	});
 
 	it('wymusza pobranie z ?download=1', async () => {
