@@ -16,7 +16,11 @@ import type { LiveSearchHit, LiveSearcher } from './search';
 import type { LiveSource, LiveSourceList } from './sources';
 
 /** Najwyżej tyle stron pobieramy dla jednego twierdzenia. */
-export const LIVE_MAX_PAGES = 3;
+export const LIVE_MAX_PAGES = 4;
+/** Najwyżej tyle stron jednego serwisu w jednej rundzie pobierania (różnorodność źródeł). */
+export const LIVE_PER_SOURCE = 2;
+/** Najwyżej tyle rund pobierania (druga tylko, gdy pierwsza nie dała żadnej strony z treścią). */
+export const LIVE_ROUNDS = 2;
 /** Najwyżej tyle fragmentów z jednej strony i łącznie idzie do oceny. */
 export const LIVE_PASSAGES_PER_PAGE = 2;
 export const LIVE_MAX_PASSAGES = 6;
@@ -144,12 +148,19 @@ class Timeout extends Error {}
 export function createLiveLayer(opts: LiveLayerOptions): LiveLayer {
   const { sources, searcher, fetchPage } = opts;
   const maxPages = opts.maxPages ?? LIVE_MAX_PAGES;
-  const robotsCache = new Map<string, { at: number; rules: RobotsRules | null }>();
+  const robotsCache = new Map<string, { at: number; rules: Promise<RobotsRules | null> }>();
 
-  /** Reguły robots.txt; `null` = nie wolno pobierać (błąd serwera lub sieci: ostrożnie). */
-  async function robotsFor(origin: string): Promise<RobotsRules | null> {
+  /** Reguły robots.txt (jedno pobranie na serwis naraz, pamięć na godzinę). */
+  function robotsFor(origin: string): Promise<RobotsRules | null> {
     const hit = robotsCache.get(origin);
     if (hit && Date.now() - hit.at < ROBOTS_TTL_MS) return hit.rules;
+    const rules = readRobots(origin);
+    robotsCache.set(origin, { at: Date.now(), rules });
+    return rules;
+  }
+
+  /** `null` = nie wolno pobierać (błąd serwera lub sieci: ostrożnie); brak pliku (4xx) albo pusty = wolno. */
+  async function readRobots(origin: string): Promise<RobotsRules | null> {
     let rules: RobotsRules | null;
     const r = await fetchPage(`${origin}/robots.txt`).catch(() => ({ ok: false as const, reason: 'blad_sieci' as const }));
     if (r.ok) rules = parseRobots(r.text);
@@ -157,7 +168,6 @@ export function createLiveLayer(opts: LiveLayerOptions): LiveLayer {
       rules = { disallow: [], allow: [], crawlDelayMs: 0 };
     else if (r.reason === 'pusta_tresc' || r.reason === 'zly_typ_tresci') rules = { disallow: [], allow: [], crawlDelayMs: 0 };
     else rules = null;
-    robotsCache.set(origin, { at: Date.now(), rules });
     return rules;
   }
 
@@ -188,16 +198,36 @@ export function createLiveLayer(opts: LiveLayerOptions): LiveLayer {
       if (seen.has(key)) continue;
       seen.add(key);
       chosen.push({ hit, source });
-      if (chosen.length >= maxPages) break;
     }
     if (chosen.length === 0) {
       out.status = res.errorCode ? 'blad_wyszukiwania' : 'brak_wynikow';
       return;
     }
-
+    // Kolejność pobierania: najpierw strony, których tytuł z wyników najlepiej pasuje do twierdzenia
+    // (przy remisie kolejność wyszukiwarki), najwyżej LIVE_PER_SOURCE stron jednego serwisu w rundzie.
+    // Druga runda (te same zasady) tylko, gdy pierwsza nie dała żadnej strony z treścią.
     const terms = claimTerms(claim);
-    const perPage = await Promise.all(
-      chosen.map(async ({ hit, source }, pageIndex) => {
+    const queue = chosen
+      .map((c, i) => ({ ...c, i, score: relevance(c.hit.title, terms) }))
+      .sort((a, b) => b.score - a.score || a.i - b.i);
+    const takeRound = () => {
+      const perSource = new Map<string, number>();
+      const round: typeof queue = [];
+      for (let k = 0; k < queue.length && round.length < maxPages; ) {
+        const c = queue[k]!;
+        const n = perSource.get(c.source.id) ?? 0;
+        if (n >= LIVE_PER_SOURCE) {
+          k++;
+          continue;
+        }
+        perSource.set(c.source.id, n + 1);
+        round.push(c);
+        queue.splice(k, 1);
+      }
+      return round;
+    };
+
+    const fetchOne = async ({ hit, source }: (typeof queue)[number], pageIndex: number) => {
         const url = new URL(hit.url);
         const rules = await robotsFor(url.origin);
         if (!rules || !isAllowedByRobots(rules, url)) {
@@ -237,8 +267,13 @@ export function createLiveLayer(opts: LiveLayerOptions): LiveLayer {
           .sort((a, b) => b.score - a.score || a.n - b.n)
           .slice(0, LIVE_PASSAGES_PER_PAGE);
         return scored.map((c) => ({ passage: { id: `${docId}#${c.n}`, documentId: docId, text: c.text, meta } as Passage, score: c.score, pageIndex }));
-      }),
-    );
+    };
+    let perPage: Awaited<ReturnType<typeof fetchOne>>[] = [];
+    for (let r = 0, offset = 0; r < LIVE_ROUNDS && out.pages === 0 && queue.length > 0; r++) {
+      const round = takeRound();
+      perPage = perPage.concat(await Promise.all(round.map((c, j) => fetchOne(c, offset + j))));
+      offset += round.length;
+    }
     // Kolejność: po trafności, przy remisie po pozycji w wynikach wyszukiwania.
     const all = perPage.flat().sort((a, b) => b.score - a.score || a.pageIndex - b.pageIndex);
     for (const { passage } of all) {
