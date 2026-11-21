@@ -689,7 +689,11 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_TIMEOUT_NOTICE });
           return { ...out, searched: false };
         }
-        return { ...out, accepted: r.accepted, rejected: r.rejected };
+        // Reguły doboru dowodów drugiej warstwy (src/live, np. tylko "potwierdza", zgodność zdarzenia).
+        const sel = layer.select ? layer.select(claim, r.accepted, nowDate) : { accepted: r.accepted };
+        for (const n of sel.notices ?? []) side.notices.push(n);
+        if (sel.dropped) store.logEvent('live_search', { recordId, channel, detail: { claimId: claim.id, status: 'odrzucone_regulami', dropped: sel.dropped, ...(sel.reasons ?? {}) } });
+        return { ...out, accepted: sel.accepted, rejected: r.rejected + (sel.dropped ?? 0) };
       } catch (e) {
         if (e instanceof DeadlineExceeded) throw e;
         store.logEvent('live_search', { recordId, channel, detail: { claimId: claim.id, status: 'blad_oceny', code: technicalDetail(e) } });

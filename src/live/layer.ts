@@ -9,7 +9,9 @@
 import { sha256Hex, type ExtractedClaim, type LlmUsage, type Passage, type SourceMeta } from '../contracts/index';
 import { chunkText } from '../corpus/chunk';
 import { isAllowedByRobots, parseRobots, type RobotsRules } from '../corpus/crawl';
+import type { AcceptedEvidence } from '../engine/citations';
 import type { PageFetcher } from '../engine/fetch/index';
+import type { Notice } from '../contracts/index';
 import { detectInjectionSignals, type InjectionSignalCode } from '../engine/injection';
 import { cleanText } from '../input/normalize';
 import type { LiveSearchHit, LiveSearcher } from './search';
@@ -52,6 +54,15 @@ export interface LiveFindResult {
   errorCode?: string;
 }
 
+export interface LiveSelection {
+  accepted: AcceptedEvidence[];
+  notices?: Notice[];
+  /** Ile dowodów odrzucono regułami doboru. */
+  dropped?: number;
+  /** Liczniki powodów odrzucenia (kody, bez treści). */
+  reasons?: Record<string, number>;
+}
+
 export interface LiveFindOptions {
   /** Limit czasu tego wywołania (ms). */
   budgetMs: number;
@@ -63,6 +74,11 @@ export interface LiveLayer {
   /** Domyślny limit czasu na twierdzenie. */
   readonly budgetMs: number;
   find(claim: ExtractedClaim, opts: LiveFindOptions): Promise<LiveFindResult>;
+  /**
+   * Dobór dowodów po ocenie i bramkach (opcjonalny): które dowody drugiej warstwy wolno użyć.
+   * Wołany przez silnik dla dowodów z TEJ warstwy; może tylko odrzucać (nie dodaje ani nie zmienia stanowisk).
+   */
+  select?(claim: ExtractedClaim, accepted: AcceptedEvidence[], now: Date): LiveSelection;
 }
 
 export interface LiveLayerOptions {
