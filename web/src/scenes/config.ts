@@ -1,4 +1,5 @@
 import type { Role } from '../roles/config';
+import { assetUrl, entriesFor, ASSET_DIRECTORY, type ManifestEntry } from '../roles/manifest';
 
 export interface SceneSpec {
 	id: string;
@@ -53,10 +54,25 @@ function placeholderScenes(role: Role): SceneSpec[] {
 	}));
 }
 
+export function sceneFromEntry(entry: ManifestEntry): SceneSpec {
+	return {
+		id: `${entry.rola}-${entry.stan}`,
+		file: assetUrl(entry.plik),
+		poster: entry.plakat ? assetUrl(entry.plakat) : null,
+		durationSec: entry.dlugosc_s ?? 6,
+		alt: entry.alt,
+	};
+}
+
+function manifestScenes(role: Role): SceneSpec[] {
+	const scenes = entriesFor(ASSET_DIRECTORY[role], 'scena_czekania').map(sceneFromEntry);
+	return scenes.length > 0 ? scenes : placeholderScenes(role);
+}
+
 export const SCENES: Record<Role, SceneSpec[]> = {
-	pogodynka: placeholderScenes('pogodynka'),
-	bibliotekarka: placeholderScenes('bibliotekarka'),
-	sport: placeholderScenes('sport'),
+	pogodynka: manifestScenes('pogodynka'),
+	bibliotekarka: manifestScenes('bibliotekarka'),
+	sport: manifestScenes('sport'),
 };
 
 export function pickScene(role: Role, random: () => number = Math.random): SceneSpec {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { artCandidates, type ArtName, type ArtOwner } from './config';
 import { drawingFor } from './drawings';
+import { imageEntryFor, imageUrlFor } from './manifest';
 import './roles.css';
 
 const resolvedFiles = new Map<string, string | null>();
@@ -17,7 +18,9 @@ function probe(url: string): Promise<boolean> {
 async function findArtFile(owner: ArtOwner, name: ArtName): Promise<string | null> {
 	const key = `${owner}/${name}`;
 	if (resolvedFiles.has(key)) return resolvedFiles.get(key) ?? null;
-	for (const url of artCandidates(owner, name)) {
+	const manifestUrl = imageUrlFor(owner, name);
+	const candidates = manifestUrl ? [manifestUrl, ...artCandidates(owner, name)] : artCandidates(owner, name);
+	for (const url of candidates) {
 		if (await probe(url)) {
 			resolvedFiles.set(key, url);
 			return url;
@@ -53,7 +56,10 @@ export interface RoleArtProps {
 export function RoleArt({ owner, name, alt, className = '', decorative = false }: RoleArtProps) {
 	const file = useArtFile(owner, name);
 	const classes = `art ${className}`.trim();
-	if (file) return <img className={classes} src={file} alt={decorative ? '' : alt} />;
+	if (file) {
+		const manifestAlt = name === 'praca' || name === 'postac' ? imageEntryFor(owner, name)?.alt : undefined;
+		return <img className={classes} src={file} alt={decorative ? '' : (manifestAlt ?? alt)} />;
+	}
 	return (
 		<svg
 			className={classes}

@@ -26,9 +26,13 @@
 
 .waiting-steps__scene {
 	flex: 0 0 auto;
-	width: 140px;
-	height: 140px;
+	width: min(100%, 288px);
 	animation: waiting-bob 2.4s ease-in-out infinite;
+}
+
+.waiting-steps__figure {
+	width: 100%;
+	height: auto;
 }
 
 .waiting-steps__text {

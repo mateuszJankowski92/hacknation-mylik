@@ -53,3 +53,7 @@ Odpowiedź: `answers.relacja.choice`, `probabilities`, `confidence` (prawdopodob
 **Koszt.** Basal nie liczy tokenów do rachunku: płaci się za godzinę maszyny GPU. W pomiarze koszt to czas przebiegu razy cena za godzinę (maszyna wynajęta na cały przebieg) oraz, dla porównania, suma czasu pracy modelu razy ta cena.
 
 **Pomiar.** `npx tsx scripts/eval-basal.ts --health` (stan serwera, bez wypisywania adresu i tokenu), potem `npx tsx scripts/eval-basal.ts --gpu-usd-per-hour <cena>` (bramka) i z `--assess` (bramka i ocena). Wyniki w `data/eval/basal/`.
+
+## Ilustracje
+
+W czasie działania usługi nie ma wywołań do generatorów obrazów ani wideo: ilustracje i klipy w interfejsie to statyczne pliki w `web/public/postacie/`. Skąd pochodzą: `docs/POCHODZENIE_ILUSTRACJI.md`.

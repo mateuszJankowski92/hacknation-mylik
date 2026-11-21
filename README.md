@@ -130,3 +130,4 @@ tests/           testy (vitest), w tym e2e serwera i test dymny tests/e2e/smoke.
 | Wyniki testów i jak je odtworzyć (F7) | [docs/WYNIKI.md](docs/WYNIKI.md), [docs/MIERNIKI.md](docs/MIERNIKI.md) |
 | Koszt 1 000 zapytań, koszt kanału, zachowanie przy ruchu (T14) | [docs/KOSZTY.md](docs/KOSZTY.md) |
 | Czego Mylik nie obsługuje | [docs/NIEOBSLUGIWANE.md](docs/NIEOBSLUGIWANE.md) |
+| Pochodzenie ilustracji (modele generatywne, prawa, podmiana) | [docs/POCHODZENIE_ILUSTRACJI.md](docs/POCHODZENIE_ILUSTRACJI.md) |

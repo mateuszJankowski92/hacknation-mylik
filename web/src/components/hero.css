@@ -19,7 +19,7 @@
 .hero__illustration {
 	display: flex;
 	justify-content: flex-start;
-	height: 112px;
+	height: 200px;
 }
 
 .hero__placeholder,
@@ -27,6 +27,7 @@
 	height: 100%;
 	width: auto;
 	max-width: 100%;
+	background: #ffffff;
 }
 
 .hero__fold {
@@ -83,7 +84,7 @@
 		grid-area: art;
 		justify-content: center;
 		align-items: center;
-		height: 320px;
+		height: 400px;
 	}
 
 	.hero__main > form {
