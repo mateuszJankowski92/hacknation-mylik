@@ -12,8 +12,10 @@ import * as http from 'node:http';
 import * as https from 'node:https';
 import { isIP } from 'node:net';
 import { extractTitle, htmlToText } from '../../corpus/html';
+import { stripHiddenHtml } from './hidden';
 import { isBlockedHostname, isBlockedIp } from './ip';
 
+export { isHiddenElement, stripHiddenHtml } from './hidden';
 export { isBlockedHostname, isBlockedIp, isBlockedIpv4, isBlockedIpv6 } from './ip';
 
 export type FetchFailReason =
@@ -246,7 +248,8 @@ export function createPageFetcher(opts: PageFetcherOptions = {}): PageFetcher {
         }
         const raw = decode(read.bytes, contentType);
         const title = isHtml ? extractTitle(raw) : null;
-        let text = (isHtml ? htmlToText(raw) : raw).replace(/\r\n?/g, '\n').trim();
+        // Treść ukryta przed czytelnikiem (styl, atrybut hidden, komentarze) nie trafia do analizy.
+        let text = (isHtml ? htmlToText(stripHiddenHtml(raw)) : raw).replace(/\r\n?/g, '\n').trim();
         let truncated = read.truncated;
         if (text.length > maxTextChars) {
           text = text.slice(0, maxTextChars);

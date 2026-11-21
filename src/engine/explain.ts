@@ -103,7 +103,7 @@ export function archivalLimitation(months: number): string {
 export const UNDATED_LIMITATION = 'Część dowodów nie ma znanej daty publikacji, co obniża siłę podstawy.';
 
 export function injectionLimitation(n: number): string {
-  return `Pominięto ${nFragments(n)} źródeł zawierających treść przypominającą polecenia dla systemu; nie zostały one użyte jako dowód.`;
+  return `Pominąłem ${n} ${plural(n, 'tekst', 'teksty', 'tekstów')} ze źródeł. Miały treść przypominającą polecenia dla mnie.`;
 }
 
 export function archivalNotice(months: number): string {
@@ -117,21 +117,19 @@ export function expiredNotice(validUntil: string): string {
 export const EXPIRED_LIMITATION =
   'Część dowodów pochodzi z materiałów po terminie obowiązywania, co obniża siłę podstawy.';
 
-export const MODEL_INJECTION_NOTICE =
-  'Model oceniający zgłosił, że fragment zawiera treść przypominającą polecenia dla systemu; fragment nie został użyty jako dowód.';
+// Komunikaty o poleceniach w danych: prosty język, bez oskarżania, bez treści instrukcji systemu.
+export const MODEL_INJECTION_NOTICE = 'Ten tekst ze źródła wygląda na polecenie dla mnie. Nie korzystam z niego.';
 
-export const PAGE_INJECTION_NOTICE =
-  'Pobrana strona zawiera treść przypominającą polecenia dla systemu. Te części pominęliśmy; nie mają wpływu na ocenę.';
+export const PAGE_INJECTION_NOTICE = 'Na tej stronie są polecenia dla mnie. Pominąłem je. Nie zmieniają wyniku.';
 
 export const PAGE_IS_DATA_LIMITATION =
   'Treść pobranej strony była tylko przedmiotem analizy: z niej wzięliśmy twierdzenia, a dowodów szukaliśmy wyłącznie w zbiorze źródeł.';
 
 export const PAGE_TRUNCATED_NOTICE = 'Strona była długa, więc przeanalizowaliśmy tylko jej początkową część.';
 
-export const INJECTION_NOTICE = 'Fragment zawiera treść przypominającą polecenia dla systemu i nie został użyty jako dowód.';
+export const INJECTION_NOTICE = 'W tym tekście ze źródła są polecenia dla mnie. Nie korzystam z niego.';
 
-export const INPUT_INJECTION_NOTICE =
-  'Zgłoszenie zawiera treść przypominającą polecenia dla systemu. Takie polecenia nie mają wpływu na ocenę.';
+export const INPUT_INJECTION_NOTICE = 'W wiadomości są też polecenia dla mnie. Nie wykonuję ich. Sprawdzam tylko informacje.';
 
 export const MESSAGES = {
   technical:
@@ -146,6 +144,9 @@ export const MESSAGES = {
     'Ten adres prowadzi do zasobu lokalnego lub wewnętrznego, więc go nie pobieramy. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
   urlNoContent:
     'Pobrana strona nie zawiera tekstu, który moglibyśmy przeanalizować. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
+  /** Wiadomość zawiera tylko polecenia, bez informacji do sprawdzenia. */
+  injectionOnly:
+    'Sprawdzam tylko informacje. Nie wykonuję poleceń z wiadomości. Napisz jednym zdaniem, co się stało. Kto, co, gdzie i kiedy?',
   clarification:
     'Nie znaleźliśmy w zgłoszeniu konkretnej informacji do sprawdzenia. Napisz, co dokładnie się wydarzyło, kogo lub czego dotyczy, gdzie i kiedy.',
 } as const;

@@ -14,7 +14,8 @@
     "typecheck": "tsc --noEmit",
     "corpus:ingest": "tsx scripts/ingest.ts",
     "corpus:fetch": "tsx scripts/fetch-sources.ts",
-    "eval": "tsx scripts/eval.ts"
+    "eval": "tsx scripts/eval.ts",
+    "injection:live": "tsx scripts/injection-live.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.12.0",

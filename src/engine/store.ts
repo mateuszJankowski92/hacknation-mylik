@@ -10,7 +10,8 @@ export type EngineEventType =
   | 'url_not_fetched'
   | 'url_fetched'
   | 'url_fetch_failed'
-  | 'incident_match';
+  | 'incident_match'
+  | 'claim_rejected';
 
 /** Dozwolone wartości w `detail`: liczby, kody, wartości logiczne (bez tekstu użytkownika). */
 export type EventDetail = Record<string, string | number | boolean | null | string[]>;

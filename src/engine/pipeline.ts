@@ -10,7 +10,6 @@ import {
   RECORD_SCHEMA_VERSION,
   sha256Hex,
   type ClaimResult,
-  type Engine,
   type EngineDeps as ContractEngineDeps,
   type EvidenceItem,
   type ExtractedClaim,
@@ -26,6 +25,7 @@ import {
   type VerifyOutcome,
 } from '../contracts/index';
 import { maskPii } from '../input/index';
+import { cleanText } from '../input/normalize';
 import { validateCitations } from './citations';
 import { loadErrorProfileTable, errorProfileFor, type ErrorProfileTable } from './errorProfile';
 import { errorToOutcome, isLlmError, SearchFailure, stateOutcome, technicalDetail } from './errors';
@@ -50,7 +50,8 @@ import {
 } from './explain';
 import type { PageFetcher } from './fetch/index';
 import { MAX_INCIDENT_NOTICES, type IncidentMatcher } from './incidents';
-import { detectInjectionSignals, stripInjectedSegments } from './injection';
+import { detectInjectionSignals, screenClaim, stripInjectedSegments } from './injection';
+import { createProgressEmitter, type ProgressEmitter, type ProgressEngine } from './progress';
 import { buildShortAnswer, safeExplanation, safeShortAnswer, type EngineRenderer } from './render';
 import {
   computeStrength,
@@ -156,7 +157,7 @@ function uniqueById(list: readonly Passage[]): Passage[] {
   return list.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
 }
 
-export function createEngineCore(deps: CoreEngineDeps): Engine {
+export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const now = deps.now ?? (() => new Date());
   const store: EngineStore = createStore(deps.db, now);
   const archivalMonths = deps.options?.archivalMonths ?? DEFAULT_ARCHIVAL_MONTHS;
@@ -178,7 +179,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     }
   }
 
-  async function run(input: VerifyInput): Promise<VerifyOutcome> {
+  async function run(input: VerifyInput, progress: ProgressEmitter): Promise<VerifyOutcome> {
     const channel = input.channel;
     const started = now().getTime();
     store.logEvent('verify_start', { channel, detail: { inputKind: input.url !== undefined ? 'url' : 'tekst' } });
@@ -240,7 +241,8 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         channel,
         detail: { redirects: page.redirects, truncated: page.truncated, contentType: page.contentType },
       });
-      analysisText = maskPii(page.text).text;
+      // Ta sama normalizacja co dla tekstu od obywatela (znaki niewidoczne, NFKC, sterujące).
+      analysisText = maskPii(cleanText(page.text)).text;
       pageTruncated = page.truncated;
       // Klucz obejmuje skrót treści: zmiana strony = nowe sprawdzenie, nie stary rekord.
       keyInput = `${prepared.normalizedInput}\n#tresc:${sha256Hex(analysisText)}`;
@@ -251,6 +253,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     const cached = store.getRecord(recordId);
     if (cached) {
       store.logEvent('cache_hit', { recordId, channel });
+      progress.done(recordId, true);
       return { kind: 'record', record: cached, cached: true };
     }
 
@@ -274,8 +277,12 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       });
       injectionEvents++;
     }
-    if (!stripped.text.trim())
-      return toState(stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims'), recordId);
+    // Same polecenia, bez informacji do sprawdzenia: prosty komunikat stanu, model nie jest wołany.
+    const nothingToCheck = () =>
+      injectionSignals.size > 0
+        ? stateOutcome('potrzeba_doprecyzowania', MESSAGES.injectionOnly, 'injection_only')
+        : stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims');
+    if (!stripped.text.trim()) return toState(nothingToCheck(), recordId);
 
     const extracted = await llm.extractClaims({ text: stripped.text });
     addUsage(usage, extracted.usage);
@@ -284,12 +291,32 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     for (const c of rawClaims) {
       const parsed = ExtractedClaimSchema.safeParse(c);
       if (!parsed.success) throw new LlmError('invalid_output', 'claim schema');
-      claims.push(parsed.data);
+      // Do oceny trafia oczyszczone twierdzenie, nigdy surowe wejście ani polecenie.
+      const screened = screenClaim(parsed.data, stripped.text);
+      if (!screened.claim) {
+        store.logEvent('claim_rejected', {
+          recordId,
+          channel,
+          detail: { claimId: parsed.data.id, reason: screened.reason ?? 'nieznany', signals: screened.signals },
+        });
+        if (screened.signals.length) {
+          for (const sig of screened.signals) injectionSignals.add(`twierdzenie:${parsed.data.id}:${sig}`);
+          notices.push({ type: 'ograniczenie_techniczne', text: isUrl ? PAGE_INJECTION_NOTICE : INPUT_INJECTION_NOTICE });
+          store.logEvent('injection_signal', {
+            recordId,
+            channel,
+            detail: { where: 'twierdzenie', claimId: parsed.data.id, signals: screened.signals },
+          });
+          injectionEvents++;
+        }
+        continue;
+      }
+      claims.push(screened.claim);
     }
     // Twierdzenie niejasne nie jest werdyktem: bez żadnego sprawdzalnego twierdzenia -> stan.
     const checkable = claims.filter((c) => c.kind !== 'niejasna').slice(0, MAX_CLAIMS);
-    if (checkable.length === 0)
-      return toState(stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims'), recordId);
+    if (checkable.length === 0) return toState(nothingToCheck(), recordId);
+    progress.claimsRead(checkable.length);
 
     const createdAt = new Date(started).toISOString();
     const asOf = resolveAsOf(searcher, createdAt);
@@ -299,7 +326,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     const scope = scopeLimitation(corpusVersion, documents);
     const baseLimitations = isUrl ? [scope, PAGE_IS_DATA_LIMITATION] : [scope];
 
-    for (const claim of checkable) {
+    for (const [claimIndex, claim] of checkable.entries()) {
       if (claim.kind === 'opinia' || claim.kind === 'prognoza') {
         const decision = decideVerdict(claim.kind, []);
         const strength = computeStrength(decision);
@@ -318,11 +345,14 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
 
       // (4) wyszukiwanie "za" i "przeciw" (kod)
       const forPassages = uniqueById(await search(searchQuery(claim), MAX_PASSAGES_PER_CLAIM)).slice(0, MAX_PASSAGES_PER_CLAIM);
+      progress.forPassages(claimIndex, forPassages.length);
       const cQuery = counterQuery(claim);
+      progress.counterSearchStart(claimIndex);
       const counterFound = uniqueById(await search(cQuery, MAX_PASSAGES_PER_CLAIM));
       const counterIds = new Set(counterFound.map((p) => p.id));
       const forIds = new Set(forPassages.map((p) => p.id));
       const counterNew = counterFound.filter((p) => !forIds.has(p.id)).slice(0, MAX_COUNTER_PASSAGES);
+      progress.counterSearchDone(claimIndex, counterNew.length);
       const passages = [...forPassages, ...counterNew];
 
       // Injection: fragmenty z sygnałem nie trafiają do modelu i nie mogą być dowodem.
@@ -366,6 +396,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
           }
         const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged });
         accepted = gate.accepted;
+        for (const a of accepted) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
         rejectedCount = gate.rejected.length;
         const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
         if (unknown > 0) store.logEvent('llm_unknown_passage', { recordId, channel, detail: { claimId: claim.id, count: unknown } });
@@ -530,9 +561,11 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       const existing = store.getRecord(recordId);
       if (existing) {
         store.logEvent('cache_hit', { recordId, channel, detail: { race: true } });
+        progress.done(recordId, true);
         return { kind: 'record', record: existing, cached: true };
       }
     }
+    const latencyMs = record.usage.latencyMs;
     store.logEvent('verify_ok', {
       recordId,
       channel,
@@ -542,15 +575,18 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         llmCalls: usage.llmCalls,
         injectionEvents,
         refutationFound: results.reduce((n, r) => n + r.refutation.found, 0),
+        // Czas pełnego sprawdzenia (mediana dla GET /api/verify/eta).
+        ms: latencyMs,
       },
     });
+    progress.done(recordId, false);
     return { kind: 'record', record, cached: false };
   }
 
   return {
-    async verify(input) {
+    async verify(input, opts) {
       try {
-        return await run(input);
+        return await run(input, createProgressEmitter(opts?.onProgress));
       } catch (err) {
         // Zero ścieżek, w których wyjątek lub brak klucza kończy się werdyktem.
         const outcome = errorToOutcome(err);

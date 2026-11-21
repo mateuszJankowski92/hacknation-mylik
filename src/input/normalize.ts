@@ -1,11 +1,14 @@
-const ZERO_WIDTH_AND_FORMAT = /[\p{Cf}\u00AD]/gu;
+// Znaki niewidoczne: formatujące (zero-width, bidi, znaczniki Unicode), miękki dywiz, łącznik
+// grafemów, wypełniacze Hangul i selektory wariantów (używane do ukrywania treści).
+const ZERO_WIDTH_AND_FORMAT = /[\p{Cf}\u00AD\u034F\u115F\u1160\u3164\uFFA0\uFE00-\uFE0F\u{E0100}-\u{E01EF}]/gu;
 const CONTROL_EXCEPT_NEWLINE = /[\p{Cc}]/gu;
 const HORIZONTAL_SPACE = /[^\S\n]+/gu;
 const TRAILING_PUNCTUATION = new Set(['.', ',', ';', ':', '!', '?', '…']);
 const SPACE_BEFORE_PUNCTUATION = / +([.,;:!?])/gu;
 
 export function cleanText(raw: string): string {
-	const unified = raw.normalize('NFC').replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
+	// NFKC: znaki o wyglądzie liter (pełna szerokość, ligatury, indeksy) do postaci zwykłej.
+	const unified = raw.normalize('NFKC').replace(/\r\n?/g, '\n').replace(/[\t\f\v]/g, ' ');
 	const withoutHidden = unified.replace(ZERO_WIDTH_AND_FORMAT, '');
 	const withoutControl = withoutHidden.replace(CONTROL_EXCEPT_NEWLINE, (char) => (char === '\n' ? char : ''));
 	const lines = withoutControl
