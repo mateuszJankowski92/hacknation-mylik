@@ -9,11 +9,13 @@
  *
  * Bramka wsparcia (zad. 30): SUPPORT_GATE_PROVIDER=basal + BASAL_URL podmienia bramkę dostawcy na Basal
  * z automatycznym zapasem w bramce dostawcy (src/llm/basal.ts). Domyślnie wyłączone.
+ * SUPPORT_GATE_PROVIDER=jev + JEV_API_KEY robi to samo z Jevem (src/llm/jev.ts), zapas także przy niskiej pewności.
  */
 import type { AppConfig } from '../config';
 import type { LlmProvider } from '../contracts/llm';
 import { AnthropicProvider } from './anthropic';
 import { applySupportGateConfig, supportGateConfigFromEnv } from './basal';
+import { applyJevSupportGateConfig, jevConfigFromEnv } from './jev';
 import { MockLlmProvider } from './mock';
 
 export { AnthropicProvider, DEFAULT_ANTHROPIC_MODEL, mapAnthropicError } from './anthropic';
@@ -29,6 +31,16 @@ export {
   withSupportGate,
   type BasalGateEvent,
 } from './basal';
+export {
+  JevClient,
+  JevError,
+  JevSupportGate,
+  applyJevSupportGateConfig,
+  createJevStats,
+  jevConfigFromEnv,
+  type JevGateEvent,
+  type JevStats,
+} from './jev';
 
 /** Błąd konfiguracji dostawcy (nieznana nazwa, niezaimplementowany dostawca). Bez sekretów w treści. */
 export class LlmConfigError extends Error {
@@ -42,7 +54,8 @@ export function createLlmProvider(
   cfg: Pick<AppConfig, 'llmProvider' | 'anthropicApiKey' | 'anthropicModel'>,
   env: Record<string, string | undefined> = process.env,
 ): LlmProvider {
-  return applySupportGateConfig(createBaseProvider(cfg), supportGateConfigFromEnv(env));
+  const withBasal = applySupportGateConfig(createBaseProvider(cfg), supportGateConfigFromEnv(env));
+  return applyJevSupportGateConfig(withBasal, jevConfigFromEnv(env));
 }
 
 function createBaseProvider(cfg: Pick<AppConfig, 'llmProvider' | 'anthropicApiKey' | 'anthropicModel'>): LlmProvider {

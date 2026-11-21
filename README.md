@@ -60,7 +60,7 @@ Pozostałe polecenia: `npm test` (78 plików, 1231 testów i 1 pominięty, bez s
 
 Silnik dd6f303f5e02 (zamrożony), zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5, bez drugiej warstwy źródeł: macro-F1 0,701, poprawność cytowań 79,7% (sędzia: model), wstrzymanie się 15/21, odporność na prompt injection 8/8, spójność kanałów WWW i SMS 5/5, mediana czasu 7,5 s, koszt silnika ok. 0,0034 USD na zgłoszenie. Trafność, poprawność cytowań i wstrzymanie się są **poniżej celów MVP** (0,75, 85%, 80%); to jeden przebieg z rozrzutem co najmniej 0,06 macro-F1, a v2 posłużył do jednej decyzji o progu. Profil omylności pokazywany obywatelowi: 14/58, 12/43, 28/70 (siła średnia, niska, brak). Szczegóły i ograniczenia: [docs/WYNIKI.md](docs/WYNIKI.md), [docs/MIERNIKI.md](docs/MIERNIKI.md).
 
-Co jest wyłączone domyślnie: druga warstwa źródeł (media i instytucje, eksperymentalna, `LIVE_LAYER=off`) i Basal (`SUPPORT_GATE_PROVIDER` pusty; pomiar na żywo niewykonany). Zbioru EUvsDisinfo nie ma w repozytorium (licencja niepotwierdzona).
+Co jest wyłączone domyślnie: druga warstwa źródeł (media i instytucje, eksperymentalna, `LIVE_LAYER=off`) oraz Basal i Jev w bramce wsparcia (`SUPPORT_GATE_PROVIDER` pusty; pomiar Jeva na żywo niewykonany). Zbioru EUvsDisinfo nie ma w repozytorium (licencja niepotwierdzona).
 
 ## Skąd bierze się korpus (odtwarzalność)
 
@@ -103,7 +103,7 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `KNOWN_OPS_DIR` | `data/known-ops` | Znane operacje informacyjne (EUvsDisinfo), tylko ostrzeżenia. Brak plików nie przeszkadza. |
 | `INCIDENTS_PATH` | brak | Plik bazy incydentów (JSON/CSV), tylko ostrzeżenia. Brak = wyszukiwanie domyślne; brak pliku nie przeszkadza. |
 | `PUBLIC_BASE_URL` | brak | Publiczny adres serwisu dla odsyłacza na karcie SVG; brak = adres względny. |
-| `SUPPORT_GATE_PROVIDER` | pusty (Haiku) | `basal`: bramka wsparcia na modelu Basal (`BASAL_URL`, `BASAL_TOKEN`, `BASAL_TIMEOUT_MS`, `BASAL_MIN_CONFIDENCE`, `BASAL_ASSESS`); przy awarii automatycznie Haiku. Szczegóły: docs/ZALEZNOSCI.md. |
+| `SUPPORT_GATE_PROVIDER` | pusty (Haiku) | `basal`: bramka wsparcia na modelu Basal (`BASAL_URL`, `BASAL_TOKEN`, `BASAL_TIMEOUT_MS`, `BASAL_MIN_CONFIDENCE`, `BASAL_ASSESS`); przy awarii automatycznie Haiku; `jev`: bramka wsparcia na modelu Jev (TypeSafe AI; `JEV_API_KEY`, `JEV_MODEL`, `JEV_MIN_CONFIDENCE`, `JEV_TIMEOUT_MS`); przy błędzie albo niskiej pewności Haiku. Naraz jedna wartość. Szczegóły: docs/ZALEZNOSCI.md. |
 | `LIVE_LAYER` | `off` | Druga warstwa źródeł (zad. 29): `on` = gdy zbiór urzędowy nie da rozstrzygającej podstawy, szukanie na żywo wyłącznie w serwisach z `data/live-sources.json` (wymaga `LLM_PROVIDER=anthropic`). `off` = system działa jak dotąd. Opis: `docs/ZRODLA.md`. |
 | `LIVE_SOURCES_PATH` | `data/live-sources.json` | Jawna lista serwisów drugiej warstwy (do audytu). |
 | `URZEDNIK_TOKEN` | brak | Token widoku urzędnika `/urzednik` (min. 16 znaków). Bez tokenu każdy adres pod `/urzednik` zwraca 401. Opis: `docs/PETLA_INFORMACJI.md`. |
@@ -127,7 +127,7 @@ Uwaga: przy `LLM_PROVIDER=anthropic` bez klucza każde zgłoszenie kończy się 
 - Jeden proces Node, jeden port. Serwer Hono (`src/server`) obsługuje API i serwuje zbudowany interfejs z `dist/web` (ścieżki SPA zwracają `index.html`; bez builda serwer odpowiada komunikatem „Zbuduj interfejs: npm run build”).
 - Jeden silnik `engine.verify(input) -> VerifyOutcome` (`src/engine`). Kanały tylko przyjmują wejście i renderują zapisany rekord; serwer WWW wymusza kanał `www` i nie zawiera logiki weryfikacji.
 - Potok: przygotowanie wejścia i maskowanie danych osobowych (`src/input`) -> ekstrakcja twierdzeń i wariantów słów do wyszukiwania (model) -> wyszukiwanie FTS5 w korpusie (`src/corpus`): kilka zapytań "za" scalonych rangami i zapytanie "przeciw", pula do 30 fragmentów -> wybór do 10 kandydatów tanim wywołaniem modelu (`src/engine/ranker.ts`; przy błędzie zostaje kolejność z wyszukiwania) -> ocena stanowisk fragmentów (model, porcje "za" i "przeciw" równolegle) -> bramka cytatów (kod: cytat musi być dosłownym podciągiem fragmentu) -> bramka wsparcia (model, każdy cytat osobno, równolegle) -> werdykt i siła podstawy (kod, `src/engine/rules.ts`) -> zapis rekordu. Twierdzenia jednego zgłoszenia sprawdzane są równolegle.
-- Zależności zewnętrzne (Anthropic, Basal na maszynie GPU, EUvsDisinfo), co do nich trafia i jak je wymienić: docs/ZALEZNOSCI.md.
+- Zależności zewnętrzne (Anthropic, Basal na maszynie GPU, Jev, EUvsDisinfo), co do nich trafia i jak je wymienić: docs/ZALEZNOSCI.md.
 - Limit czasu na zgłoszenie: 22 s (`DEFAULT_DEADLINE_MS` w `src/engine/pipeline.ts`). Po nim obywatel dostaje stan „awaria techniczna” (detal `deadline`), nigdy werdykt; rekord nie jest zapisywany.
 - Model nigdy nie podaje URL-i ani metadanych źródeł; widzi tylko identyfikator i treść fragmentu. Metadane wstawia kod z bazy.
 - Brak klucza, limit, wyjątek to zawsze stan techniczny (`kind: "state"`), nigdy werdykt. Wykryte sygnały prompt injection trafiają do rekordu i do logu zdarzeń (tabela `events`, bez treści zgłoszeń).

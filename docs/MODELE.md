@@ -9,6 +9,7 @@ Stan na 21.11.2026. Szczegóły zależności (klucze, co trafia, awaria, wymiana
 | Atrapa (`mock`) | testy i pokaz bez klucza i sieci; proste reguły, nie prawdziwa ocena | wartość domyślna w `src/config.ts`; `.env.example` też ustawia `mock` | `LLM_PROVIDER=mock` |
 | Druga warstwa źródeł (Haiku + narzędzie `web_search`) | szukanie na zamkniętej liście serwisów, gdy korpus nic nie rozstrzyga | nie (**eksperymentalna**) | `LIVE_LAYER=on` (opis: [ZRODLA.md](ZRODLA.md)) |
 | Basal (polski model decyzyjny, Apache-2.0, własna maszyna GPU) | bramka wsparcia; opcjonalnie ocena stanowisk | nie | `SUPPORT_GATE_PROVIDER=basal`, `BASAL_URL`, `BASAL_TOKEN` |
+| Jev (TypeSafe AI, `jev-1.14.0`, API w USA) | bramka wsparcia | nie | `SUPPORT_GATE_PROVIDER=jev`, `JEV_API_KEY` |
 
 Ceny (USD za 1 mln tokenów wejścia / wyjścia, `src/llm/pricing.ts`, cennik z 03.11.2026): Haiku 5.5 0,10 / 0,50; Sonnet 5.5 2 / 10.
 
@@ -23,10 +24,16 @@ Najtańszy, mieści się w limicie czasu. W pomiarze zad. 25 na zestawie kontrol
 - Wyniki na żywym modelu: **pomiar niewykonany: brak uruchomionej maszyny**. Nie podajemy trafności ani kosztu Basala.
 - Domyślnie wyłączony. Przy awarii Basala to samo pytanie ocenia Haiku. Obywatel nie dostaje z tego powodu stanu technicznego.
 
+## Jev: stan uczciwie
+
+- Ścieżka gotowa: `src/llm/jev.ts` (ten sam interfejs `SupportGate`). Przetestowana tylko na atrapie `fetch` (`tests/llm/jev.test.ts`, bez sieci).
+- Wyniki na żywym modelu: **pomiar niewykonany: brak klucza `JEV_API_KEY`**. Nie podajemy trafności, kosztu ani opóźnienia Jeva.
+- Domyślnie wyłączony. Przy błędzie albo niskiej pewności Jeva to samo pytanie ocenia Haiku.
+
 ## Wymiana dostawcy
 
 Każdy krok modelu idzie przez interfejsy `LlmProvider` i `SupportGate` (`src/contracts/llm.ts`, `src/engine/supportGate.ts`). Nowy dostawca to nowa klasa i jedna gałąź w konfiguracji. Wartość `mistral` jest zarezerwowana, ale niezaimplementowana.
 
 ## Miejsce przetwarzania
 
-API Anthropic to dostawca spoza EOG. Trafia tam tylko tekst po maskowaniu danych osobowych i fragmenty korpusu. Basal działa na maszynie wskazanej przez operatora (`BASAL_URL`), więc może być w EOG albo u siebie.
+API Anthropic to dostawca spoza EOG. Trafia tam tylko tekst po maskowaniu danych osobowych i fragmenty korpusu. Basal działa na maszynie wskazanej przez operatora (`BASAL_URL`), więc może być w EOG albo u siebie. Jev (TypeSafe AI) jest hostowany w USA (poza EOG); do niego trafia tylko twierdzenie po maskowaniu i dosłowny cytat ze źródła publicznego.

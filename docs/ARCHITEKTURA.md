@@ -27,7 +27,7 @@ flowchart TD
   SEARCH --> RANK["7. Wybór do 10 kandydatów (model, tani)"]
   RANK --> ASSESS["8. Ocena stanowisk fragmentów (model)"]
   ASSESS --> CIT["9. Bramka cytatów (kod): cytat = dosłowny podciąg fragmentu"]
-  CIT --> GATE["10. Bramka wsparcia (model, każdy cytat osobno)<br/>Haiku albo Basal (opcja)"]
+  CIT --> GATE["10. Bramka wsparcia (model, każdy cytat osobno)<br/>Haiku albo Basal albo Jev (opcje)"]
   GATE --> LIVE{"LIVE_LAYER=on i brak<br/>rozstrzygającego dowodu?"}
   LIVE -- tak --> L2["Druga warstwa: szukanie na zamkniętej liście serwisów<br/>(eksperymentalna, src/live)"]
   LIVE -- nie --> RULES

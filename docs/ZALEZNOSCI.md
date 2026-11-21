@@ -6,6 +6,7 @@ Usługi spoza serwera Mylika, co do nich trafia i jak je wymienić. Każda jest 
 |---|---|---|---|---|
 | Anthropic API (Claude Haiku 5.5) | ekstrakcja twierdzeń, wybór kandydatów, ocena stanowisk, bramka wsparcia | tekst zgłoszenia po maskowaniu danych osobowych, fragmenty źródeł z korpusu | `src/llm/anthropic.ts` (interfejs `LlmProvider`, `SupportGate`) | włączone przy `LLM_PROVIDER=anthropic` |
 | Basal na wynajętej maszynie GPU (RunPod) | bramka wsparcia; opcjonalnie ocena stanowisk | twierdzenie po maskowaniu i jeden cytat (przy ocenie: jeden fragment źródła) | `src/llm/basal.ts`, `src/llm/basalAssess.ts` | wyłączone |
+| Jev, API TypeSafe AI (`api.typesafe.ai`, USA) | bramka wsparcia | twierdzenie po maskowaniu i jeden dosłowny cytat ze źródła publicznego | `src/llm/jev.ts` | wyłączone |
 | Anthropic API, wyszukiwarka `web_search` | druga warstwa źródeł (zad. 29) | zob. dokumentacja zad. 29 | `src/live/` | wyłączone (`LIVE_LAYER`) |
 | Google Fact Check Tools API (`claims:search`) | oceny redakcji sprawdzających fakty (warstwa 3, pomocnicza) | wyłącznie krótkie frazy z twierdzenia (nazwy, liczby, słowa kluczowe), po maskowaniu; bez treści zgłoszenia, kanału i IP | `src/factcheck/` (interfejs `FactcheckIndex`) | `FACTCHECK_LAYER=auto`: włączone, gdy `GOOGLE_FACTCHECK_API_KEY` niepusty |
 | EUvsDisinfo (MCP) | znane operacje informacyjne, tylko ostrzeżenia | nic ze zgłoszeń; pobieranie migawki skryptem | `scripts/fetch-euvsdisinfo.ts` | brak migawki w repozytorium (licencja niepotwierdzona); bez niej brak ostrzeżeń, bez błędu |
@@ -54,6 +55,49 @@ Odpowiedź: `answers.relacja.choice`, `probabilities`, `confidence` (prawdopodob
 **Koszt.** Basal nie liczy tokenów do rachunku: płaci się za godzinę maszyny GPU. W pomiarze koszt to czas przebiegu razy cena za godzinę (maszyna wynajęta na cały przebieg) oraz, dla porównania, suma czasu pracy modelu razy ta cena.
 
 **Pomiar.** `npx tsx scripts/eval-basal.ts --health` (stan serwera, bez wypisywania adresu i tokenu), potem `npx tsx scripts/eval-basal.ts --gpu-usd-per-hour <cena>` (bramka) i z `--assess` (bramka i ocena). Wyniki w `data/eval/basal/`.
+
+## Jev (TypeSafe AI)
+
+**Czym jest.** [Jev](https://docs.typesafe.ai) to model decyzyjny TypeSafe AI hostowany jako API: wybiera jedną odpowiedź z listy i zwraca prawdopodobieństwa oraz `confidence`. Nie pisze tekstu. W Myliku może zastąpić Claude w bramce wsparcia (to samo pytanie co przy Basalu), z Haiku jako zapasem.
+
+**Gdzie stoi.** `https://api.typesafe.ai/v1/systemone` (USA, poza EOG; transfery z UE przez SCC według umowy powierzenia TypeSafe). Klucz w `JEV_API_KEY` tylko w `.env`, wysyłany jako `Authorization: Bearer`; nie trafia do logów, zdarzeń ani komunikatów błędów. Retencji treści zapytań dokumentacja nie określa (ZDR tylko dla klientów enterprise), dlatego do Jeva idzie wyłącznie to, co jest publiczne.
+
+**Kontrakt** (docs.typesafe.ai, `/api/system-one`; stan z 21.11.2026):
+
+```json
+{
+  "model": "jev-1.14.0",
+  "state": {"twierdzenie": "<twierdzenie>", "cytat": "<cytat>"},
+  "questions": {
+    "relacja": {"type": "choice", "instructions": "...", "criteria": {"nie_rozstrzyga": "...", "potwierdza": "...", "obala": "...", "rozbieznosc_kontekstu": "..."}},
+    "szczegol": {"type": "choice", "instructions": "...", "criteria": {"skala": "...", "data": "...", "miejsce": "...", "warunki": "..."}}
+  }
+}
+```
+
+Różnice względem Basala (wynikające z dokumentacji Jeva): stan jest obiektem z nazwanymi polami, brak `ask_if` i `lang` (pytanie o szczegół jest zadawane zawsze, w tym samym żądaniu, a kod czyta je tylko przy `rozbieznosc_kontekstu`), model w żądaniu jest przypięty do wersji (`jev-1.14.0`; alias `jev-latest` zmienia się wraz z wydaniami), a opcje relacji zaczynają się od `nie_rozstrzyga`, bo dokumentacja zaznacza, że Jev skłania się ku pierwszej opcji (dla bramki bezpieczniejsze jest wstrzymanie). Kolejność nie była mierzona.
+
+Odpowiedź: `answers.relacja.choice`, `probabilities`, `confidence`. U Jeva `confidence` to znormalizowana miara skupienia rozkładu: dla czterech opcji `(p_max - 1/4) / (3/4)`, więc próg 0,6 odpowiada prawdopodobieństwu wybranej opcji 0,70. Nie jest to szansa poprawności i nie jest pokazywana obywatelowi.
+
+**Co trafia do modelu.** Wyłącznie twierdzenie (po maskowaniu danych osobowych w `src/input`) i jeden dosłowny cytat ze źródła publicznego, każde przycięte do 2000 znaków. Bez identyfikatora zgłoszenia, kanału, adresu IP, numeru telefonu, adresów ani metadanych źródła.
+
+**Włączanie.**
+
+| Zmienna | Domyślnie | Znaczenie |
+|---|---|---|
+| `SUPPORT_GATE_PROVIDER` | pusty (Haiku) | `jev` włącza Jeva w bramce wsparcia (`basal` włącza Basala; naraz jedna wartość). |
+| `JEV_API_KEY` | brak | Klucz z console.typesafe.ai. Bez niego Jev się nie włącza (ostrzeżenie przy starcie). |
+| `JEV_MODEL` | `jev-1.14.0` | Model albo alias (`jev-latest`). Niepoprawna nazwa daje wartość domyślną. |
+| `JEV_MIN_CONFIDENCE` | `0.6` | Próg `confidence`: poniżej tego cytat ocenia Haiku. |
+| `JEV_TIMEOUT_MS` | `5000` | Limit czasu jednego żądania. |
+
+**Zapas Haiku.** Przy błędzie HTTP (także 401, 429, 529), złej odpowiedzi, przekroczeniu czasu, niedostępności oraz przy `confidence` poniżej progu dany cytat ocenia bramka zapasowa (Haiku), a dziennik dostaje zdarzenie `support_gate_jev_fallback` z przyczyną (`low_confidence`, `timeout`, `rate_limited` i inne). To różnica względem Basala, gdzie niska pewność oznacza `nie_rozstrzyga`. Po błędzie (nie po niskiej pewności) Jev jest pomijany przez 30 s (przyczyna `cooldown`), co zastępuje ponawianie z odczekaniem zalecane przy 429 i 529. Bramka liczy cytaty, przyjęte decyzje i przejścia awaryjne wg przyczyn (`JevSupportGate.stats`). Obywatel nie dostaje z tego powodu stanu technicznego. Każda decyzja Jeva daje zdarzenie `support_gate_jev`: wybór, `confidence`, prawdopodobieństwa, czas, bez treści twierdzenia i cytatu; zdarzenia idą do dziennika procesu (stderr, jedna linia JSON).
+
+**Koszt.** 0,042 USD za mln tokenów wejścia, tokeny wyjścia bezpłatne (docs.typesafe.ai/models). Szacunek kosztu w zdarzeniu użycia liczony z tej stawki.
+
+**Stan pomiaru.** Niewykonany: brak klucza w `.env`. Nie podajemy trafności, poprawności cytowań ani opóźnienia Jeva.
+
+**Jak wymienić.** Jak przy Basalu: interfejs `SupportGate`; wyłączenie przez usunięcie `SUPPORT_GATE_PROVIDER`.
 
 ## Google Fact Check Tools (zad. 40)
 
