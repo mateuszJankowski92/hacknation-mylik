@@ -1,6 +1,7 @@
 // Potok weryfikacji: jedyne miejsce logiki `verify(input) -> VerifyOutcome`.
-// Etapy: (1) prepare, (2) klucz + cache, (3) ekstrakcja twierdzeń (model), (4) wyszukiwanie (kod),
-// (5) ocena stanowisk (model), (6) bramka cytatów (kod), (7) werdykt i siła (kod), (8) zapis.
+// Etapy: (1) prepare (+ pobranie strony dla URL), (2) klucz + cache, (3) filtr injection i ekstrakcja
+// twierdzeń (model), (4) wyszukiwanie "za" i "przeciw" (kod), (5) ocena stanowisk (model),
+// (6) bramka cytatów (kod), (7) werdykt i siła (kod), (8) ostrzeżenia, zdania i zapis.
 import {
   ExtractedClaimSchema,
   LlmError,
@@ -8,53 +9,92 @@ import {
   noRefutation,
   RECORD_SCHEMA_VERSION,
   sha256Hex,
-  SHORT_ANSWER_MAX_CHARS,
-  VERDICT_LABELS_PL,
   type ClaimResult,
   type Engine,
   type EngineDeps as ContractEngineDeps,
   type EvidenceItem,
   type ExtractedClaim,
   type LlmUsage,
+  type MismatchKind,
   type NeedsClarification,
   type Notice,
   type Passage,
   type PreparedInput,
+  type Refutation,
   type VerificationRecord,
   type VerifyInput,
   type VerifyOutcome,
 } from '../contracts/index';
+import { maskPii } from '../input/index';
 import { validateCitations } from './citations';
+import { loadErrorProfileTable, errorProfileFor, type ErrorProfileTable } from './errorProfile';
 import { errorToOutcome, isLlmError, SearchFailure, stateOutcome, technicalDetail } from './errors';
 import {
   abstainReasonText,
   archivalLimitation,
   archivalNotice,
   ESCALATION_LIMITATION,
+  EXPIRED_LIMITATION,
+  expiredNotice,
   explainClaim,
   INJECTION_NOTICE,
   INPUT_INJECTION_NOTICE,
   injectionLimitation,
   MESSAGES,
+  MODEL_INJECTION_NOTICE,
+  PAGE_INJECTION_NOTICE,
+  PAGE_IS_DATA_LIMITATION,
+  PAGE_TRUNCATED_NOTICE,
   scopeLimitation,
   UNDATED_LIMITATION,
 } from './explain';
-import { detectInjectionSignals } from './injection';
-import { computeStrength, decideVerdict, DEFAULT_ARCHIVAL_MONTHS, isArchival, type RuleEvidence } from './rules';
+import type { PageFetcher } from './fetch/index';
+import { MAX_INCIDENT_NOTICES, type IncidentMatcher } from './incidents';
+import { detectInjectionSignals, stripInjectedSegments } from './injection';
+import { buildShortAnswer, safeExplanation, safeShortAnswer, type EngineRenderer } from './render';
+import {
+  computeStrength,
+  decideVerdict,
+  DEFAULT_ARCHIVAL_MONTHS,
+  isArchival,
+  isExpired,
+  type RuleEvidence,
+} from './rules';
 import { createStore, type EngineStore } from './store';
+
+export { buildShortAnswer };
 
 export const MAX_CLAIMS = 5;
 export const MAX_PASSAGES_PER_CLAIM = 8;
+/** Dodatkowe (nowe) fragmenty z przebiegu "przeciw", oceniane razem z fragmentami "za". */
+export const MAX_COUNTER_PASSAGES = 4;
+/** Słowa dodawane do zapytania "przeciw", gdy model nie podał `counterTerms`. */
+export const DEFAULT_COUNTER_MARKERS = ['nieprawda', 'zaprzecza', 'dementuje', 'sprostowanie', 'nieprawdziwe'];
 
 export type PrepareFn = (i: VerifyInput) => PreparedInput | NeedsClarification;
 
 export interface EngineOptions {
   /** Próg archiwalności w miesiącach (domyślnie 24). */
   archivalMonths?: number;
+  /** Ścieżka pliku wyników zestawu testowego (profil błędów). Brak = bez profilu. */
+  errorProfilePath?: string;
+  /** Gotowa tabela profilu błędów (pierwszeństwo przed ścieżką; testy). */
+  errorProfile?: ErrorProfileTable | null;
 }
 
-export type EngineDeps = ContractEngineDeps & { prepare?: PrepareFn; options?: EngineOptions };
-export type CoreEngineDeps = ContractEngineDeps & { prepare: PrepareFn; options?: EngineOptions };
+export interface EngineExtraDeps {
+  prepare?: PrepareFn;
+  options?: EngineOptions;
+  /** Pobieranie stron dla wejścia URL. Brak = URL kończy się stanem brak_mozliwosci_sprawdzenia. */
+  fetchPage?: PageFetcher;
+  /** Dopasowanie do bazy incydentów (tylko notices). */
+  incidents?: IncidentMatcher | null;
+  /** Składanie zdań (src/render). Brak = szablony silnika. */
+  renderer?: EngineRenderer;
+}
+
+export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
+export type CoreEngineDeps = ContractEngineDeps & EngineExtraDeps & { prepare: PrepareFn };
 
 interface UsageAcc {
   llmCalls: number;
@@ -71,9 +111,19 @@ function addUsage(acc: UsageAcc, u: LlmUsage | undefined): void {
   acc.estimatedCostUsd += Math.max(0, u.estimatedCostUsd || 0);
 }
 
-function searchQuery(claim: ExtractedClaim): string {
+export function searchQuery(claim: ExtractedClaim): string {
   // Wyszukiwarka wyciąga słowa kluczowe z tekstu i łączy je przez OR.
   return [claim.text, ...(claim.searchTerms ?? [])].join(' ');
+}
+
+/**
+ * Zapytanie "przeciw" (próba obalenia): najpierw słowa twierdzenia przeciwnego od modelu
+ * (inne liczby, daty, miejsca, zaprzeczenie), potem rdzeń tematu, żeby trafić w to samo zdarzenie.
+ */
+export function counterQuery(claim: ExtractedClaim): string {
+  const counter = (claim.counterTerms ?? []).map((t) => t.trim()).filter(Boolean);
+  const core = claim.searchTerms?.length ? claim.searchTerms : [claim.text];
+  return [...(counter.length ? counter : DEFAULT_COUNTER_MARKERS), ...core].join(' ');
 }
 
 function dedupeNotices(list: Notice[]): Notice[] {
@@ -97,26 +147,36 @@ function resolveAsOf(searcher: CoreEngineDeps['searcher'], fallback: string): st
   return fallback;
 }
 
-/** Prosta krótka odpowiedź z werdyktów (pełną logikę dostarczy późniejsze zadanie). */
-export function buildShortAnswer(results: readonly ClaimResult[], asOf: string): string {
-  const head = `Stan na ${asOf.slice(0, 10)}: `;
-  const body =
-    results.length === 0
-      ? 'brak twierdzeń do oceny.'
-      : results.map((r) => `${VERDICT_LABELS_PL[r.verdict]}: ${r.claim.text}`).join(' | ');
-  const full = head + body;
-  return full.length <= SHORT_ANSWER_MAX_CHARS ? full : `${full.slice(0, SHORT_ANSWER_MAX_CHARS - 1).trimEnd()}…`;
-}
-
 function isPrepared(p: PreparedInput | NeedsClarification): p is PreparedInput {
   return !(p as NeedsClarification).needsClarification;
+}
+
+function uniqueById(list: readonly Passage[]): Passage[] {
+  const seen = new Set<string>();
+  return list.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
 }
 
 export function createEngineCore(deps: CoreEngineDeps): Engine {
   const now = deps.now ?? (() => new Date());
   const store: EngineStore = createStore(deps.db, now);
   const archivalMonths = deps.options?.archivalMonths ?? DEFAULT_ARCHIVAL_MONTHS;
+  const errorTable: ErrorProfileTable | null =
+    deps.options?.errorProfile !== undefined
+      ? deps.options.errorProfile
+      : deps.options?.errorProfilePath
+        ? loadErrorProfileTable(deps.options.errorProfilePath)
+        : null;
   const { searcher, llm, prepare } = deps;
+  const renderer = deps.renderer;
+
+  async function search(query: string, limit: number): Promise<Passage[]> {
+    try {
+      const found = await searcher.search(query, { limit });
+      return Array.isArray(found) ? found : [];
+    } catch (e) {
+      throw new SearchFailure(e);
+    }
+  }
 
   async function run(input: VerifyInput): Promise<VerifyOutcome> {
     const channel = input.channel;
@@ -136,13 +196,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     // (1) przygotowanie wejścia
     const prepared = prepare(input);
     if (!isPrepared(prepared)) return toState(stateOutcome('potrzeba_doprecyzowania', prepared.message));
-    if (prepared.kind === 'url') {
-      // URL użytkownika jest przedmiotem analizy, nie dowodem; w tym etapie nie pobieramy stron.
-      store.logEvent('url_not_fetched', { channel, detail: {} });
-      return toState(stateOutcome('brak_mozliwosci_sprawdzenia', MESSAGES.urlNotFetched, 'url_not_fetched'));
-    }
 
-    // (2) klucz rekordu i cache
     let corpusVersion: string;
     let documents: number;
     try {
@@ -153,7 +207,47 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     }
     if (!documents) return toState(stateOutcome('brak_mozliwosci_sprawdzenia', MESSAGES.emptyCorpus, 'empty_corpus'));
 
-    const recordId = computeRecordKey(prepared.normalizedInput, corpusVersion);
+    // Tekst do analizy: dla URL to treść strony (dane, nigdy dowód ani instrukcja).
+    let analysisText = prepared.maskedInput;
+    let keyInput = prepared.normalizedInput;
+    let pageTruncated = false;
+    if (prepared.kind === 'url') {
+      if (!deps.fetchPage) {
+        store.logEvent('url_not_fetched', { channel, detail: {} });
+        return toState(stateOutcome('brak_mozliwosci_sprawdzenia', MESSAGES.urlNotFetched, 'url_not_fetched'));
+      }
+      const target = prepared.urlInfo?.url ?? prepared.maskedInput;
+      let page: Awaited<ReturnType<PageFetcher>>;
+      try {
+        page = await deps.fetchPage(target);
+      } catch {
+        page = { ok: false, reason: 'blad_sieci' };
+      }
+      if (!page.ok) {
+        store.logEvent('url_fetch_failed', {
+          channel,
+          detail: { reason: page.reason, ...(page.status !== undefined ? { status: page.status } : {}) },
+        });
+        const message =
+          page.reason === 'adres_prywatny' || page.reason === 'niedozwolony_port' || page.reason === 'niedozwolony_protokol'
+            ? MESSAGES.urlBlocked
+            : page.reason === 'pusta_tresc' || page.reason === 'zly_typ_tresci'
+              ? MESSAGES.urlNoContent
+              : MESSAGES.urlNotFetched;
+        return toState(stateOutcome('brak_mozliwosci_sprawdzenia', message, `url:${page.reason}`));
+      }
+      store.logEvent('url_fetched', {
+        channel,
+        detail: { redirects: page.redirects, truncated: page.truncated, contentType: page.contentType },
+      });
+      analysisText = maskPii(page.text).text;
+      pageTruncated = page.truncated;
+      // Klucz obejmuje skrót treści: zmiana strony = nowe sprawdzenie, nie stary rekord.
+      keyInput = `${prepared.normalizedInput}\n#tresc:${sha256Hex(analysisText)}`;
+    }
+
+    // (2) klucz rekordu i cache
+    const recordId = computeRecordKey(keyInput, corpusVersion);
     const cached = store.getRecord(recordId);
     if (cached) {
       store.logEvent('cache_hit', { recordId, channel });
@@ -164,17 +258,26 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     const injectionSignals = new Set<string>();
     const notices: Notice[] = [];
     let injectionEvents = 0;
+    const isUrl = prepared.kind === 'url';
+    if (pageTruncated) notices.push({ type: 'ograniczenie_techniczne', text: PAGE_TRUNCATED_NOTICE });
 
-    const inputSignals = detectInjectionSignals(prepared.maskedInput);
-    if (inputSignals.length) {
-      for (const s of inputSignals) injectionSignals.add(`wejscie:${s}`);
-      notices.push({ type: 'ograniczenie_techniczne', text: INPUT_INJECTION_NOTICE });
-      store.logEvent('injection_signal', { recordId, channel, detail: { where: 'wejscie', signals: inputSignals } });
+    // (3) podejrzane segmenty wejścia/strony nie trafiają do modelu
+    const where = isUrl ? 'strona' : 'wejscie';
+    const stripped = stripInjectedSegments(analysisText);
+    if (stripped.signals.length) {
+      for (const s of stripped.signals) injectionSignals.add(`${where}:${s}`);
+      notices.push({ type: 'ograniczenie_techniczne', text: isUrl ? PAGE_INJECTION_NOTICE : INPUT_INJECTION_NOTICE });
+      store.logEvent('injection_signal', {
+        recordId,
+        channel,
+        detail: { where, signals: stripped.signals, removedSegments: stripped.removed },
+      });
       injectionEvents++;
     }
+    if (!stripped.text.trim())
+      return toState(stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims'), recordId);
 
-    // (3) ekstrakcja twierdzeń (dane wejściowe idą jako dane, nie instrukcje)
-    const extracted = await llm.extractClaims({ text: prepared.maskedInput });
+    const extracted = await llm.extractClaims({ text: stripped.text });
     addUsage(usage, extracted.usage);
     const rawClaims = Array.isArray(extracted.claims) ? extracted.claims : [];
     const claims: ExtractedClaim[] = [];
@@ -183,15 +286,20 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       if (!parsed.success) throw new LlmError('invalid_output', 'claim schema');
       claims.push(parsed.data);
     }
+    // Twierdzenie niejasne nie jest werdyktem: bez żadnego sprawdzalnego twierdzenia -> stan.
     const checkable = claims.filter((c) => c.kind !== 'niejasna').slice(0, MAX_CLAIMS);
     if (checkable.length === 0)
       return toState(stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims'), recordId);
 
+    const createdAt = new Date(started).toISOString();
+    const asOf = resolveAsOf(searcher, createdAt);
     const results: ClaimResult[] = [];
     const abstainCodes = new Map<string, string>();
     const nowDate = now();
+    const scope = scopeLimitation(corpusVersion, documents);
+    const baseLimitations = isUrl ? [scope, PAGE_IS_DATA_LIMITATION] : [scope];
+
     for (const claim of checkable) {
-      const scope = scopeLimitation(corpusVersion, documents);
       if (claim.kind === 'opinia' || claim.kind === 'prognoza') {
         const decision = decideVerdict(claim.kind, []);
         const strength = computeStrength(decision);
@@ -202,23 +310,20 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
           explanation: explainClaim({ verdict: decision.verdict, strength, confirmSources: 0, refuteSources: 0, contextSources: 0 }),
           explanationSource: 'szablon',
           evidence: [],
-          limitations: [scope],
+          limitations: [...baseLimitations],
           refutation: noRefutation(),
         });
         continue;
       }
 
-      // (4) wyszukiwanie fragmentów (kod)
-      let found: Passage[];
-      try {
-        found = await searcher.search(searchQuery(claim), { limit: MAX_PASSAGES_PER_CLAIM });
-      } catch (e) {
-        throw new SearchFailure(e);
-      }
-      const seenIds = new Set<string>();
-      const passages = (Array.isArray(found) ? found : [])
-        .filter((p) => (seenIds.has(p.id) ? false : (seenIds.add(p.id), true)))
-        .slice(0, MAX_PASSAGES_PER_CLAIM);
+      // (4) wyszukiwanie "za" i "przeciw" (kod)
+      const forPassages = uniqueById(await search(searchQuery(claim), MAX_PASSAGES_PER_CLAIM)).slice(0, MAX_PASSAGES_PER_CLAIM);
+      const cQuery = counterQuery(claim);
+      const counterFound = uniqueById(await search(cQuery, MAX_PASSAGES_PER_CLAIM));
+      const counterIds = new Set(counterFound.map((p) => p.id));
+      const forIds = new Set(forPassages.map((p) => p.id));
+      const counterNew = counterFound.filter((p) => !forIds.has(p.id)).slice(0, MAX_COUNTER_PASSAGES);
+      const passages = [...forPassages, ...counterNew];
 
       // Injection: fragmenty z sygnałem nie trafiają do modelu i nie mogą być dowodem.
       const flagged = new Set<string>();
@@ -237,16 +342,29 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         }
       }
       const sent = passages.filter((p) => !flagged.has(p.id));
+      const sentIds = new Set(sent.map((p) => p.id));
 
       // (5) ocena stanowisk (model) i (6) bramka cytatów (kod)
       let accepted: ReturnType<typeof validateCitations>['accepted'] = [];
       let rejectedCount = 0;
+      const modelFlagged = new Set<string>();
       if (sent.length > 0) {
         const assessed = await llm.assessPassages({ claim, passages: sent.map((p) => ({ id: p.id, text: p.text })) });
         addUsage(usage, assessed.usage);
-        const gate = validateCitations(Array.isArray(assessed.assessments) ? assessed.assessments : [], sent, {
-          flaggedPassageIds: flagged,
-        });
+        const assessments = Array.isArray(assessed.assessments) ? assessed.assessments : [];
+        for (const a of assessments)
+          if (a?.injectionSuspected === true && sentIds.has(a.passageId) && !modelFlagged.has(a.passageId)) {
+            modelFlagged.add(a.passageId);
+            injectionSignals.add(`fragment:${a.passageId}:zgloszone_przez_model`);
+            notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
+            store.logEvent('injection_signal', {
+              recordId,
+              channel,
+              detail: { where: 'fragment', passageId: a.passageId, claimId: claim.id, signals: ['zgloszone_przez_model'] },
+            });
+            injectionEvents++;
+          }
+        const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged });
         accepted = gate.accepted;
         rejectedCount = gate.rejected.length;
         const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
@@ -262,6 +380,14 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         }
       }
 
+      // Próba obalenia: ile dowodów przeciwnych przyniósł przebieg "przeciw".
+      const refutation: Refutation = {
+        performed: true,
+        queries: [cQuery],
+        found: accepted.filter((a) => counterIds.has(a.passage.id) && (a.stance === 'obala' || a.stance === 'rozbieznosc_kontekstu'))
+          .length,
+      };
+
       // (7) werdykt i siła (kod)
       const ruleEvidence: RuleEvidence[] = accepted.map((a) => ({
         passageId: a.passage.id,
@@ -269,9 +395,10 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         stance: a.stance,
         source: a.passage.meta,
         archival: isArchival(a.passage.meta, nowDate, archivalMonths),
+        expired: isExpired(a.passage.meta, nowDate),
         rank: a.rank,
       }));
-      const decision = decideVerdict(claim.kind, ruleEvidence);
+      const decision = decideVerdict(claim.kind, ruleEvidence, { refutationPerformed: refutation.performed });
       const strength = computeStrength(decision);
       const evidence: EvidenceItem[] = accepted.map((a, i) => ({
         passageId: a.passage.id,
@@ -284,17 +411,26 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       const distinctDocs = (stance: string) =>
         new Set(ruleEvidence.filter((e) => e.stance === stance).map((e) => e.documentId)).size;
 
-      const limitations: string[] = [scope];
+      const limitations: string[] = [...baseLimitations];
       if (ruleEvidence.some((e) => e.archival)) {
         limitations.push(archivalLimitation(archivalMonths));
         for (const e of ruleEvidence)
           if (e.archival) notices.push({ type: 'material_archiwalny', text: archivalNotice(archivalMonths), passageId: e.passageId });
       }
+      if (ruleEvidence.some((e) => e.expired)) {
+        limitations.push(EXPIRED_LIMITATION);
+        for (const e of ruleEvidence)
+          if (e.expired && e.source.validUntil)
+            notices.push({ type: 'material_archiwalny', text: expiredNotice(e.source.validUntil), passageId: e.passageId });
+      }
       if (decision.aligned.some((e) => e.source.sourceType !== 'prawo' && !e.source.publishedAt))
         limitations.push(UNDATED_LIMITATION);
-      const flaggedHere = passages.filter((p) => flagged.has(p.id)).length;
+      const flaggedHere = passages.filter((p) => flagged.has(p.id) || modelFlagged.has(p.id)).length;
       if (flaggedHere > 0) limitations.push(injectionLimitation(flaggedHere));
 
+      const mismatchKinds = accepted
+        .filter((a) => a.stance === 'rozbieznosc_kontekstu' && a.mismatch !== undefined)
+        .map((a) => a.mismatch as MismatchKind);
       const result: ClaimResult = {
         claim,
         verdict: decision.verdict,
@@ -306,12 +442,17 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
           confirmSources: distinctDocs('potwierdza'),
           refuteSources: distinctDocs('obala'),
           contextSources: distinctDocs('kontekst'),
+          mismatchSources: distinctDocs('rozbieznosc_kontekstu'),
+          mismatchKinds,
+          refutationPerformed: refutation.performed,
         }),
         explanationSource: 'szablon',
         evidence,
         limitations,
-        refutation: noRefutation(),
+        refutation,
       };
+      const profile = errorProfileFor(errorTable, strength.level);
+      if (profile) result.errorProfile = profile;
       if (decision.abstain) {
         abstainCodes.set(claim.id, decision.abstain);
         result.abstainReason = abstainReasonText(decision.abstain, passages.length, rejectedCount);
@@ -321,12 +462,40 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       results.push(result);
     }
 
-    // (8) zapis rekordu
-    const createdAt = new Date(started).toISOString();
-    const asOf = resolveAsOf(searcher, createdAt);
+    // Profil błędów także dla nie_podlega_weryfikacji (siła `brak`), jeśli plik go zawiera.
+    for (const r of results)
+      if (!r.errorProfile) {
+        const p = errorProfileFor(errorTable, r.strength.level);
+        if (p) r.errorProfile = p;
+      }
+
+    // (8a) baza incydentów: wyłącznie ostrzeżenia, nigdy werdykt
+    if (deps.incidents) {
+      let added = 0;
+      for (const claim of checkable) {
+        if (added >= MAX_INCIDENT_NOTICES) break;
+        try {
+          const hits = await deps.incidents.match(claim, nowDate);
+          for (const h of Array.isArray(hits) ? hits : []) {
+            if (added >= MAX_INCIDENT_NOTICES) break;
+            if (typeof h?.text !== 'string' || !h.text.trim()) continue;
+            notices.push({ type: 'dopasowanie_incydentu', text: h.text });
+            added++;
+          }
+        } catch {
+          // baza incydentów niedostępna: brak ostrzeżenia, ocena bez zmian
+        }
+      }
+      if (added > 0) store.logEvent('incident_match', { recordId, channel, detail: { count: added } });
+    }
+
+    // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
+    if (renderer) for (const r of results) r.explanation = safeExplanation(renderer, r, asOf);
+
+    // (8c) zapis rekordu
     const record: VerificationRecord = {
       id: recordId,
-      inputHash: sha256Hex(prepared.normalizedInput),
+      inputHash: sha256Hex(keyInput),
       corpusVersion,
       inputKind: prepared.kind,
       maskedInput: prepared.maskedInput,
@@ -347,6 +516,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       },
       schemaVersion: RECORD_SCHEMA_VERSION,
     };
+    if (renderer) record.shortAnswer = safeShortAnswer(renderer, record);
     const inserted = store.insertRecord(record);
     for (const r of results)
       if (r.verdict === 'brak_wystarczajacych_dowodow')
@@ -371,6 +541,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         verdicts: results.map((r) => r.verdict),
         llmCalls: usage.llmCalls,
         injectionEvents,
+        refutationFound: results.reduce((n, r) => n + r.refutation.found, 0),
       },
     });
     return { kind: 'record', record, cached: false };

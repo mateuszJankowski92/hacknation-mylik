@@ -14,7 +14,8 @@ import type {
   PassageAssessment,
 } from '../contracts/llm';
 import type { ClaimKind, ExtractedClaim } from '../contracts/claim';
-import type { Stance } from '../contracts/verdict';
+import type { MismatchKind, Stance } from '../contracts/verdict';
+import { looksLikeInjection } from './sanitize';
 import { MAX_CLAIMS, ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT, buildAssessUserMessage, buildExtractUserMessage } from './prompts';
 
 const MAX_SEARCH_TERMS = 10;
@@ -64,6 +65,23 @@ function keywords(text: string): string[] {
   }
   return out;
 }
+
+function numbers(text: string): Set<string> {
+  return new Set(text.match(/\p{N}+/gu) ?? []);
+}
+
+const isYear = (n: string) => /^(1[89]|20)\d{2}$/.test(n);
+
+/** Rozbieżność liczb: twierdzenie i zdanie podają liczby, ale żadna się nie pokrywa. */
+function numberMismatch(claim: string, sentence: string): MismatchKind | null {
+  const a = numbers(claim);
+  const b = numbers(sentence);
+  if (a.size === 0 || b.size === 0) return null;
+  for (const n of a) if (b.has(n)) return null;
+  return [...a, ...b].some(isYear) ? 'data' : 'skala';
+}
+
+const COUNTER_MARKERS = ['nieprawda', 'dementuje', 'zaprzecza', 'sprostowanie'];
 
 function hasNegation(text: string): boolean {
   const ws = words(text);
@@ -131,6 +149,7 @@ export class MockLlmProvider implements LlmProvider {
       }
       const claim: ExtractedClaim = { id: `c${claims.length + 1}`, text: s, kind };
       if (terms.length > 0) claim.searchTerms = terms.slice(0, MAX_SEARCH_TERMS);
+      if (kind === 'faktograficzna') claim.counterTerms = [...COUNTER_MARKERS, ...kws.slice(0, 4)];
       claims.push(claim);
     }
     const out = { claims };
@@ -143,6 +162,7 @@ export class MockLlmProvider implements LlmProvider {
     const minHits = Math.min(2, claimStems.length);
 
     const assessments: PassageAssessment[] = req.passages.map((p) => {
+      const injectionSuspected = looksLikeInjection(p.text);
       let best = '';
       let bestRatio = 0;
       let bestHits = 0;
@@ -155,12 +175,14 @@ export class MockLlmProvider implements LlmProvider {
         }
       }
       if (claimStems.length === 0 || bestRatio < COVERAGE_THRESHOLD || bestHits < minHits) {
-        return { passageId: p.id, stance: 'bez_zwiazku', quote: '', injectionSuspected: false };
+        return { passageId: p.id, stance: 'bez_zwiazku', quote: '', injectionSuspected };
       }
       let stance: Stance = 'potwierdza';
+      const mismatch = numberMismatch(req.claim.text, best);
       if (hasNegation(best) !== claimNegated) stance = 'obala';
+      else if (mismatch) return { passageId: p.id, stance: 'rozbieznosc_kontekstu', mismatch, quote: best, injectionSuspected };
       else if (containsAny(p.text, LIMIT_MARKERS)) stance = 'kontekst';
-      return { passageId: p.id, stance, quote: best, injectionSuspected: false };
+      return { passageId: p.id, stance, quote: best, injectionSuspected };
     });
 
     const out = { assessments };

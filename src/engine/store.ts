@@ -7,7 +7,10 @@ export type EngineEventType =
   | EventType
   | 'citation_rejected'
   | 'llm_unknown_passage'
-  | 'url_not_fetched';
+  | 'url_not_fetched'
+  | 'url_fetched'
+  | 'url_fetch_failed'
+  | 'incident_match';
 
 /** Dozwolone wartości w `detail`: liczby, kody, wartości logiczne (bez tekstu użytkownika). */
 export type EventDetail = Record<string, string | number | boolean | null | string[]>;

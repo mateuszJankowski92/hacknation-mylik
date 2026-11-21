@@ -12,11 +12,18 @@ export interface RuleEvidence {
   stance: EvidenceStance;
   source: SourceMeta;
   archival: boolean;
+  /** Treść po terminie obowiązywania (`validUntil` < data sprawdzenia). Wpływa tylko na siłę. */
+  expired?: boolean;
   /** Pozycja fragmentu w wynikach wyszukiwania dla twierdzenia (0 = najlepszy). */
   rank: number;
 }
 
-export type AbstainCode = 'brak_dowodow' | 'sprzeczne_zrodla' | 'tylko_kontekst' | 'niejednoznaczny_dokument';
+export type AbstainCode =
+  | 'brak_dowodow'
+  | 'sprzeczne_zrodla'
+  | 'tylko_kontekst'
+  | 'niejednoznaczny_dokument'
+  | 'brak_proby_obalenia';
 
 export interface VerdictDecision {
   verdict: Verdict;
@@ -26,40 +33,58 @@ export interface VerdictDecision {
   aligned: RuleEvidence[];
 }
 
+export interface DecideOptions {
+  /**
+   * Czy wykonano próbę obalenia (wyszukiwanie twierdzenia przeciwnego). Bez niej werdykt
+   * `potwierdzone` jest niedozwolony. Domyślnie true (zgodność wstecz dla wywołań bez potoku).
+   */
+  refutationPerformed?: boolean;
+}
+
 /**
- * Wiersze tabeli:
- * 1. opinia/prognoza -> nie_podlega_weryfikacji. (`niejasna` jest odfiltrowana wcześniej w potoku;
- *    gdyby tu trafiła, traktujemy ją jak brak dowodów, bez werdyktu z domysłu.)
+ * Wiersze tabeli (werdykt zależy WYŁĄCZNIE od stanowisk dowodów po bramce cytatów):
+ * 1. opinia/prognoza -> nie_podlega_weryfikacji. (`niejasna` jest odfiltrowana wcześniej w potoku
+ *    i daje stan potrzeba_doprecyzowania; gdyby tu trafiła: brak dowodów, bez werdyktu z domysłu.)
  * 2. E puste -> brak_wystarczajacych_dowodow (brak_dowodow).
- * 3. potwierdza i obala z różnych dokumentów -> brak_wystarczajacych_dowodow (sprzeczne_zrodla).
- *    Doprecyzowanie: potwierdza i obala z TEGO SAMEGO dokumentu też nie dają werdyktu
- *    (niejednoznaczny_dokument), bo kod nie rozstrzyga, która część dokumentu jest wiążąca.
- * 4. potwierdza + kontekst (bez obala) -> wprowadzajace_w_blad.
- * 5. tylko potwierdza -> potwierdzone; obala (bez potwierdza) -> falszywe (kontekst nie zmienia
- *    obalenia; dowody kontekstu są pokazane osobno); tylko kontekst -> brak_wystarczajacych_dowodow.
+ * 3. potwierdza i obala -> brak_wystarczajacych_dowodow: z różnych dokumentów `sprzeczne_zrodla`,
+ *    z jednego dokumentu `niejednoznaczny_dokument`. Obie strony zostają w dowodach.
+ * 4. obala (bez potwierdza) -> falszywe (rozbieżność kontekstu i kontekst tego nie zmieniają).
+ * 5. potwierdza i rozbieznosc_kontekstu (bez obala) -> brak_wystarczajacych_dowodow
+ *    (`sprzeczne_zrodla`): jedno źródło potwierdza okoliczności, inne podaje inne; nie rozstrzygamy.
+ * 6. rozbieznosc_kontekstu (bez potwierdza i obala) -> wprowadzajace_w_blad. To JEDYNA droga do
+ *    tego werdyktu; sama obecność fragmentów `kontekst` go nie daje.
+ * 7. potwierdza (z ewentualnym kontekstem) -> potwierdzone, ale tylko gdy wykonano próbę obalenia
+ *    (bez niej: brak_wystarczajacych_dowodow, `brak_proby_obalenia`). Dowód obalający z przebiegu
+ *    "przeciw" trafia do E jako `obala`, więc wiersz 3 ma pierwszeństwo.
+ * 8. tylko kontekst -> brak_wystarczajacych_dowodow (tylko_kontekst).
  */
-export function decideVerdict(kind: ClaimKind, evidence: readonly RuleEvidence[]): VerdictDecision {
+export function decideVerdict(kind: ClaimKind, evidence: readonly RuleEvidence[], opts: DecideOptions = {}): VerdictDecision {
   if (kind === 'opinia' || kind === 'prognoza') return { verdict: 'nie_podlega_weryfikacji', aligned: [] };
   if (kind === 'niejasna') return { verdict: 'brak_wystarczajacych_dowodow', abstain: 'brak_dowodow', aligned: [] };
 
   const confirm = evidence.filter((e) => e.stance === 'potwierdza');
   const refute = evidence.filter((e) => e.stance === 'obala');
-  const context = evidence.filter((e) => e.stance === 'kontekst');
+  const mismatch = evidence.filter((e) => e.stance === 'rozbieznosc_kontekstu');
 
   if (evidence.length === 0) return { verdict: 'brak_wystarczajacych_dowodow', abstain: 'brak_dowodow', aligned: [] };
 
-  if (confirm.length > 0 && refute.length > 0) {
+  const against = [...refute, ...mismatch];
+  if (confirm.length > 0 && against.length > 0) {
     const confirmDocs = new Set(confirm.map((e) => e.documentId));
-    const crossDoc = refute.some((e) => !confirmDocs.has(e.documentId)) || confirmDocs.size > 1;
+    const crossDoc = against.some((e) => !confirmDocs.has(e.documentId)) || confirmDocs.size > 1;
     return {
       verdict: 'brak_wystarczajacych_dowodow',
       abstain: crossDoc ? 'sprzeczne_zrodla' : 'niejednoznaczny_dokument',
       aligned: [],
     };
   }
-  if (confirm.length > 0 && context.length > 0) return { verdict: 'wprowadzajace_w_blad', aligned: confirm };
-  if (confirm.length > 0) return { verdict: 'potwierdzone', aligned: confirm };
   if (refute.length > 0) return { verdict: 'falszywe', aligned: refute };
+  if (mismatch.length > 0) return { verdict: 'wprowadzajace_w_blad', aligned: mismatch };
+  if (confirm.length > 0) {
+    if (opts.refutationPerformed === false)
+      return { verdict: 'brak_wystarczajacych_dowodow', abstain: 'brak_proby_obalenia', aligned: [] };
+    return { verdict: 'potwierdzone', aligned: confirm };
+  }
   return { verdict: 'brak_wystarczajacych_dowodow', abstain: 'tylko_kontekst', aligned: [] };
 }
 
@@ -78,6 +103,14 @@ export function isArchival(meta: SourceMeta, now: Date, months = DEFAULT_ARCHIVA
   return published.getTime() < threshold.getTime();
 }
 
+/** Treść po terminie obowiązywania: `validUntil` (YYYY-MM-DD) wcześniejsza niż dzień sprawdzenia. */
+export function isExpired(meta: SourceMeta, now: Date): boolean {
+  if (!meta.validUntil) return false;
+  const until = new Date(`${meta.validUntil}T23:59:59.999Z`);
+  if (Number.isNaN(until.getTime())) return false;
+  return until.getTime() < now.getTime();
+}
+
 /** Pozycja w wynikach, od której dopasowanie uznajemy za słabe (gdy żaden zgodny dowód nie jest wyżej). */
 export const WEAK_MATCH_RANK = 3;
 
@@ -93,12 +126,12 @@ const down = (l: StrengthLevel): StrengthLevel => (l === 'wysoka' ? 'srednia' : 
  * Siła podstawy. NIGDY nie zmienia werdyktu. Progi:
  * - brak: wstrzymanie się bez dowodów (lub nie_podlega_weryfikacji);
  * - niska: sprzeczne źródła (pokazujemy obie strony bez arbitralnej pewności);
- * - wysoka: >= 2 niezależne domeny wśród zgodnych dowodów, w tym urzędowe/prawo, żaden archiwalny,
- *   każdy z datą publikacji (albo akt prawny);
+ * - wysoka: >= 2 niezależne domeny wśród zgodnych dowodów, w tym urzędowe/prawo, żaden archiwalny
+ *   ani po terminie obowiązywania, każdy z datą publikacji (albo akt prawny);
  * - srednia: >= 1 źródło urzędowe/prawo albo >= 2 niezależne domeny;
  * - niska: pozostałe.
  * Następnie obniżenie o jeden poziom (nie poniżej `niska`), gdy: WSZYSTKIE zgodne dowody są
- * archiwalne; żaden zgodny dowód nie ma daty (poza prawem); najlepszy zgodny dowód jest na pozycji
+ * archiwalne lub po terminie obowiązywania (`validUntil`); którykolwiek zgodny dowód jest po terminie; żaden zgodny dowód nie ma daty (poza prawem); najlepszy zgodny dowód jest na pozycji
  * >= WEAK_MATCH_RANK w wynikach wyszukiwania (pozycja zamiast surowego `score`, bo skala score
  * zależy od wyszukiwarki).
  */
@@ -114,8 +147,10 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
 
   const domains = new Set(aligned.map((e) => e.source.domain.toLowerCase()));
   const official = aligned.some((e) => e.source.sourceType === 'urzedowe' || e.source.sourceType === 'prawo');
-  const anyArchival = aligned.some((e) => e.archival);
-  const allArchival = aligned.every((e) => e.archival);
+  const stale = (e: RuleEvidence) => e.archival || e.expired === true;
+  const anyArchival = aligned.some(stale);
+  const allArchival = aligned.every(stale);
+  const anyExpired = aligned.some((e) => e.expired === true);
   const undated = (e: RuleEvidence) => e.source.sourceType !== 'prawo' && !e.source.publishedAt;
   const anyUndated = aligned.some(undated);
   const allUndated = aligned.every(undated);
@@ -127,6 +162,7 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
   else if (official || domains.size >= 2) level = 'srednia';
   else level = 'niska';
   if (allArchival) level = down(level);
+  else if (anyExpired) level = down(level);
   if (allUndated) level = down(level);
   if (weak) level = down(level);
   if (!LEVELS.includes(level)) level = 'niska';

@@ -13,7 +13,8 @@ export type CitationRejectReason =
   | 'brak_w_zrodle'
   | 'url_w_cytacie'
   | 'instrukcja_w_cytacie'
-  | 'fragment_z_sygnalem';
+  | 'fragment_z_sygnalem'
+  | 'injection_wg_modelu';
 
 export interface AcceptedEvidence {
   passage: Passage;
@@ -93,7 +94,7 @@ export function locateQuote(passageText: string, quote: string): string | null {
  * (a) passageId musi należeć do fragmentów przekazanych modelowi; (b) cytat po normalizacji
  * białych znaków musi być podciągiem fragmentu; (c) 20..600 znaków; (d) stanowisko inne niż
  * `bez_zwiazku` wymaga cytatu; (e) cytat bez URL-a i bez znamion instrukcji. Fragment
- * oznaczony sygnałem injection nie może być dowodem. Dowody deduplikowane po fragmencie.
+ * oznaczony sygnałem injection (przez kod albo zgłoszony przez model) nie może być dowodem. Dowody deduplikowane po fragmencie.
  */
 export function validateCitations(
   assessments: readonly PassageAssessment[],
@@ -124,6 +125,11 @@ export function validateCitations(
     const reject = (reason: CitationRejectReason) => rejected.push({ passageId: a.passageId, reason });
     if (flagged.has(a.passageId)) {
       reject('fragment_z_sygnalem');
+      continue;
+    }
+    if (a.injectionSuspected === true) {
+      // Model zgłosił polecenia we fragmencie: fragment nie może być dowodem.
+      reject('injection_wg_modelu');
       continue;
     }
     const q = normalizeWhitespace(a.quote ?? '');

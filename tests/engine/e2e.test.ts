@@ -43,7 +43,8 @@ const STANCES: Record<Topic, Record<string, Stance>> = {
   wiadukt: { 'most-u#0': 'potwierdza', 'most-m#0': 'potwierdza' },
   przystań: { 'port-u#0': 'obala' },
   koncert: { 'fest-a#0': 'potwierdza', 'fest-b#0': 'obala' },
-  opłaty: { 'oplata-u#0': 'potwierdza', 'oplata-k#0': 'kontekst' },
+  // Uchwała to tło; drugi fragment opisuje tę samą podwyżkę, ale pod innymi warunkami.
+  opłaty: { 'oplata-u#0': 'kontekst', 'oplata-k#0': 'rozbieznosc_kontekstu' },
   opinia: {},
   kometa: {},
 };
@@ -75,7 +76,13 @@ function fakeModel() {
       const table = STANCES[topicOf(req.claim.text)];
       return req.passages.map((p) => {
         const stance = table[p.id] ?? 'bez_zwiazku';
-        return { passageId: p.id, stance, quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, 50), injectionSuspected: false };
+        return {
+          passageId: p.id,
+          stance,
+          quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, 50),
+          ...(stance === 'rozbieznosc_kontekstu' ? { mismatch: 'warunki' as const } : {}),
+          injectionSuspected: false,
+        };
       });
     },
   );
@@ -84,7 +91,14 @@ function fakeModel() {
 function makeEngine() {
   const db = openDb(':memory:');
   seedCorpus(db, 'e2e-v1', CORPUS);
-  const engine = createEngine({ db, searcher: createSearcher(db), llm: fakeModel(), now: fixedNow });
+  // Bez sieci: pobieranie strony podmienione na awarię.
+  const engine = createEngine({
+    db,
+    searcher: createSearcher(db),
+    llm: fakeModel(),
+    now: fixedNow,
+    fetchPage: async () => ({ ok: false, reason: 'blad_sieci' }),
+  });
   return { db, engine };
 }
 
@@ -128,6 +142,20 @@ describe('E2E silnika: wszystkie werdykty osiągalne', () => {
     expect(byId['oplata-k#0']!.archival).toBe(true);
     expect(c.limitations.some((l) => l.includes('archiwalnych'))).toBe(true);
     expect(out.record.notices.some((n) => n.type === 'material_archiwalny' && n.passageId === 'oplata-k#0')).toBe(true);
+    expect(byId['oplata-k#0']!.mismatch).toBe('warunki');
+  });
+
+  it('każdy rekord ma próbę obalenia i krótką odpowiedź z modułu render', async () => {
+    const { engine } = makeEngine();
+    const out = await engine.verify({ text: CASES[0]!.text, channel: 'www' });
+    if (out.kind !== 'record') throw new Error('oczekiwano rekordu');
+    const c = out.record.claims[0]!;
+    expect(c.refutation.performed).toBe(true);
+    expect(c.refutation.queries).toHaveLength(1);
+    expect(c.refutation.found).toBe(0);
+    expect(out.record.shortAnswer).toMatch(/^Werdykt: potwierdzone\./);
+    expect(out.record.shortAnswer).toContain('Stan na');
+    expect(c.explanation).toContain('Stan na');
   });
 
   it('cytaty są dosłownymi podciągami fragmentów, metadane z bazy', async () => {

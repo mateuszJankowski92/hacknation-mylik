@@ -1,5 +1,13 @@
 // Szablony tekstów po polsku. Uzasadnienie składa KOD (model nie pisze prozy).
-import { STRENGTH_LABELS_PL, STRENGTH_REASON_LABELS_PL, type StrengthLevel, type StrengthReasonCode, type Verdict } from '../contracts/index';
+import {
+  MISMATCH_LABELS_PL,
+  STRENGTH_LABELS_PL,
+  STRENGTH_REASON_LABELS_PL,
+  type MismatchKind,
+  type StrengthLevel,
+  type StrengthReasonCode,
+  type Verdict,
+} from '../contracts/index';
 import type { AbstainCode } from './rules';
 
 /** Odmiana liczebnika: 1 fragment, 2 fragmenty, 5 fragmentów. */
@@ -22,6 +30,11 @@ export interface ExplainInput {
   confirmSources: number;
   refuteSources: number;
   contextSources: number;
+  /** Liczba dokumentów z rozbieżnością kontekstu i jej rodzaje (dla `wprowadzajace_w_blad`). */
+  mismatchSources?: number;
+  mismatchKinds?: readonly MismatchKind[];
+  /** Czy przebieg "przeciw" (próba obalenia) został wykonany. */
+  refutationPerformed?: boolean;
 }
 
 function strengthSentence(level: StrengthLevel, reasons: StrengthReasonCode[]): string {
@@ -34,17 +47,26 @@ export function explainClaim(x: ExplainInput): string {
   switch (x.verdict) {
     case 'nie_podlega_weryfikacji':
       return 'To twierdzenie jest opinią albo prognozą, a nie informacją o faktach, więc nie da się go sprawdzić w źródłach.';
-    case 'potwierdzone':
-      return `W zbiorze źródeł ${plural(x.confirmSources, 'jest', 'są', 'jest')} ${nSources(x.confirmSources)}, które ${plural(x.confirmSources, 'potwierdza', 'potwierdzają', 'potwierdzają')} to twierdzenie, i nie znaleziono źródła, które mu przeczy. ${s}`;
+    case 'potwierdzone': {
+      const ctx = x.contextSources > 0 ? ` Dodatkowe tło (${nSources(x.contextSources)}) pokazano osobno.` : '';
+      const ref = x.refutationPerformed ? ' Szukaliśmy też źródeł, które mogłyby mu przeczyć, i takich nie znaleźliśmy.' : '';
+      return `W zbiorze źródeł ${plural(x.confirmSources, 'jest', 'są', 'jest')} ${nSources(x.confirmSources)}, które ${plural(x.confirmSources, 'potwierdza', 'potwierdzają', 'potwierdzają')} to twierdzenie, i nie znaleziono źródła, które mu przeczy.${ref}${ctx} ${s}`;
+    }
     case 'falszywe':
       return `W zbiorze źródeł ${plural(x.refuteSources, 'jest', 'są', 'jest')} ${nSources(x.refuteSources)}, które ${plural(x.refuteSources, 'przeczy', 'przeczą', 'przeczą')} temu twierdzeniu, i nie znaleziono źródła, które je potwierdza. ${s}`;
-    case 'wprowadzajace_w_blad':
-      return `Źródła potwierdzają główną część twierdzenia, ale pomija ono ważny kontekst, który zmienia jego wymowę (${nSources(x.contextSources)} z kontekstem pokazano osobno). ${s}`;
+    case 'wprowadzajace_w_blad': {
+      const n = x.mismatchSources ?? 0;
+      const kinds = [...new Set(x.mismatchKinds ?? [])].map((k) => MISMATCH_LABELS_PL[k]);
+      const what = kinds.length ? ` (${kinds.join(', ')})` : '';
+      return `Źródła opisują to samo zdarzenie lub tę samą treść, ale w innym kontekście${what}, niż podaje twierdzenie. Twierdzenie przenosi prawdziwą informację w inne okoliczności, więc wprowadza w błąd (${nSources(n)}). ${s}`;
+    }
     case 'brak_wystarczajacych_dowodow':
       if (x.abstain === 'sprzeczne_zrodla')
         return `Źródła są ze sobą sprzeczne: część potwierdza twierdzenie, a część mu przeczy. Pokazujemy obie strony i nie rozstrzygamy sporu. ${s}`;
       if (x.abstain === 'niejednoznaczny_dokument')
         return `Ten sam dokument zawiera fragmenty, które jednocześnie potwierdzają i podważają twierdzenie. Nie rozstrzygamy tego za źródło. ${s}`;
+      if (x.abstain === 'brak_proby_obalenia')
+        return 'Znaleźliśmy źródło, które potwierdza twierdzenie, ale nie udało się sprawdzić, czy inne źródła mu nie przeczą. Wstrzymujemy się od oceny.';
       if (x.abstain === 'tylko_kontekst')
         return 'Znalezione fragmenty dają jedynie tło do tematu, ale ani nie potwierdzają, ani nie obalają twierdzenia. Wstrzymujemy się od oceny.';
       return 'W zbiorze źródeł nie znaleziono fragmentu, który potwierdza lub obala to twierdzenie. Wstrzymujemy się od oceny.';
@@ -60,6 +82,8 @@ export function abstainReasonText(code: AbstainCode, checked: number, rejected: 
       return `Jeden dokument zawiera fragmenty wskazujące w przeciwnych kierunkach. ${stats}`;
     case 'tylko_kontekst':
       return `Znaleziono tylko fragmenty z kontekstem, bez fragmentu, który potwierdza lub obala twierdzenie. ${stats}`;
+    case 'brak_proby_obalenia':
+      return `Nie wykonano wyszukiwania źródeł przeczących twierdzeniu. ${stats}`;
     case 'brak_dowodow':
       return `W zbiorze źródeł nie znaleziono fragmentu, który potwierdza lub obala to twierdzenie. ${stats}`;
   }
@@ -86,6 +110,24 @@ export function archivalNotice(months: number): string {
   return `Ten fragment pochodzi z materiału archiwalnego (starszego niż ${months} mies.).`;
 }
 
+export function expiredNotice(validUntil: string): string {
+  return `Ten fragment był aktualny do ${validUntil}; po tej dacie stan mógł się zmienić.`;
+}
+
+export const EXPIRED_LIMITATION =
+  'Część dowodów pochodzi z materiałów po terminie obowiązywania, co obniża siłę podstawy.';
+
+export const MODEL_INJECTION_NOTICE =
+  'Model oceniający zgłosił, że fragment zawiera treść przypominającą polecenia dla systemu; fragment nie został użyty jako dowód.';
+
+export const PAGE_INJECTION_NOTICE =
+  'Pobrana strona zawiera treść przypominającą polecenia dla systemu. Te części pominęliśmy; nie mają wpływu na ocenę.';
+
+export const PAGE_IS_DATA_LIMITATION =
+  'Treść pobranej strony była tylko przedmiotem analizy: z niej wzięliśmy twierdzenia, a dowodów szukaliśmy wyłącznie w zbiorze źródeł.';
+
+export const PAGE_TRUNCATED_NOTICE = 'Strona była długa, więc przeanalizowaliśmy tylko jej początkową część.';
+
 export const INJECTION_NOTICE = 'Fragment zawiera treść przypominającą polecenia dla systemu i nie został użyty jako dowód.';
 
 export const INPUT_INJECTION_NOTICE =
@@ -99,7 +141,11 @@ export const MESSAGES = {
   searchFailed:
     'Nie udało się przeszukać zbioru źródeł, więc sprawdzenie nie zostało wykonane. To nie jest ocena zgłoszenia. Spróbuj ponownie później.',
   urlNotFetched:
-    'W tej wersji systemu nie pobieramy i nie sprawdzamy treści stron internetowych. Wklej treść doniesienia jako tekst, a sprawdzimy ją w zbiorze źródeł.',
+    'Nie udało się pobrać tej strony, więc sprawdzenie nie zostało wykonane. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst, a sprawdzimy ją w zbiorze źródeł.',
+  urlBlocked:
+    'Ten adres prowadzi do zasobu lokalnego lub wewnętrznego, więc go nie pobieramy. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
+  urlNoContent:
+    'Pobrana strona nie zawiera tekstu, który moglibyśmy przeanalizować. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
   clarification:
     'Nie znaleźliśmy w zgłoszeniu konkretnej informacji do sprawdzenia. Napisz, co dokładnie się wydarzyło, kogo lub czego dotyczy, gdzie i kiedy.',
 } as const;

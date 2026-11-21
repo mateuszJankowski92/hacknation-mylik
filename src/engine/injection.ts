@@ -57,6 +57,47 @@ export function detectInjectionSignals(text: string): InjectionSignalCode[] {
   return [...found].sort();
 }
 
+export interface StrippedText {
+  /** Tekst bez podejrzanych zdań/wierszy (to, co może trafić do modelu). */
+  text: string;
+  /** Kody sygnałów z usuniętych segmentów. */
+  signals: InjectionSignalCode[];
+  /** Liczba usuniętych segmentów. */
+  removed: number;
+}
+
+/**
+ * Usuwa z tekstu zdania i wiersze z sygnałem injection, żeby podejrzane fragmenty nie trafiły do modelu.
+ * Sprawdza też cały tekst (wzorce mogą przekraczać granice zdań); gdy sygnał jest tylko w całości,
+ * a nie w żadnym segmencie, zwraca pusty tekst (nie wiemy, który fragment usunąć).
+ */
+export function stripInjectedSegments(text: string): StrippedText {
+  const whole = detectInjectionSignals(text);
+  if (whole.length === 0) return { text, signals: [], removed: 0 };
+  const signals = new Set<InjectionSignalCode>();
+  const kept: string[] = [];
+  let removed = 0;
+  for (const line of text.split(/\n/)) {
+    const parts = line.match(/[^.!?…]+[.!?…]*\s*/gu) ?? [line];
+    const keptParts: string[] = [];
+    for (const part of parts) {
+      const sig = detectInjectionSignals(part);
+      if (sig.length) {
+        removed++;
+        for (const s of sig) signals.add(s);
+      } else keptParts.push(part);
+    }
+    kept.push(keptParts.join('').trimEnd());
+  }
+  let out = kept.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (detectInjectionSignals(out).length > 0 || removed === 0) {
+    for (const s of whole) signals.add(s);
+    out = '';
+    removed = Math.max(removed, 1);
+  }
+  return { text: out, signals: [...signals].sort(), removed };
+}
+
 /** Czy tekst zawiera adres URL lub domenę z protokołem/www. */
 export function containsUrl(text: string): boolean {
   return /\bhttps?:\/\/|\bwww\.[a-z0-9-]+\.[a-z]{2,}/iu.test(text);

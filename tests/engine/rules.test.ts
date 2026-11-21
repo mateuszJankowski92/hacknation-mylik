@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeStrength, decideVerdict, isArchival, type RuleEvidence } from '../../src/engine/rules';
+import { computeStrength, decideVerdict, isArchival, isExpired, type RuleEvidence } from '../../src/engine/rules';
 import { meta } from './fakes';
 import type { SourceMeta } from '../../src/contracts/index';
 
@@ -34,10 +34,31 @@ describe('decideVerdict: tabela reguł', () => {
     const d = decideVerdict('faktograficzna', [ev('a', 'potwierdza'), { ...ev('a', 'obala'), passageId: 'a#1' }]);
     expect(d.verdict).toBe('brak_wystarczajacych_dowodow');
   });
-  it('potwierdza + kontekst -> wprowadzajace_w_blad', () => {
+  it('potwierdza + kontekst -> potwierdzone (sam kontekst nie daje wprowadzajace_w_blad)', () => {
     const d = decideVerdict('faktograficzna', [ev('a', 'potwierdza'), ev('b', 'kontekst')]);
+    expect(d.verdict).toBe('potwierdzone');
+    expect(d.aligned.map((e) => e.documentId)).toEqual(['a']);
+  });
+  it('rozbieznosc_kontekstu -> wprowadzajace_w_blad (jedyna droga do tego werdyktu)', () => {
+    const d = decideVerdict('faktograficzna', [ev('a', 'rozbieznosc_kontekstu'), ev('b', 'kontekst')]);
     expect(d.verdict).toBe('wprowadzajace_w_blad');
     expect(d.aligned.map((e) => e.documentId)).toEqual(['a']);
+    for (const stances of [['kontekst'], ['kontekst', 'kontekst'], ['potwierdza', 'kontekst'], ['obala', 'kontekst']] as const) {
+      const v = decideVerdict('faktograficzna', stances.map((s, i) => ev(`d${i}`, s))).verdict;
+      expect(v).not.toBe('wprowadzajace_w_blad');
+    }
+  });
+  it('potwierdza + rozbieznosc_kontekstu z innego dokumentu -> sprzeczne_zrodla', () => {
+    const d = decideVerdict('faktograficzna', [ev('a', 'potwierdza'), ev('b', 'rozbieznosc_kontekstu')]);
+    expect(d).toMatchObject({ verdict: 'brak_wystarczajacych_dowodow', abstain: 'sprzeczne_zrodla' });
+  });
+  it('obala + rozbieznosc_kontekstu -> falszywe (cytat sprzeczny daje fałszywe)', () => {
+    expect(decideVerdict('faktograficzna', [ev('a', 'obala'), ev('b', 'rozbieznosc_kontekstu')]).verdict).toBe('falszywe');
+  });
+  it('potwierdzone wymaga wykonanej próby obalenia', () => {
+    const d = decideVerdict('faktograficzna', [ev('a', 'potwierdza')], { refutationPerformed: false });
+    expect(d).toMatchObject({ verdict: 'brak_wystarczajacych_dowodow', abstain: 'brak_proby_obalenia' });
+    expect(decideVerdict('faktograficzna', [ev('a', 'potwierdza')], { refutationPerformed: true }).verdict).toBe('potwierdzone');
   });
   it('tylko potwierdza -> potwierdzone; tylko obala -> falszywe; tylko kontekst -> brak', () => {
     expect(decideVerdict('faktograficzna', [ev('a', 'potwierdza')]).verdict).toBe('potwierdzone');
@@ -94,6 +115,23 @@ describe('siła podstawy', () => {
       decideVerdict('faktograficzna', [ev('a', 'potwierdza', { sourceType: 'urzedowe' }, { rank: 5 })]),
     );
     expect(weak).toEqual({ level: 'niska', reasons: ['zrodlo_urzedowe', 'jedno_zrodlo', 'slabe_dopasowanie'] });
+  });
+  it('materiał po terminie obowiązywania obniża siłę, ale nie zmienia werdyktu', () => {
+    const base = [ev('a', 'potwierdza', { sourceType: 'urzedowe' }), ev('b', 'potwierdza')];
+    const fresh = decideVerdict('faktograficzna', base);
+    const expired = decideVerdict('faktograficzna', [{ ...base[0]!, expired: true }, base[1]!]);
+    expect(expired.verdict).toBe(fresh.verdict);
+    expect(computeStrength(fresh).level).toBe('wysoka');
+    const s = computeStrength(expired);
+    expect(s.level).toBe('niska');
+    expect(s.reasons).toContain('zrodlo_archiwalne');
+  });
+  it('isExpired: validUntil przed dniem sprawdzenia', () => {
+    const now = new Date('2026-06-01T10:00:00Z');
+    expect(isExpired(meta({ documentId: 'a', validUntil: '2026-05-31' }), now)).toBe(true);
+    expect(isExpired(meta({ documentId: 'a', validUntil: '2026-06-01' }), now)).toBe(false);
+    expect(isExpired(meta({ documentId: 'a', validUntil: null }), now)).toBe(false);
+    expect(isExpired(meta({ documentId: 'a' }), now)).toBe(false);
   });
   it('isArchival: próg 24 mies., prawo nigdy archiwalne, brak daty nie jest archiwalny', () => {
     const now = new Date('2026-06-01T00:00:00Z');
