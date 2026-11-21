@@ -184,7 +184,7 @@ async function main(): Promise<void> {
     );
   console.log('Przypadki, których system nie obsługuje:');
   for (const u of file?.unsupported ?? []) console.log(`  ${u.id} [${u.scenario}]: ${u.reason}`);
-  console.log(`Zapisano: ${arg('--out') ?? 'data/eval/results.json'} (profil błędów silnika z: ${file?.errorProfileSource ?? 'brak'})`);
+  console.log(`Zapisano: ${arg('--out') ?? (live ? 'data/eval/results_live.json' : 'data/eval/results.json')} (profil błędów silnika z: ${file?.errorProfileSource ?? 'brak'})`);
 }
 
 main().catch((e) => {
