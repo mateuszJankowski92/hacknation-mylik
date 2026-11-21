@@ -89,7 +89,7 @@ describe('A. fakt prosty: ocena redakcji z indeksu', () => {
     expect(c.verdict).toBe('falszywe');
     expect(c.directAnswer).toBe('Nie.');
     const head = buildHeadline(c);
-    expect(head.startsWith('Nie. Redakcja Demagog sprawdziła twierdzenie „')).toBe(true);
+    expect(head.startsWith('Nie. Redakcja Demagog sprawdziła twierdzenie: „')).toBe(true);
     expect(head).toContain('oceniła je jako „Fałsz”');
     expect(head).toContain('Publikacja z 20.05.2026');
     expect(c.explanation.startsWith('Nie.')).toBe(true);
@@ -214,7 +214,7 @@ describe('G. spójność kanałów', () => {
     const c = rec(await engine.verify({ text: 'Czy to prawda, że Lipno Testowe nie jest jedynym miastem z darmowymi przejazdami dla seniorów?', channel: 'www' })).claims[0]!;
     expect(c.verdict).toBe('potwierdzone');
     expect(c.directAnswer).toBe('Tak.');
-    expect(buildHeadline(c)).toContain('mówi odwrotnie niż Twoje zgłoszenie');
+    expect(buildHeadline(c)).toContain('sprawdziła twierdzenie odwrotne do Twojego: „');
   });
 });
 
@@ -238,7 +238,63 @@ describe('I. dopasowanie tylko tej samej tezy', () => {
     const { engine } = engineWith({ factcheck: layerWith(INDEX), stances: { [THESIS_A]: 'kontekst' } });
     const c = rec(await engine.verify({ text: 'Czy agencja usunęła depeszę o wypowiedzi burmistrza Kowalskiego?', channel: 'www' })).claims[0]!;
     expect(c.verdict).toBe('brak_wystarczajacych_dowodow');
-    expect(c.explanation).toContain('nie tej samej tezy');
+    expect(c.explanation).toContain('sprawdziła podobne twierdzenie: „');
+    expect(c.explanation).toContain('To nie rozstrzyga Twojego pytania wprost.');
+  });
+});
+
+describe('sedno i szczegół: konkret z pytania, którego nie ma we wpisie redakcji', () => {
+  // Wpisy i pytania zbudowane na neutralnych danych testowych.
+  const THESIS_T = 'Gmina Testowo nie wypłaca dotacji szkołom.';
+  const idx = () => new FakeIndex([{ key: 'dotac', claims: [apiClaim({ text: THESIS_T, rating: 'Fałsz', url: 'https://demagog.org.pl/x/dotacje/' })] }]);
+  const run = async (q: string, claimText: string, stance: 'potwierdza' | 'obala') => {
+    const db = openDb(':memory:');
+    const s = scriptedModel({ Testowo: claimText }, (_c, p) => (p === THESIS_T ? stance : 'bez_zwiazku'));
+    const engine = createEngineCore({ db, searcher: new FakeSearcher([passage('g#0', 'Nic tu nie ma.', { sourceType: 'urzedowe' })]), llm: new ScriptedLlm(s.extract, s.assess), now: fixedNow, prepare: fakePrepare, supportGate: null, ranker: null, renderer: defaultRenderer, factcheck: layerWith(idx()) });
+    return rec(await engine.verify({ text: q, channel: 'www' })).claims[0]!;
+  };
+
+  it('teza odwrotna z dodatkowym progiem czasowym: wstrzymanie i „podobna sprawa”, nie „Tak.”', async () => {
+    const c = await run('Czy gmina Testowo wypłaca dotacje szkołom z opóźnieniem ponad 60 dni?', 'Gmina Testowo wypłaca dotacje szkołom z opóźnieniem ponad 60 dni.', 'obala');
+    expect(c.verdict).toBe('brak_wystarczajacych_dowodow');
+    expect(c.directAnswer).toBe('Nie udało mi się tego potwierdzić.');
+    const head = buildHeadline(c);
+    expect(head).toContain('sprawdziła podobne twierdzenie: „Gmina Testowo nie wypłaca dotacji szkołom.”');
+    expect(head).toContain('To nie rozstrzyga Twojego pytania wprost.');
+    expect(head).not.toMatch(/^(Tak|Nie)\./);
+  });
+
+  it('ta sama teza z kwantyfikatorem, którego nie ma we wpisie („jedyna”): bez odpowiedzi wprost', async () => {
+    const c = await run('Czy gmina Testowo jako jedyna nie wypłaca dotacji szkołom?', 'Gmina Testowo jako jedyna nie wypłaca dotacji szkołom.', 'potwierdza');
+    expect(c.verdict).toBe('brak_wystarczajacych_dowodow');
+    expect(c.evidence.some((e) => e.source.review?.similar)).toBe(true);
+  });
+
+  it('bez dodatkowego konkretu: ocena rozstrzyga jak dotąd, teza widoczna dosłownie', async () => {
+    const c = await run('Czy gmina Testowo nie wypłaca dotacji szkołom?', THESIS_T, 'potwierdza');
+    expect(c.verdict).toBe('falszywe');
+    expect(buildHeadline(c)).toContain(`sprawdziła twierdzenie: „${THESIS_T}”`);
+  });
+
+  it('teza odwrotna przechodzi przez bramkę wsparcia; ta sama teza nie', async () => {
+    const gateCalls: string[][] = [];
+    const gate = {
+      name: 'test-gate',
+      async checkSupport(req: { claim: string; quotes: string[] }) {
+        gateCalls.push(req.quotes);
+        return { verdicts: req.quotes.map(() => ({ relation: 'nie_rozstrzyga' as const, reason: 'test' })) };
+      },
+    };
+    for (const stance of ['obala', 'potwierdza'] as const) {
+      const db = openDb(':memory:');
+      const claimText = stance === 'obala' ? 'Gmina Testowo wypłaca dotacje szkołom.' : THESIS_T;
+      const s = scriptedModel({ Testowo: claimText }, (_c, p) => (p === THESIS_T ? stance : 'bez_zwiazku'));
+      const engine = createEngineCore({ db, searcher: new FakeSearcher([passage('g#0', 'Nic tu nie ma.', { sourceType: 'urzedowe' })]), llm: new ScriptedLlm(s.extract, s.assess), now: fixedNow, prepare: fakePrepare, supportGate: gate as never, ranker: null, renderer: defaultRenderer, factcheck: layerWith(idx()) });
+      const c = rec(await engine.verify({ text: 'Czy gmina Testowo wypłaca dotacje szkołom?', channel: 'www' })).claims[0]!;
+      if (stance === 'obala') expect(c.verdict).toBe('brak_wystarczajacych_dowodow');
+      else expect(c.verdict).toBe('falszywe');
+    }
+    expect(gateCalls.flat()).toEqual([THESIS_T]);
   });
 });
 

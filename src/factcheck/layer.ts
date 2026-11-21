@@ -277,8 +277,15 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
         drop('inne_nazwy');
         continue;
       }
-      if (date && !dateMatches(date, hay, review.claimDate ?? a.passage.meta.publishedAt, now) && !dateMatches(date, hay, a.passage.meta.publishedAt, now)) {
-        drop('inna_data');
+      // Sedno i szczegół: konkret ilościowy lub czasowy z twierdzenia (liczba, data, okres, próg,
+      // „jedyny”, „pierwszy”, „wszyscy”), którego nie ma w tezie ani tytule, albo niezgodna data:
+      // ocena redakcji nie daje odpowiedzi wprost, zostaje jako „podobna sprawa” (tło z oceną).
+      const missing = missingDetails(claim.text, hay, [review.claimDate, a.passage.meta.publishedAt]);
+      const dateOff = date && !dateMatches(date, hay, review.claimDate ?? a.passage.meta.publishedAt, now) && !dateMatches(date, hay, a.passage.meta.publishedAt, now);
+      if (missing.length || dateOff) {
+        drop(dateOff ? 'inna_data' : 'brak_szczegolu');
+        const { mismatch: _m, ...rest } = a;
+        kept.push({ ...rest, stance: 'kontekst', passage: withReview(a.passage, { ...review, label: null, similar: true, ...(a.stance === 'obala' ? { inverse: true } : {}) }) });
         continue;
       }
       const inverse = a.stance === 'obala';
@@ -297,6 +304,31 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
     const dropped = accepted.length - kept.length;
     return { accepted: kept, ...(Object.keys(reasons).length ? { reasons } : {}), ...(dropped ? { dropped } : {}) };
   }
+
+/** Słowa zakresu i progu (kwantyfikatory), porównywane rdzeniem. */
+const DETAIL_WORDS = /^(jedyn|pierws|wszys|wszyst|każd|kazd|zawsz|nigdy|nikt|żadn|zadn|ponad|powyż|powyz|poniż|poniz|najwi|najmn)/u;
+const POLISH_STEM = (w: string) => w.toLowerCase().slice(0, 5);
+
+/**
+ * Konkrety z twierdzenia, których brak w tekście wpisu redakcji: liczby (rok zgodny z datą tezy
+ * lub weryfikacji też się liczy) i słowa zakresu lub progu.
+ */
+export function missingDetails(claimText: string, hay: string, dates: (string | null | undefined)[]): string[] {
+  const low = hay.toLowerCase();
+  const years = new Set(dates.filter(Boolean).map((d) => d!.slice(0, 4)));
+  const out: string[] = [];
+  for (const n of claimText.match(/\d+(?:[.,]\d+)?/g) ?? []) {
+    if (low.includes(n) || low.includes(n.replace(',', '.')) || low.includes(n.replace('.', ','))) continue;
+    if (/^(19|20)\d{2}$/.test(n) && years.has(n)) continue;
+    out.push(n);
+  }
+  for (const w of claimText.match(/\p{L}+/gu) ?? []) {
+    if (!DETAIL_WORDS.test(w.toLowerCase())) continue;
+    const st = POLISH_STEM(w);
+    if (!low.includes(st)) out.push(w);
+  }
+  return [...new Set(out)];
+}
 
 function withReview(p: Passage, review: NonNullable<SourceMeta['review']>): Passage {
   return { ...p, meta: { ...p.meta, review } };

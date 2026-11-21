@@ -89,7 +89,7 @@ describe('weryfikacje redakcji w zbiorze', () => {
     const c = out.record.claims[0]!;
     expect(c.verdict).toBe('falszywe');
     expect(c.directAnswer).toBe('Nie.');
-    expect(buildHeadline(c)).toContain('Nie. Redakcja Testowa sprawdziła twierdzenie');
+    expect(buildHeadline(c)).toContain('Nie. Redakcja Testowa sprawdziła twierdzenie: „');
     expect(buildHeadline(c)).toContain('oceniła je jako „Fałsz”');
     // Uzasadnienie mówi "obala", ale rozstrzyga tylko teza z oceną: zostaje jako tło.
     expect(c.evidence.filter((e) => e.stance === 'obala')).toHaveLength(1);

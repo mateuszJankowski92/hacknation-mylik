@@ -927,9 +927,11 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         let acc = gate.accepted;
         let rejected = gate.rejected.length;
         // Teza z oceny redakcji nie jest dowodem na twierdzenie, tylko kandydatem na „tę samą tezę”:
-        // bramka wsparcia („czy cytat sam rozstrzyga”) jej nie dotyczy. Tożsamość tezy ustala ocena relacji
+        // bramka wsparcia („czy cytat sam rozstrzyga”) nie dotyczy tezy uznanej za tę samą. Tożsamość tezy ustala ocena relacji
         // i reguły doboru w kodzie (nazwy, data, tabela ocen). Uzasadnienie redakcji przechodzi przez bramkę.
-        const isThesis = (a: AcceptedEvidence) => !!a.passage.meta.review && a.passage.meta.review.role !== 'uzasadnienie';
+        // Decyzja prowadzącego (22.11): bez bramki tylko „ta sama teza” (potwierdza); teza odwrotna (obala) przez bramkę.
+        const isThesis = (a: AcceptedEvidence) =>
+          !!a.passage.meta.review && a.passage.meta.review.role !== 'uzasadnienie' && a.stance === 'potwierdza';
         const theses = acc.filter(isThesis);
         if (supportGate && acc.length > theses.length) {
           const gated = acc.filter((a) => !isThesis(a));

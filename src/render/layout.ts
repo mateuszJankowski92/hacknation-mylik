@@ -2,7 +2,7 @@ import type { ClaimResult, EvidenceItem } from '../contracts/record';
 import { VERDICT_LABELS_PL, type Verdict } from '../contracts/verdict';
 import { EVIDENCE_LINK_TEXT, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import { asOfStamp, formatDate } from './templates';
-import { missingEvidenceText, NOT_FOUND_SENTENCE, reviewSentence } from './answer';
+import { missingEvidenceText, NOT_FOUND_SENTENCE, reviewSentence, similarReview, similarSentence } from './answer';
 
 export { EVIDENCE_LINK_TEXT } from './plain';
 
@@ -74,10 +74,13 @@ function headlineBody(claim: ClaimResult, limits: LayoutLimits): string {
 			return `${publisherName(confirming, publisherLimit)} i ${publisherName(refuting, publisherLimit)} podają sprzeczne informacje. Nie wiem, czy to prawda.`;
 		}
 		if (claim.neededDocument) {
+			// Podobna sprawa z oceną redakcji (bez odpowiedzi wprost) idzie na koniec.
+			const sim = similarReview(claim);
+			const tailSim = sim ? ` ${similarSentence(sim, { maxThesis: quoteLimit })}` : '';
 			// Bez powtórzenia "nie udało się potwierdzić", gdy mówi to już bezpośrednia odpowiedź.
 			if (claim.directAnswer?.startsWith('Nie udało mi się'))
-				return `Do sprawdzenia potrzebuję: ${claim.neededDocument}. ${NOT_FOUND_SENTENCE}`;
-			return missingEvidenceText(claim);
+				return `Do sprawdzenia potrzebuję: ${claim.neededDocument}. ${NOT_FOUND_SENTENCE}${tailSim}`;
+			return `${missingEvidenceText(claim)}${tailSim}`;
 		}
 		return VERDICT_EXPLANATIONS_PL[verdict];
 	}

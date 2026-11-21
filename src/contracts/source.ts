@@ -40,6 +40,8 @@ export const ReviewInfoSchema = z.object({
   inverse: z.boolean().optional(),
   /** Dla weryfikacji w zbiorze: `teza` (fragment ze sprawdzaną tezą) albo `uzasadnienie` (tylko tło). */
   role: z.enum(['teza', 'uzasadnienie']).optional(),
+  /** Podobna sprawa: wpis dotyczy podobnej tezy, ale nie rozstrzyga pytania wprost (brak szczegółu lub inna data). */
+  similar: z.boolean().optional(),
 });
 export type ReviewInfo = z.infer<typeof ReviewInfoSchema>;
 

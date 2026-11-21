@@ -21,7 +21,7 @@ import {
 import { buildResultLayout } from './layout';
 import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
-import { decisiveReview, missingEvidenceText, reviewEvidence, reviewSentence } from './answer';
+import { decisiveReview, missingEvidenceText, reviewSentence, similarReview, similarSentence } from './answer';
 
 export * from './answer';
 
@@ -83,10 +83,20 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 		const r = review.source.review!;
 		const when = review.source.publishedAt ? `, ${formatDate(review.source.publishedAt)}` : '';
 		const head = join(lead.directAnswer ?? '', `${publisherName(review, MIN_PUBLISHER_CHARS * 2)}${when}: ocena „${r.rating}”.`);
+		// Ze sprawdzaną tezą dosłownie (skróconą), gdy się mieści.
+		const what = r.inverse ? 'twierdzenie odwrotne' : 'twierdzenie';
+		const thesis = r.claimReviewed.length > 70 ? `${r.claimReviewed.slice(0, 69).trimEnd()}…` : r.claimReviewed;
+		shortCandidates.push(join(lead.directAnswer ?? '', `${publisherName(review, MIN_PUBLISHER_CHARS * 2)}${when}, ${what} „${thesis}”: ocena „${r.rating}”.`, pubLinks[0]!, `[${label}]`, asOfShort, tail));
 		shortCandidates.push(join(head, pubLinks[0]!, `[${label}]`, asOfShort, warning, tail), join(head, pubLinks[0]!, `[${label}]`, asOfShort, tail));
 	}
 	if (lead.neededDocument) {
 		const head = join(lead.directAnswer ?? 'Nie udało mi się potwierdzić tej informacji.', `Potrzebuję: ${lead.neededDocument}.`);
+		const sim = similarReview(lead);
+		if (sim) {
+			const simShort = similarSentence(sim, { maxThesis: 70, link: false });
+			shortCandidates.push(join(lead.directAnswer ?? 'Nie udało mi się potwierdzić tej informacji.', simShort, `Link do publikacji: ${sim.source.url}`, `[${label}]`, asOfShort, tail));
+			shortCandidates.push(join(lead.directAnswer ?? 'Nie udało mi się potwierdzić tej informacji.', simShort, `[${label}]`, asOfShort, tail));
+		}
 		shortCandidates.push(join(head, `[${label}]`, asOfShort, warning, tail), join(head, `[${label}]`, asOfShort, tail));
 	}
 	const tryFull = (pubLink: string): string | null => {
@@ -122,13 +132,10 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 	const parts: string[] = [];
 	if (claim.directAnswer) parts.push(claim.directAnswer);
 	// Oceny redakcji (indeks weryfikacji): zawsze przypisane redakcji, z adresem publikacji.
-	const reviews = reviewEvidence(claim);
 	const decisive = decisiveReview(claim);
-	for (const item of decisive ? [decisive] : reviews.slice(0, 1)) {
-		parts.push(reviewSentence(item));
-		if (!decisive) parts.push('Ta ocena dotyczy podobnej, ale nie tej samej tezy, więc na niej nie opieram odpowiedzi.');
-		parts.push(`Link do publikacji: ${item.source.url}`);
-	}
+	const similar = similarReview(claim);
+	if (decisive) parts.push(reviewSentence(decisive), `Link do publikacji: ${decisive.source.url}`);
+	else if (similar) parts.push(similarSentence(similar));
 	const confirming = claim.evidence.filter((e) => e.stance === 'potwierdza');
 	const refuting = claim.evidence.filter((e) => e.stance === 'obala');
 	const contextual = claim.evidence.filter((e) => e.stance === 'rozbieznosc_kontekstu' || e.stance === 'kontekst');

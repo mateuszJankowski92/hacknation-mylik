@@ -84,13 +84,30 @@ export function decisiveReview(claim: ClaimResult): EvidenceItem | null {
 /** Zdanie przypisujące ocenę redakcji (dosłowne pola indeksu w cudzysłowie), z datą publikacji. */
 export function reviewSentence(item: EvidenceItem, opts: { maxThesis?: number } = {}): string {
   const r = item.source.review!;
-  const max = opts.maxThesis ?? 220;
-  const thesis = r.claimReviewed.length > max ? `${r.claimReviewed.slice(0, max - 1).trimEnd()}…` : r.claimReviewed;
+  const thesis = cut(r.claimReviewed, opts.maxThesis ?? 220);
   const who = r.claimant ? ` (autor wypowiedzi: ${r.claimant})` : '';
   const when = item.source.publishedAt ? ` Publikacja z ${formatDate(item.source.publishedAt)}.` : '';
-  const inverse = r.inverse ? ' To twierdzenie mówi odwrotnie niż Twoje zgłoszenie.' : '';
-  return `${editorial(item)} sprawdziła twierdzenie „${thesis}”${who} i oceniła je jako „${r.rating}”.${inverse}${when}`;
+  // Teza odwrotna: zdanie mówi to wprost, a sprawdzana teza jest widoczna dosłownie.
+  const what = r.inverse ? 'twierdzenie odwrotne do Twojego' : 'twierdzenie';
+  return `${editorial(item)} sprawdziła ${what}: „${thesis}”${who} i oceniła je jako „${r.rating}”.${when}`;
 }
+
+/** Podobna sprawa: ocena redakcji pokazana, ale bez odpowiedzi wprost (brak szczegółu, inna data, inna teza). */
+export function similarSentence(item: EvidenceItem, opts: { maxThesis?: number; link?: boolean } = {}): string {
+  const r = item.source.review!;
+  const thesis = cut(r.claimReviewed, opts.maxThesis ?? 220);
+  const when = item.source.publishedAt ? `, ${formatDate(item.source.publishedAt)}` : '';
+  const link = opts.link === false ? '' : `, ${item.source.url}`;
+  return `${editorial(item)} sprawdziła podobne twierdzenie: „${thesis}” i oceniła je jako „${r.rating}”${when}${link}. To nie rozstrzyga Twojego pytania wprost.`;
+}
+
+/** Pierwsza ocena redakcji pokazana jako podobna sprawa (tło z tezą, nie uzasadnienie). */
+export function similarReview(claim: ClaimResult): EvidenceItem | null {
+  if (decisiveReview(claim)) return null;
+  return reviewEvidence(claim).find((e) => e.source.review?.role !== 'uzasadnienie') ?? null;
+}
+
+const cut = (t: string, max: number) => (t.length > max ? `${t.slice(0, max - 1).trimEnd()}…` : t);
 
 /** "Redakcja X" (bez podwójnego słowa, gdy nazwa wydawcy zaczyna się od "Redakcja"). */
 export function editorial(item: EvidenceItem, lower = false): string {
