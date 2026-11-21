@@ -1,6 +1,6 @@
-# Źródła Mylika: dwie warstwy
+# Źródła Mylika: trzy warstwy
 
-Mylik (zespół Iteracja7) opiera odpowiedź na źródłach z jawnych list. Są dwie warstwy. Werdykt zależy wyłącznie od tego, co źródło mówi o twierdzeniu (stanowiska dowodów po bramkach), nigdy od domeny, wydawcy ani warstwy. Warstwa wpływa tylko na siłę podstawy („Na ile to pewne”).
+Mylik (zespół Iteracja7) opiera odpowiedź na źródłach z jawnych list. Są trzy warstwy (trzecia: oceny redakcji sprawdzających fakty, niżej). Werdykt zależy wyłącznie od tego, co źródło mówi o twierdzeniu (stanowiska dowodów po bramkach), nigdy od domeny, wydawcy ani warstwy. Warstwa wpływa tylko na siłę podstawy („Na ile to pewne”).
 
 ## Warstwa 1: zamknięty zbiór urzędowy (korpus)
 
@@ -85,3 +85,44 @@ Wnioski: różnice F1 między przebiegami (0,69-0,73) mieszczą się w zmiennoś
 ### Zestawy testowe
 
 Przebiegi zestawu strojeniowego i kontrolnego v1 idą bez warstwy 2 (porównywalność; `npm run eval` domyślnie jej nie włącza). Dla kontrolnego v2 jest jeden przebieg z warstwą 2 na Claude Haiku 5.5 (`npm run eval -- --part kontrolny_v2 --live`, wyniki w `data/eval/results_live.json`, osobno od profilu omylności).
+
+
+## Warstwa 3: oceny redakcji sprawdzających fakty (zad. 40, 21.11.2026)
+
+Typ źródła `factcheck`, warstwa `weryfikacja_redakcji`. Dwa wejścia, ta sama tabela ocen i te same reguły doboru (`src/factcheck/layer.ts`, `selectReviewEvidence`).
+
+### Wejście A: weryfikacje redakcji w zbiorze (nasze wyszukiwanie)
+
+- Źródło w `data/sources.json` z polem `reviews.file` (plik JSONL, jedna weryfikacja w linii: `url`, `publisher`, `kind`, `title`, `claim`, `claimant`, `claimDate`, `rating`, `reviewDate`, `body`, `fetchedAt`). Wczytuje je `npm run corpus:ingest` (`src/corpus/reviews.ts`): teza (`claim`, dosłownie) to osobny fragment 0, uzasadnienie (`body`) dzielone jak reszta korpusu, ocena w tabeli `document_reviews`. Szukamy ich naszym wyszukiwaniem (podobieństwo słów), a nie dosłowną frazą jak indeks Google.
+- **Stan:** pliku Demagoga nie ma. Serwis demagog.org.pl zwraca naszemu klientowi 403 (Cloudflare) na wszystkie ścieżki poza robots.txt, a nie obchodzimy zabezpieczeń; licencja Demagoga dopuszcza użycie niekomercyjne bez zmian z podaniem źródła, ale nagłówek `Content-Signal: ai-train=no, use=reference` i licencja niekomercyjna wymagają zgody na pełny korpus (ustalenia: `data/raw/demagog/LICENCJA.md`). Wpis źródła dodamy, gdy będzie plik i zgoda; mechanizm jest gotowy i przetestowany (`tests/corpus/reviews.test.ts`).
+- W zbiorze są też wcześniej pobrane strony dwóch redakcji (Konkret24: 31 dokumentów, FakeNews.pl: 10) jako zwykłe dokumenty, bez metadanej oceny. Wyłącznik `corpusDirectFactcheck` w `data/factcheck.json` pozwala usunąć je ze ścieżki dowodowej (`use: false`: wyszukiwanie je pomija; wtedy 692 dokumenty, 15 domen, 3 typy źródeł). Domyślnie `use: true` (decyzja PM po odpowiedzi mentora z 21.11, 23:15).
+
+### Wejście B: indeks Google Fact Check Tools (pomocnicze)
+
+- Metoda `claims:search` (GET `https://factchecktools.googleapis.com/v1alpha1/claims:search`, parametry `query`, `languageCode=pl`, `pageSize`, klucz API). Odpowiedź: `claims[]` z polami `text` (sprawdzana teza), `claimant`, `claimDate`, `claimReview[]` (`publisher.name`, `publisher.site`, `url`, `title`, `reviewDate`, `textualRating`, `languageCode`). Dokumentacja: developers.google.com/fact-check/tools/api/reference/rest/v1alpha1/claims/search (odczyt 21.11.2026).
+- Indeks dopasowuje frazy dosłownie (bez podobieństwa; wskazanie mentora), więc pytamy go kilkoma krótkimi frazami z twierdzenia: nazwy własne i liczby, słowa kluczowe od modelu, najdłuższe słowa treści (najwyżej 3 zapytania, równolegle). Wyniki łączymy i odsiewamy tym samym wymogiem tej samej tezy.
+- Warstwa działa równolegle z wyszukiwaniem w zbiorze, z własnym limitem czasu (6 s), dla każdego twierdzenia faktograficznego. Stron redakcji nie pobieramy: odpowiedź odsyła adresem z indeksu.
+- Lista wydawców do audytu: `data/factcheck.json` (`publishers`, każdy z zasadą kwalifikacji, źródłem statusu i datą). Zasada: sygnatariusz Kodeksu Zasad IFCN albo zweryfikowany członek EFCSN, weryfikacje po polsku, domena adresu publikacji zgodna z listą (sprawdzana w kodzie, nie z pola nazwy). Włączony: Demagog (EFCSN od 25.05.2023). Wyłączone do potwierdzenia: Pravda (EFCSN od 23.02.2024, domena niepotwierdzona), AFP Sprawdzam (na liście EFCSN tylko AFP). Lista IFCN renderuje się skryptem i nie została odczytana.
+- Warunki użycia: Google APIs Terms of Service (developers.google.com/terms): bez budowania własnej bazy z wyników i bez kopii dłuższej, niż pozwala nagłówek pamięci podręcznej; klucz nie trafia do kodu otwartego (tylko `.env`); wymagane oznaczenia autorstwa: podajemy wydawcę, ocenę i adres publikacji. W rekordzie zostaje tylko teza, ocena i adres (jak cytat), z retencją `RETENTION_DAYS`.
+
+### Jak ocena redakcji staje się odpowiedzią
+
+1. Model (istniejący krok oceny i bramka wsparcia) ocenia relację sprawdzanej tezy do twierdzenia użytkownika: ta sama teza = `potwierdza`, teza odwrotna = `obala`, inna okoliczność lub podobny temat = tło. Model nie widzi oceny redakcji, tytułu ani adresu.
+2. Kod wymaga zgodności zdarzenia (nazwy własne z twierdzenia w tezie lub tytule, zgodna data lub okres; te same funkcje co w warstwie 2). Podobny temat ani sama domena nie wystarczą.
+3. Ocena redakcji przechodzi przez jawną tabelę (`src/factcheck/ratings.ts`):
+
+| Ocena redakcji (po normalizacji) | Etykieta tezy |
+|---|---|
+| prawda | potwierdzone |
+| fałsz, nieprawda | fałszywe |
+| manipulacja, częściowa prawda, częściowy fałsz, częściowo fałsz/prawda, brak kontekstu, zmanipulowane, wprowadza w błąd | wprowadzające w błąd |
+| nieweryfikowalne, nie da się zweryfikować | brak wystarczających dowodów (tylko tło) |
+| inna (nieznana) | tylko tło, bez rozstrzygnięcia |
+
+   Teza odwrotna: prawda i fałsz zamieniają się miejscami; ocen pośrednich nie odwracamy (tło).
+4. Uzasadnienie weryfikacji ze zbioru jest tylko tłem: rozstrzyga wyłącznie teza z oceną.
+5. Odpowiedź zawsze przypisuje ocenę redakcji („Redakcja Demagog sprawdziła twierdzenie „…” i oceniła je jako „Fałsz”. Publikacja z DD.MM.RRRR.”) z adresem publikacji. Siła podstawy z samej oceny redakcji: najwyżej średnia (przesłanka „źródło spoza urzędów”); ze źródłem urzędowym może być wysoka.
+
+### Awaria indeksu
+
+Brak klucza (przy `FACTCHECK_LAYER=on`), błąd dostępu (400/401/403), limit (429), inny błąd HTTP, błąd sieci, przekroczenie czasu: nigdy werdykt ani „nie znaleziono”. Gdy zbiór rozstrzyga choć jedno twierdzenie, odpowiedź zostaje z dopiskiem „Nie udało mi się teraz sprawdzić indeksu Google…”. Gdy nie rozstrzyga, wynik to stan techniczny `awaria_techniczna` z komunikatem „Nie mogę teraz sprawdzić indeksu Google, w którym redakcje sprawdzające fakty publikują swoje oceny, z powodu błędu dostępu. … Spróbuj ponownie za kilka minut.” (bez rekordu). Zdarzenia w logu: `factcheck_search` (status, liczby, kod HTTP), `factcheck_unavailable`. Przełącznik: `FACTCHECK_LAYER=auto|on|off` (auto: włączony, gdy `GOOGLE_FACTCHECK_API_KEY` niepusty).

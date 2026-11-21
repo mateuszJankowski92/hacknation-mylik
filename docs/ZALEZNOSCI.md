@@ -7,6 +7,7 @@ Usługi spoza serwera Mylika, co do nich trafia i jak je wymienić. Każda jest 
 | Anthropic API (Claude Haiku 5.5) | ekstrakcja twierdzeń, wybór kandydatów, ocena stanowisk, bramka wsparcia | tekst zgłoszenia po maskowaniu danych osobowych, fragmenty źródeł z korpusu | `src/llm/anthropic.ts` (interfejs `LlmProvider`, `SupportGate`) | włączone przy `LLM_PROVIDER=anthropic` |
 | Basal na wynajętej maszynie GPU (RunPod) | bramka wsparcia; opcjonalnie ocena stanowisk | twierdzenie po maskowaniu i jeden cytat (przy ocenie: jeden fragment źródła) | `src/llm/basal.ts`, `src/llm/basalAssess.ts` | wyłączone |
 | Anthropic API, wyszukiwarka `web_search` | druga warstwa źródeł (zad. 29) | zob. dokumentacja zad. 29 | `src/live/` | wyłączone (`LIVE_LAYER`) |
+| Google Fact Check Tools API (`claims:search`) | oceny redakcji sprawdzających fakty (warstwa 3, pomocnicza) | wyłącznie krótkie frazy z twierdzenia (nazwy, liczby, słowa kluczowe), po maskowaniu; bez treści zgłoszenia, kanału i IP | `src/factcheck/` (interfejs `FactcheckIndex`) | `FACTCHECK_LAYER=auto`: włączone, gdy `GOOGLE_FACTCHECK_API_KEY` niepusty |
 | EUvsDisinfo (MCP) | znane operacje informacyjne, tylko ostrzeżenia | nic ze zgłoszeń; pobieranie migawki skryptem | `scripts/fetch-euvsdisinfo.ts` | brak migawki w repozytorium (licencja niepotwierdzona); bez niej brak ostrzeżeń, bez błędu |
 
 ## Basal (zad. 30)
@@ -53,6 +54,20 @@ Odpowiedź: `answers.relacja.choice`, `probabilities`, `confidence` (prawdopodob
 **Koszt.** Basal nie liczy tokenów do rachunku: płaci się za godzinę maszyny GPU. W pomiarze koszt to czas przebiegu razy cena za godzinę (maszyna wynajęta na cały przebieg) oraz, dla porównania, suma czasu pracy modelu razy ta cena.
 
 **Pomiar.** `npx tsx scripts/eval-basal.ts --health` (stan serwera, bez wypisywania adresu i tokenu), potem `npx tsx scripts/eval-basal.ts --gpu-usd-per-hour <cena>` (bramka) i z `--assess` (bramka i ocena). Wyniki w `data/eval/basal/`.
+
+## Google Fact Check Tools (zad. 40)
+
+**Klucz.** `GOOGLE_FACTCHECK_API_KEY` (klucz API projektu Google Cloud z włączonym „Fact Check Tools API”), tylko w `.env`; nie trafia do logów, zdarzeń ani kodów błędów (test w `tests/factcheck/unit.test.ts`).
+
+**Limity i koszt.** Dokumentacja metody nie podaje ceny ani dziennego limitu; warunki Google APIs mówią, że limity ustala Google i może je zmienić. W prototypie: najwyżej 3 zapytania na twierdzenie (najwyżej 15 na zgłoszenie), 10 wyników na zapytanie, bez pamięci podręcznej poza rekordem (okno 6 h w kluczu rekordu). Koszt nie jest wliczany do `usage.estimatedCostUsd` (brak cennika).
+
+**Czas.** Własny limit 6 s (`data/factcheck.json`, `index.timeoutMs`), równolegle z wyszukiwaniem w zbiorze; całe zgłoszenie nadal w limicie 22 s.
+
+**Awaria.** Zob. docs/ZRODLA.md, „Awaria indeksu”: stan techniczny tylko wtedy, gdy zbiór nie rozstrzyga; inaczej dopisek o ograniczeniu. Wyłączenie: `FACTCHECK_LAYER=off`.
+
+**Jak wymienić.** Interfejs `FactcheckIndex` (`src/factcheck/client.ts`): jedna metoda `search({query, languageCode, pageSize, signal})` zwracająca pola w formacie `claims[]` albo kod błędu. Inny indeks ClaimReview wymaga nowej klasy z tą metodą.
+
+**Sprawdzenie na żywo.** Nie wykonane w zad. 40: klucza nie było w środowisku (warstwa gotowa, przetestowana na atrapie o strukturze odpowiedzi API).
 
 ## Ilustracje
 

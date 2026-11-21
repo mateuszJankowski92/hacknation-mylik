@@ -1,11 +1,15 @@
 # Czego Mylik nie obsługuje
 
-Stan na 21.11.2026. Ujawniamy to jury i obywatelom wprost. W każdym z tych przypadków system nie zgaduje etykiety.
+Stan na 21.11.2026 (aktualizacja zad. 40). Ujawniamy to jury i obywatelom wprost. W każdym z tych przypadków system nie zgaduje etykiety.
 
 | Przypadek | Co się dzieje | Gdzie w kodzie |
 |---|---|---|
 | **F. Obraz, zdjęcie, zrzut ekranu** | Brak. Interfejs i API przyjmują tylko tekst albo adres URL. Nie ma odczytu tekstu z obrazu ani wyszukiwania odwrotnego obrazu. Tekst ze zrzutu trzeba przepisać. | `src/contracts/api.ts` (`text` albo `url`) |
 | Dźwięk, wideo | Brak. | jw. |
+| Weryfikacje Demagoga w naszym zbiorze | Mechanizm gotowy (plik JSONL jako źródło), ale danych brak: serwis blokuje nasz klient (403, Cloudflare), a nie obchodzimy zabezpieczeń; pełny korpus wymaga zgody redakcji. Do weryfikacji Demagoga docieramy tylko przez indeks Google, który dopasowuje frazy dosłownie, więc często ich nie zwraca. | `src/corpus/reviews.ts`, `data/raw/demagog/LICENCJA.md` |
+| Indeks Google Fact Check Tools bez klucza | Przy `FACTCHECK_LAYER=auto` warstwa wyłączona (system działa jak przed zad. 40). Przy `on`: stan techniczny, gdy zbiór nie rozstrzyga. Warstwa niesprawdzona na żywo (brak klucza w zad. 40). | `src/factcheck` |
+| Pytanie o rozbieżność liczb („dlaczego … 650, a nie 700?”) | Przypisujemy ocenę redakcji i odsyłamy do publikacji; nie streszczamy artykułu redakcji ani nie wyjaśniamy różnicy własnymi słowami. | `src/render/answer.ts` |
+| Portal Odyseusz (odyseusz.msz.gov.pl) w zbiorze | Brak: ochrona przed botami (Incapsula) i treść renderowana skryptem; zgodnie z zasadami katalogu nie obchodzimy zabezpieczeń. Komunikaty MSZ (gov.pl/web/dyplomacja) są w zbiorze. | `data/sources.json` |
 | **H. Pętla informacji** | Obsługiwana w warstwie serwera (nie jest już „nieobsługiwana”). Twierdzenie bez wystarczających dowodów tworzy lub aktualizuje sprawę (deduplikacja, licznik powtórzeń), którą widzi urzędnik pod `/urzednik` (token). Obywatel widzi „zapisano” albo, dopiero po oznaczeniu przez urzędnika, „przekazano”. **Ograniczenia:** nie wysyłamy e-maili ani powiadomień (jest licznik i miejsce na adres), deduplikacja jest prosta, zdanie o zapisaniu nie trafia do odpowiedzi SMS. | [PETLA_INFORMACJI.md](PETLA_INFORMACJI.md), `src/cases` |
 | URL za paywallem lub logowaniem | Nie obchodzimy zabezpieczeń. Odpowiedź 401/403 lub inna niż 2xx daje stan „brak możliwości wykonania sprawdzenia”. | `src/engine/fetch` (`status_http`) |
 | Strona wymagająca JavaScriptu, PDF, plik | Pobieramy tylko HTML i zwykły tekst. Inaczej ten sam stan (`zly_typ_tresci`, `pusta_tresc`). | `src/engine/fetch/index.ts` |
