@@ -1,6 +1,7 @@
 // Uruchamianie przypadków zestawu testowego przez prawdziwy silnik (createEngine), prawdziwą
 // wyszukiwarkę FTS5 na korpusie z data/sources.json i wybranego dostawcę modelu.
 // Ewaluacja tylko OBSERWUJE silnik: oczekiwane odpowiedzi nie trafiają do silnika ani do promptów (Z8).
+import type { LiveLayer } from '../live/layer';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
@@ -246,6 +247,8 @@ export interface RunOptions {
   noRank?: boolean;
   /** Śledzenie etapów silnika (diagnostyka, src/eval/diagnose.ts). */
   trace?: (caseId: string, e: EngineTraceEvent) => void;
+  /** Druga warstwa źródeł (zad. 29). Domyślnie brak: przebiegi porównywalne z wcześniejszymi. */
+  live?: LiveLayer | null;
 }
 
 const LEAK_SNIPPETS = [ASSESS_SYSTEM_PROMPT.slice(0, 60), EXTRACT_SYSTEM_PROMPT.slice(0, 60)];
@@ -291,6 +294,7 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
     fetchPage,
     incidents: opts.incidents ?? null,
     ...(opts.noRank ? { ranker: null } : {}),
+    ...(opts.live ? { live: opts.live } : {}),
     options: { errorProfile: null, ...(opts.trace ? { trace: (e: EngineTraceEvent) => opts.trace!(c.id, e) } : {}) },
   });
 

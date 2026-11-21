@@ -1,6 +1,9 @@
 // npm run eval [-- --mock] [--model <id>] [--compare] [--part strojeniowy|kontrolny|kontrolny_v2|oba|wszystkie] [--only A01,B02]
 //   [--concurrency N] [--out <plik>] [--review <plik>] [--corpus-root <katalog>]
-//   [--no-rank] [--diagnose --diag-out <plik>]  (przebieg diagnostyczny etapów, bez sędziego i bez zapisu results.json)
+//   [--no-rank] [--live] [--diagnose --diag-out <plik>]
+//   --live: druga warstwa źródeł (zad. 29, tylko anthropic); wyniki domyślnie do data/eval/results_live.json,
+//   żeby nie zmieniać profilu omylności liczonego bez niej. Domyślnie przebiegi idą BEZ drugiej warstwy.
+//   --diagnose: przebieg diagnostyczny etapów, bez sędziego i bez zapisu results.json
 // Części: strojeniowy (data/eval/cases.json), kontrolny (data/eval/control/cases.json, pomijany, gdy pliku brak)
 // i kontrolny_v2 (data/eval/control_v2/cases.json; tylko jawnie: --part kontrolny_v2 albo wszystkie).
 // Zestawu kontrolnego nie używa się do zmian w silniku ani promptach; profil omylności pochodzi tylko z niego.
@@ -9,6 +12,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig } from '../src/config';
 import { DEFAULT_ANTHROPIC_MODEL } from '../src/llm/index';
+import { createProductionLiveLayer, type LiveLayer } from '../src/live/index';
 import {
   DEFAULT_CONTROL_CASES_PATH,
   DEFAULT_CONTROL_V2_CASES_PATH,
@@ -103,6 +107,33 @@ async function main(): Promise<void> {
       }
     return;
   }
+  // Zad. 29: druga warstwa tylko na żądanie; koszt wyszukiwania liczony osobno.
+  const liveCost = { claims: 0, searches: 0, feeUsd: 0, tokenUsd: 0 };
+  let live: LiveLayer | undefined;
+  if (flag('--live')) {
+    if (provider !== 'anthropic') {
+      console.error('--live wymaga dostawcy anthropic (bez --mock).');
+      process.exit(2);
+    }
+    const base = createProductionLiveLayer({
+      sourcesPath: join(rootDir, cfg.liveSourcesPath),
+      apiKey: cfg.anthropicApiKey,
+      model: arg('--model') ?? defaultModel,
+    });
+    live = {
+      sources: base.sources,
+      budgetMs: base.budgetMs,
+      async find(claim, o) {
+        const r = await base.find(claim, o);
+        liveCost.claims++;
+        liveCost.searches += r.searches;
+        liveCost.feeUsd += r.searchFeeUsd;
+        liveCost.tokenUsd += r.usage?.estimatedCostUsd ?? 0;
+        return r;
+      },
+    };
+    console.log('Druga warstwa włączona. Szacunek: ok. 0,013 USD na twierdzenie bez odpowiedzi w korpusie (wyszukiwanie 0,01 + tokeny).');
+  }
   const runs: RunReport[] = [];
   let file: ResultsFile | undefined;
   for (const model of models)
@@ -114,8 +145,9 @@ async function main(): Promise<void> {
       model,
       apiKey: cfg.anthropicApiKey,
       defaultRun: defaultModel,
-      ...(arg('--out') ? { resultsPath: arg('--out') } : {}),
-      ...(arg('--review') ? { reviewPath: arg('--review') } : {}),
+      ...(arg('--out') ? { resultsPath: arg('--out') } : live ? { resultsPath: 'data/eval/results_live.json' } : {}),
+      ...(arg('--review') ? { reviewPath: arg('--review') } : live ? { reviewPath: 'data/eval/review_sample_live.json' } : {}),
+      ...(live ? { live } : {}),
       ...(arg('--corpus-root') ? { corpusRoot: arg('--corpus-root') } : {}),
       ...(flag('--compare') ? { writeReview: model === defaultModel } : {}),
       ...(only ? { only } : {}),
@@ -127,6 +159,10 @@ async function main(): Promise<void> {
     file = res.file;
     const c = res.run.metrics.cost;
     console.log(`Koszt przebiegu ${model} (${part}): silnik $${c.engineUsd.toFixed(4)}, sędzia $${c.judgeUsd.toFixed(4)}, razem $${c.totalUsd.toFixed(4)}`);
+    if (live)
+      console.log(
+        `Druga warstwa (osobno): ${liveCost.claims} twierdzeń, ${liveCost.searches} wyszukiwań, opłata $${liveCost.feeUsd.toFixed(4)}, tokeny wyszukiwania $${liveCost.tokenUsd.toFixed(4)} (ocena fragmentów w koszcie silnika)`,
+      );
     const d = res.run.doubtful;
     if (d) {
       const w = d.metricsWithout;

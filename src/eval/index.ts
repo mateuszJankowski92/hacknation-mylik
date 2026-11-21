@@ -1,4 +1,5 @@
 // Zestaw testowy i mierniki (zad. 11). Wejście: data/eval/cases.json; wyjście: data/eval/results.json.
+import type { LiveLayer } from '../live/layer';
 import { existsSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { LlmProvider } from '../contracts/index';
@@ -59,6 +60,8 @@ export interface EvalOptions {
   llm?: LlmProvider;
   /** Bez wywołania wybierającego kandydatów (porównanie A/B). */
   noRank?: boolean;
+  /** Druga warstwa źródeł (zad. 29); domyślnie wyłączona (porównywalność przebiegów). */
+  live?: LiveLayer | null;
   judge?: CitationJudge;
   log?: (line: string) => void;
 }
@@ -93,6 +96,7 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
     incidents: loadIncidentFixture(rootDir),
     concurrency: opts.concurrency ?? (opts.provider === 'mock' ? 1 : 3),
     ...(opts.noRank ? { noRank: true } : {}),
+    ...(opts.live ? { live: opts.live } : {}),
     onCase: (o) =>
       log(
         `  ${o.id} ${o.supported ? (o.correct ? 'OK ' : 'ŹLE') : 'POM'} oczekiwane=${o.expectedVerdict ?? o.expectedState ?? '-'} wynik=${o.predictedVerdict ?? o.predictedState ?? '-'} ${(o.latencyMs / 1000).toFixed(1)}s $${o.costUsd.toFixed(4)}`,
