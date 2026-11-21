@@ -10,9 +10,9 @@ Mylik (zespół Iteracja7) opiera odpowiedź na źródłach z jawnych list. Są 
 - Odtwarzalność: migawka tekstów (`data/raw/`, 733 dokumenty) jest w repozytorium, razem z sumami kontrolnymi `data/raw/SHA256SUMS`. Czysty klon buduje bez sieci ten sam korpus (`npm run corpus:ingest` wypisuje `version=cb62b4255ea0`). W repozytorium są tylko treści, które wolno przechowywać: informacja publiczna organów władzy, akty prawne, licencje otwarte (CC BY 4.0, EEAS); źródła bez licencji otwartej mają tylko krótki początek tekstu (`discovery.excerptChars`). Alternatywa (odtwarzanie z sieci) odrzucona jako metoda główna, bo strony się zmieniają, a wynik dla jury ma być powtarzalny. Odświeżenie z sieci (`npm run corpus:fetch`) jest opcjonalne, szanuje `robots.txt` i odstęp co najmniej 1,1 s na serwis; po nim sumy i wersja korpusu się zmieniają, a treści mogły się zmienić od migawki.
 - Zbiór EUvsDisinfo (znane operacje informacyjne) nie jest w repozytorium (licencja niepotwierdzona, `data/known-ops/_terms.json`); bez niego system działa bez ostrzeżeń o znanych operacjach i bez błędu.
 
-## Warstwa 2: media i instytucje (szukanie na żywo, zad. 29)
+## Warstwa 2: media i instytucje (szukanie na żywo, zad. 29) — EKSPERYMENTALNA
 
-Włączana zmienną `LIVE_LAYER=on` (domyślnie `off`; wtedy system działa jak dotąd). Wymaga dostawcy `anthropic`.
+Włączana zmienną `LIVE_LAYER=on`. Domyślnie `off` w publicznej instancji i w pomiarach podstawowych; wtedy system działa jak dotąd. Wymaga dostawcy `anthropic`. Warstwę wolno włączyć tylko, gdy pomiar na zestawie kontrolnym v2 z nią ma trafność nie niższą niż bez niej, nie dodaje żadnego błędnego „fałszywe”, a mediana czasu jest poniżej 15 s (wyniki pomiarów: sekcja „Pomiary” niżej).
 
 ### Kiedy działa
 
@@ -43,6 +43,16 @@ Lista startowa (dodane 2026-11-21): Polska Agencja Prasowa (pap.pl), Polskie Rad
 3. Fragmenty: podział tekstu jak w korpusie, najwyżej 2 fragmenty ze strony i 6 łącznie, z metadanymi (wydawca, tytuł, data publikacji, data pobrania, adres, warstwa `media_i_instytucje`).
 4. Dalej ten sam potok co dla korpusu: ocena stanowiska, cytat jako dosłowny podciąg pobranej treści, bramka wsparcia, reguły werdyktu. Treść strony to dane, nie polecenia.
 
+### Reguły doboru dowodów (zad. 29b, `src/live/select.ts`)
+
+Ogólne reguły, bez strojenia pod przypadki testowe. Działają po ocenie i bramkach, tylko na dowodach z warstwy 2:
+
+1. **Tylko potwierdza albo milczy.** Dowód z warstwy 2 może dać wyłącznie „potwierdzone” (siła najwyżej średnia) albo nic. Stanowiska „obala” i „opisuje to samo w innym kontekście” z tej warstwy odpadają, więc warstwa 2 nigdy nie daje „fałszywe” ani „wprowadzające w błąd”. Gdy w tej warstwie są naraz „potwierdza” i stanowisko przeciwne, warstwa milczy.
+2. **Zgodność zdarzenia.** „Potwierdza” liczy się tylko, gdy strona dotyczy tego samego zdarzenia: każda nazwa własna z twierdzenia (wyraz z wielkiej litery poza początkiem zdania, porównanie rdzeniem mimo odmiany) występuje we fragmencie albo w tytule strony, a data lub okres z twierdzenia zgadza się z treścią albo z datą publikacji (dzień: ta sama data w tekście albo publikacja do 3 dni po niej; miesiąc: publikacja w tym miesiącu; rok: ten rok).
+3. **Bez daty w twierdzeniu: najnowsza strona.** Zostają tylko dowody z najnowszej strony z datą publikacji, a odpowiedź pokazuje jej datę („Ta strona jest z …”).
+
+Odrzucone dowody są liczone w logu (`live_search`, `status: odrzucone_regulami`, kody powodów: `nie_potwierdza`, `sprzeczne_w_warstwie`, `inne_nazwy`, `inna_data`, `starsza_strona`, `brak_daty_strony`).
+
 ### Jak to widać
 
 - Każdy dowód w rekordzie ma pole `source.layer` (`media_i_instytucje`; brak pola = warstwa urzędowa).
@@ -56,6 +66,19 @@ Lista startowa (dodane 2026-11-21): Polska Agencja Prasowa (pap.pl), Polskie Rad
 - Rekord jest trwały: ten sam adres `/r/<id>` pokazuje zawsze to samo. Przy `LIVE_LAYER=on` numer 6-godzinnego okna wchodzi do klucza rekordu: powtórne zgłoszenie tej samej treści w tym oknie korzysta z zapisanego rekordu, po oknie powstaje nowe sprawdzenie pod nowym adresem.
 - Czas: limit zgłoszenia przy warstwie 2 to 24 s (`LIVE_DEADLINE_MS`), warstwa 2 ma własny limit (12 s na twierdzenie, mniej, gdy zostało mniej czasu). Po nim uczciwe „przerwałem i nic nie dodałem”, nigdy werdykt z domysłu. Błąd wyszukiwania lub sieci: ostrzeżenie i wynik tylko z warstwy 1.
 - Koszt (zależność zewnętrzna: API Anthropic, narzędzie `web_search`): 10 USD za 1000 wyszukiwań (0,01 USD za wyszukiwanie, wg skilla claude-api, stan 2026-11-03) plus tokeny modelu wyszukującego (Claude Haiku 5.5: ok. 0,002 USD na wyszukiwanie) plus zwykła ocena fragmentów. Razem ok. 0,013 USD na twierdzenie bez odpowiedzi w korpusie. Koszt jest raportowany osobno w logu zdarzeń (`live_search`: `searches`, `searchFeeUsd`, `tokenCostUsd`) i wliczany do `usage.estimatedCostUsd` rekordu.
+
+### Pomiary (zestaw kontrolny v2, 176 przypadków, Claude Haiku 5.5)
+
+| Przebieg | Silnik | Wariant | macro-F1 | Dokładność | Mediana czasu | Uwagi |
+|---|---|---|---|---|---|---|
+| zad. 29 | 8fbcebd776c7 | bez warstwy 2 | 0,733 | 72,4% | 7,8 s | |
+| zad. 29 | 8fbcebd776c7 | z warstwą 2 (bez reguł doboru) | 0,706 | 68,4% | 8,1 s | 2 błędne werdykty z warstwy 2 (rozbieżność kontekstu → „wprowadzające w błąd”, „fałszywe”); 3 przekroczenia 24 s |
+| zad. 29b | 2aeccd3da6f9 | bez warstwy 2 | 0,691 | 67,2% | 7,4 s | |
+| zad. 29b | 9b706cde662a | z warstwą 2 i regułami doboru | 0,716 | 71,3% | 8,0 s | 0 błędnych „fałszywe” z warstwy 2; warstwa 2 dała tylko dowody tła; sędzia cytowań: atrapa (oszczędność budżetu) |
+
+Ręczny test (mecz reprezentacji, 21.11.2026): przed regułami „fałszywe” na podstawie wcześniejszego, wrześniowego meczu (błąd); po regułach dowód przeciwny z warstwy 2 odpada i wynik to wstrzymanie się (11,7 s, 0,015 USD).
+
+Wnioski: różnice F1 między przebiegami (0,69–0,73) mieszczą się w zmienności modelu między przebiegami; zestaw v2 dotyczy dokumentów korpusu, więc prawie nie sprawdza warstwy 2. Przekroczenia 24 s w pierwszym przebiegu (C03–C05) wynikały z zawieszonych wywołań modelu w kroku wyodrębniania twierdzeń (0–2 zakończone wywołania w 24 s; ten sam przypadek bez obciążenia: 8–17 s), nie z warstwy 2, która w nich nie wystartowała. Warstwa 2 zostaje domyślnie wyłączona do decyzji prowadzącego.
 
 ### Zestawy testowe
 
