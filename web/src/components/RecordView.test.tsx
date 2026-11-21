@@ -53,10 +53,12 @@ describe('RecordView', () => {
 		const withExtras = structuredClone(base);
 		withExtras.claims[0]!.refutation = { performed: true, queries: ['biblioteka zamknięta'], found: 0 };
 		withExtras.claims[0]!.errorProfile = { bucket: 'godziny otwarcia', errors: 2, total: 20 };
-		render(<RecordView record={withExtras} />);
+		const { container } = render(<RecordView record={withExtras} />);
 		expect(screen.getByText(/Nie znalazłem żadnego/)).toBeTruthy();
 		expect(screen.getByText(/biblioteka zamknięta/)).toBeTruthy();
-		expect(screen.getByText(/pomylił się/).textContent).toContain('2 razy na 20');
+		expect(container.querySelector('.error-dots__sentence')?.textContent).toContain('2 razy na 20 sprawdzeń');
+		expect(container.querySelectorAll('.error-dots__ok, .error-dots__miss')).toHaveLength(20);
+		expect(container.querySelectorAll('.error-dots__miss')).toHaveLength(2);
 	});
 
 	it('pokazuje czego nie ustalono, ostrzeżenia i krótką odpowiedź', () => {

@@ -1,24 +1,33 @@
 import { useEffect, useReducer, useRef } from 'react';
 import type { VerifyOutcome } from '../../../src/contracts/record';
-import { ApiFailure, verifyContent } from '../api';
+import { ApiFailure, DEFAULT_ETA_SECONDS, fetchEtaSeconds, verifyContent, verifyContentStream } from '../api';
+import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
+import { WaitingScale } from '../visuals/WaitingScale';
+import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
 import { OutcomeView } from './OutcomeView';
 
 type CheckState =
 	| { status: 'idle' }
-	| { status: 'loading' }
+	| { status: 'loading'; progress: ProgressState; etaSeconds: number }
 	| { status: 'done'; outcome: VerifyOutcome }
 	| { status: 'error'; message: string };
 
 type CheckAction =
 	| { type: 'start' }
+	| { type: 'progress'; event: VerifyProgressEvent }
+	| { type: 'eta'; seconds: number }
 	| { type: 'done'; outcome: VerifyOutcome }
 	| { type: 'error'; message: string };
 
-function reducer(_state: CheckState, action: CheckAction): CheckState {
+function reducer(state: CheckState, action: CheckAction): CheckState {
 	switch (action.type) {
 		case 'start':
-			return { status: 'loading' };
+			return { status: 'loading', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS };
+		case 'progress':
+			return state.status === 'loading' ? { ...state, progress: reduceProgress(state.progress, action.event) } : state;
+		case 'eta':
+			return state.status === 'loading' ? { ...state, etaSeconds: action.seconds } : state;
 		case 'done':
 			return { status: 'done', outcome: action.outcome };
 		case 'error':
@@ -47,13 +56,27 @@ export function CheckPage() {
 
 	useEffect(() => () => controllerRef.current?.abort(), []);
 
+	function verifyWithProgress(content: string, controller: AbortController): Promise<VerifyOutcome> {
+		const onProgress = (event: VerifyProgressEvent) => {
+			if (controllerRef.current === controller) dispatch({ type: 'progress', event });
+		};
+		return verifyContentStream(content, onProgress, controller.signal).catch((error: unknown) => {
+			if (error instanceof ApiFailure && error.kind === 'not_found') return verifyContent(content, controller.signal);
+			throw error;
+		});
+	}
+
 	async function handleSubmit(content: string) {
 		controllerRef.current?.abort();
 		const controller = new AbortController();
 		controllerRef.current = controller;
 		dispatch({ type: 'start' });
 		try {
-			const outcome = await verifyContent(content, controller.signal);
+			const pending = verifyWithProgress(content, controller);
+			void fetchEtaSeconds(controller.signal).then((seconds) => {
+				if (controllerRef.current === controller) dispatch({ type: 'eta', seconds });
+			});
+			const outcome = await pending;
 			if (controllerRef.current !== controller) return;
 			dispatch({ type: 'done', outcome });
 		} catch (error) {
@@ -70,6 +93,7 @@ export function CheckPage() {
 	return (
 		<>
 			<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
+			{state.status === 'loading' && <WaitingScale progress={state.progress} etaSeconds={state.etaSeconds} />}
 			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">

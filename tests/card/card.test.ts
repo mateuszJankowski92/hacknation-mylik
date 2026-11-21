@@ -147,3 +147,12 @@ describe('createCardApp', () => {
 		expect((await app.request('/api/records/xyz/card.svg')).status).toBe(404);
 	});
 });
+
+describe('wskaźnik pewności na karcie', () => {
+	it('karta ma trzy strefy i nie ma ich dla opinii', () => {
+		const svg = renderCardSvg(fixtureRecord('potwierdzone'), { cardUrl: CARD_URL });
+		for (const word of ['mało', 'średnio', 'dużo']) expect(svg).toContain(`>${word}</text>`);
+		const opinion = renderCardSvg(fixtureRecord('nie_podlega_weryfikacji'), { cardUrl: CARD_URL });
+		expect(opinion).not.toContain('>średnio</text>');
+	});
+});

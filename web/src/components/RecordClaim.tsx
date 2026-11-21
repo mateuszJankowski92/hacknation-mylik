@@ -3,12 +3,12 @@ import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import {
 	MISMATCH_LABELS_PL,
-	STRENGTH_LABELS_PL,
-	STRENGTH_REASON_LABELS_PL,
 	type Verdict,
 } from '../../../src/contracts/verdict';
 import { buildResultLayout } from '../../../src/render/layout';
 import { formatDate } from '../format';
+import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
+import { ErrorDots } from '../visuals/ErrorDots';
 import './record.css';
 
 const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
@@ -183,23 +183,9 @@ export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: strin
 				<h4>Co ustalił Mylik</h4>
 				<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
 				<p>{result.explanation}</p>
-				<p>
-					Siła podstawy: <strong>{STRENGTH_LABELS_PL[result.strength.level]}</strong>
-				</p>
-				{result.strength.reasons.length > 0 && (
-					<ul>
-						{result.strength.reasons.map((reason) => (
-							<li key={reason}>{STRENGTH_REASON_LABELS_PL[reason]}</li>
-						))}
-					</ul>
-				)}
+				{layout.certainty && <ConfidenceGauge strength={result.strength} />}
 				<Refutation result={result} />
-				{profile && profile.total > 0 && (
-					<p className="record-claim__profile">
-						Mylik też się myli. W naszych próbach na podobnych twierdzeniach (grupa: {profile.bucket}) pomylił się{' '}
-						{profile.errors} razy na {profile.total}.
-					</p>
-				)}
+				{profile && profile.total > 0 && <ErrorDots profile={profile} />}
 			</section>
 
 			<details className="record-claim__sources" ref={sourcesRef}>

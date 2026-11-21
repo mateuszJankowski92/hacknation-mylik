@@ -89,7 +89,7 @@ describe('formularz', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		await waitFor(() => expect(fetchMock).toHaveBeenCalled());
 		const [path, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-		expect(path).toBe('/api/verify');
+		expect(path).toBe('/api/verify/stream');
 		expect(JSON.parse(init.body as string)).toEqual({ url: 'https://przyklad.example/a?b=1', channel: 'www' });
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
 	});

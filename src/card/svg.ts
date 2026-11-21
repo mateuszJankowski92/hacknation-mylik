@@ -6,6 +6,7 @@ import {
 } from '../contracts/index';
 import { EVIDENCE_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
 import { asOfStamp, formatDate } from '../render/templates';
+import { renderGaugeMarkup, zoneForStrength } from './visuals';
 
 export const CARD_WIDTH = 1200;
 export const CARD_HEIGHT = 630;
@@ -169,6 +170,15 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 		parts.push(
 			`<text x="${certaintyX}" y="358" font-size="${CARD_FONT_SIZES.certainty}" fill="${TEXT}">${escapeXml(layout.certainty)}</text>`,
 		);
+	}
+
+	if (claim && layout.certainty) {
+		const gauge = renderGaugeMarkup(zoneForStrength(claim.strength.level), {
+			ink: TEXT,
+			muted: MUTED,
+			active: palette.fg,
+		});
+		parts.push(`<g transform="translate(912 278)" role="presentation">${gauge}</g>`);
 	}
 
 	if (claimText) {

@@ -1,4 +1,10 @@
-import type { SourcesResponse } from '../../src/contracts/api';
+import {
+	VERIFY_STREAM_EVENTS,
+	VerifyProgressEventSchema,
+	type SourcesResponse,
+	type VerifyEtaResponse,
+	type VerifyProgressEvent,
+} from '../../src/contracts/api';
 import type { VerificationRecord, VerifyOutcome } from '../../src/contracts/record';
 
 export const MAX_INPUT_LENGTH = 2000;
@@ -106,4 +112,118 @@ export async function fetchRecord(id: string, signal?: AbortSignal): Promise<Ver
 
 export async function fetchSources(signal?: AbortSignal): Promise<SourcesResponse> {
 	return requestJson<SourcesResponse>('/api/sources', { method: 'GET' }, signal);
+}
+
+export const DEFAULT_ETA_SECONDS = 15;
+
+export async function fetchEtaSeconds(signal?: AbortSignal): Promise<number> {
+	try {
+		const eta = await requestJson<VerifyEtaResponse>('/api/verify/eta', { method: 'GET' }, signal);
+		const seconds = Math.round(eta.medianMs / 1000);
+		return Number.isFinite(seconds) && seconds > 0 ? seconds : DEFAULT_ETA_SECONDS;
+	} catch {
+		return DEFAULT_ETA_SECONDS;
+	}
+}
+
+export interface SseMessage {
+	event: string;
+	data: string;
+}
+
+export function parseSseBlock(block: string): SseMessage | null {
+	let event = 'message';
+	const data: string[] = [];
+	for (const rawLine of block.split('\n')) {
+		const line = rawLine.replace(/\r$/, '');
+		if (line.startsWith(':') || line.length === 0) continue;
+		const separator = line.indexOf(':');
+		const field = separator === -1 ? line : line.slice(0, separator);
+		const value = separator === -1 ? '' : line.slice(separator + 1).replace(/^ /, '');
+		if (field === 'event') event = value;
+		else if (field === 'data') data.push(value);
+	}
+	return data.length === 0 ? null : { event, data: data.join('\n') };
+}
+
+export async function verifyContentStream(
+	content: string,
+	onProgress: (event: VerifyProgressEvent) => void,
+	signal?: AbortSignal,
+): Promise<VerifyOutcome> {
+	const controller = new AbortController();
+	let timedOut = false;
+	const timer = setTimeout(() => {
+		timedOut = true;
+		controller.abort();
+	}, REQUEST_TIMEOUT_MS);
+	const forwardAbort = () => controller.abort();
+	if (signal?.aborted) controller.abort();
+	signal?.addEventListener('abort', forwardAbort);
+
+	try {
+		const response = await fetch('/api/verify/stream', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(buildVerifyBody(content)),
+			signal: controller.signal,
+		});
+		if (!response.ok) throw new ApiFailure(failureKindForStatus(response.status));
+		const contentType = response.headers.get('content-type') ?? '';
+		if (!contentType.includes('text/event-stream')) {
+			let plain: VerifyOutcome;
+			try {
+				plain = (await response.json()) as VerifyOutcome;
+			} catch {
+				throw new ApiFailure('unexpected');
+			}
+			if (!plain || (plain.kind !== 'record' && plain.kind !== 'state')) throw new ApiFailure('unexpected');
+			return plain;
+		}
+		if (!response.body) throw new ApiFailure('unexpected');
+		const reader = response.body.getReader();
+		const decoder = new TextDecoder();
+		let buffer = '';
+		let outcome: VerifyOutcome | null = null;
+
+		function handleBlock(block: string) {
+			const message = parseSseBlock(block);
+			if (!message) return;
+			let parsed: unknown;
+			try {
+				parsed = JSON.parse(message.data);
+			} catch {
+				return;
+			}
+			if (message.event === VERIFY_STREAM_EVENTS.progress) {
+				const event = VerifyProgressEventSchema.safeParse(parsed);
+				if (event.success) onProgress(event.data);
+			} else if (message.event === VERIFY_STREAM_EVENTS.result) {
+				const candidate = parsed as VerifyOutcome;
+				if (candidate && (candidate.kind === 'record' || candidate.kind === 'state')) outcome = candidate;
+			}
+		}
+
+		for (;;) {
+			const { done, value } = await reader.read();
+			buffer += decoder.decode(value, { stream: !done }).replace(/\r\n/g, '\n');
+			let boundary = buffer.indexOf('\n\n');
+			while (boundary !== -1) {
+				handleBlock(buffer.slice(0, boundary));
+				buffer = buffer.slice(boundary + 2);
+				boundary = buffer.indexOf('\n\n');
+			}
+			if (done) break;
+		}
+		if (buffer.trim().length > 0) handleBlock(buffer);
+		if (!outcome) throw new ApiFailure('unexpected');
+		return outcome;
+	} catch (error) {
+		if (error instanceof ApiFailure) throw error;
+		if (controller.signal.aborted) throw new ApiFailure(timedOut ? 'timeout' : 'cancelled');
+		throw new ApiFailure('network');
+	} finally {
+		clearTimeout(timer);
+		signal?.removeEventListener('abort', forwardAbort);
+	}
 }
