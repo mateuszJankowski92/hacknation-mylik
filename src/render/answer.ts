@@ -88,9 +88,15 @@ export function reviewSentence(item: EvidenceItem, opts: { maxThesis?: number } 
   const thesis = r.claimReviewed.length > max ? `${r.claimReviewed.slice(0, max - 1).trimEnd()}…` : r.claimReviewed;
   const who = r.claimant ? ` (autor wypowiedzi: ${r.claimant})` : '';
   const when = item.source.publishedAt ? ` Publikacja z ${formatDate(item.source.publishedAt)}.` : '';
-  const pub = item.source.publisher || item.source.domain;
   const inverse = r.inverse ? ' To twierdzenie mówi odwrotnie niż Twoje zgłoszenie.' : '';
-  return `Redakcja ${pub} sprawdziła twierdzenie „${thesis}”${who} i oceniła je jako „${r.rating}”.${inverse}${when}`;
+  return `${editorial(item)} sprawdziła twierdzenie „${thesis}”${who} i oceniła je jako „${r.rating}”.${inverse}${when}`;
+}
+
+/** "Redakcja X" (bez podwójnego słowa, gdy nazwa wydawcy zaczyna się od "Redakcja"). */
+export function editorial(item: EvidenceItem, lower = false): string {
+  const pub = (item.source.publisher || item.source.domain).trim();
+  const s = /^redakcj/iu.test(pub) ? pub : `Redakcja ${pub}`;
+  return lower ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
 
 export interface AnnotateOptions {
@@ -110,7 +116,7 @@ export function annotateAnswer(claim: ClaimResult, opts: AnnotateOptions): void 
   if (opts.mode === 'twierdzenie') return;
   if (opts.mode === 'pytanie_o_ocene') {
     const rev = decisiveReview(claim);
-    if (rev) claim.directAnswer = `Tak, redakcja ${rev.source.publisher || rev.source.domain} to sprawdziła.`;
+    if (rev) claim.directAnswer = `Tak, ${editorial(rev, true)} to sprawdziła.`;
     else if (reviewEvidence(claim).length) claim.directAnswer = 'Znalazłem ocenę redakcji podobnej tezy, ale nie tej samej.';
     else if (opts.indexChecked) claim.directAnswer = 'Nie znalazłem takiej oceny w indeksie Google z ocenami redakcji.';
     else claim.directAnswer = 'Nie sprawdzałem tego w indeksie Google z ocenami redakcji.';

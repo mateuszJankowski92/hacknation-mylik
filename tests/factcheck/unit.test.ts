@@ -79,8 +79,9 @@ describe('konfiguracja', () => {
     expect(matchPublisher(c, 'demagog.org.pl.example.com')).toBeNull();
     expect(matchPublisher(c, 'evildemagog.org.pl')).toBeNull();
   });
-  it('dokumenty redakcji pobrane wprost do zbioru: domyślnie poza ścieżką dowodową', () => {
-    expect(excludedCorpusSourceIds()).toEqual(['konkret24', 'fakenews-pl']);
+  it('dokumenty redakcji w zbiorze: wyłącznik domyślnie pozwala ich używać; wyłączone przy use=false', () => {
+    expect(excludedCorpusSourceIds()).toEqual([]);
+    expect(loadFactcheckConfig().corpusDirectFactcheck.sourceIds).toContain('konkret24');
   });
   it('przełącznik: auto bez klucza = wyłączona, off = wyłączona', () => {
     expect(factcheckSwitch({})).toBe('auto');

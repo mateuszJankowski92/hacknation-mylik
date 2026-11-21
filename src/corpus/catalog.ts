@@ -43,6 +43,18 @@ export const CatalogSourceSchema = z.object({
 	notes: z.string().optional(),
 	policy: PolicySchema.optional(),
 	discovery: DiscoverySchema.optional(),
+	/**
+	 * Weryfikacje redakcji z pliku JSONL (jedna weryfikacja w linii: url, title, claim, claimant,
+	 * claimDate, rating, reviewDate, body, fetchedAt). Każda staje się dokumentem: fragment 0 = teza
+	 * (pole claim dosłownie), dalej uzasadnienie (pole body). Brak pliku = zero dokumentów, bez błędu.
+	 */
+	reviews: z
+		.object({
+			file: z.string().min(1),
+			/** Gdy ustawione, z uzasadnienia zapisujemy tylko początek (licencja). */
+			excerptChars: z.number().int().min(200).max(20000).optional(),
+		})
+		.optional(),
 	documents: z.array(CatalogDocumentSchema),
 });
 

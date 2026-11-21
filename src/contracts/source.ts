@@ -38,6 +38,8 @@ export const ReviewInfoSchema = z.object({
   rating: z.string(),
   label: z.enum(['potwierdzone', 'falszywe', 'wprowadzajace_w_blad', 'brak_wystarczajacych_dowodow']).nullable(),
   inverse: z.boolean().optional(),
+  /** Dla weryfikacji w zbiorze: `teza` (fragment ze sprawdzaną tezą) albo `uzasadnienie` (tylko tło). */
+  role: z.enum(['teza', 'uzasadnienie']).optional(),
 });
 export type ReviewInfo = z.infer<typeof ReviewInfoSchema>;
 

@@ -3,6 +3,7 @@ import type { Passage, SourceType } from '../contracts/source';
 import type { CorpusStats, SearchOptions, Searcher } from '../contracts/search';
 import { buildFtsQuery } from './query';
 import { excludedCorpusSourceIds } from '../factcheck/config';
+import { labelForRating } from '../factcheck/ratings';
 
 const DEFAULT_LIMIT = 8;
 
@@ -20,12 +21,18 @@ interface PassageRow {
 	domain: string;
 	source_type: string;
 	license: string;
+	ordinal?: number;
+	r_claim?: string | null;
+	r_claimant?: string | null;
+	r_claim_date?: string | null;
+	r_rating?: string | null;
 	rank?: number;
 }
 
 const PASSAGE_SELECT = `
 	SELECT p.id, p.document_id, p.text, d.title, d.url, d.published_at, d.fetched_at, d.valid_until,
-	       s.id AS source_id, s.publisher, s.domain, s.source_type, s.license`;
+	       s.id AS source_id, s.publisher, s.domain, s.source_type, s.license,
+	       p.ordinal, r.claim AS r_claim, r.claimant AS r_claimant, r.claim_date AS r_claim_date, r.rating AS r_rating`;
 
 function toPassage(row: PassageRow, score?: number): Passage {
 	return {
@@ -44,6 +51,20 @@ function toPassage(row: PassageRow, score?: number): Passage {
 			validUntil: row.valid_until,
 			sourceType: row.source_type as SourceType,
 			license: row.license,
+			// Weryfikacja redakcji w zbiorze: dosłowne pola wpisu, ocena przez jawną tabelę (src/factcheck/ratings.ts).
+			...(row.r_claim && row.r_rating
+				? {
+						layer: 'weryfikacja_redakcji' as const,
+						review: {
+							claimReviewed: row.r_claim,
+							claimant: row.r_claimant ?? null,
+							claimDate: row.r_claim_date ?? null,
+							rating: row.r_rating,
+							label: labelForRating(row.r_rating),
+							role: row.ordinal === 0 ? ('teza' as const) : ('uzasadnienie' as const),
+						},
+					}
+				: {}),
 		},
 		...(score === undefined ? {} : { score }),
 	};
@@ -51,9 +72,8 @@ function toPassage(row: PassageRow, score?: number): Passage {
 
 export interface SearcherOptions {
 	/**
-	 * Źródła pominięte w ścieżce dowodowej (wyszukiwanie, fragmenty, liczniki). Domyślnie dokumenty
-	 * pobrane wcześniej bezpośrednio ze stron redakcji sprawdzających fakty (data/factcheck.json,
-	 * `corpusDirectFactcheck`): weryfikacje redakcji bierzemy wyłącznie z indeksu Google Fact Check Tools.
+	 * Źródła pominięte w ścieżce dowodowej (wyszukiwanie, fragmenty, liczniki). Domyślnie z wyłącznika
+	 * w data/factcheck.json (`corpusDirectFactcheck`); obecnie wyłącznik pozwala używać tych dokumentów.
 	 */
 	excludeSourceIds?: string[];
 }
@@ -66,6 +86,7 @@ export function createSearcher(db: DatabaseSync, opts: SearcherOptions = {}): Se
 		JOIN passages p ON p.rowid = passages_fts.rowid
 		JOIN documents d ON d.id = p.document_id
 		JOIN sources s ON s.id = d.source_id
+		LEFT JOIN document_reviews r ON r.document_id = d.id
 		WHERE passages_fts MATCH ? AND s.id NOT IN (SELECT value FROM json_each(?))
 		ORDER BY rank
 		LIMIT ?`);
@@ -73,6 +94,7 @@ export function createSearcher(db: DatabaseSync, opts: SearcherOptions = {}): Se
 		FROM passages p
 		JOIN documents d ON d.id = p.document_id
 		JOIN sources s ON s.id = d.source_id
+		LEFT JOIN document_reviews r ON r.document_id = d.id
 		WHERE p.id = ? AND s.id NOT IN (SELECT value FROM json_each(?))`);
 	const asOfStatement = db.prepare('SELECT MAX(fetched_at) AS value FROM documents');
 	const statsStatement = db.prepare(

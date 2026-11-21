@@ -4,6 +4,7 @@ import { isAbsolute, join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { chunkText } from './chunk';
 import { loadCatalog, type CatalogSource } from './catalog';
+import { loadReviewFile, type ReviewDocument } from './reviews';
 
 export interface IngestResult {
 	documents: number;
@@ -48,10 +49,19 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		}),
 	}));
 
-	const versionInput = prepared
-		.flatMap(({ source, documents }) =>
+	// Weryfikacje redakcji z pliku JSONL (src/corpus/reviews.ts): osobne dokumenty z metadaną oceny.
+	const reviewSets = catalog.sources.map((source) => ({
+		source,
+		reviews: source.reviews ? loadReviewFile(source.reviews.file, rootDir, source.id, { excerptChars: source.reviews.excerptChars }).documents : ([] as ReviewDocument[]),
+	}));
+	const ingestedAt = new Date().toISOString();
+
+	const versionInput = [
+		...prepared.flatMap(({ source, documents }) =>
 			documents.map(({ doc, contentSha }) => `${source.id}|${doc.id}|${doc.url}|${doc.title}|${doc.publishedAt ?? ''}|${contentSha}${doc.validUntil ? `|${doc.validUntil}` : ''}`),
-		)
+		),
+		...reviewSets.flatMap(({ source, reviews }) => reviews.map((r) => `${source.id}|${r.id}|${r.url}|${r.title}|${r.publishedAt ?? ''}|${r.contentSha}`)),
+	]
 		.sort()
 		.join('\n');
 	const version = sha256(versionInput).slice(0, 12);
@@ -64,6 +74,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 	);
 	const insertPassage = db.prepare('INSERT INTO passages (id, document_id, ordinal, text) VALUES (?, ?, ?, ?)');
+	const insertReview = db.prepare('INSERT INTO document_reviews (document_id, claim, claimant, claim_date, rating, kind) VALUES (?, ?, ?, ?, ?, ?)');
 	const upsertMeta = db.prepare(
 		'INSERT INTO corpus_meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
 	);
@@ -72,6 +83,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 	let passages = 0;
 	db.exec('BEGIN');
 	try {
+		db.exec('DELETE FROM document_reviews');
 		db.exec('DELETE FROM passages');
 		db.exec('DELETE FROM documents');
 		db.exec('DELETE FROM sources');
@@ -86,9 +98,23 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 				});
 			}
 		}
+		const reviewFetched: string[] = [];
+		for (const { source, reviews } of reviewSets) {
+			for (const r of reviews) {
+				const fetchedAt = r.fetchedAt ?? ingestedAt;
+				reviewFetched.push(fetchedAt);
+				insertDocument.run(r.id, source.id, r.title, r.url, r.publishedAt, null, fetchedAt, version, r.contentSha);
+				insertReview.run(r.id, r.claim, r.claimant, r.claimDate, r.rating, r.kind);
+				documents += 1;
+				r.passages.forEach((text, ordinal) => {
+					insertPassage.run(`${r.id}#${ordinal}`, r.id, ordinal, text);
+					passages += 1;
+				});
+			}
+		}
 		upsertMeta.run('version', version);
 		upsertMeta.run('ingested_at', new Date().toISOString());
-		upsertMeta.run('as_of', prepared.flatMap(({ documents: docs }) => docs.map(({ fetchedAt }) => fetchedAt)).sort().pop() ?? null);
+		upsertMeta.run('as_of', [...prepared.flatMap(({ documents: docs }) => docs.map(({ fetchedAt }) => fetchedAt)), ...reviewFetched].sort().pop() ?? null);
 		upsertMeta.run('documents', String(documents));
 		db.exec('COMMIT');
 	} catch (error) {

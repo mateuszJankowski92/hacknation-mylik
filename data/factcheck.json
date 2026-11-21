@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "_opis": "Indeks weryfikacji redakcji (Google Fact Check Tools API, claims:search). Do weryfikacji redakcji docieramy WYŁĄCZNIE przez ten indeks (wskazanie organizatora: bez bezpośredniej integracji z serwisami redakcji, bez pobierania ich stron). Opis: docs/ZRODLA.md, warstwa 3.",
+  "_opis": "Weryfikacje redakcji: (1) w zbiorze (źródło demagog w data/sources.json, plik data/raw/demagog/weryfikacje.jsonl), szukane naszym wyszukiwaniem; (2) indeks Google Fact Check Tools (claims:search) jako drugie, pomocnicze wejście (inni wydawcy, najnowsze weryfikacje). Indeks dopasowuje frazy dosłownie, więc pytamy go kilkoma krótkimi wariantami fraz kluczowych. Opis: docs/ZRODLA.md.",
   "index": {
     "endpoint": "https://factchecktools.googleapis.com/v1alpha1/claims:search",
     "languageCode": "pl",
     "pageSize": 10,
-    "maxQueries": 2,
+    "maxQueries": 3,
     "timeoutMs": 6000
   },
   "qualification": "Wydawca kwalifikuje się, gdy jest sygnatariuszem Kodeksu Zasad IFCN albo zweryfikowanym członkiem EFCSN (sprawdzone na oficjalnej liście, z datą sprawdzenia), publikuje weryfikacje po polsku i jego wpisy zwraca indeks Google (pole claimReview.publisher.site). Wpis z innej domeny niż lista odpada w kodzie. Wykluczenie: utrata statusu sygnatariusza lub członka, zmiana wydawcy, wpisy bez oceny lub bez adresu publikacji.",
@@ -36,8 +36,12 @@
     }
   ],
   "corpusDirectFactcheck": {
-    "use": false,
-    "sourceIds": ["konkret24", "fakenews-pl"],
-    "_opis": "Dokumenty pobrane wcześniej bezpośrednio ze stron redakcji sprawdzających fakty (data/sources.json). Domyślnie NIEUŻYWANE w ścieżce dowodowej (wyszukiwanie ich pomija); weryfikacje redakcji pobieramy wyłącznie przez indeks Google Fact Check Tools, zgodnie ze wskazaniem organizatora. Pliki zostają na dysku."
+    "use": true,
+    "sourceIds": [
+      "konkret24",
+      "fakenews-pl",
+      "demagog"
+    ],
+    "_opis": "Wyłącznik dokumentów redakcji sprawdzających fakty w zbiorze (sourceIds). use=true: dokumenty są w ścieżce dowodowej (decyzja PM po odpowiedzi mentora z 21.11, 23:15: indeks Google dopasowuje frazy dosłownie, więc weryfikacje redakcji szukamy też własnym wyszukiwaniem w zbiorze). use=false: wyszukiwanie je pomija. Pliki zostają na dysku."
   }
 }

@@ -83,7 +83,7 @@ import {
   FACTCHECK_NOT_FOUND_LIMITATION,
   FACTCHECK_USED_LIMITATION,
 } from '../factcheck/text';
-import { isFactcheckFailure, type FactcheckLayer, type FactcheckStatus } from '../factcheck/layer';
+import { isFactcheckFailure, selectReviewEvidence, type FactcheckLayer, type FactcheckStatus } from '../factcheck/layer';
 import { annotateAnswer, answerMode } from '../render/answer';
 
 export { buildShortAnswer };
@@ -1032,6 +1032,15 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         const r = await assessAndGate([...splitEven(bySearch(forSel), ASSESS_CHUNK), ...splitEven(bySearch(counterSel), ASSESS_CHUNK)], sent);
         accepted = r.accepted;
         rejectedCount = r.rejected;
+        // Weryfikacje redakcji w zbiorze: te same reguły doboru i ta sama tabela ocen co dla indeksu.
+        const reviewed = accepted.filter((a) => a.passage.meta.review);
+        if (reviewed.length) {
+          const sel = selectReviewEvidence(claim, reviewed, nowDate);
+          accepted = [...accepted.filter((a) => !a.passage.meta.review), ...sel.accepted];
+          rejectedCount += sel.dropped ?? 0;
+          if (sel.dropped || sel.reasons)
+            store.logEvent('review_selection', { recordId, channel, detail: { claimId: claim.id, where: 'zbior', dropped: sel.dropped ?? 0, ...(sel.reasons ?? {}) } });
+        }
       }
 
       // (6a) indeks weryfikacji: dowody z ocen redakcji dołączają do dowodów zbioru urzędowego.
@@ -1043,8 +1052,10 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         deadline.check();
         fcStatus = fc.status;
         fcFlagged = fc.flagged;
-        fcUsed = fc.accepted.some((a) => DECISIVE.has(a.stance));
-        accepted = [...accepted, ...fc.accepted];
+        // Ta sama publikacja ze zbioru i z indeksu: zostaje wpis ze zbioru.
+        const have = new Set(accepted.map((a) => a.passage.meta.url));
+        const fresh = fc.accepted.filter((a) => !have.has(a.passage.meta.url));
+        accepted = [...accepted, ...fresh];
         rejectedCount += fc.rejected;
       }
 
@@ -1113,6 +1124,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           if (e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance))
             side.notices.push({ type: 'status_zrodla', text: liveSourceNotice(e.source.publisher), passageId: e.passageId });
       } else if (liveNothing) limitations.push(LIVE_NOT_FOUND_LIMITATION);
+      fcUsed = accepted.some((a) => a.passage.meta.layer === 'weryfikacja_redakcji' && DECISIVE.has(a.stance));
       if (fcUsed) limitations.push(FACTCHECK_USED_LIMITATION);
       else if (fcStatus && isFactcheckFailure(fcStatus)) limitations.push(FACTCHECK_DOWN_LIMITATION);
       else if (fcStatus) limitations.push(FACTCHECK_NOT_FOUND_LIMITATION);

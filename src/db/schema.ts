@@ -53,6 +53,17 @@ CREATE TRIGGER IF NOT EXISTS passages_au AFTER UPDATE ON passages BEGIN
   INSERT INTO passages_fts(rowid, text) VALUES (new.rowid, new.text);
 END;
 
+-- Weryfikacje redakcji w zbiorze (typ źródła factcheck): dosłowne pola wpisu redakcji.
+-- Fragment o porządku 0 to sprawdzana teza; pozostałe to uzasadnienie (tylko tło).
+CREATE TABLE IF NOT EXISTS document_reviews (
+  document_id TEXT PRIMARY KEY REFERENCES documents(id) ON DELETE CASCADE,
+  claim TEXT NOT NULL,
+  claimant TEXT,
+  claim_date TEXT,
+  rating TEXT NOT NULL,
+  kind TEXT
+);
+
 CREATE TABLE IF NOT EXISTS corpus_meta (
   key TEXT PRIMARY KEY,
   value TEXT

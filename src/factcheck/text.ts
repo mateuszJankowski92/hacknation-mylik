@@ -6,10 +6,10 @@ export const FACTCHECK_DOWN_MESSAGE =
 
 /** Dopisek, gdy zbiór urzędowy rozstrzyga, ale indeksu nie udało się sprawdzić. */
 export const FACTCHECK_DOWN_LIMITATION =
-  'Nie udało mi się teraz sprawdzić indeksu Google z ocenami redakcji sprawdzających fakty (błąd dostępu). Odpowiedź opiera się tylko na źródłach urzędowych.';
+  'Nie udało mi się teraz sprawdzić indeksu Google z ocenami redakcji sprawdzających fakty (błąd dostępu). Odpowiedź opiera się tylko na moim zbiorze źródeł.';
 
 export const FACTCHECK_USED_LIMITATION =
-  'Część podstawy to ocena redakcji sprawdzającej fakty z indeksu Google. Przytaczam jej ocenę, nie wydaję własnej. Szczegóły w publikacji pod linkiem.';
+  'Część podstawy to ocena redakcji sprawdzającej fakty. Przytaczam jej ocenę, nie wydaję własnej. Szczegóły w publikacji pod linkiem.';
 
 export const FACTCHECK_NOT_FOUND_LIMITATION =
   'W indeksie Google z ocenami redakcji nie znalazłem oceny tej samej tezy. Brak wyniku nie oznacza, że nikt tego nie sprawdzał.';

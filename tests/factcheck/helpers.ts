@@ -41,8 +41,17 @@ export class FakeIndex implements FactcheckIndex {
   constructor(private entries: { key: string; claims: ApiClaim[] }[]) {}
   async search(req: IndexSearchRequest): Promise<IndexSearchResult> {
     this.calls.push(req);
-    const q = req.query.toLowerCase();
-    return { ok: true, claims: this.entries.filter((e) => q.includes(e.key.toLowerCase())).flatMap((e) => e.claims) };
+    // Jak indeks: dopasowanie słów zapytania (rdzeń 5 liter) do tekstu tezy; klucz wpisu musi też trafić.
+    const stems = (req.query.toLowerCase().match(/\p{L}{4,}/gu) ?? []).map((w) => w.slice(0, 5));
+    return {
+      ok: true,
+      claims: this.entries
+        .filter((e) => {
+          const hay = `${e.key} ${e.claims.map((c) => c.text ?? '').join(' ')}`.toLowerCase();
+          return stems.some((st) => hay.includes(st)) && stems.some((st) => e.key.toLowerCase().includes(st) || hay.includes(st));
+        })
+        .flatMap((e) => e.claims),
+    };
   }
 }
 

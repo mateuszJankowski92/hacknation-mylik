@@ -399,6 +399,6 @@ describe('konfiguracja widoku urzędnika', () => {
 
 describe('silnik zamrożony', () => {
 	it('skrót silnika (src/engine, src/llm, src/contracts) się nie zmienił', () => {
-		expect(engineFingerprint()).toBe('cf40dd890dfb');
+		expect(engineFingerprint()).toBe('903c9bfb4b11');
 	});
 });

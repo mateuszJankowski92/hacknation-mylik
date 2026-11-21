@@ -61,15 +61,33 @@ function isoDay(v: string | undefined): string | null {
   return Number.isNaN(Date.parse(`${m[1]}T00:00:00Z`)) ? null : m[1]!;
 }
 
-/** Zapytania do indeksu: tekst twierdzenia i słowa kluczowe (bez treści zgłoszenia ani danych osobowych). */
+const STOP = new Set(['który', 'która', 'które', 'których', 'przez', 'oraz', 'tylko', 'jest', 'były', 'było', 'była', 'będzie', 'został', 'została', 'zostały', 'jako', 'także', 'około', 'ponad', 'bardzo', 'jeszcze', 'wszystkie', 'można', 'może', 'mogą', 'nawet', 'kiedy', 'gdzie', 'ostatnio']);
+
+/**
+ * Zapytania do indeksu: kilka krótkich wariantów fraz kluczowych (indeks dopasowuje frazy dosłownie,
+ * bez podobieństwa): (1) nazwy własne i liczby, (2) słowa kluczowe od modelu, (3) najdłuższe słowa
+ * treści. Bez treści zgłoszenia i bez danych osobowych spoza twierdzenia. Wyniki łączy kod, a odsiewa
+ * ten sam wymóg zgodności tezy.
+ */
 export function indexQueries(claim: ExtractedClaim, max: number): string[] {
   const out: string[] = [];
-  const add = (q: string) => {
-    const t = q.replace(/\s+/g, ' ').trim().slice(0, 300);
+  const add = (words: string[]) => {
+    const t = words.join(' ').replace(/\s+/g, ' ').trim().slice(0, 120);
     if (t.length >= 3 && !out.includes(t)) out.push(t);
   };
-  add(claim.text.replace(/[.?!]+$/u, ''));
-  if (claim.searchTerms?.length) add(claim.searchTerms.slice(0, 6).join(' '));
+  const text = claim.text.replace(/[.?!]+$/u, '');
+  const tokens = text.match(/[\p{L}\p{N}][\p{L}\p{N}-]*/gu) ?? [];
+  const terms = new Set((claim.searchTerms ?? []).map((t) => t.toLowerCase()));
+  // Pierwszy wyraz zdania liczy się jako nazwa tylko, gdy to skrótowiec albo model podał go jako słowo kluczowe.
+  const isName = (w: string, i: number) =>
+    w.length >= 2 && /^\p{Lu}/u.test(w) && (i > 0 ? w.length >= 3 : /^\p{Lu}{2,}$/u.test(w) || terms.has(w.toLowerCase()));
+  const names = tokens.filter((w, i) => isName(w, i) || /\d/.test(w));
+  if (names.length) add(names.slice(0, 4));
+  if (claim.searchTerms?.length) add(claim.searchTerms.slice(0, 3));
+  const content = tokens.filter((w) => w.length >= 5 && !STOP.has(w.toLowerCase()) && !/\d/.test(w));
+  const longest = [...content].sort((x, y) => y.length - x.length || content.indexOf(x) - content.indexOf(y)).slice(0, 3);
+  if (longest.length) add(content.filter((w) => longest.includes(w)));
+  if (!out.length) add(tokens.slice(0, 6));
   return out.slice(0, max);
 }
 
@@ -170,54 +188,71 @@ export function createFactcheckLayer(opts: { config: FactcheckConfig; index: Fac
       return out;
     },
 
-    select(claim, accepted, now) {
-      const reasons: Record<string, number> = {};
-      const drop = (code: string) => (reasons[code] = (reasons[code] ?? 0) + 1);
-      const names = properNames(claim.text);
-      const date = claimDate(claim.text);
-      const kept: AcceptedEvidence[] = [];
-      for (const a of accepted) {
-        const review = a.passage.meta.review;
-        if (!review) {
-          drop('brak_oceny');
-          continue;
-        }
-        // Tylko ta sama teza (potwierdza) albo teza odwrotna (obala); inna okoliczność lub tło = bez oceny.
-        if (a.stance !== 'potwierdza' && a.stance !== 'obala') {
-          if (a.stance === 'kontekst' || a.stance === 'rozbieznosc_kontekstu') {
-            kept.push({ ...a, stance: 'kontekst', mismatch: undefined, passage: withReview(a.passage, { ...review, label: null }) });
-            drop('inna_teza');
-          } else drop('bez_zwiazku');
-          continue;
-        }
-        // Zgodność zdarzenia: nazwy własne z twierdzenia w tezie lub tytule; data lub okres zgodne.
-        const hay = `${a.passage.meta.title}\n${review.claimReviewed}`;
-        const low = hay.toLowerCase();
-        if (names.some((n) => !low.includes(n))) {
-          drop('inne_nazwy');
-          continue;
-        }
-        if (date && !dateMatches(date, hay, review.claimDate ?? a.passage.meta.publishedAt, now) && !dateMatches(date, hay, a.passage.meta.publishedAt, now)) {
-          drop('inna_data');
-          continue;
-        }
-        const inverse = a.stance === 'obala';
-        const label = labelForUserClaim(review.label, inverse);
-        const passage = withReview(a.passage, { ...review, inverse });
-        if (label === 'potwierdzone') kept.push({ ...a, stance: 'potwierdza', passage });
-        else if (label === 'falszywe') kept.push({ ...a, stance: 'obala', passage });
-        else if (label === 'wprowadzajace_w_blad') kept.push({ ...a, stance: 'rozbieznosc_kontekstu', mismatch: 'warunki', passage });
-        else {
-          // nieweryfikowalne, ocena nieznana albo nieodwracalna: tylko tło z przypisaną oceną
-          kept.push({ ...a, stance: 'kontekst', mismatch: undefined, passage });
-          drop(review.label ? 'ocena_bez_rozstrzygniecia' : 'nieznana_ocena');
-        }
-      }
-      const dropped = accepted.length - kept.length;
-      return { accepted: kept, ...(Object.keys(reasons).length ? { reasons } : {}), ...(dropped ? { dropped } : {}) };
-    },
+    select: selectReviewEvidence,
   };
 }
+
+/**
+ * Reguły doboru dla ocen redakcji (z indeksu i ze zbioru): tylko ta sama teza ("potwierdza") albo
+ * teza odwrotna ("obala"), zgodne nazwy własne i data; ocena redakcji -> stanowisko jawną tabelą.
+ * Uzasadnienie weryfikacji ze zbioru i ocena bez rozstrzygnięcia: tylko tło. Może tylko odrzucać
+ * albo osłabiać do tła; nigdy nie dodaje dowodu.
+ */
+export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEvidence[], now: Date): FactcheckSelection {
+    const reasons: Record<string, number> = {};
+    const drop = (code: string) => (reasons[code] = (reasons[code] ?? 0) + 1);
+    const names = properNames(claim.text);
+    const date = claimDate(claim.text);
+    const kept: AcceptedEvidence[] = [];
+    for (const a of accepted) {
+      const review = a.passage.meta.review;
+      if (!review) {
+        drop('brak_oceny');
+        continue;
+      }
+      // Uzasadnienie z weryfikacji w zbiorze: tylko tło (rozstrzyga wyłącznie teza z oceną redakcji).
+      if (review.role === 'uzasadnienie') {
+        if (a.stance !== 'kontekst') drop('uzasadnienie_jako_tlo');
+        const { mismatch: _m, ...rest } = a;
+        kept.push({ ...rest, stance: 'kontekst' });
+        continue;
+      }
+      // Tylko ta sama teza (potwierdza) albo teza odwrotna (obala); inna okoliczność lub tło = bez oceny.
+      if (a.stance !== 'potwierdza' && a.stance !== 'obala') {
+        if (a.stance === 'kontekst' || a.stance === 'rozbieznosc_kontekstu') {
+          const { mismatch: _m, ...rest } = a;
+          kept.push({ ...rest, stance: 'kontekst', passage: withReview(a.passage, { ...review, label: null }) });
+          drop('inna_teza');
+        } else drop('bez_zwiazku');
+        continue;
+      }
+      // Zgodność zdarzenia: nazwy własne z twierdzenia w tezie lub tytule; data lub okres zgodne.
+      const hay = `${a.passage.meta.title}\n${review.claimReviewed}`;
+      const low = hay.toLowerCase();
+      if (names.some((n) => !low.includes(n))) {
+        drop('inne_nazwy');
+        continue;
+      }
+      if (date && !dateMatches(date, hay, review.claimDate ?? a.passage.meta.publishedAt, now) && !dateMatches(date, hay, a.passage.meta.publishedAt, now)) {
+        drop('inna_data');
+        continue;
+      }
+      const inverse = a.stance === 'obala';
+      const label = labelForUserClaim(review.label, inverse);
+      const passage = withReview(a.passage, { ...review, inverse });
+      if (label === 'potwierdzone') kept.push({ ...a, stance: 'potwierdza', passage });
+      else if (label === 'falszywe') kept.push({ ...a, stance: 'obala', passage });
+      else if (label === 'wprowadzajace_w_blad') kept.push({ ...a, stance: 'rozbieznosc_kontekstu', mismatch: 'warunki', passage });
+      else {
+        // nieweryfikowalne, ocena nieznana albo nieodwracalna: tylko tło z przypisaną oceną
+        const { mismatch: _m, ...rest } = a;
+      kept.push({ ...rest, stance: 'kontekst', passage });
+        drop(review.label ? 'ocena_bez_rozstrzygniecia' : 'nieznana_ocena');
+      }
+    }
+    const dropped = accepted.length - kept.length;
+    return { accepted: kept, ...(Object.keys(reasons).length ? { reasons } : {}), ...(dropped ? { dropped } : {}) };
+  }
 
 function withReview(p: Passage, review: NonNullable<SourceMeta['review']>): Passage {
   return { ...p, meta: { ...p.meta, review } };

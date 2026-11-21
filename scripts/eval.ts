@@ -12,6 +12,7 @@ import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig } from '../src/config';
 import { DEFAULT_ANTHROPIC_MODEL } from '../src/llm/index';
+import { createFactcheckFromEnv } from '../src/factcheck/index';
 import { createProductionLiveLayer, type LiveLayer } from '../src/live/index';
 import {
   DEFAULT_CONTROL_CASES_PATH,
@@ -45,6 +46,8 @@ async function main(): Promise<void> {
     }
   }
   const cfg = loadConfig(process.env);
+  // Indeks weryfikacji redakcji (src/factcheck): tylko informacja, czy jest włączony (bez wartości klucza).
+  console.log(`Indeks weryfikacji redakcji: ${createFactcheckFromEnv() ? 'włączony' : 'wyłączony (brak klucza GOOGLE_FACTCHECK_API_KEY albo FACTCHECK_LAYER=off)'}`);
   const provider = flag('--mock') ? 'mock' : cfg.llmProvider === 'anthropic' ? 'anthropic' : 'mock';
   if (provider === 'anthropic' && !cfg.anthropicApiKey) {
     console.error('Brak ANTHROPIC_API_KEY. Uruchom: npm run eval -- --mock');
