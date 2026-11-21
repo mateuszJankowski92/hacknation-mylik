@@ -1,43 +1,3 @@
-.scene {
-	position: relative;
-	width: 100%;
-	aspect-ratio: 4 / 5;
-	overflow: hidden;
-}
-
-.scene__video,
-.scene__poster,
-.scene__placeholder,
-.scene__figure {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	background: #ffffff;
-}
-
-.scene__placeholder {
-	position: relative;
-	animation: scene-work 3s ease-in-out infinite;
-}
-
-.scene__sweep {
-	position: absolute;
-	inset: 0 auto 0 0;
-	width: 30%;
-	background: linear-gradient(90deg, transparent, var(--role-accent), transparent);
-	opacity: 0.25;
-	animation: scene-sweep 2.4s ease-in-out infinite;
-}
-
-.scene__placeholder[data-variant$='-2'] .scene__sweep {
-	animation-direction: reverse;
-}
-
-.scene__placeholder[data-variant$='-3'] {
-	animation-duration: 2s;
-}
-
 .scene__marks {
 	position: absolute;
 	inset: auto 0 0 0;
@@ -67,18 +27,6 @@
 	opacity: 0.6;
 }
 
-.scene-skip {
-	min-height: 48px;
-	padding: 0 var(--space-1);
-	border: 0;
-	background: none;
-	color: var(--link);
-	font: inherit;
-	text-decoration: underline;
-	text-underline-offset: 0.2em;
-	cursor: pointer;
-}
-
 .scene-setting {
 	margin: 0.5rem 0;
 }
@@ -94,21 +42,6 @@
 	color: var(--muted);
 }
 
-@keyframes scene-work {
-	50% {
-		transform: translateY(-6px) scale(1.02);
-	}
-}
-
-@keyframes scene-sweep {
-	from {
-		transform: translateX(-100%);
-	}
-	to {
-		transform: translateX(340%);
-	}
-}
-
 @keyframes scene-pop {
 	from {
 		transform: scale(0);
@@ -119,8 +52,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.scene__placeholder,
-	.scene__sweep,
 	.scene__mark {
 		animation: none;
 	}

@@ -2,6 +2,7 @@ import type { State } from '../../../src/contracts/verdict';
 import { STATE_LABELS_PL } from '../../../src/contracts/verdict';
 import { ResultImage } from '../roles/ResultImage';
 import { currentRole } from '../roles/resolve';
+import { StageSlot } from '../stage/StageSlot';
 import { nb } from '../typography';
 
 interface StateNoticeProps {
@@ -21,6 +22,7 @@ function StateShell({
 }) {
 	return (
 		<section className={`state state--${state}`} aria-labelledby={`state-${state}`} data-role={currentRole()}>
+			<StageSlot kind="corner" role={currentRole()} />
 			<p className="state__kicker">
 				<span aria-hidden="true">{icon} </span>
 				{nb('To nie jest ocena zgłoszenia')}

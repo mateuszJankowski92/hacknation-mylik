@@ -11,7 +11,7 @@ import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
 import { currentRole } from '../roles/resolve';
 import { nb } from '../typography';
-import { ResultCorner } from '../roles/ResultCorner';
+import { StageSlot } from '../stage/StageSlot';
 import './record.css';
 
 function RecordExtras({ record }: { record: VerificationRecord }) {
@@ -87,7 +87,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 
 	return (
 		<div className="record" data-role={role}>
-			{record.claims.length > 0 && <ResultCorner role={role} />}
+			{record.claims.length > 0 && <StageSlot kind="corner" role={role} />}
 			{note && <p className="role-note">{nb(note)}</p>}
 			{record.claims.length === 0 && (
 				<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>

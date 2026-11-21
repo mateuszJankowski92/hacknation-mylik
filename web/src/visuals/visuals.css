@@ -17,11 +17,7 @@
 	flex: 0 0 auto;
 	width: var(--waiting-scene-width);
 	min-width: min(100%, 240px);
-}
-
-.waiting-steps__figure {
-	width: 100%;
-	height: auto;
+	margin-bottom: var(--space-6);
 }
 
 .waiting-steps__text {

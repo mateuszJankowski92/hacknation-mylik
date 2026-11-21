@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react';
 import { DEFAULT_ETA_SECONDS } from '../api';
-import { artAlt, type Role } from '../roles/config';
+import type { Role } from '../roles/config';
 import { currentRole } from '../roles/resolve';
-import { RoleArt } from '../roles/RoleArt';
-import { SCENE_TEXTS } from '../scenes/config';
-import { SceneStage, ScenePoster } from '../scenes/SceneStage';
+import { useStage } from '../stage/StageContext';
+import { StageSlot } from '../stage/StageSlot';
 import { nb } from '../typography';
-import type { ScenePlayback } from '../scenes/useScenePlayback';
 import { INITIAL_PROGRESS, describeProgress, type ProgressState } from './progress';
 import './visuals.css';
 
@@ -33,7 +31,6 @@ export interface WaitingStepsProps {
 	etaSeconds?: number;
 	elapsedSeconds?: number;
 	role?: Role;
-	playback?: ScenePlayback;
 	layout?: 'page' | 'hero';
 }
 
@@ -42,23 +39,21 @@ export function WaitingSteps({
 	etaSeconds = DEFAULT_ETA_SECONDS,
 	elapsedSeconds,
 	role = currentRole(),
-	playback,
 	layout = 'page',
 }: WaitingStepsProps) {
+	const { setProgress } = useStage();
 	const clock = useElapsedSeconds();
 	const elapsed = elapsedSeconds ?? clock;
 	const overtime = elapsed > etaSeconds;
 
+	useEffect(() => {
+		setProgress(progress);
+	}, [progress, setProgress]);
+
 	return (
 		<section className={`waiting-steps waiting-steps--${layout}`} aria-label="Postęp sprawdzania" data-role={role}>
 			<div className="waiting-steps__scene">
-				{playback?.scene && playback.enabled ? (
-					<SceneStage key={playback.scene.id} scene={playback.scene} role={role} progress={progress} onEnd={playback.end} />
-				) : playback?.scene && playback.reducedMotion ? (
-					<ScenePoster scene={playback.scene} role={role} />
-				) : (
-					<RoleArt owner={role} name="praca" alt={artAlt(role, 'praca')} className="waiting-steps__figure" />
-				)}
+				<StageSlot kind="foreground" />
 			</div>
 			<div className="waiting-steps__text">
 				<p className="waiting-steps__status" role="status" aria-live="polite">
@@ -66,11 +61,6 @@ export function WaitingSteps({
 				</p>
 				<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
 				<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
-				{playback?.scene && playback.enabled && (
-					<button type="button" className="scene-skip" onClick={playback.skip}>
-						{SCENE_TEXTS.skip}
-					</button>
-				)}
 			</div>
 		</section>
 	);

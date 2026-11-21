@@ -84,7 +84,7 @@ describe('WaitingSteps', () => {
 		expect(screen.getByText('Minęło: 2 s')).toBeTruthy();
 		expect(screen.getByText('Czytam Twoje zgłoszenie.')).toBeTruthy();
 		expect(container.querySelector('ol')).toBeNull();
-		expect(container.querySelector('svg')).not.toBeNull();
+		expect(container.querySelector('.stage-slot--foreground')).not.toBeNull();
 		const middle = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 2 },
@@ -92,7 +92,6 @@ describe('WaitingSteps', () => {
 		]);
 		rerender(<WaitingSteps progress={middle} etaSeconds={12} elapsedSeconds={3} role="sport" />);
 		expect(container.querySelector('.waiting-steps')?.getAttribute('data-role')).toBe('sport');
-		expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Komentator sportowy przegląda wyniki meczów.');
 		expect(container.querySelector('[role="status"]')?.textContent).toBe(describeProgress(middle));
 	});
 

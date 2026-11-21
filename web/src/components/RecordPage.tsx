@@ -7,7 +7,8 @@ import { isRecordId, navigate, PENDING_CONTENT_KEY, readPendingContent, recordUr
 import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
 import { WaitingSteps } from '../visuals/WaitingSteps';
 import { currentRole } from '../roles/resolve';
-import { useScenePlayback } from '../scenes/useScenePlayback';
+import { recallRecord, rememberRecord } from '../recordCache';
+import { useShownMark, useStage } from '../stage/StageContext';
 import { Link } from './Link';
 import { OutcomeView } from './OutcomeView';
 import { ResultActions } from './ResultActions';
@@ -26,8 +27,10 @@ type PageState =
 	| { status: 'gone' }
 	| { status: 'error'; message: string };
 
-function initialState(id: string): PageState {
+function initialState(id: string, justChecked: boolean): PageState {
 	if (!isRecordId(id)) return { status: 'gone' };
+	const remembered = justChecked ? recallRecord(id) : null;
+	if (remembered && !readPendingContent()) return { status: 'ready', outcome: { kind: 'record', record: remembered, cached: false } };
 	return readPendingContent()
 		? { status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS }
 		: { status: 'loading' };
@@ -45,12 +48,14 @@ function failureState(error: unknown): PageState {
 }
 
 export function RecordPage({ id }: { id: string }) {
-	const [state, setState] = useState<PageState>(() => initialState(id));
+	const stage = useStage();
+	const [state, setState] = useState<PageState>(() => initialState(id, stage.resultId === id));
 	const resultRef = useRef<HTMLDivElement>(null);
-	const playback = useScenePlayback(currentRole(), state.status === 'ready');
-	const { begin, reset, end } = playback;
-	const showResult = state.status === 'ready' && playback.released;
-	const holding = state.status === 'ready' && !playback.released;
+	const { begin, reset, resolve } = stage;
+	const stageRef = useRef(stage);
+	stageRef.current = stage;
+	const showResult = state.status === 'ready';
+	useShownMark(showResult);
 
 	useEffect(() => {
 		if (!isRecordId(id)) {
@@ -59,17 +64,20 @@ export function RecordPage({ id }: { id: string }) {
 		}
 		const controller = new AbortController();
 		const pending = readPendingContent();
+		const remembered = stageRef.current.resultId === id ? recallRecord(id) : null;
 
 		function finish(outcome: VerifyOutcome) {
 			if (outcome.kind === 'record') {
 				addToHistory(outcome.record);
+				rememberRecord(outcome.record);
 				if (outcome.record.id !== id) {
+					resolve(currentRole(outcome.record.role), outcome.record.id);
 					navigate(recordUrlPath(outcome.record.id), { replace: true });
 					return;
 				}
 			}
 			clearPending(id);
-			if (outcome.kind === 'record' && outcome.cached) end();
+			resolve(outcome.kind === 'record' ? currentRole(outcome.record.role) : null, outcome.kind === 'record' ? outcome.record.id : null);
 			setState((current) =>
 				current.status === 'waiting'
 					? { status: 'ready', outcome, progress: current.progress, etaSeconds: current.etaSeconds }
@@ -78,7 +86,7 @@ export function RecordPage({ id }: { id: string }) {
 		}
 
 		if (pending) {
-			begin();
+			begin(currentRole(), { keep: true });
 			setState({ status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS });
 			const onProgress = (event: VerifyProgressEvent) => {
 				if (controller.signal.aborted) return;
@@ -95,6 +103,9 @@ export function RecordPage({ id }: { id: string }) {
 				clearPending(id);
 				setState(failureState(error));
 			});
+		} else if (remembered) {
+			addToHistory(remembered);
+			setState({ status: 'ready', outcome: { kind: 'record', record: remembered, cached: false } });
 		} else {
 			reset();
 			setState({ status: 'loading' });
@@ -111,7 +122,7 @@ export function RecordPage({ id }: { id: string }) {
 			);
 		}
 		return () => controller.abort();
-	}, [id, begin, reset, end]);
+	}, [id, begin, reset, resolve]);
 
 	useEffect(() => {
 		if (showResult || state.status === 'gone' || state.status === 'error') resultRef.current?.focus();
@@ -125,11 +136,10 @@ export function RecordPage({ id }: { id: string }) {
 					Wczytuję…
 				</p>
 			)}
-			{(state.status === 'waiting' || holding) && (
+			{state.status === 'waiting' && (
 				<WaitingSteps
 					progress={'progress' in state ? (state.progress ?? INITIAL_PROGRESS) : INITIAL_PROGRESS}
 					etaSeconds={'etaSeconds' in state ? (state.etaSeconds ?? DEFAULT_ETA_SECONDS) : DEFAULT_ETA_SECONDS}
-					playback={playback}
 				/>
 			)}
 			<div
@@ -137,8 +147,8 @@ export function RecordPage({ id }: { id: string }) {
 				ref={resultRef}
 				tabIndex={-1}
 				aria-live="polite"
-				data-engine-ms={showResult ? playback.timing?.engineMs : undefined}
-				data-shown-ms={showResult ? playback.timing?.shownMs : undefined}
+				data-engine-ms={showResult ? stage.timing?.engineMs : undefined}
+				data-shown-ms={showResult ? stage.timing?.shownMs : undefined}
 			>
 				{state.status === 'gone' && (
 					<section className="http-error" role="status">

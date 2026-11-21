@@ -10,7 +10,8 @@ import { CheckForm } from './CheckForm';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
 import { currentForcedRole, currentRole } from '../roles/resolve';
-import { useScenePlayback } from '../scenes/useScenePlayback';
+import { rememberRecord } from '../recordCache';
+import { useShownMark, useStage } from '../stage/StageContext';
 import { OutcomeView } from './OutcomeView';
 import { nb } from '../typography';
 
@@ -52,9 +53,10 @@ export function CheckPage() {
 	const controllerRef = useRef<AbortController | null>(null);
 	const resultRef = useRef<HTMLDivElement>(null);
 	const fromCheckRef = useRef(false);
-	const playback = useScenePlayback(currentRole(), state.status === 'done');
-	const showResult = state.status === 'done' && playback.released;
-	const waiting = state.status === 'loading' || (state.status === 'done' && !playback.released);
+	const stage = useStage();
+	const showResult = state.status === 'done';
+	const waiting = state.status === 'loading';
+	useShownMark(state.status === 'done' && !(fromCheckRef.current && state.outcome.kind === 'record'));
 
 	useEffect(() => {
 		if (!import.meta.env.DEV) return;
@@ -92,7 +94,7 @@ export function CheckPage() {
 		const controller = new AbortController();
 		controllerRef.current = controller;
 		dispatch({ type: 'start' });
-		playback.begin();
+		stage.begin(currentForcedRole() ?? undefined);
 		try {
 			const recordId = await fetchRecordKey(content, controller.signal);
 			if (controllerRef.current !== controller) return;
@@ -108,7 +110,8 @@ export function CheckPage() {
 			const outcome = await pending;
 			if (controllerRef.current !== controller) return;
 			fromCheckRef.current = true;
-			if (outcome.kind === 'record' && outcome.cached) playback.end();
+			if (outcome.kind === 'record') rememberRecord(outcome.record);
+			stage.resolve(outcome.kind === 'record' ? currentRole(outcome.record.role) : null, outcome.kind === 'record' ? outcome.record.id : null);
 			dispatch({ type: 'done', outcome });
 		} catch (error) {
 			if (controllerRef.current !== controller) return;
@@ -123,7 +126,7 @@ export function CheckPage() {
 
 	const heroArt =
 		(state.status === 'loading' || state.status === 'done') && waiting ? (
-			<WaitingSteps layout="hero" progress={state.progress} etaSeconds={state.etaSeconds} playback={playback} />
+			<WaitingSteps layout="hero" progress={state.progress} etaSeconds={state.etaSeconds} />
 		) : state.status === 'idle' || state.status === 'error' ? undefined : null;
 
 	return (
@@ -136,8 +139,8 @@ export function CheckPage() {
 				ref={resultRef}
 				tabIndex={-1}
 				aria-live="polite"
-				data-engine-ms={showResult ? playback.timing?.engineMs : undefined}
-				data-shown-ms={showResult ? playback.timing?.shownMs : undefined}
+				data-engine-ms={showResult ? stage.timing?.engineMs : undefined}
+				data-shown-ms={showResult ? stage.timing?.shownMs : undefined}
 			>
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">

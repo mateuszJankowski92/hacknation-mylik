@@ -72,7 +72,7 @@ describe('minima skali', () => {
 			['styles.css', '.site-header__brand a'],
 			['styles.css', '.text-button'],
 			['styles.css', '.button'],
-			['scenes/scenes.css', '.scene-skip'],
+			['stage/stage.css', '.character-stage__skip'],
 			['components/hero.css', '.hero .hero__skip'],
 			['components/record.css', '.record-claim__evidence-link button'],
 			['components/record.css', '.record-card__download'],
@@ -134,9 +134,11 @@ describe('czekanie i wynik w skali', () => {
 		expect(block(visuals, '.waiting-steps__scene')).toContain('width: var(--waiting-scene-width)');
 	});
 
-	it('postać w rogu wyniku ma 96 px na telefonie i 112 px na dużym ekranie', () => {
-		expect(block(roles, '.result-corner')).toContain('width: 96px');
-		expect(roles).toMatch(/\.result-corner \{\s*position: absolute;[^}]*width: 112px;/);
+	it('postać w rogu wyniku ma 96 px na telefonie i 120 px na dużym ekranie, a miejsce na nią jest zarezerwowane', () => {
+		const stageCss = readCss('stage/stage.css');
+		expect(block(stageCss, '.stage-slot--corner')).toContain('width: 96px');
+		expect(stageCss).toMatch(/\.record \.stage-slot--corner \{\s*position: absolute;[^}]*width: 120px;/);
+		expect(stageCss).toMatch(/\.record \{\s*position: relative;\s*padding-right: 152px;/);
 	});
 
 	it('zdanie wyniku: 28-32 px na telefonie, 40-48 px na dużym ekranie, "Nie wiem." co najmniej tyle', () => {
@@ -155,7 +157,9 @@ describe('czekanie i wynik w skali', () => {
 		expect(duration).toBeGreaterThanOrEqual(300);
 		expect(duration).toBeLessThanOrEqual(400);
 		expect(roles).toContain('animation: result-sentence-grow var(--resize-duration)');
-		expect(roles).toContain('animation: result-corner-shrink var(--resize-duration)');
+		const stageCss = readCss('stage/stage.css');
+		for (const property of ['top', 'left', 'width', 'height']) expect(stageCss).toContain(`${property} var(--resize-duration)`);
+		expect(stageCss).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.character-stage,[^}]*transition: none;/);
 		expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*animation: none !important;/);
 	});
 });
@@ -163,9 +167,8 @@ describe('czekanie i wynik w skali', () => {
 describe('wynik w skali: widok', () => {
 	it('postać w rogu jest dekoracją, a zdanie wyniku dostaje rozmiar od długości', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);
-		const corner = container.querySelector('.result-corner');
+		const corner = container.querySelector('.stage-slot--corner');
 		expect(corner?.getAttribute('aria-hidden')).toBe('true');
-		expect(container.querySelector('.result-corner img[alt=""], .result-corner svg[aria-hidden="true"]')).not.toBeNull();
 		expect(container.querySelector('.record-claim__headline')?.getAttribute('data-length')).toMatch(/^(short|medium|long)$/);
 		expect(headlineLength('a'.repeat(60))).toBe('short');
 		expect(headlineLength('a'.repeat(120))).toBe('medium');

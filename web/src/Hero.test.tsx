@@ -280,7 +280,16 @@ describe('duża scena roli', () => {
 		await waitFor(() => expect(container.querySelector('.hero .waiting-steps--hero')).not.toBeNull());
 		expect(container.querySelector('.hero__stage')).toBeNull();
 		expect(container.querySelectorAll('.hero textarea')).toHaveLength(1);
-		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+		expect(container.querySelector('.hero .stage-slot--foreground')).not.toBeNull();
+		const stage = container.querySelector('.character-stage') as HTMLElement;
+		expect(stage.getAttribute('data-mode')).toBe('foreground');
+		const video = stage.querySelector('video');
+		if (video) {
+			await act(async () => {
+				fireEvent.playing(video);
+			});
+			expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+		}
 	});
 
 	it('obraz wyniku ma 240-320 px na dużym ekranie i ok. 160 px na telefonie', () => {

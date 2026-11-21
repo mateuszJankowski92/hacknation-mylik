@@ -1,20 +1,24 @@
+import { useRef } from 'react';
 import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
 import { SceneSetting } from './scenes/SceneSetting';
 import { useRoute } from './route';
+import { CharacterStage } from './stage/CharacterStage';
+import { StageProvider } from './stage/StageContext';
 import { nb } from './typography';
 
 export const PROTOTYPE_NOTE = 'To wczesna wersja próbna. Wyniki mogą mieć braki.';
 
-export function App() {
+function AppShell() {
 	const route = useRoute();
 	const isHome = route.page === 'check';
 	const Brand = isHome ? 'p' : 'h1';
+	const appRef = useRef<HTMLDivElement>(null);
 
 	return (
-		<div className="app" data-page={route.page}>
+		<div className="app" data-page={route.page} ref={appRef}>
 			<a className="skip-link" href="#main">
 				Przejdź do treści
 			</a>
@@ -43,6 +47,15 @@ export function App() {
 				<SceneSetting />
 				<p>{nb('Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.')}</p>
 			</footer>
+			<CharacterStage appRef={appRef} />
 		</div>
+	);
+}
+
+export function App() {
+	return (
+		<StageProvider>
+			<AppShell />
+		</StageProvider>
 	);
 }
