@@ -74,7 +74,7 @@ N2="$(curl -s "http://localhost:$PORT/zrodla" | grep -c 'lang="pl"' || true)"
 
 SMS="$(curl -sf -X POST "http://localhost:$PORT/sms/webhook" -H 'content-type: application/json' \
   -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}')" || fail "/sms/webhook"
-echo "$SMS" | grep -q 'Stan na' || fail "SMS bez 'Stan na': $SMS"
+echo "$SMS" | grep -q 'Stan źródeł na' || fail "SMS bez 'Stan źródeł na': $SMS"
 echo "SMOKE: sms $SMS"
 
 S1="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/sms")"

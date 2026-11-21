@@ -18,14 +18,14 @@ import {
 	pluralPl,
 	strengthSentence,
 } from './templates';
-import { buildResultLayout } from './layout';
+import { buildResultLayout, evidenceLinkText } from './layout';
 import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import { decisiveReview, missingEvidenceText, reviewSentence, similarReview, similarSentence } from './answer';
 
 export * from './answer';
 
-export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, buildUncertaintyNote, isUnmeasurable, pickLayoutEvidence, type ResultLayout } from './layout';
+export { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, buildUncertaintyNote, evidenceLinkText, isUnmeasurable, pickLayoutEvidence, type ResultLayout } from './layout';
 export * from './warning';
 export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measureLanguage } from './metrics';
 
@@ -64,10 +64,10 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 	const cardUrl = currentRecordUrl(rawCardUrl);
 	const lead = leadClaim(record);
 	const asOf = asOfStamp(record.asOf);
-	const tail = `${EVIDENCE_LINK_TEXT}: ${cardUrl}`;
 	const warning = knownOpSmsText(record.notices);
-	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
+	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, `${EVIDENCE_LINK_TEXT}: ${cardUrl}`).slice(0, SHORT_ANSWER_MAX_CHARS);
 
+	const tail = `${evidenceLinkText(lead)}: ${cardUrl}`;
 	const count = record.claims.length;
 	const extra =
 		count > 1
@@ -77,7 +77,7 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 	const review = decisiveReview(lead);
 	const pubLinks = review ? [`Link do publikacji: ${review.source.url}`, ''] : [''];
 	const label = VERDICT_LABELS_PL[lead.verdict];
-	const asOfShort = asOfStamp(record.asOf);
+	const asOfShort = asOfStamp(record.asOf, record.createdAt);
 	const shortCandidates: string[] = [];
 	if (review) {
 		const r = review.source.review!;
@@ -100,14 +100,16 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 		shortCandidates.push(join(head, `[${label}]`, asOfShort, warning, tail), join(head, `[${label}]`, asOfShort, tail));
 	}
 	const tryFull = (pubLink: string): string | null => {
-		for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
-			const layout = buildResultLayout(lead, record.asOf, {
-				publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
-				quote,
-			});
-			const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
-			const text = join(layout.headline, pubLink, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
-			if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
+		for (const checkedAt of [record.createdAt, undefined]) {
+			for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
+				const layout = buildResultLayout(lead, record.asOf, {
+					publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
+					quote,
+				}, checkedAt);
+				const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
+				const text = join(layout.headline, pubLink, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
+				if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
+			}
 		}
 		return null;
 	};
@@ -119,7 +121,7 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 	const full = tryFull('');
 	if (full) return full;
 	for (const t of shortCandidates) if (t.length <= SHORT_ANSWER_MAX_CHARS) return t;
-	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 });
+	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 }, record.createdAt);
 	const compactHead = lead.directAnswer ? join(lead.directAnswer, review ? `${review.source.publisher}: „${review.source.review!.rating}”.` : '') : VERDICT_EXPLANATIONS_PL[lead.verdict];
 	const compactWithWarning = join(compactHead, `[${layout.label}]`, layout.asOf, warning, tail);
 	if (compactWithWarning.length <= SHORT_ANSWER_MAX_CHARS) return compactWithWarning;

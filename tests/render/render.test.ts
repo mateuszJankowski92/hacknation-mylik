@@ -18,8 +18,8 @@ import {
 	renderShortAnswer,
 	renderStateMessage,
 } from '../../src/render/index';
-import { asOfSentence, asOfStamp } from '../../src/render/templates';
-import { buildHeadline } from '../../src/render/layout';
+import { asOfSentence, asOfStamp, checkedAtStamp } from '../../src/render/templates';
+import { buildHeadline, buildResultLayout } from '../../src/render/layout';
 import { VERDICT_SENTENCES, strengthSentence } from '../../src/render/templates';
 import {
 	REASON_PLAIN_PL,
@@ -123,13 +123,13 @@ describe('render', () => {
 			];
 			for (const t of texts) {
 				expect(findForbiddenForms(t), t).toEqual([]);
-				expect(t, t).toMatch(/[Ss]tan na 21\.11\.2026/);
+				expect(t, t).toMatch(/Stan źródeł na 21\.11\.2026/);
 			}
 		}
 		for (const s of STATES) {
 			const t = renderStateMessage(s, ASOF);
 			expect(findForbiddenForms(t), t).toEqual([]);
-			expect(t).toContain('Stan na 21.11.2026');
+			expect(t).toContain('Stan źródeł na 21.11.2026');
 		}
 	});
 
@@ -141,8 +141,9 @@ describe('render', () => {
 			const text = renderShortAnswer(record([c, c, c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
 			expect(text.length).toBeLessThanOrEqual(SHORT_ANSWER_MAX_CHARS);
 			expect(text).toContain(`[${VERDICT_LABELS_PL[c.verdict]}]`);
-			expect(text).toContain('Stan na 21.11.2026, 12:00.');
-			expect(text).toContain('Zobacz, skąd to wiem: https://mylik.pl/karta/');
+			expect(text).toContain('Stan źródeł na 21.11.2026. Sprawdzono 21.11.2026, 12:00.');
+			const link = c.verdict === 'brak_wystarczajacych_dowodow' ? 'Zobacz szczegóły' : 'Zobacz, skąd to wiem';
+			expect(text).toContain(`${link}: https://mylik.pl/karta/`);
 		}
 		const text = renderShortAnswer(record([SCENARIOS[0]!]), 'https://mylik.pl/k/1');
 		expect(text).toContain('Rządowe Centrum Bezpieczeństwa podał 20.11.2026 to samo: „Cytat, który jest nietykalny i był dosłowny.”');
@@ -243,8 +244,8 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 				t.indexOf(abstain ? 'Nie ' : 'podał'),
 				t.indexOf(`[${VERDICT_LABELS_PL[c.verdict]}]`),
 				abstain ? t.indexOf('zajrzyj na stronę właściwego urzędu') : t.indexOf('Na ile to pewne: średnio'),
-				t.indexOf('Stan na'),
-				t.indexOf('Zobacz, skąd to wiem'),
+				t.indexOf('Stan źródeł na'),
+				t.indexOf(abstain ? 'Zobacz szczegóły' : 'Zobacz, skąd to wiem'),
 			];
 			expect(order.every((i) => i >= 0), t).toBe(true);
 			expect([...order].sort((a, b) => a - b), t).toEqual(order);
@@ -265,15 +266,23 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 		for (const c of SCENARIOS) expect(text(c)).not.toMatch(/GIS|Bydgoszcz/);
 	});
 
-	it('etykieta w stanie na zawiera godzinę w czasie polskim', () => {
-		expect(asOfStamp('2026-11-21T11:05:00Z')).toBe('Stan na 21.11.2026, 12:05.');
-		expect(asOfStamp('2026-11-21')).toBe('Stan na 21.11.2026.');
+	it('stan źródeł to sama data, a godzina sprawdzenia jest osobnym zdaniem w czasie polskim', () => {
+		expect(asOfStamp('2026-11-21T11:05:00Z')).toBe('Stan źródeł na 21.11.2026.');
+		expect(asOfStamp('2026-11-21T11:05:00Z', '2026-11-21T11:05:00Z')).toBe('Stan źródeł na 21.11.2026. Sprawdzono 21.11.2026, 12:05.');
+		expect(asOfStamp('2026-11-21')).toBe('Stan źródeł na 21.11.2026.');
+	});
+
+	it('odnośnik przy wstrzymaniu to "Zobacz szczegóły", w pozostałych wynikach "Zobacz, skąd to wiem"', () => {
+		for (const c of SCENARIOS) {
+			const expected = c.verdict === 'brak_wystarczajacych_dowodow' ? 'Zobacz szczegóły' : 'Zobacz, skąd to wiem';
+			expect(buildResultLayout(c, ASOF).evidenceLink).toBe(expected);
+		}
 	});
 
 	it('godzina: zimą CET (+1), latem CEST (+2), data po północy też w czasie polskim', () => {
-		expect(asOfStamp('2026-01-15T10:00:00Z')).toBe('Stan na 15.01.2026, 11:00.');
-		expect(asOfStamp('2026-07-15T10:00:00Z')).toBe('Stan na 15.07.2026, 12:00.');
-		expect(asOfSentence('2026-11-21T23:30:00Z')).toBe('Stan na 22.11.2026.');
+		expect(checkedAtStamp('2026-01-15T10:00:00Z')).toBe('Sprawdzono 15.01.2026, 11:00.');
+		expect(checkedAtStamp('2026-07-15T10:00:00Z')).toBe('Sprawdzono 15.07.2026, 12:00.');
+		expect(asOfSentence('2026-11-21T23:30:00Z')).toBe('Stan źródeł na 22.11.2026.');
 	});
 
 	it('brak dowodów: bez wskaźnika i bez słowa "wcale", jedno zdanie co dalej', () => {

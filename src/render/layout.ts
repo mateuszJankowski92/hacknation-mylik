@@ -1,10 +1,10 @@
 import type { ClaimResult, EvidenceItem } from '../contracts/record';
 import { VERDICT_LABELS_PL, type Verdict } from '../contracts/verdict';
-import { EVIDENCE_LINK_TEXT, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL, VERDICT_EXPLANATIONS_PL } from './plain';
+import { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import { asOfStamp, formatDate } from './templates';
 import { missingEvidenceText, NOT_FOUND_SENTENCE, reviewSentence, similarReview, similarSentence } from './answer';
 
-export { EVIDENCE_LINK_TEXT } from './plain';
+export { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT } from './plain';
 
 export interface ResultLayout {
 	headline: string;
@@ -109,7 +109,11 @@ export function buildUncertaintyNote(claim: ClaimResult): string | null {
 	return 'Nie znalazłem tego w sprawdzonych źródłach, więc zajrzyj na stronę właściwego urzędu.';
 }
 
-export function buildResultLayout(claim: ClaimResult, asOf: string, limits: LayoutLimits = {}): ResultLayout {
+export function evidenceLinkText(claim: ClaimResult): string {
+	return claim.verdict === 'brak_wystarczajacych_dowodow' ? ABSTAIN_LINK_TEXT : EVIDENCE_LINK_TEXT;
+}
+
+export function buildResultLayout(claim: ClaimResult, asOf: string, limits: LayoutLimits = {}, checkedAt?: string): ResultLayout {
 	return {
 		headline: buildHeadline(claim, limits),
 		label: VERDICT_LABELS_PL[claim.verdict],
@@ -118,7 +122,7 @@ export function buildResultLayout(claim: ClaimResult, asOf: string, limits: Layo
 				? null
 				: `${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[claim.strength.level]}`,
 		uncertaintyNote: buildUncertaintyNote(claim),
-		asOf: asOfStamp(asOf),
-		evidenceLink: EVIDENCE_LINK_TEXT,
+		asOf: asOfStamp(asOf, checkedAt),
+		evidenceLink: evidenceLinkText(claim),
 	};
 }

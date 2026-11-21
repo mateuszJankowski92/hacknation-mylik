@@ -159,8 +159,8 @@ describe('E2E silnika: wszystkie werdykty osiągalne', () => {
     expect(out.record.shortAnswer).toBe(renderShortAnswer(out.record, cardPath(out.record.id)));
     expect(out.record.shortAnswer).toContain(VERDICT_LABELS_PL.potwierdzone);
     expect(out.record.shortAnswer).not.toMatch(/werdykt/i);
-    expect(out.record.shortAnswer).toContain('Stan na');
-    expect(c.explanation).toContain('Stan na');
+    expect(out.record.shortAnswer).toContain('Stan źródeł na');
+    expect(c.explanation).toContain('Stan źródeł na');
   });
 
   it('cytaty są dosłownymi podciągami fragmentów, metadane z bazy', async () => {

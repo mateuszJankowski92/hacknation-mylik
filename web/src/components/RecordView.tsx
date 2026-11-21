@@ -98,7 +98,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 				{record.claims.length > 0 && <StageSlot kind="corner" role={role} />}
 				<div className="sheet__body">
 					<header className="sheet__top">
-						<p className="sheet__asof">{asOfStamp(record.asOf)}</p>
+						<p className="sheet__asof">{asOfStamp(record.asOf, record.createdAt)}</p>
 						<SheetQuestion text={record.maskedInput} />
 					</header>
 					{note && <p className="role-note">{nb(note)}</p>}

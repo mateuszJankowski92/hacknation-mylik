@@ -38,14 +38,6 @@ const WARSAW_TIME = new Intl.DateTimeFormat('pl-PL', {
 	hourCycle: 'h23',
 });
 
-export function asOfStamp(asOf: string): string {
-	if (!asOf.includes('T')) return `Stan na ${formatDate(asOf)}.`;
-	const date = new Date(asOf);
-	if (Number.isNaN(date.getTime())) return `Stan na ${formatDate(asOf)}.`;
-	const parts = Object.fromEntries(WARSAW_TIME.formatToParts(date).map((part) => [part.type, part.value]));
-	return `Stan na ${parts.day}.${parts.month}.${parts.year}, ${parts.hour}:${parts.minute}.`;
-}
-
 const WARSAW_DAY = new Intl.DateTimeFormat('pl-PL', {
 	timeZone: 'Europe/Warsaw',
 	year: 'numeric',
@@ -55,9 +47,21 @@ const WARSAW_DAY = new Intl.DateTimeFormat('pl-PL', {
 
 export function asOfSentence(asOf: string): string {
 	const date = asOf.includes('T') ? new Date(asOf) : null;
-	if (!date || Number.isNaN(date.getTime())) return `Stan na ${formatDate(asOf)}.`;
+	if (!date || Number.isNaN(date.getTime())) return `Stan źródeł na ${formatDate(asOf)}.`;
 	const parts = Object.fromEntries(WARSAW_DAY.formatToParts(date).map((part) => [part.type, part.value]));
-	return `Stan na ${parts.day}.${parts.month}.${parts.year}.`;
+	return `Stan źródeł na ${parts.day}.${parts.month}.${parts.year}.`;
+}
+
+export function checkedAtStamp(checkedAt: string): string | null {
+	const date = new Date(checkedAt);
+	if (Number.isNaN(date.getTime())) return null;
+	const parts = Object.fromEntries(WARSAW_TIME.formatToParts(date).map((part) => [part.type, part.value]));
+	return `Sprawdzono ${parts.day}.${parts.month}.${parts.year}, ${parts.hour}:${parts.minute}.`;
+}
+
+export function asOfStamp(asOf: string, checkedAt?: string): string {
+	const checked = checkedAt ? checkedAtStamp(checkedAt) : null;
+	return checked ? `${asOfSentence(asOf)} ${checked}` : asOfSentence(asOf);
 }
 
 export const VERDICT_SENTENCES: Record<Verdict, (source: string, date: string) => string> = {

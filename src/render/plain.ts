@@ -11,6 +11,7 @@ export const VERDICT_EXPLANATIONS_PL: Record<Verdict, string> = {
 export const STRENGTH_TITLE_PL = 'Na ile to pewne';
 
 export const EVIDENCE_LINK_TEXT = 'Zobacz, skąd to wiem';
+export const ABSTAIN_LINK_TEXT = 'Zobacz szczegóły';
 
 export const STRENGTH_PLAIN_PL: Record<StrengthLevel, string> = {
 	wysoka: 'dużo',

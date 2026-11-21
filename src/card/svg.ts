@@ -127,13 +127,13 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 	const palette = claim ? VERDICT_PALETTE[claim.verdict] : VERDICT_PALETTE.nie_podlega_weryfikacji;
 	const item = claim ? pickCardEvidence(claim) : undefined;
 	const layout = claim
-		? buildResultLayout(claim, record.asOf, { publisher: 50, quote: HEADLINE_QUOTE_CHARS })
+		? buildResultLayout(claim, record.asOf, { publisher: 50, quote: HEADLINE_QUOTE_CHARS }, record.createdAt)
 		: {
 				headline: 'Nie znalazłem w zgłoszeniu nic do sprawdzenia.',
 				label: 'brak twierdzenia do oceny',
 				certainty: null,
 				uncertaintyNote: null,
-				asOf: asOfStamp(record.asOf),
+				asOf: asOfStamp(record.asOf, record.createdAt),
 				evidenceLink: EVIDENCE_LINK_TEXT,
 			};
 	const claimText = claim ? truncate(claim.claim.text, MAX_CLAIM_CHARS) : '';

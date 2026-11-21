@@ -254,7 +254,7 @@ describe('serwer HTTP: integracja fali 2 (SMS, karta, statystyki, limit, ostrze�
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toMatch(/^text\/plain/);
     const answer = await res.text();
-    expect(answer).toContain('Stan na');
+    expect(answer).toContain('Stan źródeł na');
     const www = VerifyOutcomeSchema.parse(await (await post(b, { text })).json());
     if (www.kind !== 'record') throw new Error('oczekiwano rekordu');
     expect(www.cached).toBe(true);

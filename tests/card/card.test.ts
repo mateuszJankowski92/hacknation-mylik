@@ -36,7 +36,7 @@ describe('renderCardSvg', () => {
 			const svg = renderCardSvg(fixtureRecord(verdict), { cardUrl: CARD_URL });
 			expect(svg.startsWith('<svg')).toBe(true);
 			expect(svg).toContain(VERDICT_LABELS_PL[verdict]);
-			expect(svg).toContain('Stan na 10.01.2026, 09:30.');
+			expect(svg).toContain('Stan źródeł na 10.01.2026.');
 			expect(svg).toContain('mylik.example');
 		});
 	}
@@ -111,7 +111,7 @@ describe('układ karty', () => {
 		expect(svg).toContain('Zobacz, skąd to wiem: ');
 		const drawn = svg.slice(svg.indexOf('</desc>'));
 		expect(drawn.indexOf('Przykładowy Urząd Miasta podał')).toBeLessThan(drawn.indexOf(VERDICT_LABELS_PL.falszywe));
-		expect(drawn.indexOf(VERDICT_LABELS_PL.falszywe)).toBeLessThan(drawn.indexOf('Stan na'));
+		expect(drawn.indexOf(VERDICT_LABELS_PL.falszywe)).toBeLessThan(drawn.indexOf('Stan źródeł na'));
 	});
 
 	it('zdanie główne w opisie zawiera cytat bez zmian', () => {

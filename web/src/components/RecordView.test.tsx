@@ -31,7 +31,7 @@ describe('RecordView', () => {
 			expect(container.querySelector('.record-claim__certainty') !== null).toBe(
 				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',
 			);
-			expect(screen.getAllByText('Stan na 10.01.2026, 09:30.').length).toBeGreaterThan(0);
+			expect(screen.getAllByText('Stan źródeł na 10.01.2026. Sprawdzono 10.01.2026, 10:00.').length).toBeGreaterThan(0);
 		});
 	}
 

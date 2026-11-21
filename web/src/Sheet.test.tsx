@@ -61,7 +61,7 @@ function precedes(first: Element | null, second: Element | null): boolean {
 }
 
 describe('arkusz wyniku: układ od góry', () => {
-	it('pasek z pytaniem, "Stan na", zdanie wyniku, cytat ze źródłem, pewność, a ostrzeżenie na samym dole', () => {
+	it('pasek z pytaniem, "Stan źródeł na", zdanie wyniku, cytat ze źródłem, pewność, a ostrzeżenie na samym dole', () => {
 		const { container } = render(<RecordView record={LONG.record} />);
 		const sheet = container.querySelector('.sheet')!;
 		const parts = [
@@ -76,7 +76,7 @@ describe('arkusz wyniku: układ od góry', () => {
 		].map((selector) => sheet.querySelector(selector));
 		expect(parts.every(Boolean)).toBe(true);
 		for (let index = 1; index < parts.length; index++) expect(precedes(parts[index - 1]!, parts[index]!), String(index)).toBe(true);
-		expect(sheet.querySelector('.sheet__asof')?.textContent).toBe('Stan na 10.01.2026, 09:30.');
+		expect(sheet.querySelector('.sheet__asof')?.textContent).toBe('Stan źródeł na 10.01.2026. Sprawdzono 10.01.2026, 10:00.');
 		const lastBlock = sheet.querySelector('.sheet__body')?.lastElementChild;
 		expect(lastBlock?.classList.contains('known-op')).toBe(true);
 	});
