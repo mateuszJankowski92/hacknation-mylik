@@ -93,6 +93,10 @@ Zrobiono dwa przebiegi, razem ok. 0,009 USD.
 8. Atrapa modelu (`src/llm/mock.ts`) zgłasza `injectionSuspected` starszą heurystyką `looksLikeInjection`.
    Ma to znaczenie tylko w trybie bez klucza.
 
+## R1b. Oceny redakcji sprawdzających fakty: czego świadomie nie robimy
+
+Nie pobieramy stron Demagoga (blokada automatów, zastrzeżenie TDM, licencja wymagająca zgody) i nie budujemy bazy z treści indeksu Google Fact Check Tools (warunki API, pkt 5(e)); skrypt masowego pobrania jest wyłączony do pisemnej zgody. Oceny redakcji bierzemy na żywo z indeksu, krótkimi frazami, z pamięcią tylko w procesie i według nagłówków. Ryzyko: indeks dopasowuje frazy dosłownie, więc część weryfikacji nie zostanie znaleziona i system się wstrzyma. Droga docelowa: zgoda lub eksport od redakcji. Szczegóły: [ZRODLA.md](ZRODLA.md), warstwa 3.
+
 ## R2. Źródła: znane operacje informacyjne (EUvsDisinfo, zadania 16 i 23)
 
 - **Rola:** wyłącznie neutralna informacja w `notices` (typ `dopasowanie_incydentu`, scenariusz I).
