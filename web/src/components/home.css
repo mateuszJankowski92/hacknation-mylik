@@ -1,7 +1,7 @@
 .home-sections {
 	display: grid;
-	gap: var(--space-6);
-	margin-top: var(--space-4);
+	gap: var(--section-gap);
+	margin-top: var(--section-gap);
 }
 
 .home-section h2 {
@@ -23,7 +23,7 @@
 
 .home-list__meta {
 	color: var(--muted);
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 }
 
 .home-section__actions {
