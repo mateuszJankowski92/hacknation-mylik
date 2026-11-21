@@ -21,7 +21,7 @@ Przy rekordzie z brakiem dowodów interfejs pyta `GET /api/records/:id/obieg` i 
 
 „Zapisano” to nie „przekazano”: przekazanie ustawia wyłącznie urzędnik jednym przyciskiem. Zdanie nie obiecuje odpowiedzi. Odpowiedź API nie zawiera licznika, osoby ani treści sprawy.
 
-## Widok urzędnika „Martwe punkty: czego nasze źródła nie widzą”
+## Widok urzędnika „Białe plamy”
 
 Adres `/urzednik`, bez linku z interfejsu obywatela (test to sprawdza). Strona bez JavaScriptu (formularze), z własnym, ścisłym CSP (`default-src 'none'`), `noindex`, bez cache.
 

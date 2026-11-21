@@ -370,7 +370,7 @@ describe('widok urzędnika: lista, podgląd, zmiany, eksport', () => {
 		const csvRes = await get(b, '/urzednik/eksport.csv');
 		expect(csvRes.status).toBe(200);
 		expect(csvRes.headers.get('content-type')).toContain('text/csv');
-		expect(csvRes.headers.get('content-disposition')).toContain('martwe-punkty.csv');
+		expect(csvRes.headers.get('content-disposition')).toContain('biale-plamy.csv');
 		const csv = await csvRes.text();
 		expect(csv.split('\r\n').filter((l) => l.length > 0)).toHaveLength(3);
 		const jsonRes = await get(b, '/urzednik/eksport.json');

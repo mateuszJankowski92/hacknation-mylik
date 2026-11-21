@@ -8,7 +8,7 @@ import { CASE_STATES, CASE_STATE_LABELS_PL, isCaseState, type CaseItem, type Cas
 import { rateLimit } from '../security/rate-limit';
 
 export const CLERK_BASE = '/urzednik';
-export const CLERK_TITLE = 'Martwe punkty: czego nasze źródła nie widzą';
+export const CLERK_TITLE = 'Białe plamy';
 export const CLERK_MIN_TOKEN_LENGTH = 16;
 export const CLERK_COOKIE = 'urzednik';
 const COOKIE_MAX_AGE_S = 8 * 3600;
@@ -188,7 +188,7 @@ ${rows}
 		? `Adres do powiadomień ustawiony w konfiguracji: ${escapeHtml(deps.notifyAddress)}.`
 		: 'Adres do powiadomień nie jest ustawiony w konfiguracji.'
 	return `<h1>${escapeHtml(CLERK_TITLE)}</h1>
-<p class="lead">Twierdzenia, przy których system nie znalazł wystarczających dowodów w swoich źródłach. Teksty są po zamaskowaniu danych osobowych.</p>
+<p class="lead">Pytania, na które sprawdzone źródła jeszcze nie odpowiadają. Każda biała plama to temat na komunikat. Teksty są po zamaskowaniu danych osobowych.</p>
 <div class="box">
 <p class="counter"><strong>Czekają na człowieka (stan: nowa): ${pending}</strong></p>
 <p class="muted">To jedyne powiadomienie: liczba na tej stronie i pod ${CLERK_BASE}/api/licznik. System nie wysyła e-maili ani wiadomości. ${notify} Odbiorca oznaczeń: ${recipient ? escapeHtml(recipient) : 'nie ustawiono'}.</p>
@@ -432,13 +432,13 @@ export function createClerkApp(deps: ClerkDeps): Hono {
 		const items = deps.store.list({ state: stateFilter(c.req.query('stan')), limit: 5000 });
 		return c.body(casesToCsv(items), 200, {
 			'Content-Type': 'text/csv; charset=utf-8',
-			'Content-Disposition': 'attachment; filename="martwe-punkty.csv"',
+			'Content-Disposition': 'attachment; filename="biale-plamy.csv"',
 		});
 	});
 
 	app.get(`${CLERK_BASE}/eksport.json`, (c) => {
 		const items = deps.store.list({ state: stateFilter(c.req.query('stan')), limit: 5000 });
-		c.header('Content-Disposition', 'attachment; filename="martwe-punkty.json"');
+		c.header('Content-Disposition', 'attachment; filename="biale-plamy.json"');
 		return c.json(casesToJson(items, now()), 200);
 	});
 
