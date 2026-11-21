@@ -28,7 +28,7 @@ Pozycja to teza z oczekiwanym werdyktem: całe zgłoszenie (`expected.verdict`) 
 | Dokładność ogólna | przypadki w całości trafne / przypadki wykonane (przypadek złożony trafny, gdy każda teza trafna; przypadek ze stanem oczekiwanym trafny, gdy stan zgodny). |
 | Pokrycie cytowań | tezy faktograficzne z werdyktem rozstrzygającym, które mają dosłowny cytat zgodny z werdyktem / wszystkie takie tezy. Z konstrukcji silnika bliskie 100%: silnik nie wyda takiego werdyktu bez cytatu. |
 | Cytat dosłowny | cytaty rozstrzygające będące podciągiem fragmentu z bazy / wszystkie cytaty rozstrzygające. |
-| Poprawność cytowania | cytaty rozstrzygające dosłowne i uznane przez sędziego / cytaty ocenione przez sędziego. Sędzia: inny model niż oceniany (Haiku i Opus ocenia Sonnet, Sonneta ocenia Opus), widzi twierdzenie, przypisaną relację, cytat, tytuł dokumentu i cały fragment. Jego kryterium i prompt (src/eval/judge.ts) są inne niż bramki wsparcia w silniku: bramka pyta "czy sam cytat rozstrzyga", sędzia "czy cytat w swoim otoczeniu uczciwie uzasadnia relację". Ręczna kontrola: data/eval/review_sample.json (pole `humanSupports`) i czytelne review_sample.md, 20 par z ostatniego przebiegu. |
+| Poprawność cytowania | cytaty rozstrzygające dosłowne i uznane przez sędziego / cytaty ocenione przez sędziego. Sędzia: inny model niż oceniany (Haiku i Opus ocenia Sonnet, Sonneta ocenia Opus), widzi twierdzenie, przypisaną relację, cytat, tytuł dokumentu i cały fragment. Jego kryterium i prompt (src/eval/judge.ts) są inne niż bramki wsparcia w silniku: bramka pyta "czy sam cytat rozstrzyga", sędzia "czy cytat w swoim otoczeniu uczciwie uzasadnia relację". Ręczna kontrola: data/eval/review_sample.json i czytelne review_sample.md (20 par z ostatniego przebiegu); oceny człowieka dla próbki z silnika dd6f303f5e02: data/eval/review_sample_human.json (osobny wiersz, nie zmienia miernika). |
 | Wstrzymanie się | przypadki kategorii `brak_dowodow` zakończone werdyktem "brak wystarczających dowodów" / przypadki tej kategorii. |
 | Fałszywe wstrzymania | przypadki z etykietą rozstrzygającą zakończone wstrzymaniem / przypadki z etykietą rozstrzygającą. |
 | Odporność | ataki odparte (polecenie zignorowane i odnotowane w logu, nic nie wyciekło) / ataki. |
@@ -126,7 +126,7 @@ Zmiana 8fbcebd776c7 -> 2aeccd3da6f9 dotyczy tylko punktu doboru dowodów drugiej
 - Wstrzymanie się 71% (cel 80%) i odporność 75% (cel 90%) na v2 też poniżej celu; na mniejszych zestawach liczby są zbyt małe (4-8 przypadków), żeby je oceniać.
 - Mediana czasu 7-9 s mieści się w celu 30 s; koszt silnika $0,38-0,51 na 100 testów.
 - v2 był uruchamiany trzy razy (zad. 26, 29, 35), ale nie służył do zmian silnika ani promptów; do zad. 35 był pomiarem czystym, a w zad. 35 posłużył do jednej decyzji o progu (sekcja niżej). v1 nie jest czysty (diagnoza w zad. 25).
-- Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek; ręczna próbka review_sample.md bez ocen ludzkich.
+- Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek. Ręczna ocena próbki: sekcja „Ręczny przegląd 20 par” niżej (inny silnik).
 - Profil jest ważny tylko dla silnika 2aeccd3da6f9 i claude-haiku-5-5; każda zmiana src/engine, src/llm lub src/contracts go unieważni.
 
 
@@ -167,6 +167,57 @@ Policzono bez nowych wywołań modelu, na wynikach b4951b5 (v2). Warunek wdroże
 - **Fałszywe wstrzymania 35/136 (25,7%)** to realny koszt: system częściej odmawia werdyktu, gdy dowód jest słaby. Najczęstszy błąd v2 to nadal wstrzymanie zamiast oczekiwanej etykiety (głównie "wprowadzające w błąd": recall 0,39).
 - Spójność kanałów i odporność liczone na kilku parach (v1: 2, strojeniowy: 3, v2: 5; ataki: 2, 6, 8), więc to sygnał, nie dowód. Powtarzalność 3/5 na v2.
 - Trzy stany techniczne z poprzedniego przebiegu (limit zapytań, niezgodna odpowiedź modelu) zniknęły dzięki ponowieniu i podziałowi porcji; w tym przebiegu nie było niespodziewanych stanów technicznych (v2 4/4, strojeniowy 5/5).
-- Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek; próbka review_sample.md bez ocen ludzkich.
+- Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek. Ręczna ocena 20 par z tego przebiegu: sekcja „Ręczny przegląd 20 par” niżej.
 - Klucz rekordu zawiera treść i wersję korpusu, ale nie wersję silnika. Przed wdrożeniem trzeba wyczyścić bazę produkcyjną (`scripts/deploy.sh --replace-db` lub src/security/purge-cli.ts), inaczej stare rekordy dla wejść bez polskich znaków dalej będą trafiane.
 - Profil jest ważny tylko dla silnika dd6f303f5e02 i claude-haiku-5-5; każda zmiana src/engine, src/llm lub src/contracts go unieważni.
+
+
+## Przebieg zadania 40 (21.11.2026): silnik 903c9bfb4b11
+
+Silnik **903c9bfb4b11** (commity 7b71e5c, 4db5104, d5e9aee). Claude Haiku 5.5, sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach, bez drugiej warstwy (`LIVE_LAYER=off`), **indeks Google Fact Check Tools wyłączony** (brak klucza; eval wypisał „Indeks weryfikacji redakcji: wyłączony”), korpus cb62b4255ea0 (733 dokumenty, ten sam co w zad. 35; weryfikacji Demagoga w zbiorze brak). Uruchomienie z katalogu roboczego (nie z czystego klonu), jeden przebieg każdego zestawu, ok. 22:05-22:19 UTC, bez strojenia po przebiegu. Koszt: $0,44 + $0,29 + $1,19 = $1,93 (plus ok. $0,05 na przerwany start przed zmianą decyzji o źródłach i $0,05 na próby ręczne).
+
+| Zestaw | silnik | macro-F1 | poprawność cytowań (sędzia) | wstrzymanie się | odporność | fałszywe wstrzymania | spójność kanałów | powtarzalność bez pamięci | mediana czasu (p90) |
+|---|---|---|---|---|---|---|---|---|---|
+| strojeniowy (71) | dd6f303f5e02 | 0,799 | 93,3% (83/89) | 7/7 | 6/6 | 9/43 | 3/3 | 3/3 | 7,2 s (9,5) |
+| strojeniowy (71) | **903c9bfb4b11** | 0,796 | 92,1% (82/89) | 7/7 | 6/6 | 9/43 | 3/3 | 3/3 | 7,2 s (10,5) |
+| kontrolny v1 (30) | dd6f303f5e02 | 0,737 | 84,8% (56/66) | 3/4 | 2/2 | 5/21 | 2/2 | 1/2 | 8,8 s (12,2) |
+| kontrolny v1 (30) | **903c9bfb4b11** | 0,616 | 75,5% (40/53) | 2/4 | 2/2 | 8/21 | 2/2 | 1/2 | 8,3 s (11,5) |
+| kontrolny v2 (176) | dd6f303f5e02 | 0,701 | 79,7% (169/212) | 15/21 | 8/8 | 35/136 | 5/5 | 3/5 | 7,5 s (10,3) |
+| **kontrolny v2 (176)** | **903c9bfb4b11** | **0,691** | **81,7% (165/202)** | 16/21 | 8/8 | 38/136 | 5/5 | 4/5 | 7,5 s (10,9) |
+
+Inne mierniki v2: pokrycie cytowań 106/106, cytat dosłowny 202/202, stany techniczne 4/4 (0 pozornych werdyktów), dokładność ogólna 116/174, koszt silnika na 100 testów $0,36; bez 27 wątpliwych macro-F1 0,704 (n=145).
+
+**Profil omylności** (results.json, `errorProfileMeta`: set v2, claude-haiku-5-5, silnik 903c9bfb4b11, 2026-11-21T22:19:15Z): średnia 10/56, niska 15/38, brak 31/76; „wysoka” 0/4 bez profilu; poza profilem 1 stan techniczny i 1 teza niewyodrębniona.
+
+### Co się zmieniło względem dd6f303f5e02 i dlaczego
+
+- **Maskowanie:** imiona i nazwiska oraz kwoty z jednostką nie są już maskowane (wskazanie mentora: bez nich zmienia się sens pytania i nie da się znaleźć dowodu). Model widzi teraz nazwiska osób publicznych.
+- **Siła podstawy:** ocena redakcji (warstwa `weryfikacja_redakcji`) liczy się jak jedno źródło urzędowe dla poziomu „średnia”, z limitem „średnia” przy podstawie wyłącznie z ocen redakcji. W tym przebiegu żadna ocena redakcji nie weszła do dowodów (brak klucza i brak danych Demagoga), więc zmiana nie działała.
+- **Indeks weryfikacji, weryfikacje w zbiorze, forma odpowiedzi** (bezpośrednia odpowiedź, brakujący dokument): bez wpływu na etykiety w tym przebiegu; forma odpowiedzi zmienia tylko tekst.
+- **Wynik:** na v2 macro-F1 0,701 -> 0,691 i poprawność cytowań 79,7% -> 81,7% mieszczą się w zmierzonym rozrzucie między przebiegami (co najmniej 0,06 macro-F1), więc nie świadczą ani o poprawie, ani o pogorszeniu. Spadek na v1 (0,737 -> 0,616) dotyczy 30 przypadków, w tym 3 przypadków więcej zakończonych wstrzymaniem (8/21 fałszywych wstrzymań); przy tej wielkości zestawu jeden przypadek to ok. 0,03-0,05 macro-F1, a v1 nie jest czysty. Nie badaliśmy, czy przyczyną jest brak maskowania nazwisk, czy losowość modelu.
+- **Powtarzalność bez pamięci rekordów:** 2 z 10 par (v1 G02, v2 G05) różnią się, i w obu różnica to **liczba wyodrębnionych twierdzeń** (1 a 2), nie werdykt tego samego twierdzenia. To ten sam efekt co obserwacja z wdrożenia (raz 1, raz 2 twierdzenia). Haiku 5.5 nie przyjmuje parametru temperatury, więc wyodrębnianie jest losowe. Ustabilizować to bez strojenia pod przypadki można ogólnie: zapamiętywać wynik wyodrębniania po kluczu treści niezależnie od rekordu (spójność między czyszczeniami bazy, ale nie między instancjami) albo wyodrębniać dwa razy i brać tylko twierdzenia obecne w obu (podwójny koszt tego kroku, +1-2 s). Żadnego z wariantów nie wdrożono.
+
+### Próba na pytaniach w stylu scenariuszy mentora (14 pytań, data/eval/mentor_style_probe.json)
+
+Pytania ułożone w zad. 40 na tematach weryfikacji **innej redakcji (Konkret24) z naszego zbioru**, nie na weryfikacjach Demagoga z dokumentu mentora (weryfikacji Demagoga nie mamy: brak danych w zbiorze i brak klucza do indeksu). Oczekiwana odpowiedź ustalona przez autora z tytułów artykułów, bez wglądu w wyniki; to próba zachowania, nie zestaw do strojenia. Rodzaje: fakt prosty (4), kontekst (4), rozbieżność liczb (3), brak dowodów (3). Żywy serwer z kopią bazy, 22:2x UTC, $0,04, mediana 6,5 s.
+
+| Wynik | Liczba |
+|---|---|
+| bezpośrednia odpowiedź zgodna z oczekiwaną | 5/14 (2 „Nie.” z dowodem Konkret24, 3 trafne „Nie udało mi się tego potwierdzić.”) |
+| wstrzymanie zamiast oczekiwanego „Nie.” lub „Częściowo.” | 9/14 |
+| błędne „Tak.” albo „Nie.” | 0/14 |
+
+Wniosek: przy braku weryfikacji z oceną w zbiorze system się wstrzymuje (z opisem potrzebnego dokumentu), zamiast zgadywać. Strony Konkret24 w zbiorze to głównie krótkie początki tekstu (licencja), bez metadanej oceny, więc rzadko dają rozstrzygający cytat. Zmierzyć zachowanie na weryfikacjach Demagoga będzie można dopiero z kluczem do indeksu Google albo z plikiem weryfikacji w zbiorze.
+
+## Ręczny przegląd 20 par „twierdzenie i cytat” (silnik dd6f303f5e02)
+
+Próbka: 20 par z przebiegu v2 zad. 35 (silnik **dd6f303f5e02**, plik data/eval/review_sample.json w commicie 0f32dbd; po zad. 40 eval losuje nowe pary z nowego silnika, więc ocena ręczna dotyczy tamtej wersji). Oceny: data/eval/review_sample_human.json (bez zmian treści). Oceniała jedna osoba z zespołu (właściciel), nie niezależny recenzent; próba mała.
+
+| Ocena człowieka | Pary | z tego sędzia-model uznał |
+|---|---|---|
+| tak (w pełni uzasadnione) | 18 | 13 |
+| częściowo (B15: brak daty przy słowie „obecnie”) | 1 | 1 |
+| nie wiem (B17) | 1 | 0 |
+| nie | 0 | - |
+
+Zgodność z sędzią-modelem na tych samych parach: przy 18 parach uznanych przez człowieka sędzia odrzucił 5, czyli na tej próbce sędzia jest surowszy od człowieka. To osobny wiersz: główny miernik poprawności cytowań nadal liczy sędzia-model na całym zestawie.

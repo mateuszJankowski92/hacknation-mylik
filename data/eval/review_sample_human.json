@@ -1,0 +1,188 @@
+{
+  "generatedAt": "2026-11-21T19:54:07.147Z",
+  "source": "review_sample.json",
+  "run": "claude-haiku-5-5",
+  "part": "kontrolny_v2",
+  "items": [
+    {
+      "id": "B15|gov-infrastruktura-6fa273cf#1|0",
+      "caseId": "B15",
+      "passageId": "gov-infrastruktura-6fa273cf#1",
+      "humanRating": "czesciowo",
+      "humanSupports": null,
+      "humanNote": "troche brakuje jednak daty, zeby uznac to \"Obecnie\" za TAK; Wydawca: gov.pl | Data: brak w danych próbki; nalezaloby sprawdzic co mowia inne zrodla",
+      "ratedAt": "2026-11-21T19:48:56.811Z"
+    },
+    {
+      "id": "B03|gov-cyfryzacja-b9bb8f60#0|1",
+      "caseId": "B03",
+      "passageId": "gov-cyfryzacja-b9bb8f60#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:49:25.234Z"
+    },
+    {
+      "id": "A04|gov-cyfryzacja-613f45ce#1|2",
+      "caseId": "A04",
+      "passageId": "gov-cyfryzacja-613f45ce#1",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "kurcze, brakuje tych dat :)",
+      "ratedAt": "2026-11-21T19:49:56.167Z"
+    },
+    {
+      "id": "A01|gov-cyfryzacja-f478411e#0|3",
+      "caseId": "A01",
+      "passageId": "gov-cyfryzacja-f478411e#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:50:09.218Z"
+    },
+    {
+      "id": "A01|gov-cyfryzacja-f478411e#0|4",
+      "caseId": "A01",
+      "passageId": "gov-cyfryzacja-f478411e#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:50:19.348Z"
+    },
+    {
+      "id": "A02|gov-cyfryzacja-f478411e#0|5",
+      "caseId": "A02",
+      "passageId": "gov-cyfryzacja-f478411e#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:50:26.783Z"
+    },
+    {
+      "id": "B17|gov-kas-828638c9#0|6",
+      "caseId": "B17",
+      "passageId": "gov-kas-828638c9#0",
+      "humanRating": "nie_wiem",
+      "humanSupports": null,
+      "humanNote": "w sumie to nie wiem jakim szczegolem sie rozni twierdzenie",
+      "ratedAt": "2026-11-21T19:52:13.698Z"
+    },
+    {
+      "id": "A25|policja-malopolska-5448dd13#0|7",
+      "caseId": "A25",
+      "passageId": "policja-malopolska-5448dd13#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:52:27.648Z"
+    },
+    {
+      "id": "B34|gov-sanepid-f899a759#0|8",
+      "caseId": "B34",
+      "passageId": "gov-sanepid-f899a759#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:52:37.632Z"
+    },
+    {
+      "id": "A24|gov-cyfryzacja-14daa12b#6|9",
+      "caseId": "A24",
+      "passageId": "gov-cyfryzacja-14daa12b#6",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:52:47.748Z"
+    },
+    {
+      "id": "A45|fakenews-pl-08b714e3#0|10",
+      "caseId": "A45",
+      "passageId": "fakenews-pl-08b714e3#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:52:57.380Z"
+    },
+    {
+      "id": "A45|fakenews-pl-08b714e3#0|11",
+      "caseId": "A45",
+      "passageId": "fakenews-pl-08b714e3#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:03.565Z"
+    },
+    {
+      "id": "A20|gov-gis-ef1a2d9a#1|12",
+      "caseId": "A20",
+      "passageId": "gov-gis-ef1a2d9a#1",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:09.115Z"
+    },
+    {
+      "id": "A20|gov-gis-ef1a2d9a#1|13",
+      "caseId": "A20",
+      "passageId": "gov-gis-ef1a2d9a#1",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:15.863Z"
+    },
+    {
+      "id": "A22|uokik-a5017bde#0|14",
+      "caseId": "A22",
+      "passageId": "uokik-a5017bde#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:24.433Z"
+    },
+    {
+      "id": "D09|gov-cyfryzacja-f478411e#0|15",
+      "caseId": "D09",
+      "passageId": "gov-cyfryzacja-f478411e#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:29.713Z"
+    },
+    {
+      "id": "D15|konkret24-73e62f52#0|16",
+      "caseId": "D15",
+      "passageId": "konkret24-73e62f52#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:38.143Z"
+    },
+    {
+      "id": "G02|gov-cyfryzacja-a762f64a#3|17",
+      "caseId": "G02",
+      "passageId": "gov-cyfryzacja-a762f64a#3",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:53:45.797Z"
+    },
+    {
+      "id": "I01|gov-cyfryzacja-613f45ce#0|18",
+      "caseId": "I01",
+      "passageId": "gov-cyfryzacja-613f45ce#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:54:02.833Z"
+    },
+    {
+      "id": "A42|gov-sanepid-d0f7495b#0|19",
+      "caseId": "A42",
+      "passageId": "gov-sanepid-d0f7495b#0",
+      "humanRating": "tak",
+      "humanSupports": true,
+      "humanNote": "",
+      "ratedAt": "2026-11-21T19:54:07.146Z"
+    }
+  ]
+}

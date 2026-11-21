@@ -1,32 +1,17 @@
 # Próbka cytatów do ręcznego przeglądu
 
-Przebieg: claude-haiku-5-5 (zestaw kontrolny_v2), sędzia automatyczny: claude-sonnet-5-5, stan na 2026-11-21T18:41:01.703Z.
-Wylosowano 20 z 212 par twierdzenie-cytat (kolejność wg skrótu SHA-256, niezależna od wyników).
+Przebieg: claude-haiku-5-5 (zestaw kontrolny_v2), sędzia automatyczny: claude-sonnet-5-5, stan na 2026-11-21T22:19:15.616Z.
+Wylosowano 20 z 202 par twierdzenie-cytat (kolejność wg skrótu SHA-256, niezależna od wyników).
 
 Jak oceniać: przeczytaj twierdzenie, relację i cytat w otoczeniu fragmentu. Wpisz w pliku review_sample.json w polu `humanSupports` true (cytat uczciwie uzasadnia relację) albo false, a w `humanNote` krótki powód.
 
-## 1. B15 (obala)
-
-- **Twierdzenie:** Izby morskie zostały już zlikwidowane.
-- **Werdykt systemu:** falszywe
-- **Cytat:** „Obecnie rejestracją statków zajmują się izby morskie, a procedury nie zawsze odpowiadają potrzebom międzynarodowego transportu morskiego, w którym liczy się szybka obsługa i sprawny obieg dokumentów.”
-- **Źródło:** Polska bandera bardziej dostępna. Rząd upraszcza rejestrację statków (https://www.gov.pl/web/infrastruktura/polska-bandera-bardziej-dostepna-rzad-upraszcza-rejestracje-statkow)
-- **Sędzia automatyczny:** wspiera (Cytat mówi, że obecnie rejestracją zajmują się izby morskie, a zmiany dopiero się zakłada, więc pokazuje, że izby jeszcze nie zostały zlikwidowane.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-Obecnie rejestracją statków zajmują się izby morskie, a procedury nie zawsze odpowiadają potrzebom międzynarodowego transportu morskiego, w którym liczy się szybka obsługa i sprawny obieg dokumentów. Nowe przepisy zakładają przeniesienie zadań związanych z rejestracją statków do urzędu morskiego i utworzenie jednego, cyfrowego rejestru okrętowego. Wnioski i dokumenty będzie można składać elektronicznie, również w języku angielskim. Bezpłatny będzie także dostęp do informacji zawartych w rejestrze. Wprowadzone zostaną ponadto elektroniczne certyfikaty okrętowe, potwierdzające dane i status statku.
-
-</details>
-
-## 2. B03 (rozbieznosc_kontekstu)
+## 1. B03 (rozbieznosc_kontekstu)
 
 - **Twierdzenie:** Krajowe Centrum Przetwarzania Danych będzie kosztować 16 mld zł.
 - **Werdykt systemu:** wprowadzajace_w_blad
 - **Cytat:** „Wartość inwestycji wynosi 1,6 mld zł.”
 - **Źródło:** Krajowe Centrum Przetwarzania Danych - 1,6 mld zł na bezpieczną infrastrukturę cyfrową państwa (https://www.gov.pl/web/cyfryzacja/krajowe-centrum-przetwarzania-danych--16-mld-zl-na-bezpieczna-infrastrukture-cyfrowa-panstwa)
-- **Sędzia automatyczny:** wspiera (Cytat dotyczy tej samej inwestycji (KCPD), ale podaje wartość 1,6 mld zł zamiast 16 mld zł, więc trafnie pokazuje różnicę w skali względem twierdzenia.)
+- **Sędzia automatyczny:** wspiera (Cytat dotyczy tej samej inwestycji (KCPD), ale podaje wartość 1,6 mld zł zamiast 16 mld zł, więc trafnie pokazuje różnicę w skali, jak opisuje relacja.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -35,28 +20,13 @@ Krajowe Centrum Przetwarzania Danych - 1,6 mld zł na bezpieczną infrastruktur�
 
 </details>
 
-## 3. A04 (obala)
+## 2. A01 (potwierdza)
 
-- **Twierdzenie:** System ePUAP jest od 10 listopada całkowicie wyłączony.
-- **Werdykt systemu:** falszywe
-- **Cytat:** „Usługi zostały przywrócone i są dostępne dla użytkowników. Etapowe przywracanie systemu było świadomym działaniem.”
-- **Źródło:** ePUAP ponownie działa w pełnym zakresie (https://www.gov.pl/web/cyfryzacja/epuap-ponownie-dziala-w-pelnym-zakresie)
-- **Sędzia automatyczny:** wspiera (Cytat mówi, że usługi zostały przywrócone i są dostępne, a fragment potwierdza pełne działanie, co przeczy twierdzeniu o całkowitym wyłączeniu.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-Bezpośrednio po wykryciu problemu prewencyjnie ograniczyliśmy dostęp do części systemu, aby zatrzymać zagrożenie i bezpiecznie rozpocząć działania naprawcze. Od tego momentu prowadziliśmy równolegle analizę incydentu, weryfikację bezpieczeństwa systemów, wdrażanie dodatkowych zabezpieczeń oraz stopniowe przywracanie usług. Dziś ePUAP działa już w pełnym zakresie. Usługi zostały przywrócone i są dostępne dla użytkowników. Etapowe przywracanie systemu było świadomym działaniem. Nie chcieliśmy uruchamiać usług szybciej kosztem ich bezpieczeństwa. Każdy kolejny element ePUAP udostępnialiśmy po sprawdzeniu, że może działać prawidłowo i bezpiecznie. Przed uruchomieniem systemu przeprowadziliśmy testy funkcjonalne i bezpieczeństwa.
-
-</details>
-
-## 4. A01 (potwierdza)
-
-- **Twierdzenie:** Polska znów weszła do Rady Międzynarodowego Związku Telekomunikacyjnego.
+- **Twierdzenie:** Polska ponownie została wybrana do Rady Międzynarodowego Związku Telekomunikacyjnego.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzynarodowego Związku Telekomunikacyjnego (ITU) na kolejną kadencję.”
 - **Źródło:** Polska ponownie w Radzie ITU (https://www.gov.pl/web/cyfryzacja/polska-ponownie-w-radzie-itu)
-- **Sędzia automatyczny:** wspiera (Cytat wprost mówi, że Polska została wybrana do Rady ITU na kolejną kadencję, co potwierdza ponowne wejście.)
+- **Sędzia automatyczny:** wspiera (Cytat wprost informuje, że Polska została wybrana do Rady ITU na kolejną kadencję.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -65,13 +35,13 @@ Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzyn
 
 </details>
 
-## 5. A01 (potwierdza)
+## 3. A01 (potwierdza)
 
-- **Twierdzenie:** Polska zebrała 119 głosów na konferencji w Dosze.
+- **Twierdzenie:** Polska zdobyła 119 głosów na konferencji w Dosze.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Podczas Konferencji Pełnomocników ITU (PP-26) w Dosze nasz kraj zdobył 119 głosów, uzyskując drugi najlepszy wynik w grupie Europy Wschodniej i Azji Północnej.”
 - **Źródło:** Polska ponownie w Radzie ITU (https://www.gov.pl/web/cyfryzacja/polska-ponownie-w-radzie-itu)
-- **Sędzia automatyczny:** wspiera (Cytat podaje dokładnie, że w Dosze na konferencji PP-26 Polska zdobyła 119 głosów.)
+- **Sędzia automatyczny:** wspiera (Cytat podaje, że Polska zdobyła 119 głosów podczas konferencji w Dosze.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -80,13 +50,13 @@ Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzyn
 
 </details>
 
-## 6. A02 (obala)
+## 4. A02 (obala)
 
 - **Twierdzenie:** Polska odpadła w wyborach do Rady ITU.
 - **Werdykt systemu:** falszywe
 - **Cytat:** „Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzynarodowego Związku Telekomunikacyjnego (ITU) na kolejną kadencję.”
 - **Źródło:** Polska ponownie w Radzie ITU (https://www.gov.pl/web/cyfryzacja/polska-ponownie-w-radzie-itu)
-- **Sędzia automatyczny:** wspiera (Cytat stwierdza, że Polska została wybrana do Rady ITU na kolejną kadencję, co przeczy twierdzeniu o odpadnięciu.)
+- **Sędzia automatyczny:** wspiera (Cytat mówi, że Polska została wybrana do Rady ITU na kolejną kadencję, co przeczy twierdzeniu o odpadnięciu.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -95,13 +65,13 @@ Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzyn
 
 </details>
 
-## 7. B17 (rozbieznosc_kontekstu)
+## 5. B17 (rozbieznosc_kontekstu)
 
-- **Twierdzenie:** Prawie 11 mln nielegalnych papierosów w Kielcach przejęto 17 listopada.
+- **Twierdzenie:** W Kielcach przejęto prawie 11 mln nielegalnych papierosów 17 listopada.
 - **Werdykt systemu:** wprowadzajace_w_blad
 - **Cytat:** „KAS wspólnie z Policją zabezpieczyła 11 mln szt. nielegalnych papierosów 17.11.2026 Małopolska Krajowa Administracja Skarbowa (KAS) wspólnie z Komendą Powiatową Policji w Krakowie oraz Centralnym Biurem Śledczym Policji (CBŚP) wykr yła prawie 11 mln szt. papierosów bez polskich znaków akcyzy.”
 - **Źródło:** KAS wspólnie z Policją zabezpieczyła 11 mln szt. nielegalnych papierosów - Ministerstwo Finansów - Krajowa Administracja Skarbowa (https://www.gov.pl/web/kas/kas-wspolnie-z-policja-zabezpieczyli-11-mln-szt-nielegalnych-papierosow)
-- **Sędzia automatyczny:** nie wspiera (Cytat podaje 17.11.2026 jako datę publikacji komunikatu, a nie zdarzenia, i nie wspomina o Kielcach, więc nie ilustruje różnicy w dacie, miejscu czy skali.)
+- **Sędzia automatyczny:** nie wspiera (Cytat podaje datę publikacji 17.11.2026 i Kraków jako stronę działającą, a nie inną datę zdarzenia w Kielcach; nie pokazuje relacji różnicy daty zdarzenia, więc nie jest właściwą podstawą tej relacji.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -110,13 +80,13 @@ KAS wspólnie z Policją zabezpieczyła 11 mln szt. nielegalnych papierosów 17.
 
 </details>
 
-## 8. A25 (potwierdza)
+## 6. A25 (potwierdza)
 
 - **Twierdzenie:** W Kielcach przejęto prawie 11 mln nielegalnych papierosów.
 - **Werdykt systemu:** potwierdzone
-- **Cytat:** „Nielegalny towar znajdował się w samochodzie ciężarowym oraz na prywatnej posesji w Kielcach. Zatrzymano dwóch obywateli Armenii. 29 października 2026 r. funkcjonariusze Małopolskiego Urzędu Celno-Skarbowego w Krakowie (MUCS), działając wspólnie z policjantami z Wydziału do walki z Przestępczością Gospodarczą KPP oraz CBŚP, przeprowadzili działania na terenie Kielc. W ich trakcie zabezpieczyli prawie 11 mln szt. papierosów bez polskich znaków akcyzy.”
+- **Cytat:** „29 października 2026 r. funkcjonariusze Małopolskiego Urzędu Celno-Skarbowego w Krakowie (MUCS), działając wspólnie z policjantami z Wydziału do walki z Przestępczością Gospodarczą KPP oraz CBŚP, przeprowadzili działania na terenie Kielc. W ich trakcie zabezpieczyli prawie 11 mln szt. papierosów bez polskich znaków akcyzy.”
 - **Źródło:** KAS wspólnie z Policją zabezpieczyli 11 mln szt. nielegalnych papierosów - Policja Małopolska (https://malopolska.policja.gov.pl/krk/aktualnosci/aktualnosci/77640,KAS-wspolnie-z-Policja-zabezpieczyli-11-mln-szt-nielegalnych-papierosow.html)
-- **Sędzia automatyczny:** wspiera (Cytat wprost mówi, że w Kielcach zabezpieczono prawie 11 mln szt. papierosów bez polskich znaków akcyzy, co odpowiada twierdzeniu.)
+- **Sędzia automatyczny:** wspiera (Cytat wprost mówi o zabezpieczeniu prawie 11 mln szt. papierosów bez polskich znaków akcyzy w Kielcach, co potwierdza twierdzenie.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -125,13 +95,13 @@ KAS wspólnie z Policją zabezpieczyli 11 mln szt. nielegalnych papierosów Mał
 
 </details>
 
-## 9. B34 (potwierdza)
+## 7. B34 (potwierdza)
 
 - **Twierdzenie:** Woda z wodociągu w Gałkowie Dużym w gminie Koluszki nie nadaje się do picia.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Wodociąg publiczny Gałków Duży, gm. Koluszki - woda nie nadaje się do spożycia 16.07.2026 16 lipca 2026r .”
 - **Źródło:** Wodociąg publiczny Gałków Duży, gm. Koluszki - woda nie nadaje się do spożycia - Powiatowa Stacja Sanitarno-Epidemiologiczna w Łodzi (https://www.gov.pl/web/psse-lodz/wodociag-publiczny-galkow-duzy-gm-koluszki---woda-nie-nadaje-sie-do-spozycia)
-- **Sędzia automatyczny:** wspiera (Cytat to tytuł komunikatu PSSE wprost stwierdzający, że woda z wodociągu Gałków Duży nie nadaje się do spożycia, a fragment podaje przyczynę (enterokoki).)
+- **Sędzia automatyczny:** wspiera (Cytat to tytuł komunikatu wprost stwierdzający, że woda z wodociągu Gałków Duży w gm. Koluszki nie nadaje się do spożycia, a fragment podaje przyczynę (enterokoki).)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -140,13 +110,13 @@ Wodociąg publiczny Gałków Duży, gm. Koluszki - woda nie nadaje się do spoż
 
 </details>
 
-## 10. A24 (potwierdza)
+## 8. A24 (potwierdza)
 
 - **Twierdzenie:** Mężczyzna, który w krakowskim Bieżanowie strzelał do policjantów, był obywatelem Ukrainy.
 - **Werdykt systemu:** brak_wystarczajacych_dowodow
-- **Cytat:** „Sprawca zamachu jest Ukraińcem/Ukraina zorganizowała zamach - narracja wygasła szybko po potwierdzeniu narodowości zamachowca przez służby.”
+- **Cytat:** „Bazowała głównie na fałszywej informacji o niewystarczającej ilości przedstawicieli służb na miejscu zdarzenia. Sprawca zamachu jest Ukraińcem/Ukraina zorganizowała zamach - narracja wygasła szybko po potwierdzeniu narodowości zamachowca przez służby.”
 - **Źródło:** Narracje dezinformacyjne związane z zamachem terrorystycznym w Krakowie (https://www.gov.pl/web/cyfryzacja/narracje-dezinformacyjne-zwiazane-z-zamachem-terrorystycznym-w-krakowie)
-- **Sędzia automatyczny:** nie wspiera (Cytat opisuje narrację dezinformacyjną, która wygasła po potwierdzeniu narodowości sprawcy, i nie stwierdza, że był Ukraińcem; dotyczy też innego zdarzenia (zamachu), a nie potwierdza twierdzenia.)
+- **Sędzia automatyczny:** nie wspiera (Cytat opisuje narrację dezinformacyjną i mówi tylko o potwierdzeniu narodowości przez służby, bez jej podania, a cały kontekst dotyczy dezinformacji, więc niczego nie potwierdza.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -155,13 +125,13 @@ Istnieje związek między strzelaniną w Krakowie a protestami pod Trybunałem K
 
 </details>
 
-## 11. A45 (potwierdza)
+## 9. A45 (potwierdza)
 
-- **Twierdzenie:** Fakenews.pl twierdzi, że większość migrantów przyjeżdża do Polski do pracy.
+- **Twierdzenie:** Większość migrantów przyjeżdża do Polski do pracy, a nie po zasiłki.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Jednak w rzeczywistości większość osób z doświadczeniem migracji przybywa do Polski z zamiarem podjęcia pracy i samodzielnego utrzymania się.”
 - **Źródło:** Ekonomiczny bilans migracji - czy migranci przyjeżdżają tylko po zasiłki? (https://fakenews.pl/blog/ekonomiczny-bilans-migracji-czy-migranci-przyjezdzaja-tylko-po-zasilki/)
-- **Sędzia automatyczny:** nie wspiera (Twierdzenie przypisuje tezę serwisowi Fakenews.pl, a cytat pochodzi z innego dokumentu (tekst o bilansie migracji, autorka Julia Dobrowolska) i nie pokazuje, że Fakenews.pl to twierdzi.)
+- **Sędzia automatyczny:** wspiera (Cytat wprost stwierdza, że większość migrantów przyjeżdża do Polski do pracy i samodzielnego utrzymania się, w kontekście obalania mitu o zasiłkach, bez zastrzeżeń osłabiających sens.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -170,43 +140,13 @@ Zatrzymaj się! Tworzenie treści kosztuje i jest czasochłonne. Może podarujes
 
 </details>
 
-## 12. A45 (potwierdza)
-
-- **Twierdzenie:** Większość migrantów nie przyjeżdża do Polski po zasiłki.
-- **Werdykt systemu:** potwierdzone
-- **Cytat:** „Jednak w rzeczywistości większość osób z doświadczeniem migracji przybywa do Polski z zamiarem podjęcia pracy i samodzielnego utrzymania się.”
-- **Źródło:** Ekonomiczny bilans migracji - czy migranci przyjeżdżają tylko po zasiłki? (https://fakenews.pl/blog/ekonomiczny-bilans-migracji-czy-migranci-przyjezdzaja-tylko-po-zasilki/)
-- **Sędzia automatyczny:** wspiera (Cytat wprost mówi, że większość migrantów przybywa do pracy i samodzielnego utrzymania się, a fragment obala mit o przyjazdach po zasiłki, więc to właściwa podstawa.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-Zatrzymaj się! Tworzenie treści kosztuje i jest czasochłonne. Może podarujesz nam kawę? Ekonomiczny bilans migracji – czy migranci przyjeżdżają tylko po zasiłki? Utworzone: 19 listopada 2025 Aktualizacja: 25 listopada 2025 przez Julia Dobrowolska Komentarze Jednym z najczęściej powtarzanych mitów dotyczących migracji jest przekonanie, że migranci przyjeżdżają po zasiłki i obciążają system socjalny. Tego typu stwierdzenia, będące źródłem napięć społecznych, często pojawiają się w debacie publicznej. Jednak w rzeczywistości większość osób z doświadczeniem migracji przybywa do Polski z zamiarem podjęcia pracy i samodzielnego utrzymania się. Niniejsza seria tekstów ukazała się w ramach Tygodnia Edukacji Globalnej 2025.
-
-</details>
-
-## 13. A20 (potwierdza)
-
-- **Twierdzenie:** Główny Inspektorat Sanitarny ostrzega przed partią L0036 herbatki z pokrzywy firmy Herbapol.
-- **Werdykt systemu:** potwierdzone
-- **Cytat:** „Diamentowa 25, 20-471 Lublin Numer partii: L 0036 Data minimalnej trwałości: 01.2028 Działania podjęte przez przedsiębiorców i organy urzędowej kontroli: W związku z otrzymanymi informacjami dotyczącymi przekroczenia dopuszczalnego poziomu alkaloidów pirolizydynowych w produkcie Pokrzywa. Herbatka ziołowa, Zielnik Polski, 20 torebek o numerze partii L0036 i dacie minimalnej trwałości: 01.2028, Herbapol Lublin SA mając na celu dobro konsumentów podjął decyzję o wycofaniu przedmiotowej partii produktu, informując o tym swoich odbiorców.”
-- **Źródło:** Ostrzeżenie publiczne dotyczące żywności: alkaloidy pirolizydynowe w określonej partii herbatki ziołowej z pokrzywy (https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-alkaloidy-pirolizydynowe-w-okreslonej-partii-herbatki-ziolowej-z-pokrzywy3)
-- **Sędzia automatyczny:** nie wspiera (Cytat opisuje wycofanie partii przez producenta, a nie ostrzeżenie wydane przez GIS; nie wskazuje, kto ostrzega.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-Szczegóły dotyczące produktu: Produkt: Pokrzywa. Herbatka ziołowa, Zielnik Polski, 20 torebek Producent: Herbapol - Lublin S.A., ul. Diamentowa 25, 20-471 Lublin Numer partii: L 0036 Data minimalnej trwałości: 01.2028 Działania podjęte przez przedsiębiorców i organy urzędowej kontroli: W związku z otrzymanymi informacjami dotyczącymi przekroczenia dopuszczalnego poziomu alkaloidów pirolizydynowych w produkcie Pokrzywa. Herbatka ziołowa, Zielnik Polski, 20 torebek o numerze partii L0036 i dacie minimalnej trwałości: 01.2028, Herbapol Lublin SA mając na celu dobro konsumentów podjął decyzję o wycofaniu przedmiotowej partii produktu, informując o tym swoich odbiorców.
-
-</details>
-
-## 14. A20 (potwierdza)
+## 10. A20 (potwierdza)
 
 - **Twierdzenie:** Partia L0036 herbatki z pokrzywy firmy Herbapol zawiera zbyt dużo alkaloidów pirolizydynowych.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Diamentowa 25, 20-471 Lublin Numer partii: L 0036 Data minimalnej trwałości: 01.2028 Działania podjęte przez przedsiębiorców i organy urzędowej kontroli: W związku z otrzymanymi informacjami dotyczącymi przekroczenia dopuszczalnego poziomu alkaloidów pirolizydynowych w produkcie Pokrzywa. Herbatka ziołowa, Zielnik Polski, 20 torebek o numerze partii L0036 i dacie minimalnej trwałości: 01.2028, Herbapol Lublin SA mając na celu dobro konsumentów podjął decyzję o wycofaniu przedmiotowej partii produktu, informując o tym swoich odbiorców.”
 - **Źródło:** Ostrzeżenie publiczne dotyczące żywności: alkaloidy pirolizydynowe w określonej partii herbatki ziołowej z pokrzywy (https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-alkaloidy-pirolizydynowe-w-okreslonej-partii-herbatki-ziolowej-z-pokrzywy3)
-- **Sędzia automatyczny:** wspiera (Cytat mówi o przekroczeniu dopuszczalnego poziomu alkaloidów pirolizydynowych w partii L0036 tej herbatki, co odpowiada twierdzeniu.)
+- **Sędzia automatyczny:** wspiera (Cytat mówi wprost o przekroczeniu dopuszczalnego poziomu alkaloidów pirolizydynowych w partii L0036 herbatki Herbapol i jej wycofaniu, co potwierdza twierdzenie.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -215,13 +155,13 @@ Szczegóły dotyczące produktu: Produkt: Pokrzywa. Herbatka ziołowa, Zielnik P
 
 </details>
 
-## 15. A22 (obala)
+## 11. A22 (obala)
 
 - **Twierdzenie:** Sąd Apelacyjny uniewinnił właściciela Biedronki w sprawie dodatkowych rabatów od dostawców.
 - **Werdykt systemu:** falszywe
-- **Cytat:** „Sąd Apelacyjny potwierdził umyślne stosowanie przez Jeronimo Martins Polska praktyki nieuczciwego wykorzystywania przewagi kontraktowej.”
+- **Cytat:** „Sąd Apelacyjny potwierdził umyślne stosowanie przez Jeronimo Martins Polska praktyki nieuczciwego wykorzystywania przewagi kontraktowej. Zgodnie z prawomocnym wyrokiem spółka ma w ciągu 14 dni zapłacić 170 mln zł kary.”
 - **Źródło:** Sąd Apelacyjny potwierdza naruszenie Biedronki – prawomocny wyrok w sprawie przewagi kontraktowej – UOKiK (https://uokik.gov.pl/sad-apelacyjny-potwierdza-naruszenie-biedronki-prawomocny-wyrok-w-sprawie-przewagi-kontraktowej)
-- **Sędzia automatyczny:** wspiera (Cytat stwierdza, że Sąd Apelacyjny potwierdził umyślne stosowanie nieuczciwej praktyki, a fragment dodaje prawomocną karę 170 mln zł, co przeczy uniewinnieniu.)
+- **Sędzia automatyczny:** wspiera (Cytat stwierdza potwierdzenie umyślnego naruszenia i prawomocną karę 170 mln zł, co przeczy uniewinnieniu.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -230,13 +170,13 @@ Sieć handlowa nie ma prawa pobierać od dostawców dodatkowych i niezapowiedzia
 
 </details>
 
-## 16. D09 (potwierdza)
+## 12. D09 (potwierdza)
 
 - **Twierdzenie:** Polska ponownie weszła do Rady ITU.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzynarodowego Związku Telekomunikacyjnego (ITU) na kolejną kadencję.”
 - **Źródło:** Polska ponownie w Radzie ITU (https://www.gov.pl/web/cyfryzacja/polska-ponownie-w-radzie-itu)
-- **Sędzia automatyczny:** wspiera (Cytat wprost stwierdza, że Polska została wybrana do Rady ITU na kolejną kadencję, co potwierdza twierdzenie.)
+- **Sędzia automatyczny:** wspiera (Cytat wprost informuje, że Polska została wybrana do Rady ITU na kolejną kadencję, co potwierdza ponowne wejście.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -245,13 +185,13 @@ Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzyn
 
 </details>
 
-## 17. D15 (potwierdza)
+## 13. D15 (potwierdza)
 
-- **Twierdzenie:** Z bloku 15 Muzeum Auschwitz po remoncie usunięto tablicę o polskich harcerzach.
+- **Twierdzenie:** Po remoncie usunięto z bloku 15 Muzeum Auschwitz tablicę o polskich harcerzach.
 - **Werdykt systemu:** potwierdzone
 - **Cytat:** „Pisał o dwóch tablicach, które wisiały na ścianie bloku 15. Pierwsza upamiętnia bohaterów Armii Krajowej, druga - polskich harcerzy zamordowanych w obozie. "Prace remontowe się zakończyły. Tablice nie wróciły" - informował polityk Konfederacji.”
 - **Źródło:** Muzeum Auschwitz "usuwa informacje o polskich więźniach"? O co chodzi z tablicami (https://konkret24.tvn24.pl/polska/muzeum-auschwitz-usuwa-informacje-o-polskich-wiezniach-o-co-chodzi-z-tablicami-st9019462)
-- **Sędzia automatyczny:** nie wspiera (Cytat tylko przytacza zarzut polityka Konfederacji (a tytuł artykułu go podaje w cudzysłowie), więc nie potwierdza samego faktu usunięcia tablicy, a fragment przedstawia to jako jego twierdzenie.)
+- **Sędzia automatyczny:** nie wspiera (Cytat tylko przytacza zarzut polityka Konfederacji, że tablice nie wróciły, a nie potwierdza faktu usunięcia; tytuł dokumentu w cudzysłowie sugeruje zaś, że zarzut jest kwestionowany.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
@@ -260,48 +200,108 @@ Polska ponownie w Radzie ITU 16.11.2026 Polska została wybrana do Rady Międzyn
 
 </details>
 
-## 18. G02 (obala)
-
-- **Twierdzenie:** Prezydent podpisał ustawę o blokowaniu nielegalnych treści w internecie.
-- **Werdykt systemu:** falszywe
-- **Cytat:** „Weto oznacza, że przewidziana w ustawie procedura szybkiego reagowania na takie treści nie zostanie wprowadzona.”
-- **Źródło:** Bezpieczniejszy internet zablokowany. Prezydent zawetował ustawę o DSA (https://www.gov.pl/web/cyfryzacja/bezpieczniejszy-internet-zablokowany-prezydent-zawetowal-ustawe-o-dsa)
-- **Sędzia automatyczny:** wspiera (Cytat mówi o wecie i niewprowadzeniu procedury z ustawy, co przeczy jej podpisaniu.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-Chodziło m.in. o treści związane z namawianiem do samobójstwa, przyjęciem zlecenia zabójstwa czy stosowaniem przemocy lub gróźb ze względu na pochodzenie, wyznanie albo przynależność polityczną. Weto oznacza, że przewidziana w ustawie procedura szybkiego reagowania na takie treści nie zostanie wprowadzona.
-
-</details>
-
-## 19. I01 (rozbieznosc_kontekstu)
-
-- **Twierdzenie:** ePUAP przestał działać po incydencie wykrytym 10 listopada.
-- **Werdykt systemu:** wprowadzajace_w_blad
-- **Cytat:** „ePUAP ponownie działa w pełnym zakresie 19.11.2026 Przywróciliśmy pełne działanie systemu ePUAP po incydencie bezpieczeństwa, który wykryliśmy 10 listopada.”
-- **Źródło:** ePUAP ponownie działa w pełnym zakresie (https://www.gov.pl/web/cyfryzacja/epuap-ponownie-dziala-w-pelnym-zakresie)
-- **Sędzia automatyczny:** nie wspiera (Cytat mówi o przywróceniu działania po incydencie wykrytym 10 listopada, a nie o tym, że system przestał działać, i nie pokazuje tego samego zdarzenia z inną datą, miejscem, skalą czy warunkami; potwierdza jedynie datę wykrycia incydentu.)
-- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
-
-<details><summary>Cały fragment</summary>
-
-ePUAP ponownie działa w pełnym zakresie 19.11.2026 Przywróciliśmy pełne działanie systemu ePUAP po incydencie bezpieczeństwa, który wykryliśmy 10 listopada. System działa w pełnym zakresie, wszystkie usługi są dostępne i stale monitorowane. System został sprawdzony pod kątem bezpieczeństwa i stabilności działania. Przepraszamy za tak długą niedostępność, ale musimy mieć pewność co do bezpiecznego funkcjonowania całego katalogu usług cyfrowych.
-
-</details>
-
-## 20. A42 (potwierdza)
+## 14. A42 (potwierdza)
 
 - **Twierdzenie:** W lipcu 2025 roku w wodociągu PKP Łódź-Olechów wykryto bakterie coli.
-- **Werdykt systemu:** brak_wystarczajacych_dowodow
+- **Werdykt systemu:** potwierdzone
 - **Cytat:** „Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.”
 - **Źródło:** Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia - Powiatowa Stacja Sanitarno-Epidemiologiczna w Łodzi (https://www.gov.pl/web/psse-lodz/wodociag-pkp-lodz-olechow--woda-nie-nadaje-sia-do-spozycia)
-- **Sędzia automatyczny:** wspiera (Cytat wprost stwierdza obecność bakterii grupy coli w próbkach z 8 lipca 2025 z tego wodociągu.)
+- **Sędzia automatyczny:** wspiera (Cytat wprost stwierdza obecność bakterii grupy coli w próbkach z wodociągu PKP Łódź-Olechów pobranych 8 lipca 2025.)
 - **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
 
 <details><summary>Cały fragment</summary>
 
 Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.
+
+</details>
+
+## 15. A42 (potwierdza)
+
+- **Twierdzenie:** W lipcu 2025 roku w wodociągu PKP Łódź-Olechów wykryto bakterie E. coli.
+- **Werdykt systemu:** potwierdzone
+- **Cytat:** „Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.”
+- **Źródło:** Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia - Powiatowa Stacja Sanitarno-Epidemiologiczna w Łodzi (https://www.gov.pl/web/psse-lodz/wodociag-pkp-lodz-olechow--woda-nie-nadaje-sia-do-spozycia)
+- **Sędzia automatyczny:** wspiera (Cytat wprost wymienia Escherichia coli wśród bakterii stwierdzonych w próbkach z tego wodociągu w lipcu 2025.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.
+
+</details>
+
+## 16. A42 (potwierdza)
+
+- **Twierdzenie:** W lipcu 2025 roku w wodociągu PKP Łódź-Olechów wykryto enterokoki.
+- **Werdykt systemu:** potwierdzone
+- **Cytat:** „Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.”
+- **Źródło:** Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia - Powiatowa Stacja Sanitarno-Epidemiologiczna w Łodzi (https://www.gov.pl/web/psse-lodz/wodociag-pkp-lodz-olechow--woda-nie-nadaje-sia-do-spozycia)
+- **Sędzia automatyczny:** wspiera (Cytat wprost wymienia enterokoki wśród bakterii stwierdzonych w próbkach z tego wodociągu w lipcu 2025.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+Wodociąg PKP Łódź-Olechów - woda nie nadaje sią do spożycia 11.07.2025 Państwowy Powiatowy Inspektor Sanitarny w Łodzi informuje, że w próbkach wody pobranych do badań laboratoryjnych w dniu 08 lipca 2025r . z wodociągu PKP Łódź-Olechów (miejsca poboru: wieża ciśnień - woda podawana do sieci i punkt na sieci wodociągowej - PKP Cargo Łódź, ul. Blocha 15) stwierdzono obecność bakterii grupy coli, Escherichia coli oraz enterokoków.
+
+</details>
+
+## 17. C03 (potwierdza)
+
+- **Twierdzenie:** Krajowe Centrum Przetwarzania Danych dostanie ponad 1,5 mld zł z funduszy europejskich.
+- **Werdykt systemu:** potwierdzone
+- **Cytat:** „Ponad 1,5 mld zł dofinansowania z Funduszy Europejskich Całkowita wartość projektu Krajowego Centrum Przetwarzania Danych wynosi 1,6 mld zł, z czego 1,558 mld zł stanowi dofinansowanie z programu Fundusze Europejskie na Rozwój Cyfrowy 2021-2027.”
+- **Źródło:** Krajowe Centrum Przetwarzania Danych - 1,6 mld zł na bezpieczną infrastrukturę cyfrową państwa (https://www.gov.pl/web/cyfryzacja/krajowe-centrum-przetwarzania-danych--16-mld-zl-na-bezpieczna-infrastrukture-cyfrowa-panstwa)
+- **Sędzia automatyczny:** wspiera (Cytat wprost podaje, że dofinansowanie z Funduszy Europejskich wynosi 1,558 mld zł, czyli ponad 1,5 mld zł, a fragment obok nie zmienia jego sensu.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+W projekcie wykorzystane zostaną również technologie BIM (Building Information Modeling) oraz Digital Twin. Rozwiązania te umożliwią skuteczniejsze planowanie, monitorowanie i zarządzanie infrastrukturą na wszystkich etapach jej funkcjonowania. Ponad 1,5 mld zł dofinansowania z Funduszy Europejskich Całkowita wartość projektu Krajowego Centrum Przetwarzania Danych wynosi 1,6 mld zł, z czego 1,558 mld zł stanowi dofinansowanie z programu Fundusze Europejskie na Rozwój Cyfrowy 2021-2027.
+
+</details>
+
+## 18. A24 (obala)
+
+- **Twierdzenie:** Mężczyzna, który w krakowskim Bieżanowie strzelał do policjantów, był obywatelem Ukrainy.
+- **Werdykt systemu:** brak_wystarczajacych_dowodow
+- **Cytat:** „Policja potwierdziła już wcześniej, że był 24-letnim obywatelem Polski, a minister obrony Władysław Kosiniak-Kamysz już w dniu ataku informował, że wbrew niektórych doniesieniom nie był nigdy żołnierzem Wojska Polskiego.”
+- **Źródło:** "Ludzi w Krakowie zastrzelił wielbiciel Ukrainy"? Rosyjska dezinformacja w akcji (https://konkret24.tvn24.pl/polska/ludzi-w-krakowie-zastrzelil-wielbiciel-ukrainy-rosyjska-dezinformacja-w-akcji-st9329687)
+- **Sędzia automatyczny:** nie wspiera (Cytat dotyczy innego zamachowca (Oksiński, 24 lata, atak 7 listopada 2026), a nie strzelca z Bieżanowa strzelającego do policjantów, więc nie obala twierdzenia.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+Zamachowiec Michał Oksiński, który 7 listopada 2026 roku zabił sześć osób w Krakowie i trzy w Ostrowcu Świętokrzyskim, zmarł nad ranem 9 listopada w jednym z krakowskich szpitali. Policja potwierdziła już wcześniej, że był 24-letnim obywatelem Polski, a minister obrony Władysław Kosiniak-Kamysz już w dniu ataku informował, że wbrew niektórych doniesieniom nie był nigdy żołnierzem Wojska Polskiego.
+
+</details>
+
+## 19. A34 (potwierdza)
+
+- **Twierdzenie:** Ukraiński rzecznik praw człowieka Dmytro Łubineć mówił o zatrzymaniach rodziców dzieci, które nie chciały śpiewać rosyjskiego hymnu.
+- **Werdykt systemu:** potwierdzone
+- **Cytat:** „Ukraiński rzecznik praw człowieka Dmytro Łubineć poinformował o zatrzymywaniu rodziców dzieci, które odmawiały śpiewania rosyjskiego hymnu, a także o stosowaniu wobec nich tortur.”
+- **Źródło:** "To zbrodnia wojenna"? Wątpliwości wokół nagrania z "egzekucji" (https://konkret24.tvn24.pl/swiat/to-zbrodnia-wojenna-watpliwoci-wokol-nagrania-z-egzekucji-st9336417)
+- **Sędzia automatyczny:** wspiera (Cytat dosłownie stwierdza, że Łubineć poinformował o zatrzymywaniu rodziców dzieci odmawiających śpiewania rosyjskiego hymnu, a wątpliwości w fragmencie dotyczą innego nagrania.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+Na okupowanych przez Rosję terytoriach Ukrainy dochodzi do prześladowań ludności cywilnej, w tym dzieci i ich rodzin. Ukraiński rzecznik praw człowieka Dmytro Łubineć poinformował o zatrzymywaniu rodziców dzieci, które odmawiały śpiewania rosyjskiego hymnu, a także o stosowaniu wobec nich tortur. W zupełnie innym świetle, tym razem ukraińskich żołnierzy, przedstawia nagranie rozpowszechniane w sieci. Mieli oni dokonać egzekucji kobiety cywila, a film ma być dowodem tej zbrodni wojennej. Ale jego autentyczność budzi poważne wątpliwości.
+
+</details>
+
+## 20. D19 (obala)
+
+- **Twierdzenie:** Od stycznia 2027 roku paszport będzie można odebrać w każdym urzędzie pocztowym.
+- **Werdykt systemu:** falszywe
+- **Cytat:** „Po otrzymaniu informacji, że paszport jest gotowy, należy odebrać go osobiście w tym samym urzędzie paszportowym, w którym został złożony wniosek.”
+- **Źródło:** Jak odebrać paszport u konsula? (https://www.gov.pl/web/dyplomacja/jak-odebrac-paszport-u-konsula)
+- **Sędzia automatyczny:** nie wspiera (Cytat opisuje obecny odbiór paszportu u konsula w urzędzie paszportowym i nie odnosi się do zmian od 2027 roku ani do poczty, więc nie dowodzi fałszywości twierdzenia o przyszłej zmianie.)
+- **Ocena człowieka:** [ ] wspiera  [ ] nie wspiera
+
+<details><summary>Cały fragment</summary>
+
+3. Jak odebrać paszport u konsula? Po otrzymaniu informacji, że paszport jest gotowy, należy odebrać go osobiście w tym samym urzędzie paszportowym, w którym został złożony wniosek. Jak sprawdzić, czy paszport jest gotowy? Możesz sprawdzić status dokumentu. Osobisty odbiór paszportu Odbierzesz paszport bez konieczności rezerwacji terminu wizyty Sprawdź na stronie konsulatu terminy odbioru paszportów
 
 </details>
 

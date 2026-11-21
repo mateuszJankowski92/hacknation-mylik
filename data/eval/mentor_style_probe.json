@@ -1,0 +1,214 @@
+[
+ {
+  "id": "M01",
+  "kind": "fakt_prosty",
+  "q": "Czy Xi Jinping odmówił podania ręki Putinowi?",
+  "exp": "Nie.",
+  "verdict": "falszywe",
+  "direct": "Nie.",
+  "layers": [
+   "urzedowe:konkret24.tvn24.pl:obala"
+  ],
+  "sms": "Nie. Konkret24 (TVN24) podał 19.11.2026 co innego: „Rosyjskiego przywódcę odprowadził do samochodu Xi Jinping - zauważyło BBC.” [fałszywe] Na ile to pewne: mało. Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/4c2756b75c2adbd47d73aaa1ea47908c83d8680227b381cfe051afebe91bdccf",
+  "ms": 9410,
+  "usd": 0.0024503999999999997,
+  "needed": null,
+  "ok": true
+ },
+ {
+  "id": "M02",
+  "kind": "fakt_prosty",
+  "q": "Czy prezydent ma ponad 800 doradców?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/77d89ecd1134ee34abf4ef6a0263ebc6996529cd5a89046697756533a0f7e481",
+  "ms": 4626,
+  "usd": 0.0021628999999999997,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M03",
+  "kind": "fakt_prosty",
+  "q": "Czy policjanci pilnujący Trybunału Konstytucyjnego dostają 3000 zł za dobę?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/945208daa819d058fd4a0f181740f2029d1a905c59fc0a608f30ea882e9fd2f8",
+  "ms": 5794,
+  "usd": 0.0024684000000000004,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M04",
+  "kind": "kontekst",
+  "q": "Czy zdjęcie pokazuje milion Polaków na Marszu Niepodległości w 2026 roku?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [
+   "urzedowe:gov.pl:kontekst"
+  ],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: pierwotna publikacja (nagranie, wpis, depesza albo artykuł) z datą i autorem. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/dde34a736d1de4e2e24be6486262d7a5b9e96180d759425aa04b22f7d444b936",
+  "ms": 6879,
+  "usd": 0.0033088,
+  "needed": "pierwotna publikacja (nagranie, wpis, depesza albo artykuł) z datą i autorem",
+  "ok": false
+ },
+ {
+  "id": "M05",
+  "kind": "kontekst",
+  "q": "Czy nagranie pokazuje, że Ukraina szykuje 14-letnie dzieci na front?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [
+   "urzedowe:konkret24.tvn24.pl:kontekst"
+  ],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/74654d702e45c312955125f4a8a53f3f2cc6cc2c0f486c047d762dcc7871ad27",
+  "ms": 6190,
+  "usd": 0.0024244,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M06",
+  "kind": "kontekst",
+  "q": "Czy nagranie dowodzi, że Most Krymski ledwo stoi?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [
+   "urzedowe:konkret24.tvn24.pl:kontekst"
+  ],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/ddb36dc0c000c71962cd4bbcb5e10e69e2eb653b476fb4cb024e38a61643274b",
+  "ms": 9878,
+  "usd": 0.0047509,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M07",
+  "kind": "kontekst",
+  "q": "Czy w Krakowie ludzi zastrzelił wielbiciel Ukrainy?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [
+   "urzedowe:gov.pl:kontekst",
+   "urzedowe:policja.pl:kontekst"
+  ],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/f344643126c66ab6c78fd7fc20462df4187c391af26a5af01d7e5e82187a740a",
+  "ms": 9906,
+  "usd": 0.003935,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M08",
+  "kind": "rozbieznosc",
+  "q": "Czy kolej przewozi 45 procent więcej pasażerów niż za rządów PiS?",
+  "exp": "Częściowo.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: komunikat przewoźnika albo organizatora transportu z datą albo aktualny regulamin przewozu. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/69492057a5630c7b57227a62e314eab2c7cc2e715affb57996196d5a4f41b0e2",
+  "ms": 4991,
+  "usd": 0.0031304,
+  "needed": "komunikat przewoźnika albo organizatora transportu z datą albo aktualny regulamin przewozu",
+  "ok": false
+ },
+ {
+  "id": "M09",
+  "kind": "rozbieznosc",
+  "q": "Czy zmniejszenie pojemności baków do 15 litrów to normalka w UE?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [
+   "urzedowe:uokik.gov.pl:kontekst"
+  ],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/c882d88931f7be7ddaf890ab9fe2460257d438f59211180de34929597a945d8c",
+  "ms": 10104,
+  "usd": 0.0030120999999999993,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M10",
+  "kind": "rozbieznosc",
+  "q": "Czy Muzeum Auschwitz usuwa informacje o polskich więźniach?",
+  "exp": "Nie.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/70b56848dd50d4ca144a041d98a45a60c4d468c8d8b4b4bf93a981c1e74f11d6",
+  "ms": 6192,
+  "usd": 0.0024689000000000004,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": false
+ },
+ {
+  "id": "M11",
+  "kind": "brak_dowodow",
+  "q": "Czy od poniedziałku w Koninie parkowanie w centrum będzie płatne tylko przez aplikację?",
+  "exp": "Nie udało mi się tego potwierdzić.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/487474196279610c124b683d61b324450c6fc8f8a59a6a1161af49aa7065ea3f",
+  "ms": 4919,
+  "usd": 0.002174,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": true
+ },
+ {
+  "id": "M12",
+  "kind": "brak_dowodow",
+  "q": "Czy w Gnieźnie od jutra zamknięto wszystkie szkoły z powodu grypy?",
+  "exp": "Nie udało mi się tego potwierdzić.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/62ed8b835c39fd18a0233a3ff771c57e32772a82320862675e8e5123dbe3b297",
+  "ms": 8026,
+  "usd": 0.0021173,
+  "needed": "oficjalny komunikat instytucji, której sprawa dotyczy, z datą publikacji",
+  "ok": true
+ },
+ {
+  "id": "M13",
+  "kind": "brak_dowodow",
+  "q": "Czy we Francji wczoraj odbył się strajk kontrolerów lotów?",
+  "exp": "Nie udało mi się tego potwierdzić.",
+  "verdict": "brak_wystarczajacych_dowodow",
+  "direct": "Nie udało mi się tego potwierdzić.",
+  "layers": [],
+  "sms": "Nie udało mi się tego potwierdzić. Potrzebuję: relacja agencji prasowej albo komunikat władz lub organizatorów z datą i miejscem. [brak wystarczających dowodów] Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/c5145640fc624e297c00239909af1d1b69ae58900058b91ed4b9c4b403181ff7",
+  "ms": 5915,
+  "usd": 0.0019792,
+  "needed": "relacja agencji prasowej albo komunikat władz lub organizatorów z datą i miejscem",
+  "ok": true
+ },
+ {
+  "id": "M14",
+  "kind": "fakt_prosty",
+  "q": "Czy niemieccy tajniacy policyjni będą działać w głębi państwa polskiego?",
+  "exp": "Nie.",
+  "verdict": "falszywe",
+  "direct": "Nie.",
+  "layers": [
+   "urzedowe:konkret24.tvn24.pl:obala",
+   "urzedowe:konkret24.tvn24.pl:rozbieznosc_kontekstu"
+  ],
+  "sms": "Nie. Konkret24 (TVN24) podał 12.11.2026 co innego: „Funkcjonariusze obecni w Alei Szucha w Warszawie stali się obiektami dezinformacji - niesłusznie su…” [fałszywe] Na ile to pewne: mało. Stan na 21.11.2026, 16:10. Zobacz, skąd to wiem: /r/e462f2f2d6392b96d9097ab5916c79067cb858cb2296745af80c9110017be21b",
+  "ms": 6777,
+  "usd": 0.004053300000000001,
+  "needed": null,
+  "ok": true
+ }
+]
