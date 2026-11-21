@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import type { LlmProvider } from '../contracts/index';
 import { AnthropicProvider, DEFAULT_ANTHROPIC_MODEL, MockLlmProvider } from '../llm/index';
 import { engineFingerprint } from '../engine/index';
-import { DEFAULT_CASES_PATH, DEFAULT_CONTROL_CASES_PATH, loadCases, type EvalCase, type EvalPart } from './cases';
+import { casesPathFor, doubtfulCaseIds, loadCases, type EvalCase, type EvalPart } from './cases';
 import { AnthropicJudge, judgeModelFor, MockJudge, type CitationJudge } from './judge';
 import { computeMetrics, errorProfileByStrength, errorProfileExcluded, type CaseOutcome } from './metrics';
 import {
@@ -73,7 +73,8 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
   const rootDir = opts.rootDir ?? process.cwd();
   const log = opts.log ?? (() => {});
   const part: EvalPart = opts.part ?? 'strojeniowy';
-  const all = loadCases(resolve(rootDir, opts.casesPath ?? (part === 'kontrolny' ? DEFAULT_CONTROL_CASES_PATH : DEFAULT_CASES_PATH))).cases;
+  const casesPath = resolve(rootDir, opts.casesPath ?? casesPathFor(part));
+  const all = loadCases(casesPath).cases;
   const cases: EvalCase[] = opts.only?.length ? all.filter((c) => opts.only!.includes(c.id)) : all;
   const corpusRoot = resolve(rootDir, opts.corpusRoot ?? '.');
   const corpus = opts.corpus ?? loadCorpus(corpusRoot);
@@ -99,6 +100,20 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
   });
   const judgeCost = await judgeCitations(outcomes, judge, opts.provider === 'mock' ? 1 : 3, (id) => corpus.searcher.getPassage(id));
   const metrics = computeMetrics(outcomes, { name: judge.name, costUsd: judgeCost });
+  // Przypadki oznaczone w zestawie jako wątpliwe: lista i mierniki bez nich (koszt sędziego tylko w pełnych miernikach).
+  const doubtfulIds = doubtfulCaseIds(casesPath).filter((id) => outcomes.some((o) => o.id === id));
+  const doubtful: RunReport['doubtful'] = doubtfulIds.length
+    ? (() => {
+        const rest = outcomes.filter((o) => !doubtfulIds.includes(o.id));
+        const bad = new Set(failedCases(outcomes).map((f) => f.id));
+        return {
+          ids: doubtfulIds,
+          failed: doubtfulIds.filter((id) => bad.has(id)),
+          metricsWithout: computeMetrics(rest, { name: judge.name, costUsd: 0 }),
+          errorProfileWithout: errorProfileByStrength(rest),
+        };
+      })()
+    : undefined;
   const run: RunReport = {
     run: model,
     part,
@@ -114,6 +129,7 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
     metrics,
     errorProfile: errorProfileByStrength(outcomes),
     failedCases: failedCases(outcomes),
+    ...(doubtful ? { doubtful } : {}),
     cases: outcomes,
   };
   const resultsPath = resolve(rootDir, opts.resultsPath ?? DEFAULT_RESULTS_PATH);
@@ -151,7 +167,7 @@ export async function runDiagnosis(opts: Omit<EvalOptions, 'judge' | 'writeRevie
   const rootDir = opts.rootDir ?? process.cwd();
   const log = opts.log ?? (() => {});
   const part: EvalPart = opts.part ?? 'kontrolny';
-  const casesPath = resolve(rootDir, opts.casesPath ?? (part === 'kontrolny' ? DEFAULT_CONTROL_CASES_PATH : DEFAULT_CASES_PATH));
+  const casesPath = resolve(rootDir, opts.casesPath ?? casesPathFor(part));
   const all = loadCases(casesPath).cases;
   const cases: EvalCase[] = opts.only?.length ? all.filter((c) => opts.only!.includes(c.id)) : all;
   // Pole informacyjne `evidence[].passage` (fragment wskazany jako dowód) nie należy do schematu przypadku.

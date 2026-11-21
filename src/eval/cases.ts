@@ -7,8 +7,25 @@ import { NOTICE_TYPES, STATES, VERDICTS } from '../contracts/index';
 export const DEFAULT_CASES_PATH = 'data/eval/cases.json';
 /** Zestaw KONTROLNY: pisany osobno, nigdy nie służy do zmian w silniku ani promptach. */
 export const DEFAULT_CONTROL_CASES_PATH = 'data/eval/control/cases.json';
-export const EVAL_PARTS = ['strojeniowy', 'kontrolny'] as const;
+/** Zestaw KONTROLNY v2 (zad. 26): czysty pomiar po zad. 25; od niego pochodzi profil omylności. */
+export const DEFAULT_CONTROL_V2_CASES_PATH = 'data/eval/control_v2/cases.json';
+export const EVAL_PARTS = ['strojeniowy', 'kontrolny', 'kontrolny_v2'] as const;
 export type EvalPart = (typeof EVAL_PARTS)[number];
+
+/** Domyślna ścieżka przypadków części zestawu. */
+export function casesPathFor(part: EvalPart): string {
+  return part === 'kontrolny' ? DEFAULT_CONTROL_CASES_PATH : part === 'kontrolny_v2' ? DEFAULT_CONTROL_V2_CASES_PATH : DEFAULT_CASES_PATH;
+}
+
+/** Identyfikatory przypadków oznaczonych w pliku jako wątpliwe (`doubtful: true`; pole spoza schematu). */
+export function doubtfulCaseIds(path: string): string[] {
+  try {
+    const raw = JSON.parse(readFileSync(path, 'utf8')) as { cases?: { id?: unknown; doubtful?: unknown }[] };
+    return (raw.cases ?? []).filter((c) => c.doubtful === true && typeof c.id === 'string').map((c) => c.id as string);
+  } catch {
+    return [];
+  }
+}
 export const DEFAULT_INCIDENTS_FIXTURE = 'data/eval/incidents_fixture.json';
 
 export const SCENARIOS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'inne'] as const;

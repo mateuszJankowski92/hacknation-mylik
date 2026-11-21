@@ -1,7 +1,8 @@
-// npm run eval [-- --mock] [--model <id>] [--compare] [--part strojeniowy|kontrolny|oba] [--only A01,B02]
+// npm run eval [-- --mock] [--model <id>] [--compare] [--part strojeniowy|kontrolny|kontrolny_v2|oba|wszystkie] [--only A01,B02]
 //   [--concurrency N] [--out <plik>] [--review <plik>] [--corpus-root <katalog>]
 //   [--no-rank] [--diagnose --diag-out <plik>]  (przebieg diagnostyczny etapów, bez sędziego i bez zapisu results.json)
-// Części: strojeniowy (data/eval/cases.json) i kontrolny (data/eval/control/cases.json, pomijany, gdy pliku brak).
+// Części: strojeniowy (data/eval/cases.json), kontrolny (data/eval/control/cases.json, pomijany, gdy pliku brak)
+// i kontrolny_v2 (data/eval/control_v2/cases.json; tylko jawnie: --part kontrolny_v2 albo wszystkie).
 // Zestawu kontrolnego nie używa się do zmian w silniku ani promptach; profil omylności pochodzi tylko z niego.
 // Liczy mierniki z sekcji 6 wytycznych i zapisuje data/eval/results.json (z niego profil błędów czyta silnik).
 import { existsSync, writeFileSync } from 'node:fs';
@@ -10,6 +11,7 @@ import { loadConfig } from '../src/config';
 import { DEFAULT_ANTHROPIC_MODEL } from '../src/llm/index';
 import {
   DEFAULT_CONTROL_CASES_PATH,
+  DEFAULT_CONTROL_V2_CASES_PATH,
   diagnosisTable,
   metricsTable,
   runDiagnosis,
@@ -52,18 +54,29 @@ async function main(): Promise<void> {
     .filter(Boolean);
   const concurrency = arg('--concurrency') ? Number(arg('--concurrency')) : undefined;
   const partArg = arg('--part') ?? 'oba';
-  if (!['strojeniowy', 'kontrolny', 'oba'].includes(partArg)) {
-    console.error('--part: strojeniowy, kontrolny albo oba');
+  if (!['strojeniowy', 'kontrolny', 'kontrolny_v2', 'oba', 'wszystkie'].includes(partArg)) {
+    console.error('--part: strojeniowy, kontrolny, kontrolny_v2, oba albo wszystkie');
     process.exit(2);
   }
   const hasControl = existsSync(join(rootDir, DEFAULT_CONTROL_CASES_PATH));
+  const hasControlV2 = existsSync(join(rootDir, DEFAULT_CONTROL_V2_CASES_PATH));
   if (partArg === 'kontrolny' && !hasControl) {
     console.error(`Brak zestawu kontrolnego: ${DEFAULT_CONTROL_CASES_PATH}`);
     process.exit(2);
   }
+  if (partArg === 'kontrolny_v2' && !hasControlV2) {
+    console.error(`Brak zestawu kontrolnego v2: ${DEFAULT_CONTROL_V2_CASES_PATH}`);
+    process.exit(2);
+  }
   if (partArg === 'oba' && !hasControl) console.log(`Brak ${DEFAULT_CONTROL_CASES_PATH}: tylko zestaw strojeniowy.`);
   const parts: EvalPart[] =
-    partArg === 'oba' ? (hasControl ? ['strojeniowy', 'kontrolny'] : ['strojeniowy']) : [partArg as EvalPart];
+    partArg === 'oba' || partArg === 'wszystkie'
+      ? [
+          'strojeniowy',
+          ...(hasControl ? (['kontrolny'] as const) : []),
+          ...(partArg === 'wszystkie' && hasControlV2 ? (['kontrolny_v2'] as const) : []),
+        ]
+      : [partArg as EvalPart];
   if (flag('--diagnose')) {
     for (const model of models)
       for (const part of parts) {
@@ -114,6 +127,14 @@ async function main(): Promise<void> {
     file = res.file;
     const c = res.run.metrics.cost;
     console.log(`Koszt przebiegu ${model} (${part}): silnik $${c.engineUsd.toFixed(4)}, sędzia $${c.judgeUsd.toFixed(4)}, razem $${c.totalUsd.toFixed(4)}`);
+    const d = res.run.doubtful;
+    if (d) {
+      const w = d.metricsWithout;
+      console.log(`Przypadki wątpliwe (${d.ids.length}): ${d.ids.join(', ')}; błędne: ${d.failed.join(', ') || 'brak'}`);
+      console.log(
+        `Bez wątpliwych: macro-F1 ${w.macroF1.value?.toFixed(3) ?? 'n/d'} (n=${w.macroF1.den}), profil ${Object.entries(d.errorProfileWithout).map(([k, v]) => `${k}: ${v!.errors}/${v!.total}`).join(', ') || 'n/d'}`,
+      );
+    }
   }
   for (const part of parts) {
     console.log('');

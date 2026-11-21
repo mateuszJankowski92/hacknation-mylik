@@ -31,6 +31,8 @@ export interface RunReport {
   /** Profil omylności według siły podstawy głównego twierdzenia (liczby bezwzględne). */
   errorProfile: ErrorProfileMap;
   failedCases: { id: string; scenario: string; expected: string; got: string; detail?: string }[];
+  /** Przypadki oznaczone w zestawie jako wątpliwe (`doubtful`): które błędne i mierniki bez nich. */
+  doubtful?: { ids: string[]; failed: string[]; metricsWithout: Metrics; errorProfileWithout: ErrorProfileMap };
   cases: CaseOutcome[];
 }
 
@@ -45,12 +47,18 @@ export interface ResultsFile {
    */
   errorProfile: ErrorProfileMap;
   errorProfileSource: string | null;
-  errorProfileMeta: { part: 'kontrolny'; model: string; engineVersion: string; createdAt: string; minBucket: number; excluded?: RunReport['errorProfileExcluded'] } | null;
+  errorProfileMeta: {
+    /** Silnik (src/engine/errorProfile.ts) wymaga `kontrolny`; który zestaw kontrolny, mówi `set`. */
+    part: 'kontrolny';
+    set: 'v1' | 'v2';
+    model: string; engineVersion: string; createdAt: string; minBucket: number; excluded?: RunReport['errorProfileExcluded'] } | null;
   unsupported: { id: string; scenario: string; reason: string }[];
   /** Przebiegi zestawu strojeniowego (klucz: model). */
   runs: Record<string, RunReport>;
-  /** Przebiegi zestawu kontrolnego (klucz: model). */
+  /** Przebiegi zestawu kontrolnego v1 (klucz: model). Od zad. 25 nieczysty (użyty do diagnozy). */
   controlRuns?: Record<string, RunReport>;
+  /** Przebiegi zestawu kontrolnego v2 (klucz: model); czysty pomiar, źródło profilu omylności. */
+  controlV2Runs?: Record<string, RunReport>;
   /** Mierniki wcześniejszych przebiegów (bez przypadków), np. przed zmianą silnika; zachowywane przy scalaniu. */
   history?: { label: string; run: string; corpusVersion: string; finishedAt: string; metrics: RunReport['metrics'] }[];
 }
@@ -100,23 +108,32 @@ export function mergeResults(
   opts: { defaultRun: string; unsupported: ResultsFile['unsupported']; now?: Date },
 ): ResultsFile {
   const prev = readResults(path);
-  const control = run.part === 'kontrolny';
-  const runs = control ? { ...(prev?.runs ?? {}) } : { ...(prev?.runs ?? {}), [run.run]: run };
-  const controlRuns = control ? { ...(prev?.controlRuns ?? {}), [run.run]: run } : { ...(prev?.controlRuns ?? {}) };
+  const key = run.part === 'kontrolny_v2' ? 'controlV2Runs' : run.part === 'kontrolny' ? 'controlRuns' : 'runs';
+  const runs = { ...(prev?.runs ?? {}), ...(key === 'runs' ? { [run.run]: run } : {}) };
+  const controlRuns = { ...(prev?.controlRuns ?? {}), ...(key === 'controlRuns' ? { [run.run]: run } : {}) };
+  const controlV2Runs = { ...(prev?.controlV2Runs ?? {}), ...(key === 'controlV2Runs' ? { [run.run]: run } : {}) };
   // Profil omylności tylko z zestawu kontrolnego modelu domyślnego (w trybie atrapy: z przebiegu atrapy).
-  const source = controlRuns[opts.defaultRun] ? opts.defaultRun : controlRuns.mock ? 'mock' : null;
-  const src = source ? controlRuns[source]! : null;
+  // Gdy istnieje przebieg zestawu v2, profil pochodzi wyłącznie z niego (v1 posłużył do diagnozy).
+  const set: 'v1' | 'v2' = Object.keys(controlV2Runs).length ? 'v2' : 'v1';
+  const pool = set === 'v2' ? controlV2Runs : controlRuns;
+  const source = pool[opts.defaultRun] ? opts.defaultRun : pool.mock ? 'mock' : null;
+  const src = source ? pool[source]! : null;
+  // Do pliku trafiają tylko koszyki z co najmniej PROFILE_MIN_BUCKET tezami (pełne liczby: w przebiegu).
+  const profile: ErrorProfileMap = {};
+  for (const [k, v] of Object.entries(src?.errorProfile ?? {}))
+    if (v && v.total >= PROFILE_MIN_BUCKET) profile[k as keyof ErrorProfileMap] = v;
   const file: ResultsFile = {
     schema: RESULTS_SCHEMA,
     updatedAt: (opts.now ?? new Date()).toISOString(),
     description:
-      'Wyniki zestawu testowego MYLIK (npm run eval). runs: zestaw strojeniowy, controlRuns: zestaw kontrolny. Mierniki według sekcji 6 wytycznych i docs/MIERNIKI.md. errorProfile: pomyłki na liczbę tez według siły podstawy, wyłącznie z zestawu kontrolnego modelu domyślnego (errorProfileMeta: model, wersja silnika, data).',
+      'Wyniki zestawu testowego MYLIK (npm run eval). runs: zestaw strojeniowy, controlRuns: zestaw kontrolny v1 (od zad. 25 użyty do diagnozy), controlV2Runs: zestaw kontrolny v2 (czysty). Mierniki według sekcji 6 wytycznych i docs/MIERNIKI.md. errorProfile: pomyłki na liczbę tez według siły podstawy, z zestawu kontrolnego v2 modelu domyślnego (v1, gdy v2 brak), tylko koszyki z co najmniej 20 tezami (errorProfileMeta: zestaw, model, wersja silnika, data).',
     defaultRun: opts.defaultRun,
-    errorProfile: src?.errorProfile ?? {},
-    errorProfileSource: source ? `kontrolny/${source}` : null,
+    errorProfile: profile,
+    errorProfileSource: source ? `${set === 'v2' ? 'kontrolny_v2' : 'kontrolny'}/${source}` : null,
     errorProfileMeta: src
       ? {
           part: 'kontrolny',
+          set,
           model: src.model,
           engineVersion: src.engineVersion ?? 'nieznana',
           createdAt: src.finishedAt,
@@ -127,6 +144,7 @@ export function mergeResults(
     unsupported: opts.unsupported,
     runs,
     ...(Object.keys(controlRuns).length ? { controlRuns } : {}),
+    ...(Object.keys(controlV2Runs).length ? { controlV2Runs } : {}),
     ...(prev?.history?.length ? { history: prev.history } : {}),
   };
   mkdirSync(dirname(path), { recursive: true });
