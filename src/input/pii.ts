@@ -1,9 +1,11 @@
 import type { MaskResult } from '../contracts';
 
-// Maskujemy dane o jednoznacznej strukturze (z sumą kontrolną, gdzie istnieje)
-// oraz imiona i nazwiska tylko w typowych wzorcach (zwroty grzecznościowe,
-// etykiety, przedstawienie się). Nie rozpoznajemy adresów zamieszkania.
-// Osoby publiczne z tytułem ("Pan Premier Kowalski") nie są maskowane.
+// Maskujemy wyłącznie dane o jednoznacznej strukturze (z sumą kontrolną, gdzie istnieje):
+// PESEL, NIP, numer dowodu, numery rachunków i kart, telefony, adresy e-mail, adresy IP.
+// Imion i nazwisk NIE maskujemy (wskazanie mentora MSZ, 21.11.2026): bez nich zmienia się sens
+// pytania i nie da się znaleźć dowodu, a osoby publiczne muszą zostać nazwane. Nie maskujemy też
+// niczego, co zmienia sens pytania (np. kwot: "700000000 zł" to nie numer telefonu).
+// Funkcja `maskNames` zostaje do świadomego użycia (np. podpis w liście), ale `maskPii` jej nie woła.
 
 interface PiiRule {
 	type: string;
@@ -128,7 +130,8 @@ const RULES: PiiRule[] = [
 	},
 	{
 		type: 'TELEFON',
-		pattern: /(?<![\p{L}\d+])(?<!\d[ -])(?:00 ?48[ -]?)?[1-9]\d{2}[ -]?\d{3}[ -]?\d{3}(?![ -]?\d)/gu,
+		// Bez kwot i liczebności: po numerze nie stoi jednostka ani waluta ("700000000 zł", "500 000 000 osób").
+		pattern: /(?<![\p{L}\d+.,])(?<!\d[ -])(?:00 ?48[ -]?)?[1-9]\d{2}[ -]?\d{3}[ -]?\d{3}(?![ -]?\d)(?![.,]\d)(?!\s*(?:zł|zl|pln|złotych|zlotych|eur|euro|usd|dolar\p{L}*|\$|€|%|osób|osob|ludzi|mieszkańc\p{L}*|mieszkanc\p{L}*|km|kg|ton\p{L}*|szt\p{L}*|głos\p{L}*|glos\p{L}*)(?![\p{L}]))/giu,
 		isValid: ALWAYS_VALID,
 	},
 	{
@@ -182,7 +185,7 @@ const NAME_RULES: NameRule[] = [
 	{ pattern: new RegExp(String.raw`(?<![\p{L}\d])((?:Pozdrawiam(?: serdecznie)?,|[Zz] poważaniem,?)\s+)(${NAME_PHRASE})(?![\p{L}\d-])`, 'gu') },
 ];
 
-function maskNames(text: string, counts: Map<string, number>): string {
+export function maskNames(text: string, counts: Map<string, number> = new Map()): string {
 	let result = text;
 	for (const rule of NAME_RULES) {
 		result = result.replace(rule.pattern, (match: string, lead: string, phrase: string) => {
@@ -206,7 +209,6 @@ export function maskPii(text: string): MaskResult {
 			return `[${rule.type}]`;
 		});
 	}
-	result = maskNames(result, counts);
 	const masks = [...counts.entries()].map(([type, count]) => ({ type, count }));
 	return { text: result, masks };
 }
