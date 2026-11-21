@@ -5,6 +5,7 @@ import {
 	type VerifyEtaResponse,
 	type VerifyProgressEvent,
 } from '../../src/contracts/api';
+import type { CasePublicResponse } from '../../src/cases/types';
 import type { VerificationRecord, VerifyOutcome } from '../../src/contracts/record';
 import type { LatestSourcesResponse, VerifyKeyResponse } from '../../src/server/extras';
 
@@ -111,6 +112,20 @@ export async function fetchRecord(id: string, signal?: AbortSignal): Promise<Ver
 	const record = await requestJson<VerificationRecord>(`/api/records/${encodeURIComponent(id)}`, { method: 'GET' }, signal);
 	if (!record || !Array.isArray(record.claims)) throw new ApiFailure('unexpected');
 	return record;
+}
+
+export async function fetchCaseStatus(id: string, signal?: AbortSignal): Promise<CasePublicResponse | null> {
+	try {
+		const response = await requestJson<CasePublicResponse>(
+			`/api/records/${encodeURIComponent(id)}/obieg`,
+			{ method: 'GET' },
+			signal,
+		);
+		if (response?.status === 'zapisano' || response?.status === 'przekazano' || response?.status === 'brak') return response;
+		return null;
+	} catch {
+		return null;
+	}
 }
 
 export async function fetchSources(signal?: AbortSignal): Promise<SourcesResponse> {

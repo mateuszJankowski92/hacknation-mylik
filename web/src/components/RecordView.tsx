@@ -1,6 +1,7 @@
 import type { VerificationRecord } from '../../../src/contracts/record';
 import { formatDateTime, shortId } from '../format';
 import { recordUrlPath } from '../route';
+import { CaseNotice } from './CaseNotice';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { KnownOpWarnings } from './KnownOpWarning';
@@ -111,6 +112,8 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					extraDetails={<RecordExtras record={record} />}
 				/>
 			)}
+
+			<CaseNotice record={record} />
 
 			<KnownOpWarnings notices={record.notices} />
 
