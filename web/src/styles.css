@@ -18,10 +18,14 @@
 	--accent-hover: #f6ae65;
 	--accent-active: #dd8532;
 	--accent-edge: #e2883a;
+	--scarf-wave: #f8c88f;
+	--scarf-sea: #4f9a8f;
 	--accent-disabled: #f3dfc6;
 	--on-accent-disabled: #5a524c;
 	--border: #5b5450;
-	--focus: #1f5f5a;
+	--focus: #2b2725;
+	--focus-field-edge: #1a1716;
+	--focus-field-fold: #cbb695;
 	--sea: #1f5f5a;
 	--sea-tint: #d5e9e4;
 	--sea-mid: #5e9d94;
@@ -42,6 +46,7 @@
 	--shadow-paper: 0 2px 3px -1px rgba(43, 39, 37, 0.28), 0 6px 10px -6px rgba(43, 39, 37, 0.3);
 	--shadow-lift: 0 3px 4px -1px rgba(43, 39, 37, 0.3), 0 10px 14px -8px rgba(43, 39, 37, 0.36);
 	--shadow-press: 0 1px 1px rgba(43, 39, 37, 0.3);
+	--shadow-focus: 0 5px 6px -1px rgba(43, 39, 37, 0.32), 0 14px 18px -8px rgba(43, 39, 37, 0.4);
 	--space-1: 8px;
 	--space-2: 16px;
 	--space-3: 24px;
@@ -149,7 +154,7 @@ a:hover {
 }
 
 :focus-visible {
-	outline: 3px solid var(--focus);
+	outline: 6px double var(--focus);
 	outline-offset: 2px;
 }
 
@@ -275,7 +280,8 @@ main:focus {
 	box-shadow: var(--shadow-paper);
 	transition:
 		background-color 120ms ease-out,
-		box-shadow 120ms ease-out;
+		box-shadow 120ms ease-out,
+		transform 120ms ease-out;
 }
 
 .check-form__field::after {
@@ -302,9 +308,23 @@ main:focus {
 }
 
 .check-form__field:focus-within {
-	outline: 3px solid var(--focus);
-	outline-offset: 3px;
+	border-color: var(--focus-field-edge);
 	background: #ffffff;
+	box-shadow:
+		0 1px 0 0 var(--focus-field-edge),
+		var(--shadow-focus);
+	transform: translateY(-1px);
+}
+
+.check-form__field:focus-within::after {
+	border-left-color: var(--focus-field-edge);
+	border-bottom-color: var(--focus-field-edge);
+	background: linear-gradient(
+		225deg,
+		var(--bg) 0 calc(50% - var(--outline) / 2),
+		var(--focus-field-edge) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+		var(--focus-field-fold) calc(50% + var(--outline) / 2) 100%
+	);
 }
 
 .check-form__field:has(textarea[aria-invalid='true']) {
@@ -388,14 +408,59 @@ textarea::placeholder {
 }
 
 .button:focus-visible {
-	outline: 3px solid var(--focus);
+	outline: 6px double var(--focus);
 	outline-offset: 3px;
 }
 
 .button--primary {
+	--scarf-waves: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='64' viewBox='0 0 144 64' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 9Q18 1 36 9T72 9T108 9T144 9' stroke='%23f8c88f' stroke-width='1.5'/%3E%3Cpath d='M0 16Q18 22 36 16T72 16T108 16T144 16' stroke='%23f8c88f' stroke-width='1.2'/%3E%3Cpath d='M0 50Q12 44 24 50T48 50T72 50T96 50T120 50T144 50' stroke='%234f9a8f' stroke-width='1.2'/%3E%3Cpath d='M0 57Q18 49 36 57T72 57T108 57T144 57' stroke='%23f8c88f' stroke-width='1.4'/%3E%3Cpath d='M96 12h.1M102 14h.1M40 54h.1M46 56h.1' stroke='%23f8c88f' stroke-width='2.4'/%3E%3C/svg%3E");
+	--scarf-cut-long: 16px;
+	--scarf-cut-short: 6px;
+	--scarf-inner-trim: 0.88px;
 	--fold-end: 22px;
 	--fold-line: rgba(43, 39, 37, 0.5);
-	border-color: var(--graphite);
+	--scarf-base: var(--accent);
+	--scarf-end: var(--accent-edge);
+	--scarf-wave-shift: 0 center;
+	isolation: isolate;
+	border-color: transparent;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: var(--on-accent);
+	font-weight: 700;
+	filter: drop-shadow(0 2px 1px rgba(43, 39, 37, 0.34));
+	transition:
+		transform 120ms ease-out,
+		filter 120ms ease-out;
+}
+
+.button--primary::before,
+.button--primary::after {
+	content: '';
+	position: absolute;
+	pointer-events: none;
+}
+
+.button--primary::before {
+	inset: calc(var(--outline) * -1);
+	z-index: -2;
+	background: var(--graphite);
+	clip-path: polygon(
+		var(--scarf-cut-long) 0,
+		calc(100% - var(--scarf-cut-short)) 0,
+		100% var(--scarf-cut-short),
+		100% calc(100% - var(--scarf-cut-long)),
+		calc(100% - var(--scarf-cut-long)) 100%,
+		var(--scarf-cut-short) 100%,
+		0 calc(100% - var(--scarf-cut-short)),
+		0 var(--scarf-cut-long)
+	);
+}
+
+.button--primary::after {
+	inset: 0;
+	z-index: -1;
 	background:
 		linear-gradient(
 			90deg,
@@ -405,49 +470,56 @@ textarea::placeholder {
 			var(--fold-line) calc(100% - var(--fold-end) - var(--outline) / 2) calc(100% - var(--fold-end) + var(--outline) / 2),
 			transparent calc(100% - var(--fold-end) + var(--outline) / 2)
 		),
+		var(--scarf-waves) var(--scarf-wave-shift) / 144px 64px repeat-x,
 		linear-gradient(
 			90deg,
-			var(--accent-edge) 0 var(--fold-end),
-			var(--accent) var(--fold-end) calc(100% - var(--fold-end)),
-			var(--accent-edge) calc(100% - var(--fold-end)) 100%
+			var(--scarf-end) 0 var(--fold-end),
+			var(--scarf-base) var(--fold-end) calc(100% - var(--fold-end)),
+			var(--scarf-end) calc(100% - var(--fold-end)) 100%
 		);
-	color: var(--on-accent);
-	font-weight: 700;
+	clip-path: polygon(
+		calc(var(--scarf-cut-long) - var(--scarf-inner-trim)) 0,
+		calc(100% - var(--scarf-cut-short) + var(--scarf-inner-trim)) 0,
+		100% calc(var(--scarf-cut-short) - var(--scarf-inner-trim)),
+		100% calc(100% - var(--scarf-cut-long) + var(--scarf-inner-trim)),
+		calc(100% - var(--scarf-cut-long) + var(--scarf-inner-trim)) 100%,
+		calc(var(--scarf-cut-short) - var(--scarf-inner-trim)) 100%,
+		0 calc(100% - var(--scarf-cut-short) + var(--scarf-inner-trim)),
+		0 calc(var(--scarf-cut-long) - var(--scarf-inner-trim))
+	);
+	transition: background-position 360ms ease-out;
 }
 
 .button--primary:hover:not(:disabled) {
-	background:
-		linear-gradient(
-			90deg,
-			transparent calc(var(--fold-end) - var(--outline) / 2),
-			var(--fold-line) calc(var(--fold-end) - var(--outline) / 2) calc(var(--fold-end) + var(--outline) / 2),
-			transparent calc(var(--fold-end) + var(--outline) / 2) calc(100% - var(--fold-end) - var(--outline) / 2),
-			var(--fold-line) calc(100% - var(--fold-end) - var(--outline) / 2) calc(100% - var(--fold-end) + var(--outline) / 2),
-			transparent calc(100% - var(--fold-end) + var(--outline) / 2)
-		),
-		linear-gradient(
-			90deg,
-			var(--accent) 0 var(--fold-end),
-			var(--accent-hover) var(--fold-end) calc(100% - var(--fold-end)),
-			var(--accent) calc(100% - var(--fold-end)) 100%
-		);
+	--scarf-base: var(--accent-hover);
+	--scarf-end: var(--accent);
+	background: none;
+	box-shadow: none;
 	transform: translateY(-2px);
-	box-shadow: var(--shadow-lift);
+	filter: drop-shadow(0 4px 2px rgba(43, 39, 37, 0.3));
+}
+
+.button--primary:hover:not(:disabled)::after {
+	background-position:
+		0 0,
+		14px center,
+		0 0;
 }
 
 .button--primary:active:not(:disabled) {
-	background:
-		linear-gradient(
-			90deg,
-			transparent calc(var(--fold-end) - var(--outline) / 2),
-			var(--fold-line) calc(var(--fold-end) - var(--outline) / 2) calc(var(--fold-end) + var(--outline) / 2),
-			transparent calc(var(--fold-end) + var(--outline) / 2) calc(100% - var(--fold-end) - var(--outline) / 2),
-			var(--fold-line) calc(100% - var(--fold-end) - var(--outline) / 2) calc(100% - var(--fold-end) + var(--outline) / 2),
-			transparent calc(100% - var(--fold-end) + var(--outline) / 2)
-		),
-		var(--accent-active);
+	--scarf-base: var(--accent-active);
+	--scarf-end: var(--accent-active);
+	background: none;
+	box-shadow: none;
 	transform: translateY(2px);
-	box-shadow: var(--shadow-press);
+	filter: none;
+}
+
+.button--primary:active:not(:disabled)::after {
+	background-position:
+		0 0,
+		14px center,
+		0 0;
 }
 
 .check-form__actions .button--primary {
@@ -489,10 +561,21 @@ textarea::placeholder {
 }
 
 .button--primary:disabled {
-	border-color: var(--paper-fold);
-	background: var(--accent-disabled);
+	--scarf-base: var(--accent-disabled);
+	--scarf-end: var(--accent-disabled);
+	border-color: transparent;
+	background: none;
 	color: var(--on-accent-disabled);
+	filter: none;
 	opacity: 1;
+}
+
+.button--primary:disabled::before {
+	background: var(--paper-fold);
+}
+
+.button--primary:disabled::after {
+	background: var(--accent-disabled);
 }
 
 .result {

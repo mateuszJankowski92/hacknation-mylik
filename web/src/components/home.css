@@ -38,7 +38,7 @@
 }
 
 .home-list__item:has(a:focus-visible) {
-	outline: 3px solid var(--focus);
+	outline: 6px double var(--focus);
 	outline-offset: 3px;
 }
 
