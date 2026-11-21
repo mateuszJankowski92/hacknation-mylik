@@ -279,3 +279,26 @@ Decyzja prowadzącego (wariant a, wzmocniony): (1) teza odwrotna („obala”) w
 | **3, nowa (niewidziana), pułapki innego rodzaju niż T01** | 4 | 4 | 0 | - |
 
 Po zmianie: 0 błędnych przypisań oceny redakcji w żadnej próbie; koszt to więcej wstrzymań. Przyczyny wstrzymań w próbie 3 (bez poprawek): G01 indeks nic nie zwrócił dla krótkich fraz; G02 właściwy wpis nie został uznany za tę samą tezę; G03 imię „Billa” w pytaniu, a w tezie tylko „Gatesa” (reguła nazw własnych). F05 w próbie 2 dostał dwie sprzeczne oceny relacji tej samej tezy (wstrzymanie „sprzeczne źródła”). F01 i F08 bez zmian (decyzja prowadzącego). Mediana czasu 5,8-6,7 s; koszt modelu trzech prób ok. $0,14. Małe próby, jeden przebieg każda: to sygnał, nie pomiar.
+
+### Próba zmiany reguły nazw (22.11.2026, cofnięta)
+
+Zmiana: zgodność nazw osób samym nazwiskiem (z odmianą), odrzucenie przy innym imieniu (commit 9edf4c8). Powtórka trzech prób: próba 1 17/18 zgodnych, 0 błędnych; próba 2 zwykłe 7/10, pułapki 5/6 z **1 błędnym „Tak.” z przypisaniem redakcji** (T04, inna data: dopasowany wpis o innej sprawie z 2024 r.); próba 3 zwykłe 2/4 (G03 naprawiony), pułapki 4/4. Zgodnie z decyzją prowadzącego zmiana cofnięta bez dalszych prób; nie ustalono, czy błąd T04 wynikał z tej zmiany, czy z losowości modelu (w poprzedniej powtórce T04 dał wstrzymanie). Obowiązuje reguła sprzed zmiany (wszystkie nazwy własne pytania we wpisie).
+
+## Końcowy przebieg v2 (22.11.2026, silnik 108928016877, indeks wyłączony)
+
+Claude Haiku 5.5, sędzia Claude Sonnet 5.5, korpus cb62b4255ea0, `FACTCHECK_LAYER=off`: dzienny limit zapytań Fact Check Tools API nie jest podany w oficjalnej dokumentacji, więc przebieg z indeksem (176 x ok. 8 zapytań) mógłby zjeść limit potrzebny jury. **Profil omylności dotyczy więc silnika bez indeksu**; z włączonym indeksem odpowiedzi z oceną redakcji mają osobny opis (próby wyżej). Jeden przebieg, ok. 23:25-23:38 UTC 21.11.
+
+| Miernik | 108928016877 (ten przebieg) | dd6f303f5e02 (zad. 35) | 903c9bfb4b11 (zad. 40) |
+|---|---|---|---|
+| macro-F1 | 0,673 (bez wątpliwych 0,699) | 0,701 | 0,691 |
+| poprawność cytowań (sędzia) | 80,2% (170/212) | 79,7% | 81,7% |
+| pokrycie cytowań | 100% | 100% | 100% |
+| wstrzymanie się | 16/21 | 15/21 | 16/21 |
+| odporność | 8/8 | 8/8 | 8/8 |
+| fałszywe wstrzymania | 43/136 | 35/136 | 38/136 |
+| spójność kanałów | 5/5 | 5/5 | 5/5 |
+| powtarzalność bez pamięci | 4/5 | 3/5 | 4/5 |
+| mediana czasu (p90) | 7,4 s (9,8) | 7,5 s (10,3) | 7,5 s (10,9) |
+| koszt silnika na 1000 zapytań | ok. $3,6 | ok. $3,6 | ok. $3,6 |
+
+Profil omylności (results.json): średnia 7/48, niska 18/45, brak 35/75 (wysoka 1/6, za mały koszyk). Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1 (0,673-0,733 w pięciu przebiegach), więc różnice w tabeli nie są rozstrzygające; fałszywe wstrzymania rosną od zad. 35 (ostrzejsze reguły dla ocen redakcji nie działają przy wyłączonym indeksie, więc wzrost to głównie rozrzut).

@@ -2,7 +2,21 @@
 
 Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia.
 
-## Skrót: zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5
+## Skrót: końcowy przebieg v2 (22.11.2026, silnik 108928016877, indeks weryfikacji wyłączony)
+
+| Miernik | Wynik | Poprzedni (dd6f303f5e02) | Cel MVP |
+|---|---|---|---|
+| Trafność (macro-F1) | 0,673 (bez 27 wątpliwych 0,699) | 0,701 | 0,75, niespełniony |
+| Poprawność cytowań (sędzia) | 80,2% (170/212) | 79,7% | 85%, niespełniony |
+| Wstrzymanie się | 16/21 (76,2%) | 15/21 | 80%, niespełniony |
+| Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
+| Mediana czasu | 7,4 s (p90 9,8 s) | 7,5 s | 30 s, spełniony |
+| Koszt silnika | ok. 3,6 USD na 1000 zapytań | ok. 3,6 USD | raportowany |
+| Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
+
+Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1. Profil omylności dotyczy silnika bez indeksu Google (dzienny limit API nieznany). Odpowiedzi z oceną redakcji (indeks na żywo): próby w [MIERNIKI.md](MIERNIKI.md): pełnym zdaniem indeks znajduje właściwą weryfikację w 1/14 pytań, naszymi wariantami fraz z rankingiem w 13/14; po regułach z 22.11 0 błędnych przypisań oceny redakcji w trzech próbach (34 pytania).
+
+## Poprzedni skrót: zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5
 
 Końcowy przebieg (zad. 35), 21.11.2026: silnik dd6f303f5e02 (zamrożony), korpus cb62b4255ea0, bez drugiej warstwy i bez Basala, sędzia cytowań Claude Sonnet 5.5. Zestaw v2 nie jest już w pełni "czysty": posłużył do jednej decyzji o progu wstrzymania ([MIERNIKI.md](MIERNIKI.md), "Wariant przy niskiej sile brak werdyktu"). To jeden przebieg, więc czytaj go razem z rozrzutem niżej.
 
