@@ -7,6 +7,7 @@ import {
 	subscribeSceneSkipped,
 	writeSceneSkipped,
 } from '../scenes/preferences';
+import { useAfterFirstScreen } from '../scenes/useAfterFirstScreen';
 import { HeroIllustration, type HeroIllustrationProps } from './HeroIllustration';
 
 interface HeroClipProps {
@@ -67,19 +68,22 @@ function HeroClip({ scene, onEnded, onFailed }: HeroClipProps) {
 }
 
 function restingPoster(scenes: SceneSpec[]): SceneSpec | null {
-	return scenes.find((scene) => scene.loop && scene.poster) ?? null;
+	return scenes.find((scene) => scene.loop && scene.poster) ?? scenes.find((scene) => scene.poster) ?? null;
 }
 
 export function HeroStage({ illustration, scenes = HERO_SCENES }: { illustration?: HeroIllustrationProps; scenes?: SceneSpec[] }) {
 	const skipped = useSyncExternalStore(subscribeSceneSkipped, readSceneSkipped, () => false);
 	const [failed, setFailed] = useState(false);
 	const [index, setIndex] = useState(0);
+	const afterFirstScreen = useAfterFirstScreen();
 	const reducedMotion = prefersReducedMotion();
 	const isStatic = Boolean(illustration?.src);
 	const lastIndex = scenes.length - 1;
 	const scene = scenes[Math.min(index, lastIndex)];
-	const animated = !isStatic && Boolean(scene?.file) && !skipped && !reducedMotion && !connectionIsSlow() && !failed;
-	const poster = reducedMotion && !isStatic ? restingPoster(scenes) : null;
+	const playable = !isStatic && Boolean(scene?.file) && !skipped && !reducedMotion && !connectionIsSlow() && !failed;
+	const animated = playable && afterFirstScreen;
+	const firstScreenPoster = playable && !afterFirstScreen && scene?.poster ? scene : null;
+	const poster = reducedMotion && !isStatic ? restingPoster(scenes) : firstScreenPoster;
 
 	const handleEnded = useCallback(() => {
 		setIndex((current) => Math.min(current + 1, lastIndex));
@@ -96,7 +100,7 @@ export function HeroStage({ illustration, scenes = HERO_SCENES }: { illustration
 				{animated && scene && <HeroClip key={scene.id} scene={scene} onEnded={handleEnded} onFailed={handleFailed} />}
 				{!animated && poster && <img className="hero__image" src={poster.poster ?? undefined} alt={poster.alt} />}
 				{!animated && !poster && <HeroIllustration {...illustration} />}
-				{animated && (
+				{playable && (
 					<button type="button" className="hero__skip text-button" onClick={() => writeSceneSkipped(true)}>
 						{SCENE_TEXTS.skip}
 					</button>

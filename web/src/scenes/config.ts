@@ -93,4 +93,9 @@ export function heroScenesFor(entries: ManifestEntry[]): SceneSpec[] {
 	return heroSequence(entries.map(sceneFromEntry));
 }
 
-export const HERO_SCENES: SceneSpec[] = heroScenesFor(entriesFor(ASSET_DIRECTORY.start, 'scena_czekania'));
+export function heroEntries(): ManifestEntry[] {
+	const opening = entriesFor(ASSET_DIRECTORY.start, 'scena_otwierajaca');
+	return opening.length > 0 ? opening : entriesFor(ASSET_DIRECTORY.start, 'scena_czekania');
+}
+
+export const HERO_SCENES: SceneSpec[] = heroScenesFor(heroEntries());

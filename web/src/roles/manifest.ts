@@ -1,7 +1,7 @@
 import type { ArtName, ArtOwner, ResultKey } from './config';
 import manifestData from './manifest.json';
 
-export type ManifestKind = 'obraz_praca' | 'obraz_wyniku' | 'scena_czekania' | 'scena_wyniku';
+export type ManifestKind = 'obraz_praca' | 'obraz_wyniku' | 'scena_czekania' | 'scena_wyniku' | 'scena_otwierajaca';
 
 export interface ManifestEntry {
 	rola: string;

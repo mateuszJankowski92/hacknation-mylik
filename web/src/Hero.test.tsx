@@ -11,7 +11,7 @@ import { HeroStage } from './components/HeroStage';
 import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
 import { entriesFor, type ManifestEntry } from './roles/manifest';
-import { HERO_SCENES, SCENE_TEXTS, heroScenesFor, heroSequence, type SceneSpec } from './scenes/config';
+import { HERO_SCENES, SCENE_TEXTS, heroEntries, heroScenesFor, heroSequence, type SceneSpec } from './scenes/config';
 import { readSceneSkipped, writeSceneSkipped } from './scenes/preferences';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -159,11 +159,39 @@ describe('scena przy pracy w hero', () => {
 		expect(extended[extended.length - 1]?.loop).toBe(true);
 	});
 
-	it('odtwarza się po wejściu: wideo z plakatem, bez dźwięku, bez kontrolek', () => {
+	it('pierwszy ekran to sam plakat, a wideo dochodzi dopiero po nim', async () => {
 		stubLatest(0);
 		const { container } = render(<App />);
+		const stage = container.querySelector('.hero__stage') as HTMLElement;
+		expect(stage.getAttribute('data-mode')).toBe('poster');
+		expect(container.querySelector('.hero video')).toBeNull();
+		expect(container.querySelector('.hero img')?.getAttribute('src')).toBe(HERO_SCENES[0]?.poster);
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+		await waitFor(() => expect(stage.getAttribute('data-mode')).toBe('video'));
+		expect(container.querySelector('.hero video')).not.toBeNull();
+	});
+
+	it('scena otwierająca z manifestu jest domyślną sceną hero, a bez niej działają dotychczasowe klipy startowe', () => {
+		const opening: ManifestEntry = {
+			...entriesFor('start', 'scena_czekania')[0],
+			rodzaj: 'scena_otwierajaca',
+			stan: 'otwarcie',
+			plik: 'postacie/start/scena__otwarcie.mp4',
+			plakat: 'postacie/start/scena__otwarcie__plakat.png',
+			petla: false,
+		};
+		const withOpening = heroScenesFor([opening]);
+		expect(withOpening.map((item) => item.id)).toEqual(['start-otwarcie']);
+		expect(withOpening[0]?.file).toBe('/postacie/start/scena__otwarcie.mp4');
+		expect(heroEntries().length).toBeGreaterThan(0);
+		for (const entry of heroEntries()) expect(['scena_otwierajaca', 'scena_czekania']).toContain(entry.rodzaj);
+	});
+
+	it('odtwarza się po wejściu: wideo z plakatem, bez dźwięku, bez kontrolek', async () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
 		const video = container.querySelector('.hero video') as HTMLVideoElement;
-		expect(video).not.toBeNull();
 		expect(video.muted).toBe(true);
 		expect(video.hasAttribute('playsinline')).toBe(true);
 		expect(video.hasAttribute('controls')).toBe(false);
@@ -173,9 +201,10 @@ describe('scena przy pracy w hero', () => {
 		expect(container.querySelector('.hero [role="img"]')?.getAttribute('aria-label')).toBeTruthy();
 	});
 
-	it('po końcu klipu wchodzi następny, ostatni zostaje na ekranie', () => {
+	it('po końcu klipu wchodzi następny, ostatni zostaje na ekranie', async () => {
 		const scenes = [scene('pierwszy'), scene('drugi', { loop: true })];
 		const { container } = render(<HeroStage scenes={scenes} />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
 		const source = () => container.querySelector('video')?.getAttribute('src');
 		expect(source()).toBe('/postacie/start/pierwszy.mp4');
 		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
@@ -188,6 +217,7 @@ describe('scena przy pracy w hero', () => {
 	it('błąd klipu: przeskakuje do następnego, a po ostatnim zostaje nieruchomy obraz', async () => {
 		const scenes = [scene('pierwszy'), scene('drugi', { loop: true })];
 		const { container } = render(<HeroStage scenes={scenes} />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
 		await act(async () => {
 			fireEvent.error(container.querySelector('video') as HTMLVideoElement);
 		});
