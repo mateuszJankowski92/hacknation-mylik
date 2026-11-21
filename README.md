@@ -90,6 +90,10 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `SUPPORT_GATE_PROVIDER` | pusty (Haiku) | `basal`: bramka wsparcia na modelu Basal (`BASAL_URL`, `BASAL_TOKEN`, `BASAL_TIMEOUT_MS`, `BASAL_MIN_CONFIDENCE`, `BASAL_ASSESS`); przy awarii automatycznie Haiku. Szczegóły: docs/ZALEZNOSCI.md. |
 | `LIVE_LAYER` | `off` | Druga warstwa źródeł (zad. 29): `on` = gdy zbiór urzędowy nie da rozstrzygającej podstawy, szukanie na żywo wyłącznie w serwisach z `data/live-sources.json` (wymaga `LLM_PROVIDER=anthropic`). `off` = system działa jak dotąd. Opis: `docs/ZRODLA.md`. |
 | `LIVE_SOURCES_PATH` | `data/live-sources.json` | Jawna lista serwisów drugiej warstwy (do audytu). |
+| `URZEDNIK_TOKEN` | brak | Token widoku urzędnika `/urzednik` (min. 16 znaków). Bez tokenu każdy adres pod `/urzednik` zwraca 401. Opis: `docs/PETLA_INFORMACJI.md`. |
+| `URZEDNIK_OSOBA` | brak | Osoba z etykiety przycisku „Oznacz jako przekazane do: …” w widoku urzędnika. |
+| `URZEDNIK_ADRES_POWIADOMIEN` | brak | Adres osoby do powiadomień wskazanej przez administratora. Przygotowane miejsce: e-maili nie wysyłamy. |
+| `CASE_RETENTION_DAYS` | `365` | Po ilu dniach bez nowego zgłoszenia sprawa urzędnika jest usuwana. |
 
 `GET /api/health` zwraca nazwę dostawcy i modelu (bez klucza). Konfiguracja wypisywana przy starcie zawiera tylko informację, czy klucz jest ustawiony.
 
@@ -109,6 +113,7 @@ Uwaga: przy `LLM_PROVIDER=anthropic` bez klucza każde zgłoszenie kończy się 
 - Model nigdy nie podaje URL-i ani metadanych źródeł; widzi tylko identyfikator i treść fragmentu. Metadane wstawia kod z bazy.
 - Brak klucza, limit, wyjątek to zawsze stan techniczny (`kind: "state"`), nigdy werdykt. Wykryte sygnały prompt injection trafiają do rekordu i do logu zdarzeń (tabela `events`, bez treści zgłoszeń).
 - API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (adapter SMS, w prototypie: symulator; JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu, bez operatora).
+- Pętla informacji: twierdzenia bez wystarczających dowodów trafiają jako sprawy (`src/cases`, deduplikacja, licznik powtórzeń) do widoku urzędnika `/urzednik` (token z `URZEDNIK_TOKEN`, bez tokenu 401, eksport CSV i JSON); `GET /api/records/:id/obieg` mówi interfejsowi, czy pytanie „zapisano”, czy urzędnik oznaczył je jako „przekazano”. Maili nie wysyłamy. [docs/PETLA_INFORMACJI.md](docs/PETLA_INFORMACJI.md).
 - Nagłówki bezpieczeństwa: CSP ograniczone do własnego originu, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`; brak CORS. Log na stdout: jedna linia na żądanie (metoda, ścieżka, status, czas), bez treści zgłoszeń i sekretów.
 
 ## Struktura katalogów
@@ -121,6 +126,7 @@ src/corpus/      katalog źródeł, podział na fragmenty, ingest, wyszukiwarka 
 src/input/       walidacja, normalizacja i maskowanie danych osobowych
 src/llm/         dostawcy modelu (mock, anthropic) i prompty
 src/engine/      potok weryfikacji, bramka cytatów, reguły werdyktu, zapis rekordów
+src/cases/       sprawy urzędnika: deduplikacja, magazyn, eksport, zdania dla obywatela (pętla informacji)
 src/live/        druga warstwa źródeł: lista serwisów, wyszukiwanie adresów, pobranie stron (LIVE_LAYER)
 src/server/      serwer HTTP (Hono): trasy, pliki statyczne, składanie zależności
 src/main.ts      punkt wejścia serwera
@@ -141,5 +147,6 @@ tests/           testy (vitest), w tym e2e serwera i test dymny tests/e2e/smoke.
 | Ryzyka (F8) | [docs/RYZYKA.md](docs/RYZYKA.md) |
 | Wyniki testów i jak je odtworzyć (F7) | [docs/WYNIKI.md](docs/WYNIKI.md), [docs/MIERNIKI.md](docs/MIERNIKI.md) |
 | Koszt 1 000 zapytań, koszt kanału, zachowanie przy ruchu (T14) | [docs/KOSZTY.md](docs/KOSZTY.md) |
+| Pętla informacji: sprawy i widok urzędnika (scenariusz H) | [docs/PETLA_INFORMACJI.md](docs/PETLA_INFORMACJI.md) |
 | Czego Mylik nie obsługuje | [docs/NIEOBSLUGIWANE.md](docs/NIEOBSLUGIWANE.md) |
 | Pochodzenie ilustracji (modele generatywne, prawa, podmiana) | [docs/POCHODZENIE_ILUSTRACJI.md](docs/POCHODZENIE_ILUSTRACJI.md) |

@@ -47,6 +47,10 @@ WWW / adapter SMS (w prototypie: symulator)
   -> reguły: etykieta i siła (kod) -> rekord -> odpowiedź w kanale
 ```
 
+## Pętla informacji (scenariusz H)
+
+Serwer opakowuje silnik (`src/cases`). Po otrzymaniu rekordu z co najmniej jednym twierdzeniem „brak wystarczających dowodów” zapisuje lub aktualizuje **sprawę** w osobnych tabelach `cases` i `case_records` (deduplikacja: znormalizowany tekst plus podobieństwo słów kluczowych). Urzędnik widzi sprawy pod `/urzednik` (token z konfiguracji, bez tokenu 401), a obywatel przy takim wyniku jedno zdanie: „zapisano” albo, po oznaczeniu przez urzędnika, „przekazano”. Nic nie jest wysyłane (e-mail to tylko przygotowane miejsce). Silnik o sprawach nie wie i jest zamrożony. Opis: [PETLA_INFORMACJI.md](PETLA_INFORMACJI.md).
+
 ## Co robi kod, a co model
 
 | Krok | Kto |
@@ -62,6 +66,6 @@ Brak klucza, limit API, błąd, przekroczony czas (22 s, `DEFAULT_DEADLINE_MS`),
 
 ## Gdzie szukać w kodzie
 
-`src/input` wejście i maskowanie, `src/engine` potok i reguły, `src/llm` dostawcy modelu, `src/corpus` korpus, `src/live` druga warstwa, `src/server` WWW i API, `src/sms` adapter SMS, `src/render` teksty dla obywatela, `src/security` limit żądań i retencja, `src/obs` log i statystyki (`GET /api/stats`).
+`src/input` wejście i maskowanie, `src/engine` potok i reguły, `src/llm` dostawcy modelu, `src/corpus` korpus, `src/live` druga warstwa, `src/server` WWW i API, `src/sms` adapter SMS, `src/render` teksty dla obywatela, `src/security` limit żądań i retencja, `src/cases` sprawy urzędnika (pętla informacji), `src/server/clerk.ts` widok urzędnika, `src/obs` log i statystyki (`GET /api/stats`).
 
 Zależności zewnętrzne i jak je wymienić: [ZALEZNOSCI.md](ZALEZNOSCI.md). Modele: [MODELE.md](MODELE.md).

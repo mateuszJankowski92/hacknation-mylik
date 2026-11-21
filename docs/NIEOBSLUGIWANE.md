@@ -6,7 +6,7 @@ Stan na 21.11.2026. Ujawniamy to jury i obywatelom wprost. W każdym z tych przy
 |---|---|---|
 | **F. Obraz, zdjęcie, zrzut ekranu** | Brak. Interfejs i API przyjmują tylko tekst albo adres URL. Nie ma odczytu tekstu z obrazu ani wyszukiwania odwrotnego obrazu. Tekst ze zrzutu trzeba przepisać. | `src/contracts/api.ts` (`text` albo `url`) |
 | Dźwięk, wideo | Brak. | jw. |
-| **H. Pętla informacji** | Brak. Nierozstrzygnięte zgłoszenie nie tworzy sprawy moderatora i nic nie jest nikomu przekazywane. System też nie twierdzi, że przekazał. Liczby wstrzymań są w `GET /api/stats` i w logu zdarzeń. | `src/obs` |
+| **H. Pętla informacji** | Obsługiwana w warstwie serwera (nie jest już „nieobsługiwana”). Twierdzenie bez wystarczających dowodów tworzy lub aktualizuje sprawę (deduplikacja, licznik powtórzeń), którą widzi urzędnik pod `/urzednik` (token). Obywatel widzi „zapisano” albo, dopiero po oznaczeniu przez urzędnika, „przekazano”. **Ograniczenia:** nie wysyłamy e-maili ani powiadomień (jest licznik i miejsce na adres), deduplikacja jest prosta, zdanie o zapisaniu nie trafia do odpowiedzi SMS. | [PETLA_INFORMACJI.md](PETLA_INFORMACJI.md), `src/cases` |
 | URL za paywallem lub logowaniem | Nie obchodzimy zabezpieczeń. Odpowiedź 401/403 lub inna niż 2xx daje stan „brak możliwości wykonania sprawdzenia”. | `src/engine/fetch` (`status_http`) |
 | Strona wymagająca JavaScriptu, PDF, plik | Pobieramy tylko HTML i zwykły tekst. Inaczej ten sam stan (`zly_typ_tresci`, `pusta_tresc`). | `src/engine/fetch/index.ts` |
 | Adres lokalny, prywatny, nietypowy port | Odrzucany (ochrona SSRF). | `src/engine/fetch` |
