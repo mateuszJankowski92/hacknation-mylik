@@ -6,6 +6,7 @@ import {
 	type VerifyProgressEvent,
 } from '../../src/contracts/api';
 import type { VerificationRecord, VerifyOutcome } from '../../src/contracts/record';
+import type { LatestSourcesResponse, VerifyKeyResponse } from '../../src/server/extras';
 
 export const MAX_INPUT_LENGTH = 2000;
 export const REQUEST_TIMEOUT_MS = 45000;
@@ -107,11 +108,34 @@ export async function verifyContent(content: string, signal?: AbortSignal): Prom
 }
 
 export async function fetchRecord(id: string, signal?: AbortSignal): Promise<VerificationRecord> {
-	return requestJson<VerificationRecord>(`/api/records/${encodeURIComponent(id)}`, { method: 'GET' }, signal);
+	const record = await requestJson<VerificationRecord>(`/api/records/${encodeURIComponent(id)}`, { method: 'GET' }, signal);
+	if (!record || !Array.isArray(record.claims)) throw new ApiFailure('unexpected');
+	return record;
 }
 
 export async function fetchSources(signal?: AbortSignal): Promise<SourcesResponse> {
 	return requestJson<SourcesResponse>('/api/sources', { method: 'GET' }, signal);
+}
+
+export async function fetchRecordKey(content: string, signal?: AbortSignal): Promise<string | null> {
+	try {
+		const key = await requestJson<VerifyKeyResponse>(
+			'/api/verify/key',
+			{
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(buildVerifyBody(content)),
+			},
+			signal,
+		);
+		return typeof key?.recordId === 'string' && /^[0-9a-f]{64}$/.test(key.recordId) ? key.recordId : null;
+	} catch {
+		return null;
+	}
+}
+
+export async function fetchLatestSources(signal?: AbortSignal): Promise<LatestSourcesResponse> {
+	return requestJson<LatestSourcesResponse>('/api/sources/latest?limit=5', { method: 'GET' }, signal);
 }
 
 export const DEFAULT_ETA_SECONDS = 15;
@@ -226,4 +250,15 @@ export async function verifyContentStream(
 		clearTimeout(timer);
 		signal?.removeEventListener('abort', forwardAbort);
 	}
+}
+
+export function verifyWithFallback(
+	content: string,
+	onProgress: (event: VerifyProgressEvent) => void,
+	signal?: AbortSignal,
+): Promise<VerifyOutcome> {
+	return verifyContentStream(content, onProgress, signal).catch((error: unknown) => {
+		if (error instanceof ApiFailure && error.kind === 'not_found') return verifyContent(content, signal);
+		throw error;
+	});
 }

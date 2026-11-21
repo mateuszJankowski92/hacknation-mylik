@@ -10,10 +10,28 @@ afterEach(() => {
 	cleanup();
 	vi.unstubAllGlobals();
 	window.location.hash = '';
+	window.history.replaceState(null, '', '/');
+	window.localStorage.clear();
 });
 
+function callFor(fetchMock: ReturnType<typeof vi.fn>, path: string): [string, RequestInit] {
+	const call = fetchMock.mock.calls.find((item) => (item as unknown as [string])[0] === path);
+	if (!call) throw new Error(`Brak wywołania ${path}`);
+	return call as unknown as [string, RequestInit];
+}
+
 function mockFetchJson(status: number, body: unknown) {
-	const fetchMock = vi.fn(async () => new Response(JSON.stringify(body), { status }));
+	const fetchMock = vi.fn(async (path: string) => {
+		if (status === 200 && path === '/api/verify/key') return new Response(JSON.stringify({ recordId: null }), { status });
+		if (status === 200 && path.startsWith('/api/sources/latest')) {
+			return new Response(JSON.stringify({ corpusVersion: 'x', documents: [] }), { status });
+		}
+		const outcome = body as { kind?: string; record?: unknown };
+		if (status === 200 && path.startsWith('/api/records/') && outcome?.kind === 'record') {
+			return new Response(JSON.stringify(outcome.record), { status });
+		}
+		return new Response(JSON.stringify(body), { status });
+	});
 	vi.stubGlobal('fetch', fetchMock);
 	return fetchMock;
 }
@@ -87,9 +105,8 @@ describe('formularz', () => {
 		render(<App />);
 		fireEvent.change(screen.getByLabelText(/Wklej treść lub link/), { target: { value: ' https://przyklad.example/a?b=1 ' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-		const [path, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
-		expect(path).toBe('/api/verify/stream');
+		await waitFor(() => expect(fetchMock.mock.calls.some((c) => (c as unknown as [string])[0] === '/api/verify/stream')).toBe(true));
+		const [, init] = callFor(fetchMock, '/api/verify/stream');
 		expect(JSON.parse(init.body as string)).toEqual({ url: 'https://przyklad.example/a?b=1', channel: 'www' });
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
 	});
@@ -99,8 +116,8 @@ describe('formularz', () => {
 		render(<App />);
 		fireEvent.change(screen.getByLabelText(/Wklej treść lub link/), { target: { value: 'Zobacz https://przyklad.example i oceń' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-		const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+		await waitFor(() => expect(fetchMock.mock.calls.some((c) => (c as unknown as [string])[0] === '/api/verify/stream')).toBe(true));
+		const [, init] = callFor(fetchMock, '/api/verify/stream');
 		expect(JSON.parse(init.body as string)).toEqual({ text: 'Zobacz https://przyklad.example i oceń', channel: 'www' });
 	});
 
@@ -145,7 +162,7 @@ describe('strony', () => {
 		window.location.hash = '#/rekord/' + 'a'.repeat(64);
 		render(<App />);
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
-		expect((fetchMock.mock.calls[0] as unknown as [string])[0]).toBe('/api/records/' + 'a'.repeat(64));
+		expect(callFor(fetchMock, '/api/records/' + 'a'.repeat(64))).toBeTruthy();
 		expect(screen.getByText(/Numer sprawdzenia/)).toBeTruthy();
 	});
 

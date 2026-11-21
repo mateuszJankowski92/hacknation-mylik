@@ -265,3 +265,12 @@
 		animation: none;
 	}
 }
+
+.confidence__picture--scale {
+	width: 100%;
+	max-width: 16rem;
+}
+
+.confidence__empty-sentence {
+	margin: 0;
+}

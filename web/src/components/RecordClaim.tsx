@@ -8,6 +8,7 @@ import {
 import { buildResultLayout } from '../../../src/render/layout';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
+import { EmptyScale, EMPTY_SCALE_HEADING, EMPTY_SCALE_TITLE } from '../visuals/EmptyScale';
 import { ErrorDots } from '../visuals/ErrorDots';
 import './record.css';
 
@@ -131,6 +132,22 @@ function Refutation({ result }: { result: ClaimResult }) {
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
 
+export function emptyScaleSentence(result: ClaimResult): string {
+	const same = result.evidence.filter((item) => item.stance === 'potwierdza').length;
+	const other = result.evidence.filter((item) => item.stance === 'obala').length;
+	if (same === 0 && other === 0) {
+		return 'Nie znalazłem w sprawdzonych źródłach nic, co mówi to samo, ani nic, co mówi co innego.';
+	}
+	if (same > 0 && other > 0) {
+		return `Źródła mówią różne rzeczy: to samo ${same}, co innego ${other}. Dlatego nie da się ocenić, na ile to pewne.`;
+	}
+	return 'Znalazłem za mało, żeby ocenić, na ile to pewne.';
+}
+
+function isUnmeasurable(result: ClaimResult): boolean {
+	return result.verdict === 'brak_wystarczajacych_dowodow' || result.strength.level === 'brak';
+}
+
 export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: string }) {
 	const presentation = VERDICT_PRESENTATION[result.verdict];
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
@@ -140,6 +157,8 @@ export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: strin
 	if (result.abstainReason) limitations.unshift(result.abstainReason);
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
+	const unmeasurable = isUnmeasurable(result);
+	const certainty = unmeasurable && layout.certainty ? `${EMPTY_SCALE_TITLE}: ${EMPTY_SCALE_HEADING}` : layout.certainty;
 	const sourcesRef = useRef<HTMLDetailsElement>(null);
 
 	function showSources() {
@@ -164,7 +183,7 @@ export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: strin
 					<span className="visually-hidden">Ocena: </span>
 					<strong>{layout.label}</strong>
 				</p>
-				{layout.certainty && <p className="verdict__certainty">{layout.certainty}</p>}
+				{certainty && <p className="verdict__certainty">{certainty}</p>}
 			</div>
 
 			<p className="record-claim__asof">{layout.asOf}</p>
@@ -183,7 +202,8 @@ export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: strin
 				<h4>Co ustalił Mylik</h4>
 				<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
 				<p>{result.explanation}</p>
-				{layout.certainty && <ConfidenceGauge strength={result.strength} />}
+				{layout.certainty && unmeasurable && <EmptyScale sentence={emptyScaleSentence(result)} />}
+				{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
 				<Refutation result={result} />
 				{profile && profile.total > 0 && <ErrorDots profile={profile} />}
 			</section>

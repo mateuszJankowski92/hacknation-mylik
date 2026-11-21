@@ -1,12 +1,13 @@
 import type { VerificationRecord } from '../../../src/contracts/record';
 import { formatDateTime, shortId } from '../format';
+import { recordUrlPath } from '../route';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import './record.css';
 
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
-	const permalink = `#/rekord/${record.id}`;
+	const permalink = recordUrlPath(record.id);
 
 	return (
 		<div className="record">

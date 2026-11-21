@@ -1,6 +1,7 @@
 import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
+import { Link } from './components/Link';
 import { useRoute } from './route';
 
 export function App() {
@@ -18,12 +19,12 @@ export function App() {
 				<h1>Mylik</h1>
 				<p>Pokazuję, co o danej informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
 				<nav aria-label="Główna nawigacja">
-					<a href="#/" aria-current={route.page === 'check' ? 'page' : undefined}>
+					<Link to="/" aria-current={route.page === 'check' ? 'page' : undefined}>
 						Sprawdź informację
-					</a>
-					<a href="#/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
+					</Link>
+					<Link to="/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
 						Źródła
-					</a>
+					</Link>
 				</nav>
 			</header>
 			<main id="main" tabIndex={-1}>

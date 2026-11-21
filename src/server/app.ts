@@ -7,6 +7,7 @@ import { createStatsApp, requestLogger, type LogEventFn } from '../obs/index';
 import { RATE_LIMIT_MESSAGE_PL, rateLimit } from '../security/index';
 import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
 import { serverError } from './errors';
+import { registerExtraRoutes } from './extras';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
 import { registerStreamRoutes } from './stream';
@@ -112,6 +113,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/', createSmsApp({ engine: deps.engine, logEvent: deps.logEventSms ?? deps.logEvent }));
 
   registerStreamRoutes(app, deps);
+  registerExtraRoutes(app, deps);
   registerApiRoutes(app, deps);
 
   const serveStatic = createStaticHandler(deps.distDir);
