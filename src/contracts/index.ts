@@ -4,5 +4,6 @@ export * from './claim';
 export * from './llm';
 export * from './search';
 export * from './record';
+export * from './record-key';
 export * from './api';
 export * from './modules';

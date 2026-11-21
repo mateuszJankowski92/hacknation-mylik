@@ -2,7 +2,7 @@
 // POST /api/verify/key  - identyfikator rekordu znany przed pracą modelu (tylko dla tekstu),
 // GET  /api/sources/latest - kilka najświeższych dokumentów korpusu (bez list pytań użytkowników).
 import type { Hono } from 'hono';
-import { computeRecordKey } from '../contracts/record';
+import { computeRecordKey } from '../contracts/record-key';
 import type { SourceMeta, SourceType } from '../contracts/index';
 import { prepareInput } from '../input/index';
 import { parseVerifyRequest, verifyBodyLimit, type RouteDeps } from './routes';
