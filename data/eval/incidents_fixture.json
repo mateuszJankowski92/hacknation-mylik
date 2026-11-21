@@ -1,0 +1,23 @@
+{
+  "description": "Mała baza incydentów tylko dla scenariusza I zestawu testowego. Wpisy streszczają dokumenty korpusu (publikacje z URL poniżej). Nie jest to baza MSZ i nie jest używana przez serwer.",
+  "incidents": [
+    {
+      "id": "eval-inc-1",
+      "title": "Rosyjska dezinformacja łącząca sprawcę zamachu w Krakowie z Ukrainą",
+      "description": "Rosyjskie i prorosyjskie źródła próbowały powiązać sprawcę zamachu w Krakowie z 7 listopada 2026 r. z Ukrainą, mimo że był obywatelem Polski.",
+      "date": "2026-11-10",
+      "country": "Polska",
+      "keywords": ["zamach", "Kraków", "Ukraina", "sprawca", "zamachowiec"],
+      "url": "https://konkret24.tvn24.pl/polska/ludzi-w-krakowie-zastrzelil-wielbiciel-ukrainy-rosyjska-dezinformacja-w-akcji-st9329687"
+    },
+    {
+      "id": "eval-inc-2",
+      "title": "Fałszywe SMS-y o mandatach podszywające się pod Policję",
+      "description": "Kampania SMS z linkiem do fałszywej strony płatności mandatu, podszywająca się pod jednostki Policji.",
+      "date": "2026-11-12",
+      "country": "Polska",
+      "keywords": ["mandat", "SMS", "Policja", "oszustwo"],
+      "url": "https://moje.cert.pl/komunikaty/2026/212/uwaga-na-falszywe-sms-y-o-mandatach-oszusci-podszywaja-sie-pod-policje/"
+    }
+  ]
+}
