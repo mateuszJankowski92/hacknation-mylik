@@ -1,40 +1,36 @@
+import { useRef } from 'react';
 import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import {
 	MISMATCH_LABELS_PL,
 	STRENGTH_LABELS_PL,
 	STRENGTH_REASON_LABELS_PL,
-	VERDICT_LABELS_PL,
 	type Verdict,
 } from '../../../src/contracts/verdict';
+import { buildResultLayout } from '../../../src/render/layout';
 import { formatDate } from '../format';
 import './record.css';
 
-const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string; meaning: string }> = {
+const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
 	potwierdzone: {
 		icon: '✔',
 		tone: 'ok',
-		meaning: 'Źródła w zbiorze zgadzają się z tym twierdzeniem i żadne mu nie przeczy.',
 	},
 	falszywe: {
 		icon: '✘',
 		tone: 'danger',
-		meaning: 'Źródła w zbiorze przeczą temu twierdzeniu i żadne go nie potwierdza.',
 	},
 	wprowadzajace_w_blad: {
 		icon: '▲',
 		tone: 'warn',
-		meaning: 'Źródła potwierdzają część twierdzenia, ale pomija ono ważny kontekst.',
 	},
 	brak_wystarczajacych_dowodow: {
 		icon: '?',
 		tone: 'info',
-		meaning: 'W zbiorze źródeł nie ma dość informacji, żeby to ocenić. Nie zgaduję.',
 	},
 	nie_podlega_weryfikacji: {
 		icon: '○',
 		tone: 'neutral',
-		meaning: 'To opinia albo prognoza. Nie da się jej sprawdzić w źródłach.',
 	},
 };
 
@@ -133,7 +129,9 @@ function Refutation({ result }: { result: ClaimResult }) {
 	);
 }
 
-export function RecordClaim({ result, asOfLabel }: { result: ClaimResult; asOfLabel: string }) {
+const WEB_HEADLINE_QUOTE_CHARS = 300;
+
+export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: string }) {
 	const presentation = VERDICT_PRESENTATION[result.verdict];
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
@@ -141,12 +139,21 @@ export function RecordClaim({ result, asOfLabel }: { result: ClaimResult; asOfLa
 	const limitations = [...result.limitations];
 	if (result.abstainReason) limitations.unshift(result.abstainReason);
 	const profile = result.errorProfile;
+	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
+	const sourcesRef = useRef<HTMLDetailsElement>(null);
+
+	function showSources() {
+		const details = sourcesRef.current;
+		if (!details) return;
+		details.open = true;
+		details.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
+		details.querySelector('summary')?.focus();
+	}
 
 	return (
 		<article className="record-claim" aria-labelledby={headingId}>
-			<h3 id={headingId} className="record-claim__claim">
-				<span className="record-claim__label">Sprawdzane twierdzenie</span>
-				<q>{result.claim.text}</q>
+			<h3 id={headingId} className="record-claim__headline">
+				{layout.headline}
 			</h3>
 
 			<div className={`verdict verdict--${presentation.tone}`}>
@@ -155,11 +162,22 @@ export function RecordClaim({ result, asOfLabel }: { result: ClaimResult; asOfLa
 						{presentation.icon}
 					</span>
 					<span className="visually-hidden">Ocena: </span>
-					<strong>{VERDICT_LABELS_PL[result.verdict]}</strong>
+					<strong>{layout.label}</strong>
 				</p>
-				<p className="verdict__abstain">{presentation.meaning}</p>
-				<p className="verdict__abstain">{asOfLabel}</p>
+				{layout.certainty && <p className="verdict__certainty">{layout.certainty}</p>}
 			</div>
+
+			<p className="record-claim__asof">{layout.asOf}</p>
+			<p className="record-claim__evidence-link">
+				<button type="button" onClick={showSources}>
+					{layout.evidenceLink}
+				</button>
+			</p>
+
+			<p className="record-claim__claim">
+				<span className="record-claim__label">Sprawdzane twierdzenie: </span>
+				<q>{result.claim.text}</q>
+			</p>
 
 			<section className="record-claim__mylik" aria-label="Ocena Mylika">
 				<h4>Co ustalił Mylik</h4>
@@ -184,8 +202,8 @@ export function RecordClaim({ result, asOfLabel }: { result: ClaimResult; asOfLa
 				)}
 			</section>
 
-			<section className="record-claim__sources" aria-label="Co mówią źródła">
-				<h4>Co mówią źródła</h4>
+			<details className="record-claim__sources" ref={sourcesRef}>
+				<summary>Co mówią źródła</summary>
 				<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
 				{groups.length === 0 && <p>Nie mam żadnego cytatu ze źródeł do tego twierdzenia.</p>}
 				{groups.map((group) => (
@@ -198,7 +216,7 @@ export function RecordClaim({ result, asOfLabel }: { result: ClaimResult; asOfLa
 						</ul>
 					</div>
 				))}
-			</section>
+			</details>
 
 			{(limitations.length > 0 || isAbstain) && (
 				<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">

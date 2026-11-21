@@ -1,6 +1,8 @@
-# MYLIK
+# Mylik
 
-Prototyp weryfikacji doniesień (zadanie PRAWDOWID, HackNation 2026). Obywatel wysyła tekst lub adres URL, a system sprawdza twierdzenia w zamkniętym, wersjonowanym korpusie źródeł i odpowiada po polsku: werdykt, uzasadnienie, siła podstawy i cytaty ze źródeł albo uczciwe wstrzymanie się. MYLIK nie jest „sędzią prawdy”.
+Zespół: Iteracja7.
+
+Prototyp weryfikacji doniesień (HackNation 2026). Obywatel wysyła tekst lub adres URL, a system sprawdza twierdzenia w zamkniętym, wersjonowanym korpusie źródeł i odpowiada po polsku: werdykt, uzasadnienie, siła podstawy i cytaty ze źródeł albo uczciwe wstrzymanie się. Mylik nie jest „sędzią prawdy”.
 
 ## Uruchomienie krok po kroku
 

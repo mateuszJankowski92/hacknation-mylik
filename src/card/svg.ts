@@ -1,11 +1,11 @@
 import {
-	VERDICT_LABELS_PL,
 	type ClaimResult,
 	type EvidenceItem,
 	type Verdict,
 	type VerificationRecord,
 } from '../contracts/index';
-import { VERDICT_SENTENCES, asOfSentence, formatDate } from '../render/templates';
+import { EVIDENCE_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
+import { asOfStamp, formatDate } from '../render/templates';
 
 export const CARD_WIDTH = 1200;
 export const CARD_HEIGHT = 630;
@@ -30,7 +30,6 @@ const PAGE = '#ffffff';
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 const MAX_CLAIM_CHARS = 170;
-const MAX_QUOTE_CHARS = 260;
 
 const XML_ESCAPES: Record<string, string> = {
 	'&': '&amp;',
@@ -73,20 +72,8 @@ export function wrapText(text: string, maxChars: number, maxLines: number): stri
 	return kept;
 }
 
-const PREFERRED_STANCES: Record<Verdict, EvidenceItem['stance'][]> = {
-	potwierdzone: ['potwierdza'],
-	falszywe: ['obala'],
-	wprowadzajace_w_blad: ['rozbieznosc_kontekstu', 'kontekst'],
-	brak_wystarczajacych_dowodow: [],
-	nie_podlega_weryfikacji: [],
-};
-
 export function pickCardEvidence(claim: ClaimResult): EvidenceItem | undefined {
-	for (const stance of PREFERRED_STANCES[claim.verdict]) {
-		const found = claim.evidence.find((item) => item.stance === stance);
-		if (found) return found;
-	}
-	return undefined;
+	return pickLayoutEvidence(claim);
 }
 
 function sourceLine(item: EvidenceItem): string {
@@ -94,12 +81,6 @@ function sourceLine(item: EvidenceItem): string {
 	const date = item.source.publishedAt ? formatDate(item.source.publishedAt) : 'bez daty publikacji';
 	const title = item.source.title.trim();
 	return truncate(title ? `${name}, ${title}, ${date}` : `${name}, ${date}`, 120);
-}
-
-function verdictSentence(claim: ClaimResult, item: EvidenceItem | undefined): string {
-	const publisher = item ? truncate(item.source.publisher || item.source.domain || 'Źródło', 50) : 'Źródło';
-	const date = item?.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty publikacji';
-	return VERDICT_SENTENCES[claim.verdict](publisher, date);
 }
 
 export interface CardOptions {
@@ -123,63 +104,87 @@ function textLines(
 	return `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" ${extra}>${spans}</text>`;
 }
 
+export const CARD_FONT_SIZES = {
+	headline: 42,
+	label: 24,
+	certainty: 24,
+	detail: 20,
+	footer: 20,
+} as const;
+
+const HEADLINE_CHARS = 46;
+const HEADLINE_LINES = 4;
+const HEADLINE_QUOTE_CHARS = 150;
+const LABEL_CHAR_WIDTH = 14;
+
 export function renderCardSvg(record: VerificationRecord, options: CardOptions): string {
 	const index = Math.min(Math.max(options.claimIndex ?? 0, 0), Math.max(record.claims.length - 1, 0));
 	const claim = record.claims[index];
-	const stamp = asOfSentence(record.asOf);
-	const address = truncate(options.cardUrl, 120);
+	const address = truncate(options.cardUrl, 110);
 	const parts: string[] = [];
-	const label = claim ? VERDICT_LABELS_PL[claim.verdict] : 'brak twierdzenia do oceny';
 	const palette = claim ? VERDICT_PALETTE[claim.verdict] : VERDICT_PALETTE.nie_podlega_weryfikacji;
 	const item = claim ? pickCardEvidence(claim) : undefined;
-
-	const claimText = claim ? truncate(claim.claim.text, MAX_CLAIM_CHARS) : 'Nie znalazłem w zgłoszeniu twierdzenia do sprawdzenia.';
-	const sentence = claim ? verdictSentence(claim, item) : 'Nie ma tu nic do oceny.';
-	const quoteText = item ? truncate(item.quote, MAX_QUOTE_CHARS) : '';
-	const countNote =
-		record.claims.length > 1 ? ` To twierdzenie ${index + 1} z ${record.claims.length}.` : '';
+	const layout = claim
+		? buildResultLayout(claim, record.asOf, { publisher: 50, quote: HEADLINE_QUOTE_CHARS })
+		: {
+				headline: 'Nie znalazłem w zgłoszeniu nic do sprawdzenia.',
+				label: 'brak twierdzenia do oceny',
+				certainty: null,
+				asOf: asOfStamp(record.asOf),
+				evidenceLink: EVIDENCE_LINK_TEXT,
+			};
+	const claimText = claim ? truncate(claim.claim.text, MAX_CLAIM_CHARS) : '';
+	const countNote = record.claims.length > 1 ? ` To twierdzenie ${index + 1} z ${record.claims.length}.` : '';
+	const chipText = `${palette.icon} ${layout.label}`;
+	const chipWidth = Math.min(1104, Math.round(chipText.length * LABEL_CHAR_WIDTH + 40));
+	const certaintyX = 48 + chipWidth + 24;
 
 	parts.push(
 		`<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}" role="img" aria-labelledby="card-title card-desc" font-family="${escapeXml(FONT)}">`,
 	);
-	parts.push(`<title id="card-title">${escapeXml(`Mylik: ${label}`)}</title>`);
+	parts.push(`<title id="card-title">${escapeXml(`Mylik: ${layout.label}`)}</title>`);
 	parts.push(
-		`<desc id="card-desc">${escapeXml(`Twierdzenie: ${claimText}. ${sentence} ${stamp}`)}</desc>`,
+		`<desc id="card-desc">${escapeXml(`${layout.headline} Ocena: ${layout.label}.${layout.certainty ? ` ${layout.certainty}.` : ''} ${layout.asOf}`)}</desc>`,
 	);
 	parts.push(`<rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="${PAGE}"/>`);
 	parts.push(`<rect x="8" y="8" width="${CARD_WIDTH - 16}" height="${CARD_HEIGHT - 16}" rx="18" fill="none" stroke="${palette.fg}" stroke-width="4"/>`);
 
-	parts.push(`<rect x="40" y="36" width="1120" height="128" rx="14" fill="${palette.bg}" stroke="${palette.fg}" stroke-width="3"/>`);
 	parts.push(
-		`<text x="68" y="104" font-size="52" font-weight="700" fill="${palette.fg}">${escapeXml(`${palette.icon} ${label}`)}</text>`,
+		textLines(
+			wrapText(layout.headline, HEADLINE_CHARS, HEADLINE_LINES),
+			48,
+			96,
+			CARD_FONT_SIZES.headline,
+			54,
+			TEXT,
+			'font-weight="700"',
+		),
 	);
-	parts.push(textLines(wrapText(sentence, 88, 1), 68, 142, 24, 30, palette.fg));
 
-	parts.push(`<text x="48" y="204" font-size="22" fill="${MUTED}">Sprawdzane twierdzenie</text>`);
-	parts.push(textLines(wrapText(`„${claimText}”`, 70, 3), 48, 244, 32, 40, TEXT, 'font-weight="600"'));
-
-	if (item) {
-		parts.push(`<line x1="48" y1="372" x2="1152" y2="372" stroke="${MUTED}" stroke-width="1"/>`);
-		parts.push(`<text x="48" y="404" font-size="22" fill="${MUTED}">Tak pisze źródło (cytat bez zmian)</text>`);
-		parts.push(textLines(wrapText(`„${quoteText}”`, 88, 3), 48, 440, 26, 34, TEXT, 'font-style="italic"'));
-		parts.push(textLines(wrapText(`Źródło: ${sourceLine(item)}`, 100, 1), 48, 534, 22, 28, MUTED));
-	} else {
-		parts.push(`<line x1="48" y1="372" x2="1152" y2="372" stroke="${MUTED}" stroke-width="1"/>`);
+	parts.push(`<rect x="48" y="326" width="${chipWidth}" height="46" rx="23" fill="${palette.bg}" stroke="${palette.fg}" stroke-width="2"/>`);
+	parts.push(
+		`<text x="68" y="358" font-size="${CARD_FONT_SIZES.label}" font-weight="600" fill="${palette.fg}">${escapeXml(chipText)}</text>`,
+	);
+	if (layout.certainty) {
 		parts.push(
-			textLines(
-				wrapText('Nie mam tu cytatu ze źródła, który rozstrzyga sprawę. Nie zgaduję odpowiedzi.', 80, 2),
-				48,
-				420,
-				26,
-				34,
-				TEXT,
-			),
+			`<text x="${certaintyX}" y="358" font-size="${CARD_FONT_SIZES.certainty}" fill="${TEXT}">${escapeXml(layout.certainty)}</text>`,
 		);
 	}
 
-	parts.push(`<line x1="48" y1="556" x2="1152" y2="556" stroke="${MUTED}" stroke-width="1"/>`);
-	parts.push(textLines(wrapText(`${stamp}${countNote}`, 110, 1), 48, 584, 20, 26, MUTED));
-	parts.push(textLines([`Karta: ${address}`], 48, 612, 18, 24, MUTED));
+	if (claimText) {
+		parts.push(
+			textLines(wrapText(`Sprawdzane twierdzenie: „${claimText}”`, 100, 2), 48, 416, CARD_FONT_SIZES.detail, 28, MUTED),
+		);
+	}
+	if (item) {
+		parts.push(textLines(wrapText(`Źródło: ${sourceLine(item)}`, 100, 2), 48, 484, CARD_FONT_SIZES.detail, 28, MUTED));
+	}
+
+	parts.push(`<line x1="48" y1="540" x2="1152" y2="540" stroke="${MUTED}" stroke-width="1"/>`);
+	parts.push(textLines(wrapText(`${layout.asOf}${countNote}`, 100, 1), 48, 572, CARD_FONT_SIZES.footer, 26, TEXT));
+	parts.push(
+		textLines([`${layout.evidenceLink}: ${address}`], 48, 604, CARD_FONT_SIZES.footer, 26, MUTED),
+	);
 	parts.push('</svg>');
 	return parts.filter(Boolean).join('\n');
 }

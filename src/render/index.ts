@@ -12,17 +12,22 @@ import {
 import {
 	VERDICT_SENTENCES,
 	asOfSentence,
+	asOfStamp,
 	formatDate,
 	nSources,
 	pluralPl,
 	strengthSentence,
 } from './templates';
-import { STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
+import { buildResultLayout } from './layout';
+import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 
+export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, pickLayoutEvidence, type ResultLayout } from './layout';
 export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measureLanguage } from './metrics';
 
 const MAX_PUBLISHER_CHARS = 60;
 const MIN_PUBLISHER_CHARS = 12;
+const MAX_SMS_QUOTE_CHARS = 140;
+const MIN_SMS_QUOTE_CHARS = 20;
 
 function toIso(asOf: string | Date | undefined): string {
 	if (asOf === undefined) return new Date().toISOString();
@@ -38,34 +43,8 @@ function dateOf(item: EvidenceItem): string {
 	return item.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty publikacji';
 }
 
-function evidenceFor(claim: ClaimResult): EvidenceItem | undefined {
-	const wanted =
-		claim.verdict === 'falszywe' ? 'obala' : claim.verdict === 'wprowadzajace_w_blad' ? 'rozbieznosc_kontekstu' : 'potwierdza';
-	return (
-		claim.evidence.find((e) => e.stance === wanted) ??
-		claim.evidence.find((e) => e.stance === 'kontekst') ??
-		claim.evidence[0]
-	);
-}
-
 function leadClaim(record: VerificationRecord): ClaimResult | undefined {
 	return record.claims.find((c) => c.claim.kind === 'faktograficzna') ?? record.claims[0];
-}
-
-function sourceSentence(claim: ClaimResult, publisherLimit: number): string {
-	const verdict: Verdict = claim.verdict;
-	if (verdict === 'nie_podlega_weryfikacji') return '';
-	if (verdict === 'brak_wystarczajacych_dowodow') {
-		const confirming = claim.evidence.find((e) => e.stance === 'potwierdza');
-		const refuting = claim.evidence.find((e) => e.stance === 'obala');
-		if (confirming && refuting) {
-			return `${publisherName(confirming, publisherLimit)} i ${publisherName(refuting, publisherLimit)} podają sprzeczne informacje.`;
-		}
-		return '';
-	}
-	const item = evidenceFor(claim);
-	if (!item) return VERDICT_SENTENCES[verdict]('Źródło', 'bez daty');
-	return VERDICT_SENTENCES[verdict](publisherName(item, publisherLimit), dateOf(item));
 }
 
 function join(...parts: string[]): string {
@@ -74,24 +53,28 @@ function join(...parts: string[]): string {
 
 export function renderShortAnswer(record: VerificationRecord, cardUrl: string): string {
 	const lead = leadClaim(record);
-	const asOf = asOfSentence(record.asOf);
-	const tail = `Pełna karta: ${cardUrl}`;
+	const asOf = asOfStamp(record.asOf);
+	const tail = `${EVIDENCE_LINK_TEXT}: ${cardUrl}`;
 	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 
-	const label = `Wynik: ${VERDICT_LABELS_PL[lead.verdict]}.`;
-	const meaning = VERDICT_EXPLANATIONS_PL[lead.verdict];
 	const count = record.claims.length;
 	const extra =
 		count > 1
 			? `Sprawdziłem ${count} ${pluralPl(count, 'twierdzenie', 'twierdzenia', 'twierdzeń')}. Tu pierwsze.`
 			: '';
-	for (let limit = MAX_PUBLISHER_CHARS; limit >= MIN_PUBLISHER_CHARS; limit -= 12) {
-		const text = join(label, meaning, sourceSentence(lead, limit), extra, asOf, tail);
+	for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
+		const layout = buildResultLayout(lead, record.asOf, {
+			publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
+			quote,
+		});
+		const certainty = layout.certainty ? `${layout.certainty}.` : '';
+		const text = join(layout.headline, `[${layout.label}]`, certainty, extra, layout.asOf, tail);
 		if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
 	}
-	const compact = join(label, meaning, asOf, tail);
+	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 });
+	const compact = join(VERDICT_EXPLANATIONS_PL[lead.verdict], `[${layout.label}]`, layout.asOf, tail);
 	if (compact.length <= SHORT_ANSWER_MAX_CHARS) return compact;
-	return join(label, asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
+	return join(`[${layout.label}]`, layout.asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 }
 
 export function renderExplanation(claim: ClaimResult, asOf?: string | Date): string {
@@ -115,12 +98,15 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 			parts.push('Nie znalazłem źródła, które to potwierdza.');
 			break;
 		case 'wprowadzajace_w_blad': {
-			parts.push('Źródła potwierdzają główną część twierdzenia. Pomija ono jednak ważny kontekst.');
-			const item = contextual[0];
+			// Reguła: ten wynik daje tylko źródło opisujące to samo w innych okolicznościach
+			// (stanowisko rozbieznosc_kontekstu), bez źródeł potwierdzających i przeczących.
+			parts.push('Źródło opisuje to samo zdarzenie, ale w innych okolicznościach.');
+			const item = claim.evidence.find((e) => e.stance === 'rozbieznosc_kontekstu') ?? contextual[0];
 			if (item) {
-				const kind = item.mismatch ? ` (${MISMATCH_LABELS_PL[item.mismatch]})` : '';
-				parts.push(`${publisherName(item)} podaje ${dateOf(item)} ten kontekst${kind}.`);
+				const kind = item.mismatch ? `: ${MISMATCH_LABELS_PL[item.mismatch]}` : '';
+				parts.push(`${publisherName(item)} podaje ${dateOf(item)} inne okoliczności${kind}.`);
 			}
+			parts.push('Wiadomość przenosi prawdziwą informację w inne okoliczności.');
 			break;
 		}
 		case 'brak_wystarczajacych_dowodow':
@@ -191,7 +177,7 @@ export function renderNotices(input: NoticeInput): Notice[] {
 				seen.add(`d:${item.passageId}`);
 				notices.push({
 					type: 'dopasowanie_incydentu',
-					text: `${who} opisuje to samo zdarzenie w innym kontekście (${MISMATCH_LABELS_PL[item.mismatch]}). ${stamp}`,
+					text: `${who} opisuje to samo, ale w innych okolicznościach (${MISMATCH_LABELS_PL[item.mismatch]}). ${stamp}`,
 					passageId: item.passageId,
 				});
 			}

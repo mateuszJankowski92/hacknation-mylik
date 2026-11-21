@@ -3,15 +3,17 @@ import type { State, StrengthLevel, StrengthReasonCode, Verdict } from '../contr
 export const VERDICT_EXPLANATIONS_PL: Record<Verdict, string> = {
 	potwierdzone: 'Sprawdzone źródła mówią to samo i żadne temu nie przeczy.',
 	falszywe: 'Sprawdzone źródła mówią co innego niż to twierdzenie.',
-	wprowadzajace_w_blad: 'Część twierdzenia zgadza się ze źródłami, ale brakuje ważnej informacji.',
+	wprowadzajace_w_blad: 'Źródło opisuje to samo, ale w innych okolicznościach niż w tej wiadomości.',
 	brak_wystarczajacych_dowodow: 'Nie znalazłem tego w sprawdzonych źródłach. Nie wiem, czy to prawda.',
 	nie_podlega_weryfikacji: 'To opinia albo przewidywanie, więc nie sprawdzam jej w źródłach.',
 };
 
 export const STRENGTH_TITLE_PL = 'Na ile to pewne';
 
+export const EVIDENCE_LINK_TEXT = 'Zobacz, skąd to wiem';
+
 export const STRENGTH_PLAIN_PL: Record<StrengthLevel, string> = {
-	wysoka: 'bardzo',
+	wysoka: 'dużo',
 	srednia: 'średnio',
 	niska: 'mało',
 	brak: 'wcale',

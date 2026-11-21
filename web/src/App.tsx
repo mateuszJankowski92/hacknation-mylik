@@ -15,7 +15,7 @@ export function App() {
 				<strong>Prototyp.</strong> To wczesna wersja próbna, wyniki mogą mieć braki.
 			</div>
 			<header className="site-header">
-				<h1>MYLIK</h1>
+				<h1>Mylik</h1>
 				<p>Pokazuję, co o danej informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
 				<nav aria-label="Główna nawigacja">
 					<a href="#/" aria-current={route.page === 'check' ? 'page' : undefined}>

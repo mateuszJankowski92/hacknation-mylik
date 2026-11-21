@@ -18,6 +18,8 @@ import {
 	renderShortAnswer,
 	renderStateMessage,
 } from '../../src/render/index';
+import { asOfStamp } from '../../src/render/templates';
+import { buildHeadline } from '../../src/render/layout';
 import { VERDICT_SENTENCES, strengthSentence } from '../../src/render/templates';
 import {
 	REASON_PLAIN_PL,
@@ -138,12 +140,12 @@ describe('render', () => {
 		for (const c of [...SCENARIOS, claim('potwierdzone', [long])]) {
 			const text = renderShortAnswer(record([c, c, c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
 			expect(text.length).toBeLessThanOrEqual(SHORT_ANSWER_MAX_CHARS);
-			expect(text).toContain('Wynik:');
-			expect(text).toContain('Stan na 21.11.2026');
-			expect(text).toContain('Pełna karta: https://mylik.pl/karta/');
+			expect(text).toContain(`[${VERDICT_LABELS_PL[c.verdict]}]`);
+			expect(text).toContain('Stan na 21.11.2026, 12:00.');
+			expect(text).toContain('Zobacz, skąd to wiem: https://mylik.pl/karta/');
 		}
 		const text = renderShortAnswer(record([SCENARIOS[0]!]), 'https://mylik.pl/k/1');
-		expect(text).toContain('Rządowe Centrum Bezpieczeństwa podaje 20.11.2026');
+		expect(text).toContain('Rządowe Centrum Bezpieczeństwa podał 20.11.2026 to samo: „Cytat, który jest nietykalny i był dosłowny.”');
 	});
 
 	it('komunikaty stanów i uzasadnienia są różne i niepuste', () => {
@@ -220,10 +222,49 @@ describe('prosty język', () => {
 		}
 		for (const c of SCENARIOS) {
 			const text = renderShortAnswer(record([c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
-			expect(text).toContain(VERDICT_EXPLANATIONS_PL[c.verdict]);
+			expect(text).toContain(buildHeadline(c, { publisher: 30, quote: 60 }).split(':')[0]!);
 		}
 		expect(VERDICT_EXPLANATIONS_PL.brak_wystarczajacych_dowodow).toBe(
 			'Nie znalazłem tego w sprawdzonych źródłach. Nie wiem, czy to prawda.',
 		);
+	});
+});
+
+describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
+	const URL = 'https://mylik.pl/k/abc';
+	const text = (c: ClaimResult) => renderShortAnswer(record([c]), URL);
+
+	it('SMS: zdanie główne, potem mała etykieta, pewność, data i odsyłacz', () => {
+		for (const c of SCENARIOS.filter((x) => x.verdict !== 'nie_podlega_weryfikacji')) {
+			const t = text(c);
+			const order = [
+				t.indexOf(c.verdict === 'brak_wystarczajacych_dowodow' ? 'Nie ' : 'podał'),
+				t.indexOf(`[${VERDICT_LABELS_PL[c.verdict]}]`),
+				t.indexOf('Na ile to pewne: średnio'),
+				t.indexOf('Stan na'),
+				t.indexOf('Zobacz, skąd to wiem'),
+			];
+			expect(order.every((i) => i >= 0), t).toBe(true);
+			expect([...order].sort((a, b) => a - b), t).toEqual(order);
+		}
+	});
+
+	it('trzy przykładowe odpowiedzi mają zdanie relacjonujące źródło i cytat bez zmian', () => {
+		expect(text(SCENARIOS[0]!)).toMatch(/^Rządowe Centrum Bezpieczeństwa podał 20\.11\.2026 to samo: „/);
+		expect(text(SCENARIOS[1]!)).toMatch(/^Rządowe Centrum Bezpieczeństwa podał 20\.11\.2026 co innego: „/);
+		expect(text(SCENARIOS[3]!)).toMatch(/^Nie znalazłem tego w sprawdzonych źródłach\. Nie wiem, czy to prawda\. \[brak wystarczających dowodów\]/);
+	});
+
+	it('opinia nie dostaje pewności', () => {
+		expect(text(SCENARIOS[6]!)).not.toContain('Na ile to pewne');
+	});
+
+	it('nie wpisuje przykładu wzorca z briefu jako treści', () => {
+		for (const c of SCENARIOS) expect(text(c)).not.toMatch(/GIS|Bydgoszcz/);
+	});
+
+	it('etykieta w stanie na zawiera godzinę w czasie polskim', () => {
+		expect(asOfStamp('2026-11-21T11:05:00Z')).toBe('Stan na 21.11.2026, 12:05.');
+		expect(asOfStamp('2026-11-21')).toBe('Stan na 21.11.2026.');
 	});
 });

@@ -8,14 +8,57 @@
 	background: var(--surface);
 }
 
-.record-claim__claim {
-	margin-top: 0;
+.record-claim__headline {
+	margin: 0 0 0.75rem;
+	font-size: 1.7rem;
+	font-weight: 700;
+	line-height: 1.3;
 }
 
-.record-claim__label {
-	display: block;
-	font-size: 0.85rem;
-	font-weight: 400;
+.record-claim .verdict {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.25rem 1rem;
+	margin: 0 0 0.5rem;
+	padding: 0.25rem 0.75rem;
+	border-width: 2px;
+}
+
+.record-claim .verdict__label {
+	font-size: 0.9rem;
+}
+
+.record-claim .verdict__certainty {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--text);
+}
+
+.record-claim__asof {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.record-claim__evidence-link {
+	margin: 0.25rem 0 1rem;
+}
+
+.record-claim__evidence-link button {
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--link);
+	font: inherit;
+	font-size: 0.95rem;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.record-claim__claim {
+	margin: 0;
+	font-size: 0.9rem;
 	color: var(--muted);
 }
 
@@ -28,9 +71,13 @@
 	color: var(--info-fg);
 }
 
-.record-claim__mylik h4,
-.record-claim__sources h4 {
+.record-claim__mylik h4 {
 	margin-top: 0;
+}
+
+.record-claim__sources summary {
+	font-weight: 700;
+	cursor: pointer;
 }
 
 .record-claim__note {

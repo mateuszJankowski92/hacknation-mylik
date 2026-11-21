@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { VERDICT_LABELS_PL, VERDICTS } from '../../../src/contracts/verdict';
@@ -19,8 +22,9 @@ describe('RecordView', () => {
 		it(`pokazuje etykietę z objaśnieniem i datą: ${verdict}`, () => {
 			const { container } = render(<RecordView record={record(verdict)} />);
 			expect(screen.getByText(VERDICT_LABELS_PL[verdict])).toBeTruthy();
-			expect(container.querySelector('.verdict__abstain')).not.toBeNull();
-			expect(screen.getAllByText('Stan na 10 stycznia 2026.').length).toBeGreaterThan(0);
+			expect(container.querySelector('.record-claim__headline')?.textContent?.length).toBeGreaterThan(10);
+			expect(container.querySelector('.verdict__certainty') !== null).toBe(verdict !== 'nie_podlega_weryfikacji');
+			expect(screen.getAllByText('Stan na 10.01.2026, 09:30.').length).toBeGreaterThan(0);
 		});
 	}
 
@@ -70,6 +74,41 @@ describe('RecordView', () => {
 		expect(container.querySelector('blockquote')).toBeNull();
 	});
 
+	it('układ: zdanie główne, mała etykieta, pewność, data i odsyłacz w tej kolejności', () => {
+		const { container } = render(<RecordView record={record('falszywe')} />);
+		const order = ['.record-claim__headline', '.verdict__label', '.verdict__certainty', '.record-claim__asof', '.record-claim__evidence-link']
+			.map((selector) => container.querySelector(selector));
+		expect(order.every(Boolean)).toBe(true);
+		for (let i = 1; i < order.length; i++) {
+			expect(order[i - 1]!.compareDocumentPosition(order[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+		}
+		expect(container.querySelector('.record-claim__headline')?.textContent).toMatch(/podał .* co innego: „/);
+		expect(screen.getByText('Na ile to pewne: średnio')).toBeTruthy();
+		expect(container.querySelector('.verdict__label')?.closest('h1,h2,h3,h4,h5,h6')).toBeNull();
+	});
+
+	it('odsyłacz "Zobacz, skąd to wiem" otwiera źródła', () => {
+		const { container } = render(<RecordView record={record('potwierdzone')} />);
+		const details = container.querySelector('details.record-claim__sources') as HTMLDetailsElement;
+		expect(details.open).toBe(false);
+		fireEvent.click(screen.getByRole('button', { name: 'Zobacz, skąd to wiem' }));
+		expect(details.open).toBe(true);
+	});
+
+	it('rozmiar czcionki etykiety jest mniejszy niż zdania głównego', () => {
+		const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'record.css'), 'utf8');
+		const sizeOf = (selector: string) => {
+			const block = new RegExp(`${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`).exec(css);
+			const size = /font-size:\s*([\d.]+)rem/.exec(block?.[1] ?? '');
+			if (!size) throw new Error(`brak font-size: ${selector}`);
+			return Number(size[1]);
+		};
+		const headline = sizeOf('.record-claim__headline');
+		expect(sizeOf('.record-claim .verdict__label')).toBeLessThan(headline);
+		expect(sizeOf('.record-claim .verdict__certainty')).toBeLessThan(headline);
+		expect(headline).toBeGreaterThan(1.5);
+	});
+
 	it('dodaje kartę do pobrania z adresem SVG', () => {
 		const rec = record('potwierdzone');
 		const { container } = render(<RecordView record={rec} />);
@@ -83,7 +122,7 @@ describe('RecordView', () => {
 	it('własne teksty nie zawierają zakazanych form ani słów', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);
 		const own = [
-			...container.querySelectorAll('.verdict__abstain, .record-claim__note'),
+			...container.querySelectorAll('.verdict__certainty, .record-claim__asof, .record-claim__note'),
 		].map((node) => node.textContent ?? '');
 		expect(findForbiddenForms(own.join(' '))).toEqual([]);
 		const text = (container.textContent ?? '').toLowerCase();

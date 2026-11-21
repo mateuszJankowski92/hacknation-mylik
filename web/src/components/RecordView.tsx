@@ -1,5 +1,5 @@
 import type { VerificationRecord } from '../../../src/contracts/record';
-import { formatDate, formatDateTime, shortId } from '../format';
+import { formatDateTime, shortId } from '../format';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import './record.css';
@@ -7,18 +7,15 @@ import './record.css';
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
 	const permalink = `#/rekord/${record.id}`;
-	const asOfLabel = `Stan na ${formatDate(record.asOf)}.`;
 
 	return (
 		<div className="record">
-			<p className="record__asof">{asOfLabel}</p>
-
 			{record.claims.length === 0 && (
 				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
 			)}
 			{record.claims.length > 1 && <p>Znalazłem w tej treści {record.claims.length} twierdzenia. Oceniam każde osobno.</p>}
 			{record.claims.map((result) => (
-				<RecordClaim key={result.claim.id} result={result} asOfLabel={asOfLabel} />
+				<RecordClaim key={result.claim.id} result={result} asOf={record.asOf} />
 			))}
 
 			<section className="record-shortanswer" aria-label="Krótka odpowiedź">

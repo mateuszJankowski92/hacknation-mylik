@@ -27,6 +27,24 @@ export function strengthSentence(level: StrengthLevel, reasons: StrengthReasonCo
 	return why ? `${head} Powody: ${why}.` : head;
 }
 
+const WARSAW_TIME = new Intl.DateTimeFormat('pl-PL', {
+	timeZone: 'Europe/Warsaw',
+	year: 'numeric',
+	month: '2-digit',
+	day: '2-digit',
+	hour: '2-digit',
+	minute: '2-digit',
+	hourCycle: 'h23',
+});
+
+export function asOfStamp(asOf: string): string {
+	if (!asOf.includes('T')) return `Stan na ${formatDate(asOf)}.`;
+	const date = new Date(asOf);
+	if (Number.isNaN(date.getTime())) return `Stan na ${formatDate(asOf)}.`;
+	const parts = Object.fromEntries(WARSAW_TIME.formatToParts(date).map((part) => [part.type, part.value]));
+	return `Stan na ${parts.day}.${parts.month}.${parts.year}, ${parts.hour}:${parts.minute}.`;
+}
+
 export function asOfSentence(asOf: string): string {
 	return `Stan na ${formatDate(asOf)}.`;
 }
@@ -35,7 +53,7 @@ export const VERDICT_SENTENCES: Record<Verdict, (source: string, date: string) =
 	potwierdzone: (source, date) => `${source} podaje ${date} informację zgodną z twierdzeniem.`,
 	falszywe: (source, date) => `${source} podaje ${date} informację przeczącą twierdzeniu.`,
 	wprowadzajace_w_blad: (source, date) =>
-		`${source} podaje ${date} kontekst, który zmienia wymowę twierdzenia.`,
+		`${source} podaje ${date} inne okoliczności tej samej sprawy.`,
 	brak_wystarczajacych_dowodow: () => 'Nie znalazłem w źródłach ani potwierdzenia, ani zaprzeczenia.',
 	nie_podlega_weryfikacji: () =>
 		'To opinia albo przewidywanie, więc nie sprawdzam tego w źródłach.',

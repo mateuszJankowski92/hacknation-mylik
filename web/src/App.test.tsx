@@ -55,7 +55,7 @@ describe('warianty fixture', () => {
 
 	it('oznacza źródła archiwalne ostrzeżeniem', () => {
 		render(<OutcomeView outcome={FIXTURE_OUTCOMES.wprowadzajace_w_blad} />);
-		expect(screen.getByText(/materiał archiwalny/)).toBeTruthy();
+		expect(screen.getByText(/stary materiał/)).toBeTruthy();
 	});
 
 	it('pokazuje informacje o zamaskowanych danych i próbach manipulacji', () => {

@@ -36,7 +36,7 @@ describe('renderCardSvg', () => {
 			const svg = renderCardSvg(fixtureRecord(verdict), { cardUrl: CARD_URL });
 			expect(svg.startsWith('<svg')).toBe(true);
 			expect(svg).toContain(VERDICT_LABELS_PL[verdict]);
-			expect(svg).toContain('Stan na 10.01.2026.');
+			expect(svg).toContain('Stan na 10.01.2026, 09:30.');
 			expect(svg).toContain('mylik.example');
 		});
 	}
@@ -51,7 +51,7 @@ describe('renderCardSvg', () => {
 	it('nie wymyśla cytatu przy wstrzymaniu się', () => {
 		const svg = renderCardSvg(fixtureRecord('brak_wystarczajacych_dowodow'), { cardUrl: CARD_URL });
 		expect(svg).not.toContain('Tak pisze źródło');
-		expect(svg).toContain('Nie zgaduję');
+		expect(svg).toContain('Nie wiem, czy to prawda.');
 	});
 
 	it('ucieka złośliwą treść w twierdzeniu, cytacie i źródle', () => {
@@ -90,6 +90,33 @@ describe('renderCardSvg', () => {
 	it('nie używa zewnętrznych zasobów', () => {
 		const svg = renderCardSvg(fixtureRecord('potwierdzone'), { cardUrl: CARD_URL });
 		expect(svg).not.toMatch(/<image|<foreignObject|xlink:href|url\(http/);
+	});
+});
+
+describe('układ karty', () => {
+	function sizeOf(svg: string, text: string): number {
+		const match = new RegExp(`font-size="(\\d+)"[^>]*>(?:<tspan[^>]*>)?[^<]*${text}`).exec(svg);
+		if (!match) throw new Error(`brak tekstu: ${text}`);
+		return Number(match[1]);
+	}
+
+	it('zdanie główne jest największe, etykieta mała i obok niej pewność', () => {
+		const svg = renderCardSvg(fixtureRecord('falszywe'), { cardUrl: CARD_URL });
+		const headline = sizeOf(svg, 'Przykładowy Urząd Miasta podał');
+		const label = sizeOf(svg, VERDICT_LABELS_PL.falszywe);
+		expect(label).toBeLessThan(headline);
+		const sizes = [...svg.matchAll(/font-size="(\d+)"/g)].map((m) => Number(m[1]));
+		expect(Math.max(...sizes)).toBe(headline);
+		expect(svg).toContain('Na ile to pewne: średnio');
+		expect(svg).toContain('Zobacz, skąd to wiem: ');
+		const drawn = svg.slice(svg.indexOf('</desc>'));
+		expect(drawn.indexOf('Przykładowy Urząd Miasta podał')).toBeLessThan(drawn.indexOf(VERDICT_LABELS_PL.falszywe));
+		expect(drawn.indexOf(VERDICT_LABELS_PL.falszywe)).toBeLessThan(drawn.indexOf('Stan na'));
+	});
+
+	it('zdanie główne w opisie zawiera cytat bez zmian', () => {
+		const svg = renderCardSvg(fixtureRecord('potwierdzone'), { cardUrl: CARD_URL });
+		expect(svg).toContain('Przykładowy Urząd Miasta podał 14.03.2025 to samo: „Biblioteka miejska');
 	});
 });
 
