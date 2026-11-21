@@ -25,3 +25,8 @@ logs/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Lokalne oceny właściciela (poza śledzonym review_sample_human.json) i indeks weryfikacji redakcji
+data/eval/*_human.json
+!data/eval/review_sample_human.json
+data/raw/factcheck-index/
