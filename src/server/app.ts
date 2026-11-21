@@ -9,6 +9,7 @@ import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
 import { serverError } from './errors';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
+import { registerStreamRoutes } from './stream';
 
 export interface AppDeps extends RouteDeps {
   /** Katalog zbudowanego interfejsu (zwykle dist/web). */
@@ -110,6 +111,7 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/', createCardApp({ engine: deps.engine, baseUrl: deps.publicBaseUrl }));
   app.route('/', createSmsApp({ engine: deps.engine, logEvent: deps.logEventSms ?? deps.logEvent }));
 
+  registerStreamRoutes(app, deps);
   registerApiRoutes(app, deps);
 
   const serveStatic = createStaticHandler(deps.distDir);

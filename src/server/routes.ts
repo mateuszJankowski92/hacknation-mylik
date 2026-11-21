@@ -1,6 +1,6 @@
 // Trasy HTTP kanału WWW. Bez logiki weryfikacji: tylko walidacja wejścia i wywołanie silnika.
 import type { DatabaseSync } from 'node:sqlite';
-import type { Hono } from 'hono';
+import type { Context, Hono, MiddlewareHandler } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import {
   API_PATHS,
@@ -8,7 +8,8 @@ import {
   type SourcesResponse,
   VerifyRequestSchema,
 } from '../contracts/api';
-import type { Engine, Searcher, SourceMeta, SourceType, VerifyOutcome } from '../contracts/index';
+import type { Engine, Searcher, SourceMeta, SourceType, VerifyInput, VerifyOutcome } from '../contracts/index';
+import type { ProgressEngine, VerifyOptions } from '../engine/progress';
 import { MESSAGES_PL, apiError } from './errors';
 
 export const MAX_BODY_BYTES = 16 * 1024;
@@ -44,6 +45,52 @@ interface SourceRow {
   license: string;
 }
 
+/** Limit rozmiaru ciała zgłoszenia (wspólny dla /api/verify i /api/verify/stream). */
+export function verifyBodyLimit(): MiddlewareHandler {
+  return bodyLimit({
+    maxSize: MAX_BODY_BYTES,
+    onError: (c) => apiError(c, 413, 'niepoprawne_wejscie', MESSAGES_PL.tooLarge),
+  });
+}
+
+/** Walidacja ciała zgłoszenia; zwraca wejście silnika albo gotową odpowiedź błędu. */
+export async function parseVerifyRequest(c: Context): Promise<VerifyInput | Response> {
+  const ct = (c.req.header('content-type') ?? '').toLowerCase();
+  if (!/^application\/json\b/.test(ct)) return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.wrongContentType);
+  let body: unknown;
+  try {
+    body = await c.req.json();
+  } catch {
+    return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidJson);
+  }
+  if (typeof body !== 'object' || body === null || Array.isArray(body))
+    return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidJson);
+  // Kanał wymusza serwer; to, co przysłał klient, jest ignorowane.
+  const parsed = VerifyRequestSchema.safeParse({ ...(body as Record<string, unknown>), channel: 'www' });
+  if (!parsed.success) return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidInput);
+  return { ...parsed.data, channel: 'www' };
+}
+
+/** Wywołanie silnika; nieprzewidziany wyjątek kończy się stanem `awaria_techniczna`, nie werdyktem. */
+export async function safeVerify(
+  deps: Pick<RouteDeps, 'engine' | 'logEvent'>,
+  input: VerifyInput,
+  opts?: VerifyOptions,
+): Promise<VerifyOutcome> {
+  try {
+    return await (deps.engine as ProgressEngine).verify(input, opts);
+  } catch (err) {
+    // Silnik sam mapuje wyjątki na stany; to jest zabezpieczenie na wypadek nieprzewidzianego.
+    const name = err instanceof Error ? err.name.replace(/[^A-Za-z0-9_]/g, '').slice(0, 40) : 'unknown';
+    try {
+      deps.logEvent('server_error', { route: 'verify', error: name || 'Error' });
+    } catch {
+      // log niedostępny: nadal zwracamy stan
+    }
+    return { kind: 'state', state: 'awaria_techniczna', message: TECHNICAL_STATE_MESSAGE, detail: `server:${name}` };
+  }
+}
+
 export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
   const { engine, db, searcher } = deps;
   const listSources = db.prepare(`
@@ -52,43 +99,11 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
     FROM documents d JOIN sources s ON s.id = d.source_id
     ORDER BY s.id, d.id`);
 
-  app.post(
-    API_PATHS.verify,
-    bodyLimit({
-      maxSize: MAX_BODY_BYTES,
-      onError: (c) => apiError(c, 413, 'niepoprawne_wejscie', MESSAGES_PL.tooLarge),
-    }),
-    async (c) => {
-      const ct = (c.req.header('content-type') ?? '').toLowerCase();
-      if (!/^application\/json\b/.test(ct)) return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.wrongContentType);
-      let body: unknown;
-      try {
-        body = await c.req.json();
-      } catch {
-        return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidJson);
-      }
-      if (typeof body !== 'object' || body === null || Array.isArray(body))
-        return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidJson);
-      // Kanał wymusza serwer; to, co przysłał klient, jest ignorowane.
-      const parsed = VerifyRequestSchema.safeParse({ ...(body as Record<string, unknown>), channel: 'www' });
-      if (!parsed.success) return apiError(c, 400, 'niepoprawne_wejscie', MESSAGES_PL.invalidInput);
-
-      let outcome: VerifyOutcome;
-      try {
-        outcome = await engine.verify({ ...parsed.data, channel: 'www' });
-      } catch (err) {
-        // Silnik sam mapuje wyjątki na stany; to jest zabezpieczenie na wypadek nieprzewidzianego.
-        const name = err instanceof Error ? err.name.replace(/[^A-Za-z0-9_]/g, '').slice(0, 40) : 'unknown';
-        try {
-          deps.logEvent('server_error', { route: 'verify', error: name || 'Error' });
-        } catch {
-          // log niedostępny: nadal zwracamy stan
-        }
-        outcome = { kind: 'state', state: 'awaria_techniczna', message: TECHNICAL_STATE_MESSAGE, detail: `server:${name}` };
-      }
-      return c.json(outcome, 200);
-    },
-  );
+  app.post(API_PATHS.verify, verifyBodyLimit(), async (c) => {
+    const parsed = await parseVerifyRequest(c);
+    if (parsed instanceof Response) return parsed;
+    return c.json(await safeVerify(deps, parsed), 200);
+  });
 
   app.get(API_PATHS.record, (c) => {
     const id = c.req.param('id') ?? '';
