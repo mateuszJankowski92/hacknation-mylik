@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import type { Hono } from 'hono';
 import { loadConfig, type AppConfig } from '../config';
 import { LlmError, type Engine, type LlmProvider, type Searcher } from '../contracts/index';
+import { createCaseStore, withCaseTracking, type CaseStore } from '../cases/index';
 import { createSearcher } from '../corpus/index';
 import { openDb } from '../db/open';
 import { loadKnownOpsDir, matchKnownOps, type KnownOpRecord } from '../corpus/incidents/index';
@@ -13,6 +14,7 @@ import { createEngine } from '../engine/index';
 import { createLlmProvider } from '../llm/index';
 import { createProductionLiveLayer, type LiveLayer } from '../live/index';
 import { startRetention, type RetentionScheduler } from '../security/index';
+import { CLERK_MIN_TOKEN_LENGTH } from './clerk';
 import { createApp } from './app';
 
 /** Katalog główny projektu (niezależny od katalogu roboczego procesu). */
@@ -39,6 +41,7 @@ export interface Bootstrapped {
   searcher: Searcher;
   llm: LlmProvider;
   engine: Engine;
+  cases: CaseStore;
   app: Hono;
   providerName: string;
   modelName: string;
@@ -154,7 +157,7 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
   }
 
   // Profil błędów z EVAL_RESULTS_PATH (plik opcjonalny: brak = bez profilu).
-  const engine = createEngine({
+  const coreEngine = createEngine({
     db,
     searcher,
     llm,
@@ -169,6 +172,26 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
       insertEvent.run(new Date().toISOString(), channel, type, JSON.stringify(detail));
     };
   const logEvent = eventLogger('www');
+
+  const cases = createCaseStore(db);
+  const engine = withCaseTracking(coreEngine, cases, logEvent);
+  const clerkToken =
+    config.clerkToken && config.clerkToken.length >= CLERK_MIN_TOKEN_LENGTH ? config.clerkToken : undefined;
+  if (config.clerkToken && !clerkToken)
+    warn(`Uwaga: URZEDNIK_TOKEN jest za krótki (min. ${CLERK_MIN_TOKEN_LENGTH} znaków); widok urzędnika zamknięty.`);
+  const purgeCases = () => {
+    try {
+      cases.purgeOlderThan(config.caseRetentionDays);
+    } catch {
+      warn('Uwaga: retencja spraw urzędnika nie ruszyła.');
+    }
+  };
+  let casesTimer: ReturnType<typeof setInterval> | null = null;
+  if (opts.retention !== false) {
+    purgeCases();
+    casesTimer = setInterval(purgeCases, 3_600_000);
+    casesTimer.unref();
+  }
 
   let retention: RetentionScheduler | null = null;
   if (opts.retention !== false) {
@@ -197,6 +220,13 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     rateLimitPerMin: config.rateLimitPerMin,
     trustedProxyHops: config.trustedProxyHops,
     publicBaseUrl: config.publicBaseUrl,
+    cases,
+    clerk: {
+      token: clerkToken,
+      person: config.clerkPerson,
+      notifyAddress: config.clerkNotifyAddress,
+      secureCookie: config.publicBaseUrl ? config.publicBaseUrl.startsWith('https:') : undefined,
+    },
     distDir: opts.distDir ?? resolve(PROJECT_ROOT, 'dist', 'web'),
     log: opts.log,
   });
@@ -207,12 +237,14 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     searcher,
     llm,
     engine,
+    cases,
     app,
     providerName: llm.name,
     modelName,
     incidentSources: { incidents: sources.incidents, knownOps: sources.knownOps },
     close() {
       retention?.stop();
+      if (casesTimer) clearInterval(casesTimer);
       try {
         db.close();
       } catch {

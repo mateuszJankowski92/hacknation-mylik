@@ -3,11 +3,14 @@
 import { createHash } from 'node:crypto';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { createCardApp } from '../card/index';
+import { createCaseStore, type CaseStore } from '../cases/index';
 import { createStatsApp, requestLogger, type LogEventFn } from '../obs/index';
 import { RATE_LIMIT_MESSAGE_PL, rateLimit } from '../security/index';
 import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
+import { createClerkApp, type ClerkDeps } from './clerk';
 import { serverError } from './errors';
 import { registerExtraRoutes } from './extras';
+import { registerCaseStatusRoute } from './obieg';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
 import { registerStreamRoutes } from './stream';
@@ -25,6 +28,8 @@ export interface AppDeps extends RouteDeps {
   trustedProxyHops?: number;
   /** Publiczny adres serwisu dla odsyłaczy na karcie SVG. */
   publicBaseUrl?: string;
+  cases?: CaseStore;
+  clerk?: Pick<ClerkDeps, 'token' | 'person' | 'notifyAddress' | 'secureCookie'>;
 }
 
 const CSP = [
@@ -111,6 +116,18 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/', createStatsApp({ db: deps.db }));
   app.route('/', createCardApp({ engine: deps.engine, baseUrl: deps.publicBaseUrl }));
   app.route('/', createSmsApp({ engine: deps.engine, logEvent: deps.logEventSms ?? deps.logEvent }));
+
+  const cases = deps.cases ?? createCaseStore(deps.db);
+  app.route(
+    '/',
+    createClerkApp({
+      ...deps.clerk,
+      store: cases,
+      trustedProxyHops: deps.trustedProxyHops,
+      logEvent: deps.logEvent,
+    }),
+  );
+  registerCaseStatusRoute(app, cases);
 
   registerStreamRoutes(app, deps);
   registerExtraRoutes(app, deps);
