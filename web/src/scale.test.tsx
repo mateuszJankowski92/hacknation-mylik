@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readUnscaled } from './testing/css';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { VerificationRecord } from '../../src/contracts/record';
@@ -24,7 +25,7 @@ function cssFiles(directory: string): string[] {
 }
 
 function readCss(name: string): string {
-	return readFileSync(join(HERE, name), 'utf8');
+	return readUnscaled(join(HERE, name), 'utf8');
 }
 
 function block(css: string, selector: string, occurrence = 0): string {
@@ -58,7 +59,7 @@ describe('minima skali', () => {
 	it('żaden tekst nie jest mniejszy niż 16 px, a nic poza hasłem nie przekracza 72 px', () => {
 		expect(files.length).toBeGreaterThan(5);
 		for (const file of files) {
-			const sizes = fontSizesPx(readFileSync(file, 'utf8'));
+			const sizes = fontSizesPx(readUnscaled(file, 'utf8'));
 			for (const size of sizes) {
 				expect(size, file).toBeGreaterThanOrEqual(16);
 				expect(size, file).toBeLessThanOrEqual(72);
@@ -81,7 +82,7 @@ describe('minima skali', () => {
 			const height = Number(/min-height:\s*(\d+)px/.exec(block(readCss(file), selector))?.[1]);
 			expect(height, `${file} ${selector}`).toBeGreaterThanOrEqual(48);
 		}
-		for (const file of files) expect(readFileSync(file, 'utf8')).not.toMatch(/min-height:\s*44px/);
+		for (const file of files) expect(readUnscaled(file, 'utf8')).not.toMatch(/min-height:\s*44px/);
 	});
 
 	it('odstępy sekcji na dużym ekranie to 96 px lub więcej', () => {
@@ -161,8 +162,8 @@ describe('czekanie i wynik w skali', () => {
 		expect(roles).toContain('animation: result-sentence-grow var(--resize-duration)');
 		const stageCss = readCss('stage/stage.css');
 		for (const property of ['top', 'left', 'width', 'height']) expect(stageCss).toContain(`${property} var(--resize-duration)`);
-		expect(stageCss).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.character-stage,[^}]*transition: none;/);
-		expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*animation: none !important;/);
+		expect(stageCss).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*:root:not\(\[data-motion='on'\]\) \.character-stage,[^}]*transition: none;/);
+		expect(styles).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*:root:not\(\[data-motion='on'\]\) \*,\s*:root:not\(\[data-motion='on'\]\) \*::before,\s*:root:not\(\[data-motion='on'\]\) \*::after \{\s*animation: none !important;/);
 	});
 });
 

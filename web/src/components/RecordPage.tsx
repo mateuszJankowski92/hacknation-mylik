@@ -106,9 +106,9 @@ export function RecordPage({ id }: { id: string }) {
 
 	return (
 		<div className="record-page">
-			<h2 className={state.status === 'ready' || state.status === 'loading' ? 'visually-hidden' : undefined}>
+			<h1 className={state.status === 'ready' || state.status === 'loading' ? 'visually-hidden' : 'page-title'}>
 				{nb(state.status === 'gone' ? GONE_TEXTS.title : state.status === 'error' ? 'Nie udało się wczytać wyniku' : 'Wynik sprawdzenia')}
-			</h2>
+			</h1>
 			{state.status === 'loading' && (
 				<p role="status" aria-live="polite" className="record-page__loading">
 					Wczytuję…

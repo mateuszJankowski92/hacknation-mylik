@@ -44,9 +44,9 @@ export function ConfidenceGauge({ strength }: { strength: Strength }) {
 				<circle className="confidence__hub" cx={GAUGE_CENTER_POINT.x} cy={GAUGE_CENTER_POINT.y} r="8" />
 			</svg>
 			<div className="confidence__text">
-				<h4 id={titleId} className="confidence__word">
+				<h3 id={titleId} className="confidence__word">
 					{STRENGTH_TITLE_PL}: <strong>{word}</strong>
-				</h4>
+				</h3>
 				{strength.reasons.length > 0 && (
 					<>
 						<p className="confidence__why-title">Dlaczego:</p>

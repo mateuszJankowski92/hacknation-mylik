@@ -1,4 +1,4 @@
-.record-page > h2.visually-hidden {
+.record-page > h1.visually-hidden {
 	margin: 0;
 }
 
@@ -89,6 +89,7 @@
 
 .sheet__top {
 	display: grid;
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--space-1);
 	align-content: start;
 	min-height: 120px;
@@ -454,8 +455,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.sheet__plane,
-	.sheet__body {
+	:root:not([data-motion='on']) .sheet__plane,
+	:root:not([data-motion='on']) .sheet__body {
 		animation: none;
 	}
 }

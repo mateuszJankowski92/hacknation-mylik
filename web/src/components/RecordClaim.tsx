@@ -155,7 +155,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 			aria-labelledby={headingId}
 		>
 			<div className="record-claim__lead">
-				<h3
+				<h2
 					id={headingId}
 					className="record-claim__headline"
 					data-length={headlineLength(layout.headline)}
@@ -163,7 +163,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 					tabIndex={-1}
 				>
 					{nb(layout.headline)}
-				</h3>
+				</h2>
 				{isAbstain && blankSpotNote && <p className="record-claim__blank-spot">{nb(BLANK_SPOT_NOTE)}</p>}
 				<div className="record-claim__summary">
 					<div className="verdict">
@@ -206,7 +206,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 				) : (
 					<>
 						<section className="record-claim__group-block" aria-label="Twierdzenie i ocena Mylika">
-							<h4>Co ustalił Mylik</h4>
+							<h3>Co ustalił Mylik</h3>
 							<p className="record-claim__note">{nb('To nasze wyjaśnienie, a nie cytat ze źródła.')}</p>
 							{result.claim.text.trim() && (
 								<p className="record-claim__claim">
@@ -221,11 +221,11 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 
 						{groups.length > 0 && (
 							<section className="record-claim__sources" aria-label="Co mówią źródła">
-								<h4>Co mówią źródła</h4>
+								<h3>Co mówią źródła</h3>
 								<p className="record-claim__note">{nb('Cytaty pochodzą ze źródeł i podajemy je bez zmian.')}</p>
 								{groups.map((group) => (
 									<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
-										<h5>{nb(group.title)}</h5>
+										<h4>{nb(group.title)}</h4>
 										<ul className="record-evidence-list">
 											{group.items.map((item) => (
 												<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
@@ -238,7 +238,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 
 						{limitations.length > 0 && (
 							<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">
-								<h4>Czego nie udało się ustalić</h4>
+								<h3>Czego nie udało się ustalić</h3>
 								<ul>
 									{limitations.map((text) => (
 										<li key={text}>{nb(text)}</li>

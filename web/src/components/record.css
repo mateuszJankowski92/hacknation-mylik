@@ -86,7 +86,7 @@
 }
 
 .record-claim__primary .record-evidence__quote p {
-	font-size: 20px;
+	font-size: calc(20px * var(--ts));
 	line-height: 1.55;
 }
 
@@ -113,7 +113,7 @@
 	}
 
 	.record-claim__primary .record-evidence__quote p {
-		font-size: 22px;
+		font-size: calc(22px * var(--ts));
 	}
 }
 
@@ -134,9 +134,10 @@
 	margin: var(--space-4) 0 0;
 }
 
-.record-claim__group-block > h4,
-.record-claim__sources > h4,
-.record-claim__limits > h4 {
+.record-claim__group-block > h2,
+.record-claim__group-block > h3,
+.record-claim__sources > h3,
+.record-claim__limits > h3 {
 	margin: 0 0 var(--space-1);
 	font-size: 1.1rem;
 }
@@ -156,12 +157,12 @@
 	margin: var(--space-4) 0 0;
 }
 
-.record-claim__group h5 {
+.record-claim__group h4 {
 	margin: var(--space-2) 0 var(--space-1);
 	font-size: 1rem;
 }
 
-.record-claim__group h5 {
+.record-claim__group h4 {
 	color: var(--text);
 }
 
@@ -220,7 +221,7 @@
 	max-width: var(--measure);
 	margin: 0 0 var(--space-3);
 	color: var(--muted);
-	font-size: 18px;
+	font-size: calc(18px * var(--ts));
 	line-height: 1.4;
 }
 
@@ -249,7 +250,7 @@
 
 .record-claim--abstain .verdict .verdict__note {
 	margin: 0 0 var(--space-2);
-	font-size: 20px;
+	font-size: calc(20px * var(--ts));
 	line-height: 1.5;
 }
 
@@ -263,7 +264,7 @@
 	}
 
 	.record-claim--abstain .verdict .verdict__note {
-		font-size: 22px;
+		font-size: calc(22px * var(--ts));
 	}
 }
 

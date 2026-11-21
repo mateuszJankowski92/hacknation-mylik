@@ -114,8 +114,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.character-stage,
-	.character-stage .character-stage__clip {
+	:root:not([data-motion='on']) .character-stage,
+	:root:not([data-motion='on']) .character-stage .character-stage__clip {
 		transition: none;
 	}
 }

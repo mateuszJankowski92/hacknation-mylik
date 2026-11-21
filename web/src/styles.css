@@ -1,5 +1,6 @@
 :root {
 	color-scheme: only light;
+	--ts: 1;
 	--bg: #ffffff;
 	--surface: #fbf6ec;
 	--paper: #fbf6ec;
@@ -56,8 +57,8 @@
 	--space-8: 64px;
 	--space-10: 96px;
 	--space-12: 128px;
-	--text-h2: 28px;
-	--text-small: 16px;
+	--text-h2: calc(28px * var(--ts));
+	--text-small: calc(16px * var(--ts));
 	--measure: 640px;
 	--section-gap: 56px;
 	--resize-duration: 360ms;
@@ -76,7 +77,7 @@
 }
 
 html {
-	font-size: 18px;
+	font-size: calc(18px * var(--ts));
 }
 
 body {
@@ -134,6 +135,15 @@ h2 {
 
 h3 {
 	font-size: 1.15rem;
+}
+
+.page-title {
+	margin: var(--space-4) 0 var(--space-2);
+}
+
+.state > h2 {
+	font-size: 1.15rem;
+	margin: 1em 0;
 }
 
 h4 {
@@ -206,6 +216,12 @@ a:hover {
 	font-size: 26px;
 	line-height: 1.2;
 	font-weight: 700;
+}
+
+.site-header__tools {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
 }
 
 .site-header__brand a {
@@ -750,9 +766,9 @@ thead th {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	*,
-	*::before,
-	*::after {
+	:root:not([data-motion='on']) *,
+	:root:not([data-motion='on']) *::before,
+	:root:not([data-motion='on']) *::after {
 		animation: none !important;
 		transition: none !important;
 		scroll-behavior: auto !important;

@@ -37,7 +37,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.scene__mark {
+	:root:not([data-motion='on']) .scene__mark {
 		animation: none;
 	}
 }

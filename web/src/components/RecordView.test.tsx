@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { readUnscaled } from '../testing/css';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
@@ -137,9 +138,9 @@ describe('RecordView', () => {
 
 	it('rozmiar czcionki etykiety jest mniejszy niż zdania głównego', () => {
 		const here = dirname(fileURLToPath(import.meta.url));
-		const record = readFileSync(join(here, 'record.css'), 'utf8');
-		const roles = readFileSync(join(here, '..', 'roles', 'roles.css'), 'utf8');
-		const styles = readFileSync(join(here, '..', 'styles.css'), 'utf8');
+		const record = readUnscaled(join(here, 'record.css'), 'utf8');
+		const roles = readUnscaled(join(here, '..', 'roles', 'roles.css'), 'utf8');
+		const styles = readUnscaled(join(here, '..', 'styles.css'), 'utf8');
 		const headlineSizes = [...roles.matchAll(/--headline-size:\s*(\d+)px/g)].map((match) => Number(match[1]));
 		const smallText = Number(/--text-small:\s*(\d+)px/.exec(styles)?.[1]);
 		expect(smallText).toBeGreaterThanOrEqual(16);

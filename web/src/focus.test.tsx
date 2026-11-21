@@ -134,7 +134,7 @@ describe('przycisk główny jak pas apaszki', () => {
 	});
 
 	it('przy ograniczeniu ruchu nic się nie animuje, a drugorzędne przyciski zostają kremowym papierem z konturem', () => {
-		expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\*,\s*\*::before,\s*\*::after \{\s*animation: none !important;\s*transition: none !important;/);
+		expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*:root:not\(\[data-motion='on'\]\) \*,\s*:root:not\(\[data-motion='on'\]\) \*::before,\s*:root:not\(\[data-motion='on'\]\) \*::after \{\s*animation: none !important;\s*transition: none !important;/);
 		const secondary = block(css, '.button');
 		expect(secondary).toContain('background: var(--paper)');
 		expect(secondary).toContain('border: var(--outline) solid var(--graphite)');

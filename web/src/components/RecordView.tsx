@@ -25,13 +25,13 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 	return (
 		<>
 			<section className="record-claim__group-block record-shortanswer" aria-label="Krótka odpowiedź">
-				<h4>Krótka odpowiedź</h4>
+				<h2>Krótka odpowiedź</h2>
 				<p>{nb(record.shortAnswer)}</p>
 			</section>
 
 			{otherNotices.length > 0 && (
 				<section className="record-claim__group-block record__notices" aria-label="Dodatkowe uwagi">
-					<h4>Dodatkowe uwagi</h4>
+					<h2>Dodatkowe uwagi</h2>
 					<ul>
 						{otherNotices.map((notice, index) => (
 							<li key={`${notice.type}-${index}`}>{nb(notice.text)}</li>
@@ -45,7 +45,7 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 			)}
 
 			<section className="record-claim__group-block record__footer" aria-label="Dane sprawdzenia">
-				<h4>Dane sprawdzenia</h4>
+				<h2>Dane sprawdzenia</h2>
 				<p>
 					Numer sprawdzenia: <strong>{shortId(record.id)}</strong>
 				</p>

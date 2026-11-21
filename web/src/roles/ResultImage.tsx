@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useMotionSetting } from '../a11y/settings';
 import { SCENE_TEXTS } from '../scenes/config';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import type { ResultKey, Role } from './config';
@@ -81,6 +82,11 @@ export function ResultImage({ role, resultKey, serious = false }: ResultImagePro
 	const [finished, setFinished] = useState(false);
 	const [replayed, setReplayed] = useState(false);
 	const [playId, setPlayId] = useState(0);
+	const motionSetting = useMotionSetting();
+	useEffect(() => {
+		setReplayed(false);
+		setStopped(false);
+	}, [motionSetting]);
 	const entry = gesture ? null : resultSceneFor(role, resultKey);
 	const mayPlay = animationStartsAutomatically() || replayed;
 	const mounted = Boolean(entry) && afterFirstPaint && mayPlay;

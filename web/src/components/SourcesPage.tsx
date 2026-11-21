@@ -28,7 +28,7 @@ export function SourcesPage() {
 
 	return (
 		<div>
-			<h2>{nb('Źródła, z których korzystam')}</h2>
+			<h1 className="page-title">{nb('Źródła, z których korzystam')}</h1>
 			<p>{nb('Sprawdzam tylko w tych źródłach. Poniżej cała lista.')}</p>
 			<div role="status" aria-live="polite">
 				{state.status === 'loading' && <p>Wczytuję…</p>}

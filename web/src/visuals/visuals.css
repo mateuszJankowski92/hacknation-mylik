@@ -37,7 +37,7 @@
 
 .waiting-steps__status {
 	margin: 0;
-	font-size: 22px;
+	font-size: calc(22px * var(--ts));
 	font-weight: 700;
 	line-height: 1.35;
 }
@@ -104,7 +104,7 @@
 
 .confidence__zone-label {
 	fill: var(--text);
-	font-size: 18px;
+	font-size: calc(18px * var(--ts));
 	text-anchor: middle;
 }
 

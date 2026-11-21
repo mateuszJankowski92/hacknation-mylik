@@ -1,0 +1,192 @@
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Link } from '../components/Link';
+import { nb } from '../typography';
+import {
+	TEXT_SIZE_PERCENT,
+	resetSettings,
+	updateSettings,
+	useA11ySettings,
+	type A11ySettings,
+	type Contrast,
+	type Motion,
+	type Spacing,
+	type TextSize,
+} from './settings';
+import './a11y.css';
+
+export const A11Y_TEXTS = {
+	button: 'Dostępność',
+	title: 'Ustawienia dostępności',
+	contrast: 'Kontrast',
+	contrastNormal: 'Zwykły',
+	contrastHigh: 'Wysoki',
+	textSize: 'Wielkość tekstu',
+	spacing: 'Odstępy w tekście',
+	spacingNormal: 'Zwykłe',
+	spacingWide: 'Większe',
+	motion: 'Animacje',
+	motionOn: 'Włączone',
+	motionOff: 'Wyłączone',
+	motionSystemOn: 'Teraz zgodnie z ustawieniem urządzenia: włączone.',
+	motionSystemOff: 'Teraz zgodnie z ustawieniem urządzenia: wyłączone.',
+	reset: 'Przywróć ustawienia domyślne',
+	resetDone: 'Przywrócono ustawienia domyślne.',
+	remembered: 'Wybór zapamiętuję w tej przeglądarce.',
+	about: 'O dostępności serwisu',
+} as const;
+
+const TEXT_SIZE_LABELS: Record<TextSize, { visible: string; spoken: string }> = {
+	normal: { visible: 'A', spoken: `Tekst ${TEXT_SIZE_PERCENT.normal}%` },
+	large: { visible: 'A+', spoken: `Tekst ${TEXT_SIZE_PERCENT.large}%` },
+	xlarge: { visible: 'A++', spoken: `Tekst ${TEXT_SIZE_PERCENT.xlarge}%` },
+};
+
+function systemPrefersReducedMotion(): boolean {
+	return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+interface OptionProps {
+	pressed: boolean;
+	onSelect: () => void;
+	children: ReactNode;
+	label?: string;
+}
+
+function Option({ pressed, onSelect, children, label }: OptionProps) {
+	return (
+		<button type="button" className="a11y-option" aria-pressed={pressed} aria-label={label} onClick={onSelect}>
+			{children}
+		</button>
+	);
+}
+
+function Group({ title, children, hint }: { title: string; children: ReactNode; hint?: string }) {
+	const titleId = useId();
+	return (
+		<div className="a11y-group" role="group" aria-labelledby={titleId}>
+			<p id={titleId} className="a11y-group__title">
+				{nb(title)}
+			</p>
+			<div className="a11y-group__options">{children}</div>
+			{hint && <p className="a11y-group__hint">{nb(hint)}</p>}
+		</div>
+	);
+}
+
+function UniversalAccessIcon() {
+	return (
+		<svg className="a11y-menu__icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false">
+			<circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" strokeWidth="1.8" />
+			<circle cx="12" cy="7.2" r="1.6" fill="currentColor" />
+			<path d="M6.5 10.2 12 11l5.5-.8M12 11v3.4M12 14.4l-2.6 4.2M12 14.4l2.6 4.2" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+		</svg>
+	);
+}
+
+export function AccessibilityMenu() {
+	const settings = useA11ySettings();
+	const [open, setOpen] = useState(false);
+	const [announcement, setAnnouncement] = useState('');
+	const rootRef = useRef<HTMLDivElement>(null);
+	const buttonRef = useRef<HTMLButtonElement>(null);
+	const panelId = useId();
+	const titleId = useId();
+
+	useEffect(() => {
+		if (!open) return;
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key !== 'Escape') return;
+			event.preventDefault();
+			const focusInside = rootRef.current?.contains(document.activeElement) ?? false;
+			setOpen(false);
+			if (focusInside) buttonRef.current?.focus();
+		}
+		function handlePointerDown(event: Event) {
+			if (rootRef.current?.contains(event.target as Node)) return;
+			setOpen(false);
+		}
+		document.addEventListener('keydown', handleKeyDown, true);
+		document.addEventListener('pointerdown', handlePointerDown, true);
+		return () => {
+			document.removeEventListener('keydown', handleKeyDown, true);
+			document.removeEventListener('pointerdown', handlePointerDown, true);
+		};
+	}, [open]);
+
+	function choose<K extends keyof A11ySettings>(key: K, value: A11ySettings[K]) {
+		setAnnouncement('');
+		updateSettings({ [key]: value } as Partial<A11ySettings>);
+	}
+
+	function handleReset() {
+		resetSettings();
+		setAnnouncement(A11Y_TEXTS.resetDone);
+	}
+
+	const motionOn = settings.motion === 'on' || (settings.motion === 'system' && !systemPrefersReducedMotion());
+	const motionHint = settings.motion === 'system' ? (motionOn ? A11Y_TEXTS.motionSystemOn : A11Y_TEXTS.motionSystemOff) : undefined;
+
+	return (
+		<div className="a11y-menu" ref={rootRef}>
+			<button
+				type="button"
+				ref={buttonRef}
+				className="a11y-menu__button"
+				aria-expanded={open}
+				aria-controls={panelId}
+				onClick={() => setOpen((current) => !current)}
+			>
+				<UniversalAccessIcon />
+				<span className="a11y-menu__label">{A11Y_TEXTS.button}</span>
+			</button>
+			<div id={panelId} className="a11y-panel" role="group" aria-labelledby={titleId} hidden={!open}>
+				<p id={titleId} className="a11y-panel__title">
+					{A11Y_TEXTS.title}
+				</p>
+				<Group title={A11Y_TEXTS.contrast}>
+					<Option pressed={settings.contrast === 'normal'} onSelect={() => choose('contrast', 'normal' satisfies Contrast)}>
+						{A11Y_TEXTS.contrastNormal}
+					</Option>
+					<Option pressed={settings.contrast === 'high'} onSelect={() => choose('contrast', 'high' satisfies Contrast)}>
+						{A11Y_TEXTS.contrastHigh}
+					</Option>
+				</Group>
+				<Group title={A11Y_TEXTS.textSize}>
+					{(Object.keys(TEXT_SIZE_LABELS) as TextSize[]).map((size) => (
+						<Option key={size} pressed={settings.textSize === size} label={TEXT_SIZE_LABELS[size].spoken} onSelect={() => choose('textSize', size)}>
+							{TEXT_SIZE_LABELS[size].visible}
+						</Option>
+					))}
+				</Group>
+				<Group title={A11Y_TEXTS.spacing}>
+					<Option pressed={settings.spacing === 'normal'} onSelect={() => choose('spacing', 'normal' satisfies Spacing)}>
+						{A11Y_TEXTS.spacingNormal}
+					</Option>
+					<Option pressed={settings.spacing === 'wide'} onSelect={() => choose('spacing', 'wide' satisfies Spacing)}>
+						{A11Y_TEXTS.spacingWide}
+					</Option>
+				</Group>
+				<Group title={A11Y_TEXTS.motion} hint={motionHint}>
+					<Option pressed={motionOn} onSelect={() => choose('motion', 'on' satisfies Motion)}>
+						{A11Y_TEXTS.motionOn}
+					</Option>
+					<Option pressed={!motionOn} onSelect={() => choose('motion', 'off' satisfies Motion)}>
+						{A11Y_TEXTS.motionOff}
+					</Option>
+				</Group>
+				<div className="a11y-panel__footer">
+					<button type="button" className="a11y-panel__reset button" onClick={handleReset}>
+						{A11Y_TEXTS.reset}
+					</button>
+					<p className="a11y-group__hint">{nb(A11Y_TEXTS.remembered)}</p>
+					<Link to="/dostepnosc" onClick={() => setOpen(false)}>
+						{nb(A11Y_TEXTS.about)}
+					</Link>
+				</div>
+				<p className="visually-hidden" role="status" aria-live="polite">
+					{announcement}
+				</p>
+			</div>
+		</div>
+	);
+}

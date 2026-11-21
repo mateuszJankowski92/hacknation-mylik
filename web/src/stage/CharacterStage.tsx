@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useMotionSetting } from '../a11y/settings';
 import { artAlt, type Role } from '../roles/config';
 import { RoleArt } from '../roles/RoleArt';
 import { SCENE_START_TIMEOUT_MS, SCENE_TEXTS, type SceneSpec } from '../scenes/config';
@@ -127,6 +128,11 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 	const [clipPlaying, setClipPlaying] = useState(false);
 	const [clipFinished, setClipFinished] = useState(false);
 	const placedRef = useRef(false);
+	const motionSetting = useMotionSetting();
+	useEffect(() => {
+		setReplayed(false);
+		setStopped(false);
+	}, [motionSetting]);
 	const animationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
 	const target = targetSlot(stage.phase, stage.foregroundSlot, stage.cornerSlot);

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { HERO_SCENES, SCENE_START_TIMEOUT_MS, SCENE_TEXTS, type SceneSpec } from '../scenes/config';
+import { useMotionSetting } from '../a11y/settings';
 import { animationStartsAutomatically, prefersReducedMotion } from '../scenes/preferences';
 import { useAfterFirstScreen } from '../scenes/useAfterFirstScreen';
 import { HeroIllustration, type HeroIllustrationProps } from './HeroIllustration';
@@ -93,6 +94,11 @@ export function HeroStage({ illustration, scenes = HERO_SCENES }: { illustration
 	const [failed, setFailed] = useState(false);
 	const [index, setIndex] = useState(0);
 	const afterFirstScreen = useAfterFirstScreen();
+	const motionSetting = useMotionSetting();
+	useEffect(() => {
+		setReplayed(false);
+		setStopped(false);
+	}, [motionSetting]);
 	const reducedMotion = prefersReducedMotion();
 	const isStatic = Boolean(illustration?.src);
 	const lastIndex = scenes.length - 1;

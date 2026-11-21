@@ -16,7 +16,7 @@
 
 .hero__kicker {
 	margin: 0;
-	font-size: 18px;
+	font-size: calc(18px * var(--ts));
 	line-height: 1.3;
 	font-weight: 500;
 	color: var(--muted);
@@ -33,7 +33,7 @@
 
 .hero__subtitle {
 	margin: 0;
-	font-size: clamp(20px, 5.5vw, 22px);
+	font-size: calc(clamp(20px, 5.5vw, 22px) * var(--ts));
 	line-height: 1.3;
 	font-weight: 500;
 	color: var(--muted);
@@ -132,7 +132,7 @@
 .hero textarea {
 	min-height: 120px;
 	padding: var(--space-1) 28px var(--space-1) var(--space-2);
-	font-size: 20px;
+	font-size: calc(20px * var(--ts));
 	line-height: 1.4;
 }
 
@@ -143,7 +143,7 @@
 
 .hero .button {
 	min-height: 56px;
-	font-size: 20px;
+	font-size: calc(20px * var(--ts));
 }
 
 .hero--compact .hero__main {
@@ -167,11 +167,11 @@
 	}
 
 	.hero__kicker {
-		font-size: 20px;
+		font-size: calc(20px * var(--ts));
 	}
 
 	.hero__subtitle {
-		font-size: 28px;
+		font-size: calc(28px * var(--ts));
 	}
 
 	.hero__subtitle-line {
@@ -181,7 +181,7 @@
 	.hero textarea {
 		min-height: 140px;
 		padding: var(--space-2) 28px var(--space-2) var(--space-2);
-		font-size: 22px;
+		font-size: calc(22px * var(--ts));
 	}
 }
 
@@ -210,11 +210,11 @@
 	}
 
 	.hero__kicker {
-		font-size: 22px;
+		font-size: calc(22px * var(--ts));
 	}
 
 	.hero:not(.hero--compact) .hero__subtitle {
-		font-size: clamp(28px, 2.2vw, 32px);
+		font-size: calc(clamp(28px, 2.2vw, 32px) * var(--ts));
 	}
 
 	.hero:not(.hero--compact) .hero__illustration,
@@ -240,7 +240,7 @@
 	.hero .button {
 		min-height: 64px;
 		min-width: 200px;
-		font-size: 22px;
+		font-size: calc(22px * var(--ts));
 	}
 }
 
@@ -263,7 +263,7 @@
 }
 
 .hero .waiting-steps--hero .waiting-steps__status {
-	font-size: 22px;
+	font-size: calc(22px * var(--ts));
 }
 
 .hero:has(.waiting-steps) .hero__art {

@@ -14,6 +14,7 @@ import {
 } from './components/heroCopy';
 import { nb, plain } from './typography';
 import { App } from './App';
+import { readUnscaled } from './testing/css';
 import { Hero, HeroIllustration } from './components/Hero';
 import { HeroStage } from './components/HeroStage';
 import { HOME_TEXTS } from './components/HomeSections';
@@ -81,7 +82,7 @@ describe('pierwszy ekran strony głównej', () => {
 		const visible = [header, hero]
 			.map((node) => {
 				const clone = node.cloneNode(true) as HTMLElement;
-				clone.querySelectorAll('.visually-hidden, [aria-hidden="true"]:not(.hero__subtitle-visual)').forEach((item) => item.remove());
+				clone.querySelectorAll('.visually-hidden, [hidden], [aria-hidden="true"]:not(.hero__subtitle-visual)').forEach((item) => item.remove());
 				return clone.textContent ?? '';
 			})
 			.join(' ');
@@ -158,7 +159,7 @@ describe('nagłówek strony głównej', () => {
 	});
 
 	it('przekreślenie to ołówkowa kreska w CSS, pod kątem, słowo szare z kontrastem AA', () => {
-		const css = readFileSync(join(HERE, 'components', 'hero.css'), 'utf8');
+		const css = readUnscaled(join(HERE, 'components', 'hero.css'), 'utf8');
 		expect(css).toMatch(/\.hero__struck::after \{[^}]*height: 2px;[^}]*background: var\(--graphite\);[^}]*transform: rotate\(-[\d.]+deg\);/);
 		expect(css).toMatch(/\.hero__struck \{[^}]*color: var\(--struck\);/);
 		expect(css).toMatch(/@media \(min-width: 640px\) \{[\s\S]*?\.hero__subtitle-line \{\s*display: block;/);
@@ -166,7 +167,7 @@ describe('nagłówek strony głównej', () => {
 	});
 
 	it('mała linia ma 18 px na telefonie i 20-22 px na większych ekranach', () => {
-		const css = readFileSync(join(HERE, 'components', 'hero.css'), 'utf8');
+		const css = readUnscaled(join(HERE, 'components', 'hero.css'), 'utf8');
 		const sizes = [...css.matchAll(/\.hero__kicker \{[^}]*font-size: (\d+)px;/g)].map((match) => Number(match[1]));
 		expect(sizes).toEqual([18, 20, 22]);
 	});
@@ -475,7 +476,7 @@ describe('duża scena roli', () => {
 	});
 
 	it('obraz wyniku ma 240-320 px na dużym ekranie i ok. 160 px na telefonie', () => {
-		const css = readFileSync(join(HERE, 'roles', 'roles.css'), 'utf8');
+		const css = readUnscaled(join(HERE, 'roles', 'roles.css'), 'utf8');
 		const phone = css.match(/\n\.result-image \{[^}]*?\n\twidth:\s*(\d+)px/);
 		expect(Number(phone?.[1])).toBe(160);
 		const widths = [...css.matchAll(/\.record-claim > \.result-image \{[^}]*?\n\t\twidth:\s*(\d+)px/g)].map((match) => Number(match[1]));

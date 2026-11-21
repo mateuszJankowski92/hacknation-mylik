@@ -1,36 +1,47 @@
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
+import { AccessibilityMenu } from './a11y/AccessibilityMenu';
+import { useEscapeToClose } from './a11y/useEscapeToClose';
 import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
-import { AccessibilityPage, PrivacyPage } from './components/StaticPages';
+import { AccessibilityPage } from './components/AccessibilityPage';
+import { PrivacyPage } from './components/PrivacyPage';
 import { SiteFooter } from './components/SiteFooter';
 import { Link } from './components/Link';
 import { useRoute } from './route';
 import { CharacterStage } from './stage/CharacterStage';
 import { StageProvider } from './stage/StageContext';
 
+function skipToContent(event: MouseEvent<HTMLAnchorElement>) {
+	event.preventDefault();
+	document.getElementById('main')?.focus();
+}
+
 function AppShell() {
 	const route = useRoute();
+	useEscapeToClose();
 	const isHome = route.page === 'check';
-	const Brand = isHome ? 'p' : 'h1';
 	const appRef = useRef<HTMLDivElement>(null);
 
 	return (
 		<div className="app" data-page={route.page} ref={appRef}>
-			<a className="skip-link" href="#main">
+			<a className="skip-link" href="#main" onClick={skipToContent}>
 				Przejdź do treści
 			</a>
 			<header className="site-header">
-				<Brand className="site-header__brand">
+				<p className="site-header__brand">
 					<Link to="/" aria-current={isHome ? 'page' : undefined}>
 						Mylik
 					</Link>
-				</Brand>
-				<nav aria-label="Główna nawigacja">
-					<Link to="/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
-						Źródła
-					</Link>
-				</nav>
+				</p>
+				<div className="site-header__tools">
+					<nav aria-label="Główna nawigacja">
+						<Link to="/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
+							Źródła
+						</Link>
+					</nav>
+					<AccessibilityMenu />
+				</div>
 			</header>
 			<main id="main" tabIndex={-1}>
 				{route.page === 'check' && <CheckPage />}

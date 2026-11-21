@@ -6,6 +6,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { VerificationRecord } from '../../src/contracts/record';
 import { App } from './App';
+import { readUnscaled } from './testing/css';
 import { RecordView } from './components/RecordView';
 import { QUESTION_TEXTS } from './components/SheetQuestion';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
@@ -84,8 +85,8 @@ describe('arkusz wyniku: układ od góry', () => {
 		const { container } = render(<RecordView record={LONG.record} />);
 		expect(plain(container.querySelector('.sheet-question__text')?.textContent ?? '')).toBe(LONG.record.maskedInput);
 		expect(container.querySelector('.sheet-question')?.getAttribute('aria-labelledby')).toBeTruthy();
-		const sheetCss = readFileSync(join(HERE, 'components', 'sheet.css'), 'utf8');
-		const recordCss = readFileSync(join(HERE, 'components', 'record.css'), 'utf8');
+		const sheetCss = readUnscaled(join(HERE, 'components', 'sheet.css'), 'utf8');
+		const recordCss = readUnscaled(join(HERE, 'components', 'record.css'), 'utf8');
 		expect(sheetCss).toMatch(/\.sheet-question__text \{[^}]*-webkit-line-clamp: 2;/);
 		expect(recordCss).toMatch(/\.record-claim__primary \.record-evidence__quote p \{\s*font-size: 20px;/);
 		expect(sheetCss).toMatch(/\.confidence__word \{[^}]*font-size: 1rem;/);
@@ -116,7 +117,7 @@ describe('arkusz wyniku: układ od góry', () => {
 		expect(headline).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: .+ Brak wyniku w moich źródłach nie oznacza, że to nieprawda\.$/u);
 		expect(headline).not.toBe('Nie wiem.');
 		expect(container.querySelector('.record-claim__primary')).toBeNull();
-		const sheetCss = readFileSync(join(HERE, 'components', 'sheet.css'), 'utf8');
+		const sheetCss = readUnscaled(join(HERE, 'components', 'sheet.css'), 'utf8');
 		expect(sheetCss).toMatch(/\.sheet \.record-claim--abstain::before \{[^}]*var\(--bg\)/);
 	});
 
@@ -160,7 +161,7 @@ describe('arkusz wyniku: układ od góry', () => {
 			const { container } = render(<RecordView record={outcome.record} />);
 			const headline = container.querySelector('.record-claim__headline');
 			expect(plain(headline?.textContent ?? ''), key).toMatch(pattern);
-			expect(headline?.tagName).toBe('H3');
+			expect(headline?.tagName).toBe('H2');
 			cleanup();
 		}
 	});
@@ -186,17 +187,17 @@ describe('arkusz wyniku: układ od góry', () => {
 			expect(container.querySelector('[class*="verdict--"], [class*="stamp"], .verdict__icon')).toBeNull();
 			cleanup();
 		}
-		const css = ['components/record.css', 'components/sheet.css'].map((file) => readFileSync(join(HERE, file), 'utf8')).join('\n');
+		const css = ['components/record.css', 'components/sheet.css'].map((file) => readUnscaled(join(HERE, file), 'utf8')).join('\n');
 		expect(css).not.toMatch(/green|#0f0|#00ff00|#f00\b|#ff0000|stamp/i);
 	});
 
 	it('rozwinięcie arkusza trwa najwyżej pół sekundy i wyłącza się przy ograniczeniu ruchu', () => {
-		const css = readFileSync(join(HERE, 'components', 'sheet.css'), 'utf8');
+		const css = readUnscaled(join(HERE, 'components', 'sheet.css'), 'utf8');
 		const duration = Number(/--sheet-unfold-duration:\s*(\d+)ms/.exec(css)?.[1]);
 		expect(duration).toBeGreaterThan(0);
 		expect(duration).toBeLessThanOrEqual(500);
 		expect(css).toContain('animation: sheet-unfold var(--sheet-unfold-duration)');
-		expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*\.sheet__plane,\s*\.sheet__body \{\s*animation: none;/);
+		expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*:root:not\(\[data-motion='on'\]\) \.sheet__plane,\s*:root:not\(\[data-motion='on'\]\) \.sheet__body \{\s*animation: none;/);
 		expect(css).toMatch(/\.sheet__plane \{[^}]*border: var\(--outline\) solid var\(--graphite\)/);
 		expect(css).toMatch(/\.sheet__plane \{[^}]*box-shadow: var\(--shadow-paper\)/);
 		expect(css).toContain('var(--crease)');
@@ -291,7 +292,7 @@ describe('arkusz wyniku: dostępność', () => {
 		await openRecord(SHORT.record);
 		const heading = document.querySelector('[data-result-heading]') as HTMLElement;
 		await waitFor(() => expect(document.activeElement).toBe(heading));
-		expect(heading.tagName).toBe('H3');
+		expect(heading.tagName).toBe('H2');
 		expect(document.title).toContain('Wynik sprawdzenia');
 		expect(document.title).toContain(SHORT.record.maskedInput.slice(0, 20));
 		expect(document.title).toContain('Mylik');
