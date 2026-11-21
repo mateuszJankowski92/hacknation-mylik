@@ -927,7 +927,12 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       let accepted: AcceptedEvidence[] = [];
       let rejectedCount = 0;
       if (sent.length > 0) {
-        const r = await assessAndGate([...splitEven(forSel, ASSESS_CHUNK), ...splitEven(counterSel, ASSESS_CHUNK)], sent);
+        // Zad. 35: porcje do oceny w stałej kolejności wyszukiwania (nie w kolejności od modelu porządkującego):
+        // ten sam zbiór kandydatów daje zawsze te same porcje i to samo wejście oceny. Pozycja dowodu
+        // (słabe dopasowanie) zostaje z kolejności wyboru.
+        const searchPos = new Map(union.map((p, i) => [p.id, i]));
+        const bySearch = (list: Passage[]) => [...list].sort((a, b) => (searchPos.get(a.id) ?? 0) - (searchPos.get(b.id) ?? 0));
+        const r = await assessAndGate([...splitEven(bySearch(forSel), ASSESS_CHUNK), ...splitEven(bySearch(counterSel), ASSESS_CHUNK)], sent);
         accepted = r.accepted;
         rejectedCount = r.rejected;
       }

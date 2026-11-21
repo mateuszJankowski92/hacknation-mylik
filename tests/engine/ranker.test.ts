@@ -74,8 +74,11 @@ describe('wybór kandydatów w silniku', () => {
     expect(llm.rankCalls).toHaveLength(1);
     expect(llm.rankCalls[0]!.passages.length).toBe(14);
     // Model wskazał 3, dopełnienie z wyszukiwania do minimum 6.
-    expect(llm.seenPassageIds.slice(0, 3)).toEqual(['d13#0', 'd14#0', 'd2#0']);
+    expect(llm.seenPassageIds).toEqual(expect.arrayContaining(['d13#0', 'd14#0', 'd2#0']));
     expect(llm.seenPassageIds).toHaveLength(6);
+    // Zad. 35: do oceny w stałej kolejności wyszukiwania, niezależnie od kolejności od modelu.
+    const pos = (id: string) => Number(id.slice(1, id.indexOf('#')));
+    expect([...llm.seenPassageIds].sort((a, b) => pos(a) - pos(b))).toEqual(llm.seenPassageIds);
     expect(out.record.claims[0]!.verdict).toBe('potwierdzone');
     expect(trace).toContain('rank');
   });
