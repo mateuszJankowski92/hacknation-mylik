@@ -3,8 +3,6 @@
 	width: min(100%, 288px);
 	aspect-ratio: 4 / 5;
 	overflow: hidden;
-	border-radius: var(--radius, 12px);
-	background: #ffffff;
 }
 
 .scene__video,

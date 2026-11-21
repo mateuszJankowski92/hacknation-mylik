@@ -13,11 +13,13 @@ export interface HeroIllustrationProps {
 export function HeroIllustration({ src, alt = '', role = 'start' }: HeroIllustrationProps) {
 	return (
 		<div className="hero__illustration">
-			{src ? (
-				<img className="hero__image" src={src} alt={alt} />
-			) : (
-				<RoleArt owner={role} name="postac" alt={artAlt(role, 'postac')} className="hero__placeholder" decorative />
-			)}
+			<div className="hero__frame illustration-frame">
+				{src ? (
+					<img className="hero__image" src={src} alt={alt} />
+				) : (
+					<RoleArt owner={role} name="postac" alt={artAlt(role, 'postac')} className="hero__placeholder" decorative />
+				)}
+			</div>
 		</div>
 	);
 }
