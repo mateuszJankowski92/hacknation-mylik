@@ -74,3 +74,43 @@ describe('silnik: błędy przejściowe i bramka', () => {
   });
   void usage;
 });
+
+describe('silnik: ocena porcji niezgodna ze schematem', () => {
+  it('porcja dzielona na pół; każdy fragment oceniony, werdykt zamiast stanu technicznego', async () => {
+    const ps = [0, 1, 2, 3].map((i) => passage(`b${i}#0`, `Biblioteka publiczna przy rynku numer ${i} otwarta w sobotę.`, { sourceType: 'urzedowe' }));
+    const llm = new ScriptedLlm(() => [claim('Otwarto bibliotekę publiczną przy rynku.')], (req) => {
+      if (req.passages.length > 2) throw new LlmError('invalid_output', 'x', { retryable: false });
+      return stanceTable(Object.fromEntries(ps.map((p) => [p.id, 'potwierdza' as const])), 200)(req);
+    });
+    const engine = createEngineCore({
+      db: openDb(':memory:'),
+      searcher: new FakeSearcher(ps),
+      llm,
+      now: fixedNow,
+      prepare: fakePrepare,
+      supportGate: null,
+      ranker: null,
+      options: { errorProfile: null, retryDelayMs: 1 },
+    });
+    const out = await engine.verify({ text: 'Otwarto bibliotekę publiczną przy rynku.', channel: 'www' });
+    expect(out.kind === 'record' && out.record.claims[0]!.verdict).toBe('potwierdzone');
+    expect(new Set(llm.seenPassageIds).size).toBe(4);
+  });
+  it('błąd przy pojedynczym fragmencie: stan techniczny', async () => {
+    const llm = new ScriptedLlm(() => [claim('Otwarto bibliotekę publiczną przy rynku.')], () => {
+      throw new LlmError('invalid_output', 'x', { retryable: false });
+    });
+    const engine = createEngineCore({
+      db: openDb(':memory:'),
+      searcher: new FakeSearcher([P]),
+      llm,
+      now: fixedNow,
+      prepare: fakePrepare,
+      supportGate: null,
+      ranker: null,
+      options: { errorProfile: null, retryDelayMs: 1 },
+    });
+    const out = await engine.verify({ text: 'Otwarto bibliotekę publiczną przy rynku.', channel: 'www' });
+    expect(out.kind === 'state' && out.state).toBe('awaria_techniczna');
+  });
+});

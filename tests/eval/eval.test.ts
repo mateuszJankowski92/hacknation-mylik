@@ -29,9 +29,9 @@ function walk(dir: string): string[] {
 }
 
 describe('dane zestawu testowego', () => {
-  it('ma 40-60 przypadków ze scenariuszy A-J i wymaganych kategorii', () => {
+  it('ma 40-80 przypadków ze scenariuszy A-J i wymaganych kategorii (60 + 11 pytań z zad. 35)', () => {
     expect(cases.length).toBeGreaterThanOrEqual(40);
-    expect(cases.length).toBeLessThanOrEqual(60);
+    expect(cases.length).toBeLessThanOrEqual(80);
     const scen = new Set(cases.map((c) => c.scenario));
     for (const s of ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']) expect(scen.has(s as never)).toBe(true);
     const cat = new Set(cases.map((c) => c.category));

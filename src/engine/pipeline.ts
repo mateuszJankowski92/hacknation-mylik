@@ -871,10 +871,28 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       // (5) ocena stanowisk (model, porcje równolegle) i (6) bramka cytatów (kod); ten sam przebieg
       // dla fragmentów korpusu i dla fragmentów drugiej warstwy (zad. 29).
       const modelFlagged = new Set<string>();
+      /**
+       * Ocena jednej porcji. Zad. 35: gdy odpowiedź jest niezgodna ze schematem także po ponowieniu
+       * (np. brak oceny części fragmentów), porcję dzielimy na pół i oceniamy połówki osobno. Każdy fragment
+       * nadal dostaje ocenę; dopiero błąd przy pojedynczym fragmencie daje stan techniczny.
+       */
+      async function assessChunk(g: Passage[]): Promise<Awaited<ReturnType<typeof llm.assessPassages>>> {
+        try {
+          return await retry(() => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) }));
+        } catch (e) {
+          if (!(isLlmError(e) && e.code === 'invalid_output' && g.length > 1)) throw e;
+          deadline.check();
+          const mid = Math.ceil(g.length / 2);
+          const [a, b] = await Promise.all([assessChunk(g.slice(0, mid)), assessChunk(g.slice(mid))]);
+          // Połówka A liczona tu, połówka B przez wołającego (dwa wywołania).
+          addUsage(usage, a.usage);
+          return { assessments: [...(a.assessments ?? []), ...(b.assessments ?? [])], usage: b.usage };
+        }
+      }
       async function assessAndGate(groups: Passage[][], sentList: Passage[]): Promise<{ accepted: AcceptedEvidence[]; rejected: number }> {
         const sentIdSet = new Set(sentList.map((p) => p.id));
         const assessedAll = await Promise.all(
-          groups.map((g) => retry(() => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) }))),
+          groups.map((g) => assessChunk(g)),
         );
         deadline.check();
         const assessments = assessedAll.flatMap((a) => {
