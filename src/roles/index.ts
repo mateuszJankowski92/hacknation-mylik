@@ -10,12 +10,12 @@
 // Każda wątpliwość daje rolę domyślną. Rola nigdy nie wpływa na werdykt, siłę podstawy ani treść odpowiedzi.
 import type { Topic } from '../contracts/claim';
 import { DEFAULT_ROLE, type Role } from '../contracts/record';
-import { CHILD_HARM_WORDS, CHILD_WORDS, SENSITIVE_WORDS } from './sensitive';
+import { isSensitive } from './sensitive';
 import { matchedEntries, type WordEntry } from './text';
 import { TOPIC_WORDS } from './topics';
 
 export { DEFAULT_ROLE, type Role };
-export { SENSITIVE_WORDS } from './sensitive';
+export { SENSITIVE_WORDS, isSensitive } from './sensitive';
 export { TOPIC_WORDS } from './topics';
 export { fold, matchedEntries } from './text';
 
@@ -61,12 +61,6 @@ function hits(texts: readonly string[], list: readonly WordEntry[]): number {
   let n = 0;
   for (const t of texts) n += matchedEntries(t, list).length;
   return n;
-}
-
-/** Czy tekst dotyczy tematu wrażliwego (lista słów albo dziecko w kontekście krzywdy). */
-export function isSensitive(text: string): boolean {
-  if (matchedEntries(text, SENSITIVE_WORDS).length > 0) return true;
-  return matchedEntries(text, CHILD_WORDS).length > 0 && matchedEntries(text, CHILD_HARM_WORDS).length > 0;
 }
 
 /**

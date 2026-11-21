@@ -2,7 +2,7 @@
 // Rdzeń bez polskich znaków pasuje do początku słowa (odmiana), np. "wojn" -> wojna, wojny, wojnie, wojnę.
 // Każde trafienie daje rolę domyślną (pogodynka). Lepiej za dużo niż za mało: fałszywe trafienie kosztuje
 // tylko lżejszy wygląd, przeoczenie mogłoby dać lekki wygląd przy krzywdzie.
-import type { WordEntry } from './text';
+import { matchedEntries, type WordEntry } from './text';
 
 export const SENSITIVE_WORDS: readonly WordEntry[] = [
   // wojna, przemoc zbrojna, polityka bezpieczeństwa
@@ -37,3 +37,9 @@ export const CHILD_WORDS: readonly WordEntry[] = ['dziec', 'dzieci', 'nieletn', 
 export const CHILD_HARM_WORDS: readonly WordEntry[] = [
   'wykorzyst', 'zaniedb', 'porzuc', 'bic', 'bil', 'bity', 'skrzywdz', 'cierpi', 'glod', 'sierot', 'odebran',
 ];
+
+/** Czy tekst dotyczy tematu wrażliwego (lista słów albo dziecko w kontekście krzywdy). */
+export function isSensitive(text: string): boolean {
+  if (matchedEntries(text, SENSITIVE_WORDS).length > 0) return true;
+  return matchedEntries(text, CHILD_WORDS).length > 0 && matchedEntries(text, CHILD_HARM_WORDS).length > 0;
+}
