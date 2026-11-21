@@ -1,8 +1,9 @@
 import type { MaskResult } from '../contracts';
 
-// Znane ograniczenie: nie rozpoznajemy imion, nazwisk ani adresów zamieszkania
-// (zbyt niepewne, groziłoby fałszywymi trafieniami). Maskujemy tylko dane
-// o jednoznacznej strukturze, a tam gdzie istnieje suma kontrolna, ją sprawdzamy.
+// Maskujemy dane o jednoznacznej strukturze (z sumą kontrolną, gdzie istnieje)
+// oraz imiona i nazwiska tylko w typowych wzorcach (zwroty grzecznościowe,
+// etykiety, przedstawienie się). Nie rozpoznajemy adresów zamieszkania.
+// Osoby publiczne z tytułem ("Pan Premier Kowalski") nie są maskowane.
 
 interface PiiRule {
 	type: string;
@@ -142,6 +143,59 @@ const RULES: PiiRule[] = [
 	},
 ];
 
+const NAME_WORD = String.raw`\p{Lu}\p{Ll}{1,29}(?:-\p{Lu}\p{Ll}{1,29})?`;
+const NAME_PHRASE = `${NAME_WORD}(?: ${NAME_WORD})?`;
+const NAME_PLACEHOLDER = '[OSOBA]';
+
+const NON_NAME_WORDS = new Set(
+	[
+		'prezydent', 'prezydencie', 'premier', 'premierze', 'minister', 'ministrze', 'ministerstwo', 'prezes', 'prezesie',
+		'dyrektor', 'dyrektorze', 'wójt', 'burmistrz', 'starosta', 'marszałek', 'sędzia', 'sędzio', 'rzecznik', 'poseł',
+		'senator', 'komendant', 'prokurator', 'kanclerz', 'wicepremier', 'wiceminister', 'rząd', 'sejm', 'senat', 'urząd',
+		'zus', 'nfz', 'gus', 'nik', 'ipn', 'polska', 'polski', 'polskie', 'rzeczpospolita', 'unia', 'komisja', 'rada',
+		'sąd', 'szpital', 'uniwersytet', 'fundacja', 'stowarzyszenie', 'spółka', 'bank', 'gmina', 'miasto', 'powiat',
+		'województwo', 'warszawa', 'kraków', 'gdańsk', 'wrocław', 'poznań', 'łódź', 'katowice', 'lublin', 'bóg', 'boże',
+		'jezus', 'chrystus', 'tadeusz', 'doktor', 'profesor', 'mecenas', 'inżynier', 'redaktor', 'kierownik', 'generał',
+		'ksiądz', 'biskup', 'papież', 'król', 'królowa', 'książę', 'ambasador', 'konsul',
+	].map((word) => word.toLowerCase()),
+);
+
+function isNonName(word: string): boolean {
+	return word.split('-').some((part) => NON_NAME_WORDS.has(part.toLowerCase()));
+}
+
+function maskableNameLength(phrase: string): number {
+	const words = phrase.split(' ');
+	if (isNonName(words[0])) return 0;
+	if (words.length > 1 && isNonName(words[1])) return 1;
+	return words.length;
+}
+
+interface NameRule {
+	pattern: RegExp;
+}
+
+const NAME_RULES: NameRule[] = [
+	{ pattern: new RegExp(String.raw`(?<![\p{L}\d])((?:[Pp]an|[Pp]ani|[Pp]ana|[Pp]anu|[Pp]anią|[Pp]anem|[Pp]anie|[Pp]aniom) )(${NAME_PHRASE})(?![\p{L}\d-])`, 'gu') },
+	{ pattern: new RegExp(String.raw`(?<![\p{L}\d])((?:[Ii]mię i nazwisko|[Ii]mię|[Nn]azwisko|[Pp]odpis)\s*[:\-]\s*)(${NAME_PHRASE})(?![\p{L}\d-])`, 'gu') },
+	{ pattern: new RegExp(String.raw`(?<![\p{L}\d])((?:[Nn]azywam się|[Mm]am na imię|[Mm]oje nazwisko to|[Mm]oje imię i nazwisko to)\s+)(${NAME_PHRASE})(?![\p{L}\d-])`, 'gu') },
+	{ pattern: new RegExp(String.raw`(?<![\p{L}\d])((?:Pozdrawiam(?: serdecznie)?,|[Zz] poważaniem,?)\s+)(${NAME_PHRASE})(?![\p{L}\d-])`, 'gu') },
+];
+
+function maskNames(text: string, counts: Map<string, number>): string {
+	let result = text;
+	for (const rule of NAME_RULES) {
+		result = result.replace(rule.pattern, (match: string, lead: string, phrase: string) => {
+			const keep = maskableNameLength(phrase);
+			if (keep === 0) return match;
+			const words = phrase.split(' ');
+			counts.set('OSOBA', (counts.get('OSOBA') ?? 0) + 1);
+			return `${lead}${NAME_PLACEHOLDER}${words.length > keep ? ` ${words.slice(keep).join(' ')}` : ''}`;
+		});
+	}
+	return result;
+}
+
 export function maskPii(text: string): MaskResult {
 	const counts = new Map<string, number>();
 	let result = text;
@@ -152,6 +206,7 @@ export function maskPii(text: string): MaskResult {
 			return `[${rule.type}]`;
 		});
 	}
+	result = maskNames(result, counts);
 	const masks = [...counts.entries()].map(([type, count]) => ({ type, count }));
 	return { text: result, masks };
 }
