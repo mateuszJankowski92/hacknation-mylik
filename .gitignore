@@ -1,0 +1,28 @@
+# Sekrety: nigdy w repozytorium (wytyczne PRAWDOWID, s. 4)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Zależności i artefakty budowania
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+
+# Dane lokalne: bazy, logi przebiegu, pobrane surowe strony
+data/*.sqlite
+data/*.sqlite-*
+data/*.db
+data/raw/
+logs/
+*.log
+
+# System i edytory
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

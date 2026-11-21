@@ -1,0 +1,39 @@
+{
+  "name": "mylik",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MYLIK: prototyp weryfikacji doniesień (PRAWDOWID)",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "dev:web": "vite",
+    "build": "vite build && tsc --noEmit",
+    "start": "tsx src/main.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "corpus:ingest": "tsx scripts/ingest.ts",
+    "corpus:fetch": "tsx scripts/fetch-sources.ts",
+    "eval": "tsx scripts/eval.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.12.0",
+    "@hono/node-server": "^2.1.11",
+    "hono": "^4.13.19",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "jsdom": "^31.0.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1"
+  }
+}

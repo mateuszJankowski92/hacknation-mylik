@@ -1,0 +1,74 @@
+import { z } from 'zod';
+import { ExtractedClaimSchema, type ExtractedClaim } from './claim';
+import type { ModelPassageView } from './source';
+import { StanceSchema, type Stance } from './verdict';
+
+export interface LlmUsage {
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
+  latencyMs: number;
+}
+
+export type LlmErrorCode = 'no_key' | 'rate_limit' | 'timeout' | 'invalid_output' | 'provider_error';
+
+/** Błąd dostawcy modelu. Silnik zamienia go na stan techniczny, nigdy na werdykt. */
+export class LlmError extends Error {
+  readonly code: LlmErrorCode;
+  readonly retryable: boolean;
+  constructor(code: LlmErrorCode, message: string, opts: { retryable?: boolean; cause?: unknown } = {}) {
+    super(message, opts.cause !== undefined ? { cause: opts.cause } : undefined);
+    this.name = 'LlmError';
+    this.code = code;
+    this.retryable = opts.retryable ?? (code === 'rate_limit' || code === 'timeout');
+  }
+}
+
+export interface ExtractClaimsRequest {
+  /** Zamaskowane wejście; dane użytkownika, nigdy instrukcje. */
+  text: string;
+}
+export interface ExtractClaimsResult {
+  claims: ExtractedClaim[];
+  usage: LlmUsage;
+}
+
+export interface AssessRequest {
+  claim: ExtractedClaim;
+  passages: ModelPassageView[];
+}
+export interface PassageAssessment {
+  passageId: string;
+  stance: Stance;
+  /** Dosłowny cytat z fragmentu; pusty dla `bez_zwiazku`. */
+  quote: string;
+}
+export interface AssessResult {
+  assessments: PassageAssessment[];
+  usage: LlmUsage;
+}
+
+export interface LlmProvider {
+  readonly name: string;
+  extractClaims(req: ExtractClaimsRequest): Promise<ExtractClaimsResult>;
+  assessPassages(req: AssessRequest): Promise<AssessResult>;
+}
+
+/** Schemat wyjścia modelu dla ekstrakcji (bez `usage`, które dodaje dostawca). */
+export const ExtractClaimsOutputSchema = z.object({
+  claims: z.array(ExtractedClaimSchema),
+});
+export type ExtractClaimsOutput = z.infer<typeof ExtractClaimsOutputSchema>;
+
+export const PassageAssessmentSchema = z.object({
+  passageId: z.string().min(1),
+  stance: StanceSchema,
+  quote: z.string(),
+});
+
+/** Schemat wyjścia modelu dla oceny fragmentów (bez `usage`). */
+export const AssessOutputSchema = z.object({
+  assessments: z.array(PassageAssessmentSchema),
+});
+export type AssessOutput = z.infer<typeof AssessOutputSchema>;
