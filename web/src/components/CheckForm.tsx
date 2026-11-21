@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { MAX_INPUT_LENGTH, validateContent } from '../api';
 
+const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
+
 interface CheckFormProps {
 	loading: boolean;
 	onSubmit: (content: string) => void;
@@ -12,6 +14,7 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 	const validity = validateContent(content);
 	const tooLong = validity === 'too_long';
 	const blocked = validity !== 'ok' || loading;
+	const showCounter = content.length >= COUNTER_THRESHOLD;
 
 	function handleSubmit(event: FormEvent) {
 		event.preventDefault();
@@ -22,12 +25,12 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 	return (
 		<form className="check-form" onSubmit={handleSubmit} noValidate>
 			<label htmlFor="content" className="check-form__label">
-				Wklej treść lub link do informacji, którą chcesz sprawdzić
+				Wklej informację lub link
 			</label>
 			<textarea
 				id="content"
 				name="content"
-				rows={6}
+				rows={3}
 				value={content}
 				onChange={(event) => setContent(event.target.value)}
 				aria-describedby="content-counter content-error"
@@ -35,7 +38,7 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 				autoComplete="off"
 			/>
 			<p id="content-counter" className={tooLong ? 'check-form__counter check-form__counter--over' : 'check-form__counter'}>
-				Znaków: {content.length} z {MAX_INPUT_LENGTH}
+				{showCounter && `Znaków: ${content.length} z ${MAX_INPUT_LENGTH}`}
 			</p>
 			<p id="content-error" className="check-form__error" role={tooLong ? 'alert' : undefined}>
 				{tooLong && `Treść jest za długa. Skróć ją o ${content.length - MAX_INPUT_LENGTH} znaków.`}

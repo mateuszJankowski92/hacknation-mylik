@@ -7,6 +7,7 @@ import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals
 import { WaitingScale } from '../visuals/WaitingScale';
 import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
+import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
 import { OutcomeView } from './OutcomeView';
 
@@ -104,7 +105,9 @@ export function CheckPage() {
 
 	return (
 		<>
-			<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
+			<Hero>
+				<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
+			</Hero>
 			{state.status === 'loading' && <WaitingScale progress={state.progress} etaSeconds={state.etaSeconds} />}
 			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
 				{state.status === 'error' && (

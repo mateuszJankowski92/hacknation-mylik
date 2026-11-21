@@ -5,10 +5,7 @@
 }
 
 .waiting-scale {
-	padding: 1rem;
-	border: 2px solid var(--border);
-	border-radius: 0.5rem;
-	background: var(--surface);
+	padding: var(--space-3) 0;
 }
 
 .waiting-scale__eta {

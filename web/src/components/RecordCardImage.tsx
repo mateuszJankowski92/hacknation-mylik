@@ -21,8 +21,8 @@ export function RecordCardImage({
 		? `Karta do udostępnienia. Ocena: ${VERDICT_LABELS_PL[verdict]}.`
 		: 'Karta do udostępnienia.';
 	return (
-		<section className="record-card" aria-label="Karta do udostępnienia">
-			<h3>Karta do udostępnienia</h3>
+		<section className="record-card record-claim__group-block" aria-label="Karta do udostępnienia">
+			<h4>Karta do udostępnienia</h4>
 			<img className="record-card__image" src={src} alt={alt} width={1200} height={630} loading="lazy" />
 			<p>
 				<a className="record-card__download" href={downloadHref} download={`mylik-${id.slice(0, 8)}.svg`}>

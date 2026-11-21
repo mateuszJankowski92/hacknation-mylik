@@ -45,11 +45,11 @@ describe('strona wyniku /r/<id>', () => {
 			'/api/sources/latest': () => ok(LATEST),
 		});
 		render(<App />);
-		fireEvent.change(screen.getByLabelText(/Wklej treść lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
+		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		await waitFor(() => expect(window.location.pathname).toBe(`/r/${ID}`));
 		await screen.findByLabelText('Postęp sprawdzania');
-		expect(screen.queryByLabelText(/Wklej treść lub link/)).toBeNull();
+		expect(screen.queryByLabelText(/Wklej informację lub link/)).toBeNull();
 		await waitFor(() => expect(fetchMock.mock.calls.some((c) => c[0] === '/api/verify/stream')).toBe(true));
 		release(ok({ ...potwierdzone, record: { ...potwierdzone.record, id: ID } }));
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
@@ -123,7 +123,7 @@ describe('strona wyniku /r/<id>', () => {
 			'/api/sources/latest': () => ok(LATEST),
 		});
 		render(<App />);
-		fireEvent.change(screen.getByLabelText(/Wklej treść lub link/), { target: { value: 'https://przyklad.example/a' } });
+		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'https://przyklad.example/a' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		await waitFor(() => expect(window.location.pathname).toBe(`/r/${ID}`));
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);

@@ -10,19 +10,22 @@ import './home.css';
 
 export const HOME_TEXTS = {
 	recentTitle: 'Twoje ostatnie sprawdzenia',
-	recentNote: 'Widzisz tylko swoje sprawdzenia. Są zapisane w tej przeglądarce, nikt inny ich nie zobaczy.',
-	recentEmpty: 'Na razie nic tu nie ma. Gdy coś sprawdzisz, pojawi się tutaj.',
+	recentEmpty: 'Na razie nic tu nie ma.',
+	showMore: 'Pokaż więcej',
+	showLess: 'Pokaż mniej',
 	recentClear: 'Wyczyść listę',
 	recentCleared: 'Lista jest pusta.',
 	latestTitle: 'Najnowsze ostrzeżenia ze źródeł',
-	latestNote: 'To najświeższe dokumenty ze źródeł, które sprawdzam. Nie są oceną niczyich pytań.',
 	latestEmpty: 'Nie mam jeszcze żadnych dokumentów do pokazania.',
 	latestFailed: 'Nie udało się wczytać najnowszych dokumentów. Spróbuj odświeżyć stronę.',
 } as const;
 
+const VISIBLE_ITEMS = 3;
+
 export function RecentChecks() {
 	const [entries, setEntries] = useState<HistoryEntry[]>(() => loadHistory());
 	const [cleared, setCleared] = useState(false);
+	const [expanded, setExpanded] = useState(false);
 
 	function handleClear() {
 		clearHistory();
@@ -33,13 +36,12 @@ export function RecentChecks() {
 	return (
 		<section className="home-section" aria-labelledby="recent-title">
 			<h2 id="recent-title">{HOME_TEXTS.recentTitle}</h2>
-			<p className="home-section__note">{HOME_TEXTS.recentNote}</p>
 			{entries.length === 0 ? (
 				<p>{HOME_TEXTS.recentEmpty}</p>
 			) : (
 				<>
 					<ul className="home-list">
-						{entries.map((entry) => (
+						{(expanded ? entries : entries.slice(0, VISIBLE_ITEMS)).map((entry) => (
 							<li key={entry.id} className="home-list__item">
 								<Link to={recordUrlPath(entry.id)}>{entry.text}</Link>
 								<span className="home-list__meta">
@@ -48,9 +50,16 @@ export function RecentChecks() {
 							</li>
 						))}
 					</ul>
-					<button type="button" className="button" onClick={handleClear}>
-						{HOME_TEXTS.recentClear}
-					</button>
+					<div className="home-section__actions">
+						{entries.length > VISIBLE_ITEMS && (
+							<button type="button" className="text-button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+								{expanded ? HOME_TEXTS.showLess : HOME_TEXTS.showMore}
+							</button>
+						)}
+						<button type="button" className="text-button" onClick={handleClear}>
+							{HOME_TEXTS.recentClear}
+						</button>
+					</div>
 				</>
 			)}
 			<p className="visually-hidden" role="status" aria-live="polite">
@@ -67,6 +76,7 @@ type LatestState =
 
 export function LatestWarnings() {
 	const [state, setState] = useState<LatestState>({ status: 'loading' });
+	const [expanded, setExpanded] = useState(false);
 
 	useEffect(() => {
 		const controller = new AbortController();
@@ -83,13 +93,12 @@ export function LatestWarnings() {
 	return (
 		<section className="home-section" aria-labelledby="latest-title">
 			<h2 id="latest-title">{HOME_TEXTS.latestTitle}</h2>
-			<p className="home-section__note">{HOME_TEXTS.latestNote}</p>
 			{state.status === 'loading' && <p role="status">Wczytuję…</p>}
 			{state.status === 'error' && <p>{state.message}</p>}
 			{state.status === 'ready' && state.documents.length === 0 && <p>{HOME_TEXTS.latestEmpty}</p>}
 			{state.status === 'ready' && state.documents.length > 0 && (
 				<ul className="home-list">
-					{state.documents.map((doc) => (
+					{(expanded ? state.documents : state.documents.slice(0, VISIBLE_ITEMS)).map((doc) => (
 						<li key={doc.documentId} className="home-list__item">
 							<a href={doc.url} target="_blank" rel="noopener noreferrer">
 								{doc.title}
@@ -102,6 +111,13 @@ export function LatestWarnings() {
 						</li>
 					))}
 				</ul>
+			)}
+			{state.status === 'ready' && state.documents.length > VISIBLE_ITEMS && (
+				<div className="home-section__actions">
+					<button type="button" className="text-button" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+						{expanded ? HOME_TEXTS.showLess : HOME_TEXTS.showMore}
+					</button>
+				</div>
 			)}
 		</section>
 	);

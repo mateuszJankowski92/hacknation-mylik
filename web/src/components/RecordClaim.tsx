@@ -1,11 +1,11 @@
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import {
 	MISMATCH_LABELS_PL,
 	type Verdict,
 } from '../../../src/contracts/verdict';
-import { buildResultLayout } from '../../../src/render/layout';
+import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layout';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
 import { EmptyScale, EMPTY_SCALE_HEADING, EMPTY_SCALE_TITLE } from '../visuals/EmptyScale';
@@ -58,9 +58,17 @@ function groupEvidence(evidence: EvidenceItem[]): EvidenceGroup[] {
 }
 
 function SourceEvidence({ item }: { item: EvidenceItem }) {
-	const { source } = item;
 	return (
 		<li className="record-evidence">
+			<EvidenceBody item={item} />
+		</li>
+	);
+}
+
+function EvidenceBody({ item }: { item: EvidenceItem }) {
+	const { source } = item;
+	return (
+		<>
 			{item.archival && (
 				<p className="record-evidence__archival" role="note">
 					<span aria-hidden="true">⚠ </span>
@@ -75,37 +83,17 @@ function SourceEvidence({ item }: { item: EvidenceItem }) {
 			<blockquote className="record-evidence__quote">
 				<p>{item.quote}</p>
 			</blockquote>
-			<dl className="record-evidence__meta">
-				<div>
-					<dt>Tytuł</dt>
-					<dd>{source.title}</dd>
-				</div>
-				<div>
-					<dt>Wydawca</dt>
-					<dd>{source.publisher}</dd>
-				</div>
-				<div>
-					<dt>Rodzaj źródła</dt>
-					<dd>{SOURCE_TYPE_LABELS_PL[source.sourceType]}</dd>
-				</div>
-				<div>
-					<dt>Data publikacji</dt>
-					<dd>{formatDate(source.publishedAt)}</dd>
-				</div>
-				<div>
-					<dt>Data pobrania</dt>
-					<dd>
-						<time dateTime={source.fetchedAt}>{formatDate(source.fetchedAt)}</time>
-					</dd>
-				</div>
-			</dl>
-			<p>
+			<p className="record-evidence__meta">
+				{source.publisher}, {formatDate(source.publishedAt)}, {SOURCE_TYPE_LABELS_PL[source.sourceType]}. Pobrano{' '}
+				<time dateTime={source.fetchedAt}>{formatDate(source.fetchedAt)}</time>.
+			</p>
+			<p className="record-evidence__link">
 				<a href={source.url} target="_blank" rel="noopener noreferrer">
 					Otwórz źródło: {source.title}
 					<span className="visually-hidden"> (otworzy się w nowej karcie)</span>
 				</a>
 			</p>
-		</li>
+		</>
 	);
 }
 
@@ -148,21 +136,29 @@ function isUnmeasurable(result: ClaimResult): boolean {
 	return result.verdict === 'brak_wystarczajacych_dowodow' || result.strength.level === 'brak';
 }
 
-export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: string }) {
+interface RecordClaimProps {
+	result: ClaimResult;
+	asOf: string;
+	extraDetails?: ReactNode;
+}
+
+export function RecordClaim({ result, asOf, extraDetails }: RecordClaimProps) {
 	const presentation = VERDICT_PRESENTATION[result.verdict];
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
-	const groups = groupEvidence(result.evidence);
+	const primary = pickLayoutEvidence(result);
+	const restEvidence = result.evidence.filter((item) => item !== primary);
+	const groups = groupEvidence(restEvidence);
 	const limitations = [...result.limitations];
 	if (result.abstainReason) limitations.unshift(result.abstainReason);
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const unmeasurable = isUnmeasurable(result);
 	const certainty = unmeasurable && layout.certainty ? `${EMPTY_SCALE_TITLE}: ${EMPTY_SCALE_HEADING}` : layout.certainty;
-	const sourcesRef = useRef<HTMLDetailsElement>(null);
+	const detailsRef = useRef<HTMLDetailsElement>(null);
 
-	function showSources() {
-		const details = sourcesRef.current;
+	function showDetails() {
+		const details = detailsRef.current;
 		if (!details) return;
 		details.open = true;
 		details.scrollIntoView?.({ behavior: 'smooth', block: 'start' });
@@ -188,55 +184,68 @@ export function RecordClaim({ result, asOf }: { result: ClaimResult; asOf: strin
 
 			<p className="record-claim__asof">{layout.asOf}</p>
 			<p className="record-claim__evidence-link">
-				<button type="button" onClick={showSources}>
+				<button type="button" onClick={showDetails}>
 					{layout.evidenceLink}
 				</button>
 			</p>
 
-			<p className="record-claim__claim">
-				<span className="record-claim__label">Sprawdzane twierdzenie: </span>
-				<q>{result.claim.text}</q>
-			</p>
-
-			<section className="record-claim__mylik" aria-label="Ocena Mylika">
-				<h4>Co ustalił Mylik</h4>
-				<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
-				<p>{result.explanation}</p>
-				{layout.certainty && unmeasurable && <EmptyScale sentence={emptyScaleSentence(result)} />}
-				{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
-				<Refutation result={result} />
-				{profile && profile.total > 0 && <ErrorDots profile={profile} />}
-			</section>
-
-			<details className="record-claim__sources" ref={sourcesRef}>
-				<summary>Co mówią źródła</summary>
-				<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
-				{groups.length === 0 && <p>Nie mam żadnego cytatu ze źródeł do tego twierdzenia.</p>}
-				{groups.map((group) => (
-					<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
-						<h5>{group.title}</h5>
-						<ul className="record-evidence-list">
-							{group.items.map((item) => (
-								<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
-							))}
-						</ul>
-					</div>
-				))}
-			</details>
-
-			{(limitations.length > 0 || isAbstain) && (
-				<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">
-					<h4>Czego nie udało się ustalić</h4>
-					{limitations.length > 0 && (
-						<ul>
-							{limitations.map((text) => (
-								<li key={text}>{text}</li>
-							))}
-						</ul>
-					)}
-					{isAbstain && <p>{ABSTAIN_SUGGESTION}</p>}
+			{primary && (
+				<section className="record-claim__primary" aria-label="Główne źródło">
+					<EvidenceBody item={primary} />
 				</section>
 			)}
+
+			<details className="record-claim__details" ref={detailsRef}>
+				<summary>Pokaż szczegóły</summary>
+
+				<section className="record-claim__group-block" aria-label="Twierdzenie i ocena Mylika">
+					<h4>Co ustalił Mylik</h4>
+					<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
+					<p className="record-claim__claim">
+						<span className="record-claim__label">Sprawdzane twierdzenie: </span>
+						<q>{result.claim.text}</q>
+					</p>
+					<p>{result.explanation}</p>
+					{layout.certainty && unmeasurable && <EmptyScale sentence={emptyScaleSentence(result)} />}
+					{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
+					<Refutation result={result} />
+					{profile && profile.total > 0 && <ErrorDots profile={profile} />}
+				</section>
+
+				{(groups.length > 0 || !primary) && (
+					<section className="record-claim__sources" aria-label="Co mówią źródła">
+						<h4>Co mówią źródła</h4>
+						<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
+						{groups.length === 0 && <p>Nie mam żadnego cytatu ze źródeł do tego twierdzenia.</p>}
+						{groups.map((group) => (
+							<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
+								<h5>{group.title}</h5>
+								<ul className="record-evidence-list">
+									{group.items.map((item) => (
+										<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
+									))}
+								</ul>
+							</div>
+						))}
+					</section>
+				)}
+
+				{(limitations.length > 0 || isAbstain) && (
+					<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">
+						<h4>Czego nie udało się ustalić</h4>
+						{limitations.length > 0 && (
+							<ul>
+								{limitations.map((text) => (
+									<li key={text}>{text}</li>
+								))}
+							</ul>
+						)}
+						{isAbstain && <p>{ABSTAIN_SUGGESTION}</p>}
+					</section>
+				)}
+
+				{extraDetails}
+			</details>
 		</article>
 	);
 }

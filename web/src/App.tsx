@@ -3,27 +3,29 @@ import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
 import { useRoute } from './route';
-import { BRAND_TAGLINE } from '../../src/render/warning';
+
+export const PROTOTYPE_NOTE = 'To wczesna wersja próbna. Wyniki mogą mieć braki.';
 
 export function App() {
 	const route = useRoute();
+	const isHome = route.page === 'check';
+	const Brand = isHome ? 'p' : 'h1';
 
 	return (
 		<>
 			<a className="skip-link" href="#main">
 				Przejdź do treści
 			</a>
-			<div className="banner" role="note">
-				<strong>Prototyp.</strong> To wczesna wersja próbna, wyniki mogą mieć braki.
-			</div>
 			<header className="site-header">
-				<h1>Mylik</h1>
-				<p className="site-header__tagline">{BRAND_TAGLINE}</p>
-				<p>Pokazuję, co o danej informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
-				<nav aria-label="Główna nawigacja">
-					<Link to="/" aria-current={route.page === 'check' ? 'page' : undefined}>
-						Sprawdź informację
+				<Brand className="site-header__brand">
+					<Link to="/" aria-current={isHome ? 'page' : undefined}>
+						Mylik
 					</Link>
+					<span className="site-header__badge" title={PROTOTYPE_NOTE}>
+						Prototyp
+					</span>
+				</Brand>
+				<nav aria-label="Główna nawigacja">
 					<Link to="/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
 						Źródła
 					</Link>
@@ -34,6 +36,10 @@ export function App() {
 				{route.page === 'record' && <RecordPage id={route.id} />}
 				{route.page === 'sources' && <SourcesPage />}
 			</main>
+			<footer className="site-footer">
+				<p>{PROTOTYPE_NOTE}</p>
+				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
+			</footer>
 		</>
 	);
 }

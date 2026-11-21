@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { VERDICT_LABELS_PL, VERDICTS } from '../../../src/contracts/verdict';
@@ -31,21 +31,45 @@ describe('RecordView', () => {
 	it('oddziela źródła od interpretacji Mylika i cytuje dosłownie', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);
 		expect(screen.getByText('Co ustalił Mylik')).toBeTruthy();
-		expect(screen.getByText('Co mówią źródła')).toBeTruthy();
-		const quote = container.querySelector('.record-claim__sources blockquote p');
+		const quote = container.querySelector('.record-claim__primary blockquote p');
 		expect(quote?.textContent).toBe(FIXTURE_QUOTE_TEXT);
-		expect(container.querySelector('.record-claim__mylik blockquote')).toBeNull();
-		expect(screen.getByText('Źródła, które potwierdzają')).toBeTruthy();
+		expect(container.querySelector('.record-claim__details .record-claim__primary')).toBeNull();
+		expect(container.querySelector('.record-claim__group-block blockquote')).toBeNull();
 		const link = container.querySelector('a[target="_blank"]');
 		expect(link?.getAttribute('rel')).toBe('noopener noreferrer');
 	});
 
-	it('grupuje dowody przeciw i kontekst', () => {
-		render(<RecordView record={record('falszywe')} />);
-		expect(screen.getByText('Źródła, które przeczą')).toBeTruthy();
+	it('grupuje dodatkowe dowody pod "Pokaż szczegóły"', () => {
+		const base = structuredClone(record('falszywe'));
+		const first = base.claims[0]!.evidence[0]!;
+		base.claims[0]!.evidence = [
+			first,
+			{ ...first, passageId: 'p2', quote: 'Drugi cytat.', stance: 'potwierdza' },
+			{ ...first, passageId: 'p3', quote: 'Trzeci cytat.', stance: 'kontekst' },
+		];
+		const { container } = render(<RecordView record={base} />);
+		const details = container.querySelector('details.record-claim__details')!;
+		expect(details.querySelector('summary')?.textContent).toBe('Pokaż szczegóły');
+		expect(within(details as HTMLElement).getByText('Źródła, które potwierdzają')).toBeTruthy();
+		expect(within(details as HTMLElement).getByText('Źródła z dodatkowym kontekstem')).toBeTruthy();
+		expect(container.querySelectorAll('blockquote')).toHaveLength(3);
+		expect(container.querySelectorAll('.record-claim__primary blockquote')).toHaveLength(1);
 		render(<RecordView record={record('wprowadzajace_w_blad')} />);
-		expect(screen.getByText('Źródła z dodatkowym kontekstem')).toBeTruthy();
-		expect(screen.getByText(/materiał|stary materiał/i)).toBeTruthy();
+		expect(screen.getByText(/stary materiał/i)).toBeTruthy();
+	});
+
+	it('pierwszy ekran wyniku ma jeden główny dowód, reszta jest pod jednym rozwijanym blokiem', () => {
+		const { container } = render(<RecordView record={record('potwierdzone')} />);
+		const details = container.querySelectorAll('details');
+		expect(details).toHaveLength(1);
+		const outside = [...container.querySelectorAll('.record-claim__primary a[target="_blank"]')];
+		expect(outside).toHaveLength(1);
+		for (const selector of ['.record-claim__mylik', '.confidence', '.record__footer', '.record-card']) {
+			const node = container.querySelector(selector);
+			if (node) expect(details[0]!.contains(node)).toBe(true);
+		}
+		expect(details[0]!.querySelector('summary')?.matches(':focus-visible, summary')).toBe(true);
+		expect(container.querySelector('.record-claim__primary')?.textContent).toContain('Przykładowy Urząd Miasta');
 	});
 
 	it('pokazuje wynik próby obalenia i własną omylność', () => {
@@ -91,7 +115,7 @@ describe('RecordView', () => {
 
 	it('odsyłacz "Zobacz, skąd to wiem" otwiera źródła', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);
-		const details = container.querySelector('details.record-claim__sources') as HTMLDetailsElement;
+		const details = container.querySelector('details.record-claim__details') as HTMLDetailsElement;
 		expect(details.open).toBe(false);
 		fireEvent.click(screen.getByRole('button', { name: 'Zobacz, skąd to wiem' }));
 		expect(details.open).toBe(true);

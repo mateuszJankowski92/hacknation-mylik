@@ -7,31 +7,20 @@ import { KnownOpWarnings } from './KnownOpWarning';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import './record.css';
 
-export function RecordView({ record }: { record: VerificationRecord }) {
+function RecordExtras({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
-	const permalink = recordUrlPath(record.id);
 	const otherNotices = record.notices.filter((notice) => !isKnownOpNotice(notice));
 
 	return (
-		<div className="record">
-			{record.claims.length === 0 && (
-				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
-			)}
-			{record.claims.length > 1 && <p>Znalazłem w tej treści {record.claims.length} twierdzenia. Oceniam każde osobno.</p>}
-			{record.claims.map((result) => (
-				<RecordClaim key={result.claim.id} result={result} asOf={record.asOf} />
-			))}
-
-			<section className="record-shortanswer" aria-label="Krótka odpowiedź">
-				<h3>Krótka odpowiedź</h3>
+		<>
+			<section className="record-claim__group-block record-shortanswer" aria-label="Krótka odpowiedź">
+				<h4>Krótka odpowiedź</h4>
 				<p>{record.shortAnswer}</p>
 			</section>
 
-			<KnownOpWarnings notices={record.notices} />
-
 			{otherNotices.length > 0 && (
-				<section className="record__notices" aria-label="Dodatkowe uwagi">
-					<h3>Dodatkowe uwagi</h3>
+				<section className="record-claim__group-block record__notices" aria-label="Dodatkowe uwagi">
+					<h4>Dodatkowe uwagi</h4>
 					<ul>
 						{otherNotices.map((notice, index) => (
 							<li key={`${notice.type}-${index}`}>{notice.text}</li>
@@ -44,12 +33,13 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 				<RecordCardImage key={result.claim.id} id={record.id} claimNumber={index + 1} verdict={result.verdict} />
 			))}
 
-			<footer className="record__footer">
+			<section className="record-claim__group-block record__footer" aria-label="Dane sprawdzenia">
+				<h4>Dane sprawdzenia</h4>
 				<p>
 					Numer sprawdzenia: <strong>{shortId(record.id)}</strong>
 				</p>
 				<p>
-					<a href={permalink}>Trwały adres tego sprawdzenia</a>
+					<a href={recordUrlPath(record.id)}>Trwały adres tego sprawdzenia</a>
 				</p>
 				<p>Wersja zbioru źródeł: {record.corpusVersion}</p>
 				<p>Czas sprawdzenia: {formatDateTime(record.createdAt)}</p>
@@ -62,7 +52,37 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 						je jako zwykły tekst i zignorowałem.
 					</p>
 				)}
-			</footer>
+			</section>
+		</>
+	);
+}
+
+export function RecordView({ record }: { record: VerificationRecord }) {
+	const single = record.claims.length === 1;
+
+	return (
+		<div className="record">
+			{record.claims.length === 0 && (
+				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
+			)}
+			{record.claims.length > 1 && <p>Znalazłem w tej treści {record.claims.length} twierdzenia. Oceniam każde osobno.</p>}
+			{record.claims.map((result) => (
+				<RecordClaim
+					key={result.claim.id}
+					result={result}
+					asOf={record.asOf}
+					extraDetails={single ? <RecordExtras record={record} /> : undefined}
+				/>
+			))}
+
+			<KnownOpWarnings notices={record.notices} />
+
+			{!single && (
+				<details className="record-claim__details record__details">
+					<summary>Pokaż szczegóły</summary>
+					<RecordExtras record={record} />
+				</details>
+			)}
 		</div>
 	);
 }
