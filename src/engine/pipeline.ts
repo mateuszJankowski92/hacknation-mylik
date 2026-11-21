@@ -65,6 +65,7 @@ import {
 } from './rules';
 import { createStore, type EngineStore } from './store';
 import { forQueries, fuseRankings, isPassageRanker, orderByRanking, type PassageRanker } from './ranker';
+import { chooseRole, detectRoleSteering } from '../roles/index';
 
 export { buildShortAnswer };
 
@@ -824,6 +825,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       }
 
     // (8a) baza incydentów: wyłącznie ostrzeżenia, nigdy werdykt
+    let incidentUnknown = false;
+    let incidentAdded = 0;
     if (deps.incidents) {
       let added = 0;
       for (const claim of checkable) {
@@ -837,11 +840,25 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
             added++;
           }
         } catch {
-          // baza incydentów niedostępna: brak ostrzeżenia, ocena bez zmian
+          // baza incydentów niedostępna: brak ostrzeżenia, ocena bez zmian (rola domyślna)
+          incidentUnknown = true;
         }
       }
       if (added > 0) store.logEvent('incident_match', { recordId, channel, detail: { count: added } });
+      incidentAdded = added;
     }
+
+    // (8a') rola wyglądu (zad. 28b): wybiera kod, po wszystkich ocenach; nie zmienia niczego w wyniku.
+    const steering = detectRoleSteering(stripped.text);
+    if (steering.length > 0) store.logEvent('role_steering_ignored', { recordId, channel, detail: { words: steering } });
+    const roleDecision = chooseRole({
+      topic: extracted.topic,
+      texts: [stripped.text, ...rawClaims.map((c) => (typeof c?.text === 'string' ? c.text : ''))],
+      claimCount: rawClaims.length,
+      incidentMatched: incidentAdded > 0,
+      incidentUnknown,
+      injectionSignals: injectionSignals.size,
+    });
 
     // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
     if (renderer) for (const r of results) r.explanation = safeExplanation(renderer, r, asOf);
@@ -868,6 +885,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         estimatedCostUsd: usage.estimatedCostUsd,
         latencyMs: Math.max(0, now().getTime() - started),
       },
+      role: roleDecision.role,
       schemaVersion: RECORD_SCHEMA_VERSION,
     };
     if (renderer) record.shortAnswer = safeShortAnswer(renderer, record);
@@ -900,6 +918,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         llmCalls: usage.llmCalls,
         injectionEvents,
         refutationFound: results.reduce((n, r) => n + r.refutation.found, 0),
+        role: roleDecision.role,
+        roleReasons: roleDecision.reasons,
         // Czas pełnego sprawdzenia (mediana dla GET /api/verify/eta).
         ms: latencyMs,
       },

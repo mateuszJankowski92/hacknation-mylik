@@ -23,3 +23,11 @@ export const ExtractedClaimSchema = z.object({
   englishTerms: z.array(z.string().min(1)).optional(),
 });
 export type ExtractedClaim = z.infer<typeof ExtractedClaimSchema>;
+
+/**
+ * Temat zgłoszenia (zad. 28b): nadaje go model w kroku wyodrębniania twierdzeń (bez dodatkowego wywołania).
+ * Służy WYŁĄCZNIE do wyboru roli wyglądu (src/roles); nigdy do werdyktu, siły ani treści odpowiedzi.
+ */
+export const TOPICS = ['sport_rozrywka', 'przepisy_i_prawa_obywatela', 'inne'] as const;
+export const TopicSchema = z.enum(TOPICS);
+export type Topic = z.infer<typeof TopicSchema>;

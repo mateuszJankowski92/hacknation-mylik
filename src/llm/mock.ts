@@ -14,6 +14,7 @@ import type {
   PassageAssessment,
 } from '../contracts/llm';
 import type { ClaimKind, ExtractedClaim } from '../contracts/claim';
+import { topicFromWords } from '../roles/index';
 import type { MismatchKind, Stance } from '../contracts/verdict';
 import { looksLikeInjection } from './sanitize';
 import type { SupportCheckRequest, SupportCheckResult, SupportCheckVerdict, SupportGate } from '../engine/supportGate';
@@ -161,8 +162,10 @@ export class MockLlmProvider implements LlmProvider, SupportGate {
       if (kind === 'faktograficzna') claim.counterTerms = [...COUNTER_MARKERS, ...kws.slice(0, 4)];
       claims.push(claim);
     }
-    const out = { claims };
-    return { claims, usage: usageFor(EXTRACT_SYSTEM_PROMPT + buildExtractUserMessage(req), out) };
+    // Temat z tego samego wywołania (zad. 28b); atrapa bierze go ze słów tekstu.
+    const topic = topicFromWords(req.text);
+    const out = { claims, topic };
+    return { claims, topic, usage: usageFor(EXTRACT_SYSTEM_PROMPT + buildExtractUserMessage(req), out) };
   }
 
   async assessPassages(req: AssessRequest): Promise<AssessResult> {

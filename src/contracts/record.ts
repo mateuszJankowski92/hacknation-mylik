@@ -118,6 +118,15 @@ export const RecordUsageSchema = z.object({
 });
 export type RecordUsage = z.infer<typeof RecordUsageSchema>;
 
+/**
+ * Rola wyglądu wyniku (zad. 28b): wybiera ją kod (src/roles), nie model. Zapisana w rekordzie, poza kluczem,
+ * więc ten sam /r/<id> zawsze ma tę samą rolę. Nie wpływa na werdykt, siłę ani treść. Brak = `pogodynka`.
+ */
+export const ROLES = ['pogodynka', 'bibliotekarka', 'sport'] as const;
+export const RoleSchema = z.enum(ROLES);
+export type Role = z.infer<typeof RoleSchema>;
+export const DEFAULT_ROLE: Role = 'pogodynka';
+
 /** Wersja kontraktu rekordu. Rekordy w starszej wersji nie są odczytywane (liczone od nowa). */
 export const RECORD_SCHEMA_VERSION = 2;
 export const SHORT_ANSWER_MAX_CHARS = 320;
@@ -141,6 +150,8 @@ export const VerificationRecordSchema = z.object({
   shortAnswer: z.string().min(1).max(SHORT_ANSWER_MAX_CHARS),
   provider: z.string(),
   usage: RecordUsageSchema,
+  /** Rola wyglądu (zad. 28b); opcjonalna dla zgodności ze starszymi rekordami v2 (brak = `pogodynka`). */
+  role: RoleSchema.optional(),
   schemaVersion: z.literal(RECORD_SCHEMA_VERSION),
 });
 export type VerificationRecord = z.infer<typeof VerificationRecordSchema>;

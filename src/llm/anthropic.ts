@@ -158,7 +158,7 @@ export class AnthropicProvider implements LlmProvider, SupportGate, PassageRanke
         }
       },
     );
-    return { claims: data.claims.slice(0, MAX_CLAIMS), usage };
+    return { claims: data.claims.slice(0, MAX_CLAIMS), ...(data.topic ? { topic: data.topic } : {}), usage };
   }
 
   async assessPassages(req: AssessRequest): Promise<AssessResult> {

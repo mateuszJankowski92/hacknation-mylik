@@ -11,7 +11,8 @@ export type EngineEventType =
   | 'url_fetched'
   | 'url_fetch_failed'
   | 'incident_match'
-  | 'claim_rejected';
+  | 'claim_rejected'
+  | 'role_steering_ignored';
 
 /** Dozwolone wartości w `detail`: liczby, kody, wartości logiczne (bez tekstu użytkownika). */
 export type EventDetail = Record<string, string | number | boolean | null | string[]>;

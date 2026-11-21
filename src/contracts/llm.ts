@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ExtractedClaimSchema, type ExtractedClaim } from './claim';
+import { ExtractedClaimSchema, TopicSchema, type ExtractedClaim, type Topic } from './claim';
 import type { ModelPassageView } from './source';
 import {
   MISMATCH_RULE_MESSAGE,
@@ -38,6 +38,8 @@ export interface ExtractClaimsRequest {
 }
 export interface ExtractClaimsResult {
   claims: ExtractedClaim[];
+  /** Temat całego zgłoszenia (zad. 28b), z tego samego wywołania. Brak = `inne`. Wpływa tylko na wybór roli wyglądu. */
+  topic?: Topic;
   usage: LlmUsage;
 }
 
@@ -69,6 +71,8 @@ export interface LlmProvider {
 /** Schemat wyjścia modelu dla ekstrakcji (bez `usage`, które dodaje dostawca). */
 export const ExtractClaimsOutputSchema = z.object({
   claims: z.array(ExtractedClaimSchema),
+  /** Temat zgłoszenia z zamkniętej listy (zad. 28b); opcjonalny, brak = `inne`. */
+  topic: TopicSchema.optional(),
 });
 export type ExtractClaimsOutput = z.infer<typeof ExtractClaimsOutputSchema>;
 
