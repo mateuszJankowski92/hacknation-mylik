@@ -238,8 +238,8 @@ Zgodność z sędzią-modelem na tych samych parach: przy 18 parach uznanych prz
 |---|---|
 | właściwa weryfikacja znaleziona: zapytanie pełnym zdaniem | 1/14 |
 | właściwa weryfikacja znaleziona: krótkie warianty fraz + filtr wydawcy, nasz ranking (po poprawce wariantów) | 13/14 (we wszystkich na 1. miejscu naszego rankingu) |
-| odpowiedź końcowa zgodna z oczekiwaną (pierwsza próba) | 16/18 |
-| odpowiedź końcowa zgodna z oczekiwaną (po poprawkach ogólnych) | **18/18** |
+| odpowiedź końcowa zgodna z oczekiwaną (pierwsza próba, przed poprawkami: uczciwa liczba tej próby) | **16/18** |
+| odpowiedź końcowa zgodna z oczekiwaną (po poprawkach ogólnych; poprawki powstały po obejrzeniu tej próby) | 18/18 |
 | błędne „Tak.” albo „Nie.” | 0/18 |
 | mediana czasu zgłoszenia | 5,8 s |
 | zapytania do indeksu na zgłoszenie | 8 (limit) |
@@ -250,3 +250,14 @@ Wcześniejsza próba (zad. 40, 14 pytań na tematach Konkret24, indeks wyłączo
 Poprawki ogólne po pierwszej próbie (bez reguł pod przypadki): (1) warianty fraz zachowują oznaczenia z cyfrą („F-16”, „CO2”) także bez nazw własnych i dodają początek zdania (podmiot z orzeczeniem); (2) teza z oceny redakcji nie przechodzi przez bramkę wsparcia („czy cytat sam rozstrzyga”), bo nie jest dowodem, tylko kandydatem na tę samą tezę; tożsamość tezy ustala ocena relacji i reguły w kodzie (nazwy, data, tabela ocen); bramka odrzucała poprawną parafrazę; (3) pytanie rozstrzygające rozpoznawane w dowolnym zdaniu zgłoszenia („Słyszałem, że X. Czy to prawda?”); (4) tabela ocen: „przerobione zdjęcie/wideo” -> fałszywe, „brakujący kontekst” -> wprowadzające w błąd; (5) pytanie „czy redakcja to sprawdzała” przy awarii indeksu mówi o błędzie dostępu.
 
 Scenariusz J na żywo: proces z celowo złym kluczem (zmienna środowiskowa procesu, nie .env) dostaje od indeksu HTTP 400 (`odmowa_dostepu`); gdy zbiór nie rozstrzyga, wynik to stan `awaria_techniczna` z komunikatem o niedostępnym indeksie Google; gdy zbiór rozstrzyga, odpowiedź zostaje z dopiskiem o błędzie dostępu. Nigdy „nie znaleziono”.
+
+### Świeża próba potwierdzająca (22.11.2026, silnik df83667635c9, bez zmian w kodzie)
+
+16 nowych pytań na innych weryfikacjach (inne tematy; Demagog oraz jedna weryfikacja wyłącznie AFP Sprawdzam, wydawcy wyłączonego na liście), w tym 6 pułapek na błędne dopasowanie tezy (scenariusz I: ten sam temat i inna teza, ta sama osoba i inna wypowiedź, ta sama teza z inną liczbą, inna data, pytanie, którego weryfikacja nie rozstrzyga). Oczekiwanie przy pułapkach: wstrzymanie, nigdy „Tak/Nie” z przypisaniem redakcji. Mała próba, jeden przebieg, mediana 5,6 s, koszt ok. $0,05.
+
+| Grupa | Zgodne | Błędne „Tak/Nie” | Wstrzymania zamiast odpowiedzi | Inne |
+|---|---|---|---|---|
+| pytania zwykłe (10) | 8 | 0 | 1 (F01: ocena znaleziona, model uznał ją za tło) | 1 (F08: pytanie uznane za opinię, „Nie da się tego sprawdzić”) |
+| pułapki (6) | 5 (wstrzymania) | **1** (T01) | - | - |
+
+**T01 (błędne przypisanie):** „Czy Ukraina płaci Orlenowi za paliwo z opóźnieniem ponad 90 dni?” dało „Tak.” z oceną Demagoga „Fałsz” dla tezy „Ukraina nie płaci Orlenowi za paliwo” (uznanej przez model za tezę odwrotną). Szczegół („opóźnienie ponad 90 dni”) zmienia tezę, a nazwy i data się zgadzały, więc reguły kodu jej nie odrzuciły. Pierwszy podejrzany: pominięcie bramki wsparcia dla tez z oceną redakcji (poprawka 2 po pierwszej próbie). Decyzja o zmianie należy do prowadzącego; do czasu decyzji kod bez zmian.
