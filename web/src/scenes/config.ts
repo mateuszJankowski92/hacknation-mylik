@@ -7,6 +7,7 @@ export interface SceneSpec {
 	poster: string | null;
 	durationSec: number;
 	alt: string;
+	loop?: boolean;
 }
 
 export const SCENE_BASE_PATH = '/postacie';
@@ -61,6 +62,7 @@ export function sceneFromEntry(entry: ManifestEntry): SceneSpec {
 		poster: entry.plakat ? assetUrl(entry.plakat) : null,
 		durationSec: entry.dlugosc_s ?? 6,
 		alt: entry.alt,
+		loop: entry.petla === true,
 	};
 }
 
@@ -80,3 +82,15 @@ export function pickScene(role: Role, random: () => number = Math.random): Scene
 	const index = Math.min(variants.length - 1, Math.floor(random() * variants.length));
 	return variants[index]!;
 }
+
+export function heroSequence(scenes: SceneSpec[]): SceneSpec[] {
+	const loopingScene = scenes.find((scene) => scene.loop);
+	const playedOnce = scenes.filter((scene) => !scene.loop);
+	return loopingScene ? [...playedOnce, loopingScene] : playedOnce;
+}
+
+export function heroScenesFor(entries: ManifestEntry[]): SceneSpec[] {
+	return heroSequence(entries.map(sceneFromEntry));
+}
+
+export const HERO_SCENES: SceneSpec[] = heroScenesFor(entriesFor(ASSET_DIRECTORY.start, 'scena_czekania'));

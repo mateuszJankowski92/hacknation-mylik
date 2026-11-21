@@ -13,7 +13,7 @@ export function App() {
 	const Brand = isHome ? 'p' : 'h1';
 
 	return (
-		<>
+		<div className="app" data-page={route.page}>
 			<a className="skip-link" href="#main">
 				Przejdź do treści
 			</a>
@@ -42,6 +42,6 @@ export function App() {
 				<SceneSetting />
 				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.</p>
 			</footer>
-		</>
+		</div>
 	);
 }

@@ -1,37 +1,39 @@
 import type { ReactNode } from 'react';
 import { BRAND_TAGLINE } from '../../../src/render/warning';
-import { artAlt, type ArtOwner } from '../roles/config';
-import { RoleArt } from '../roles/RoleArt';
+import type { ArtOwner } from '../roles/config';
+import { HeroIllustration, type HeroIllustrationProps } from './HeroIllustration';
+import { HeroStage } from './HeroStage';
 import './hero.css';
 
-export interface HeroIllustrationProps {
-	src?: string;
-	alt?: string;
-	role?: ArtOwner;
-}
+export { HeroIllustration, type HeroIllustrationProps };
 
-export function HeroIllustration({ src, alt = '', role = 'start' }: HeroIllustrationProps) {
+function HeroTitle() {
 	return (
-		<div className="hero__illustration">
-			<div className="hero__frame illustration-frame">
-				{src ? (
-					<img className="hero__image" src={src} alt={alt} />
-				) : (
-					<RoleArt owner={role} name="postac" alt={artAlt(role, 'postac')} className="hero__placeholder" decorative />
-				)}
-			</div>
-		</div>
+		<h1 id="hero-title" className="hero__title">
+			{BRAND_TAGLINE}
+		</h1>
 	);
 }
 
-export function Hero({ children, illustration, role }: { children: ReactNode; illustration?: HeroIllustrationProps; role?: ArtOwner }) {
+export interface HeroProps {
+	children: ReactNode;
+	illustration?: HeroIllustrationProps;
+	role?: ArtOwner;
+	art?: ReactNode;
+}
+
+export function Hero({ children, illustration, role, art }: HeroProps) {
+	const compact = art === null;
+	const stage = art === undefined ? <HeroStage illustration={illustration} /> : art === null ? null : <div className="hero__art">{art}</div>;
 	return (
-		<section className="hero" aria-labelledby="hero-title" data-role={role && role !== 'start' ? role : undefined}>
+		<section
+			className={compact ? 'hero hero--compact' : 'hero'}
+			aria-labelledby="hero-title"
+			data-role={role && role !== 'start' ? role : undefined}
+		>
 			<div className="hero__main">
-				<h1 id="hero-title" className="hero__title">
-					{BRAND_TAGLINE}
-				</h1>
-				<HeroIllustration role={role} {...illustration} />
+				<HeroTitle />
+				{stage}
 				{children}
 			</div>
 		</section>

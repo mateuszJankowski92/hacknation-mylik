@@ -1,99 +1,172 @@
 .hero {
-	padding: var(--space-4) 0 var(--space-6);
+	--hero-art-height: clamp(210px, 31svh, 320px);
+	padding: var(--space-1) 0 var(--space-4);
 }
 
 .hero__main {
 	display: grid;
-	grid-template-columns: 1fr;
-	gap: var(--space-3);
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--space-2);
 }
 
 .hero__title {
 	margin: 0;
-	font-size: var(--text-hero);
-	line-height: 1.15;
-	font-weight: 700;
-	letter-spacing: -0.01em;
+	font-size: 42px;
+	line-height: 1.08;
+	font-weight: 800;
+	letter-spacing: -0.02em;
+	text-wrap: balance;
 }
 
 .hero__illustration {
 	display: flex;
-	justify-content: flex-start;
-	height: 200px;
+	justify-content: center;
+	height: var(--hero-art-height);
 }
 
-.hero__frame {
+.hero__stage {
+	position: relative;
+	width: 100%;
 	height: 100%;
-	max-width: 100%;
-	padding: var(--space-2);
 }
 
-.hero__placeholder,
-.hero__image {
-	display: block;
-	height: 100%;
+.hero__media,
+.hero__stage > .hero__image,
+.hero__stage > .hero__placeholder {
+	position: absolute;
+	top: -14.6%;
+	left: 50%;
+	height: 122%;
 	width: auto;
-	max-width: 100%;
+	max-width: none;
+	aspect-ratio: 4 / 5;
+	transform: translateX(-50%);
 }
 
-.hero__fold {
-	stroke: var(--text);
-	stroke-width: 3;
-	stroke-linejoin: round;
+.hero__stage > .hero__image,
+.hero__stage > .hero__placeholder {
+	object-fit: contain;
 }
 
-.hero__fold--back {
-	fill: var(--surface);
+.hero__video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	background: #ffffff;
 }
 
-.hero__fold--mid {
-	fill: var(--bg);
+.hero__skip {
+	position: absolute;
+	top: var(--space-1);
+	right: var(--space-1);
+	z-index: 1;
+	min-height: 44px;
+	padding: 0 var(--space-1);
+	font-size: 0.9rem;
 }
 
-.hero__fold--front {
-	fill: var(--surface);
+.hero__main > form {
+	min-width: 0;
 }
 
-.hero__route {
-	fill: none;
-	stroke: var(--primary);
-	stroke-width: 5;
-	stroke-linecap: round;
-	stroke-linejoin: round;
-	stroke-dasharray: 2 10;
+.hero .check-form__label {
+	font-size: 1.1rem;
 }
 
-.hero__pin {
-	fill: var(--primary);
+.hero textarea {
+	min-height: 104px;
+	font-size: 1.1rem;
+}
+
+.hero .button {
+	min-height: 56px;
+	font-size: 1.1rem;
+}
+
+.hero--compact .hero__main {
+	max-width: 40rem;
+}
+
+@media (min-width: 640px) {
+	.hero__title {
+		font-size: 52px;
+	}
 }
 
 @media (min-width: 900px) {
 	.hero {
-		padding: var(--space-8) 0 var(--space-10);
+		--hero-art-height: clamp(520px, calc(100svh - 8rem), 820px);
+		padding: var(--space-2) 0 var(--space-4);
 	}
 
-	.hero__main {
-		grid-template-columns: minmax(0, 35rem) 1fr;
+	.hero:not(.hero--compact) .hero__main {
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr) auto auto minmax(0, 1fr);
 		grid-template-areas:
+			'. art'
 			'title art'
-			'form art';
+			'form art'
+			'. art';
 		column-gap: var(--space-8);
+		row-gap: var(--space-4);
+		min-height: var(--hero-art-height);
 		align-items: start;
 	}
 
-	.hero__title {
+	.hero:not(.hero--compact) .hero__title {
 		grid-area: title;
-		font-size: var(--text-hero-wide);
+		font-size: clamp(52px, 4.5vw, 72px);
 	}
 
-	.hero__illustration {
+	.hero:not(.hero--compact) .hero__illustration,
+	.hero:not(.hero--compact) .hero__art {
 		grid-area: art;
-		justify-content: center;
-		align-items: center;
-		height: 400px;
+		align-self: center;
 	}
 
-	.hero__main > form {
+	.hero:not(.hero--compact) .hero__main > form {
 		grid-area: form;
+	}
+
+	.hero__stage {
+		width: auto;
+		max-width: 100%;
+		aspect-ratio: 4 / 5;
+		margin: 0 auto;
+	}
+
+	.hero__media,
+	.hero__stage > .hero__image,
+	.hero__stage > .hero__placeholder {
+		inset: 0;
+		height: 100%;
+		width: 100%;
+		aspect-ratio: auto;
+		transform: none;
+	}
+
+	.hero--compact .hero__title {
+		font-size: 48px;
+	}
+}
+
+@media (max-width: 899px) {
+	.hero:has(.waiting-steps) .hero__title {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.hero:has(.waiting-steps) .hero__main {
+		gap: var(--space-1);
+	}
+
+	.hero textarea {
+		min-height: 88px;
 	}
 }

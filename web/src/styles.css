@@ -80,17 +80,23 @@ body {
 	overflow-wrap: anywhere;
 }
 
-#root {
+.app {
 	max-width: 960px;
 	margin: 0 auto;
 	padding: 0 var(--space-3) var(--space-6);
+}
+
+.app[data-page='check'] {
+	max-width: 1280px;
 }
 
 main > * {
 	max-width: var(--measure);
 }
 
-main > .hero {
+main > .hero,
+main > .waiting-steps,
+main > .record-page {
 	max-width: none;
 }
 
@@ -161,6 +167,12 @@ a {
 	justify-content: space-between;
 	gap: var(--space-2);
 	min-height: var(--space-8);
+}
+
+@media (max-width: 639px) {
+	.site-header {
+		min-height: 56px;
+	}
 }
 
 .site-header__brand {
