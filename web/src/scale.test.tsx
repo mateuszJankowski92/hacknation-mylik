@@ -138,7 +138,9 @@ describe('czekanie i wynik w skali', () => {
 		const stageCss = readCss('stage/stage.css');
 		expect(block(stageCss, '.stage-slot--corner')).toContain('width: 96px');
 		expect(stageCss).toMatch(/\.record \.stage-slot--corner \{\s*position: absolute;[^}]*width: 120px;/);
-		expect(stageCss).toMatch(/\.record \{\s*position: relative;\s*padding-right: 152px;/);
+		const sheet = readCss('components/sheet.css');
+		expect(block(sheet, '.sheet')).toContain('position: relative');
+		expect(sheet).toMatch(/@media \(min-width: 760px\) \{[\s\S]*?\.sheet__top \{[^}]*padding-right: calc\(120px \+ var\(--space-6\)\);/);
 	});
 
 	it('zdanie wyniku: 28-32 px na telefonie, 40-48 px na dużym ekranie, "Nie wiem." co najmniej tyle', () => {

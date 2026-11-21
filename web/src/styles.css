@@ -3,6 +3,7 @@
 	--bg: #ffffff;
 	--surface: #fbf6ec;
 	--paper: #fbf6ec;
+	--paper-light: #fffdf8;
 	--paper-shade: #f1e6d3;
 	--paper-fold: #e2d2b9;
 	--graphite: #2b2725;
@@ -497,7 +498,12 @@ textarea::placeholder {
 	margin-top: var(--space-2);
 }
 
-.result:focus {
+.record-page .result {
+	margin-top: 0;
+}
+
+.result:focus,
+[data-result-heading]:focus {
 	outline: none;
 }
 

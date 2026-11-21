@@ -1,39 +1,69 @@
-import { useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { MAX_INPUT_LENGTH, validateContent } from '../api';
 import { nb } from '../typography';
 import { isSubmitShortcut, submitShortcutHint } from './shortcut';
 
 const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
+const DRAFT_SAVE_DELAY_MS = 300;
 
 interface CheckFormProps {
 	loading: boolean;
 	onSubmit: (content: string) => void;
 	onCancel: () => void;
+	initialContent?: string;
+	focusOnMount?: boolean;
+	onDraftChange?: (content: string) => void;
 }
 
-export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
-	const [content, setContent] = useState('');
+export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', focusOnMount = false, onDraftChange }: CheckFormProps) {
+	const [content, setContent] = useState(initialContent);
+	const fieldRef = useRef<HTMLTextAreaElement>(null);
+	const savedRef = useRef(initialContent);
 	const validity = validateContent(content);
 	const tooLong = validity === 'too_long';
 	const blocked = validity !== 'ok' || loading;
 	const showCounter = content.length >= COUNTER_THRESHOLD;
 	const [shortcutHint] = useState(submitShortcutHint);
 
+	useEffect(() => {
+		if (!focusOnMount) return;
+		const field = fieldRef.current;
+		if (!field) return;
+		field.focus();
+		field.setSelectionRange(field.value.length, field.value.length);
+	}, [focusOnMount]);
+
+	function saveDraft(next: string) {
+		if (!onDraftChange || savedRef.current === next) return;
+		savedRef.current = next;
+		onDraftChange(next);
+	}
+
+	useEffect(() => {
+		if (!onDraftChange) return;
+		const timer = setTimeout(() => saveDraft(content), DRAFT_SAVE_DELAY_MS);
+		return () => clearTimeout(timer);
+	}, [content]);
+
+	function submit() {
+		if (blocked) return;
+		saveDraft(content);
+		onSubmit(content);
+	}
+
 	function handleSubmit(event: FormEvent) {
 		event.preventDefault();
-		if (blocked) return;
-		onSubmit(content);
+		submit();
 	}
 
 	function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
 		if (!isSubmitShortcut({ key: event.key, metaKey: event.metaKey, ctrlKey: event.ctrlKey, isComposing: event.nativeEvent.isComposing })) return;
 		event.preventDefault();
-		if (blocked) return;
-		onSubmit(content);
+		submit();
 	}
 
 	return (
-		<form className="check-form" onSubmit={handleSubmit} noValidate>
+		<form className="check-form" onSubmit={handleSubmit} noValidate aria-busy={loading}>
 			<label htmlFor="content" className="check-form__label">
 				Wklej informację lub link
 			</label>
@@ -41,9 +71,12 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 				<textarea
 					id="content"
 					name="content"
+					ref={fieldRef}
 					rows={3}
 					value={content}
+					readOnly={loading}
 					onChange={(event) => setContent(event.target.value)}
+					onBlur={() => saveDraft(content)}
 					onKeyDown={handleKeyDown}
 					aria-keyshortcuts="Control+Enter Meta+Enter"
 					aria-describedby="content-counter content-error"

@@ -75,16 +75,19 @@
 	margin-bottom: 56px;
 }
 
-@media (min-width: 760px) {
-	.record {
-		position: relative;
-		padding-right: 152px;
-	}
+.sheet > .stage-slot--corner {
+	position: absolute;
+	top: var(--space-3);
+	right: var(--space-3);
+	float: none;
+	margin: 0;
+}
 
+@media (min-width: 760px) {
 	.record .stage-slot--corner {
 		position: absolute;
-		top: 0;
-		right: 0;
+		top: var(--space-4);
+		right: var(--space-6);
 		float: none;
 		width: 120px;
 		margin: 0;

@@ -403,7 +403,7 @@ describe('duża scena roli', () => {
 		const css = readFileSync(join(HERE, 'roles', 'roles.css'), 'utf8');
 		const phone = css.match(/\n\.result-image \{[^}]*?\n\twidth:\s*(\d+)px/);
 		expect(Number(phone?.[1])).toBe(160);
-		const widths = [...css.matchAll(/\.record-claim__lead \.result-image \{[^}]*?\n\t\twidth:\s*(\d+)px/g)].map((match) => Number(match[1]));
+		const widths = [...css.matchAll(/\.record-claim > \.result-image \{[^}]*?\n\t\twidth:\s*(\d+)px/g)].map((match) => Number(match[1]));
 		expect(widths.length).toBeGreaterThan(0);
 		for (const width of widths) {
 			expect(width).toBeGreaterThanOrEqual(240);

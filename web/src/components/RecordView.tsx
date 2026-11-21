@@ -1,9 +1,11 @@
 import type { VerificationRecord } from '../../../src/contracts/record';
 import { formatDateTime, shortId } from '../format';
+import { asOfStamp } from '../../../src/render/templates';
 import { recordUrlPath } from '../route';
 import { CaseNotice } from './CaseNotice';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
+import { SheetQuestion } from './SheetQuestion';
 import { KnownOpWarnings } from './KnownOpWarning';
 import { VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict';
 import { countNoun } from '../../../src/render/plural';
@@ -14,6 +16,7 @@ import { currentRole } from '../roles/resolve';
 import { nb } from '../typography';
 import { StageSlot } from '../stage/StageSlot';
 import './record.css';
+import './sheet.css';
 
 function RecordExtras({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
@@ -89,46 +92,62 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 
 	return (
 		<div className="record" data-role={role}>
-			{record.claims.length > 0 && <StageSlot kind="corner" role={role} />}
-			{note && <p className="role-note">{nb(note)}</p>}
-			{record.claims.length === 0 && (
-				<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>
-			)}
-			{record.claims.length > 1 && (
-				<>
-					<p className="record__summary">
-						{nb(
-							`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony: ${summarizeVerdicts(record.claims.map((result) => result.verdict))}.`,
-						)}
-					</p>
-					<details className="record__claims-list">
-						<summary>Pokaż wszystkie sprawdzone zdania ({record.claims.length})</summary>
-						{record.claims.map((result) => (
-							<RecordClaim key={result.claim.id} role={role} serious={serious} result={result} asOf={record.asOf} />
-						))}
-					</details>
-				</>
-			)}
-			{single && (
-				<RecordClaim
-					role={role}
-					serious={serious}
-					result={record.claims[0]}
-					asOf={record.asOf}
-					extraDetails={<RecordExtras record={record} />}
-				/>
-			)}
+			<div className="sheet" data-claims={record.claims.length > 1 ? 'many' : record.claims.length === 1 ? 'one' : 'none'}>
+				<div className="sheet__plane" aria-hidden="true" />
+				{record.claims.length > 0 && <StageSlot kind="corner" role={role} />}
+				<div className="sheet__body">
+					<header className="sheet__top">
+						<p className="sheet__asof">{asOfStamp(record.asOf)}</p>
+						<SheetQuestion text={record.maskedInput} />
+					</header>
+					{note && <p className="role-note">{nb(note)}</p>}
+					{record.claims.length === 0 && (
+						<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>
+					)}
+					{record.claims.length > 1 && (
+						<p className="record__summary">
+							{nb(
+								`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony: ${summarizeVerdicts(record.claims.map((result) => result.verdict))}.`,
+							)}
+						</p>
+					)}
+					{single && (
+						<RecordClaim
+							role={role}
+							serious={serious}
+							result={record.claims[0]}
+							asOf={record.asOf}
+							extraDetails={<RecordExtras record={record} />}
+						/>
+					)}
+					{record.claims.length > 1 && (
+						<div className="record__claims-list">
+							{record.claims.map((result, index) => (
+								<RecordClaim
+									key={result.claim.id}
+									role={role}
+									serious={serious}
+									result={result}
+									asOf={record.asOf}
+									leading={index === 0}
+									showImage={index === 0}
+								/>
+							))}
+						</div>
+					)}
 
-			<CaseNotice record={record} />
+					<CaseNotice record={record} />
 
-			<KnownOpWarnings notices={record.notices} />
+					{!single && (
+						<details className="record-claim__details record__details">
+							<summary>Pokaż szczegóły</summary>
+							<RecordExtras record={record} />
+						</details>
+					)}
 
-			{!single && (
-				<details className="record-claim__details record__details">
-					<summary>Pokaż szczegóły</summary>
-					<RecordExtras record={record} />
-				</details>
-			)}
+					<KnownOpWarnings notices={record.notices} />
+				</div>
+			</div>
 		</div>
 	);
 }

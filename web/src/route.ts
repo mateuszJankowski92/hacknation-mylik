@@ -24,12 +24,31 @@ export function parseLocation(pathname: string, hash: string): Route {
 	return parseHash(hash);
 }
 
-export const PENDING_CONTENT_KEY = 'pendingContent';
+export const DRAFT_KEY = 'draft';
+export const FOCUS_FIELD_KEY = 'focusField';
 
-export function readPendingContent(): string | null {
+function historyState(): Record<string, unknown> {
 	const state = window.history.state as Record<string, unknown> | null;
-	const value = state?.[PENDING_CONTENT_KEY];
-	return typeof value === 'string' && value.length > 0 ? value : null;
+	return state && typeof state === 'object' ? state : {};
+}
+
+export function readDraft(): string {
+	const value = historyState()[DRAFT_KEY];
+	return typeof value === 'string' ? value : '';
+}
+
+export function readFocusField(): boolean {
+	return historyState()[FOCUS_FIELD_KEY] === true;
+}
+
+export function rememberDraft(content: string): void {
+	const state = historyState();
+	if (state[DRAFT_KEY] === content || (!content && !(DRAFT_KEY in state))) return;
+	try {
+		window.history.replaceState({ ...state, [DRAFT_KEY]: content }, '');
+	} catch {
+		return;
+	}
 }
 
 export function isRecordId(value: string): boolean {

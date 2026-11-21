@@ -1,14 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import type { VerifyOutcome } from '../../../src/contracts/record';
-import { ApiFailure, DEFAULT_ETA_SECONDS, fetchEtaSeconds, fetchRecord, verifyWithFallback } from '../api';
+import { ApiFailure, fetchRecord } from '../api';
+import { BASE_TITLE, resultTitle, useDocumentTitle } from '../documentTitle';
 import { addToHistory } from '../history';
-import { isRecordId, navigate, PENDING_CONTENT_KEY, readPendingContent, recordUrlPath } from '../route';
-import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
-import { WaitingSteps } from '../visuals/WaitingSteps';
-import { predictedRole, recordRoleOf } from '../roles/appearance';
-import { currentForcedRole, currentRole } from '../roles/resolve';
-import { recallRecord, rememberRecord } from '../recordCache';
+import { isRecordId } from '../route';
+import { recallRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
 import { Link } from './Link';
 import { OutcomeView } from './OutcomeView';
@@ -21,26 +17,21 @@ export const GONE_TEXTS = {
 	back: 'Wróć na stronę główną',
 } as const;
 
+export const LOADING_TITLE = `Wczytuję… - ${BASE_TITLE}`;
+export const GONE_PAGE_TITLE = `${GONE_TEXTS.title} - ${BASE_TITLE}`;
+export const ERROR_PAGE_TITLE = `Nie udało się wczytać wyniku - ${BASE_TITLE}`;
+
 type PageState =
 	| { status: 'loading' }
-	| { status: 'waiting'; progress: ProgressState; etaSeconds: number }
-	| { status: 'ready'; outcome: VerifyOutcome; progress?: ProgressState; etaSeconds?: number }
+	| { status: 'ready'; outcome: VerifyOutcome }
 	| { status: 'gone' }
 	| { status: 'error'; message: string };
 
 function initialState(id: string, justChecked: boolean): PageState {
 	if (!isRecordId(id)) return { status: 'gone' };
 	const remembered = justChecked ? recallRecord(id) : null;
-	if (remembered && !readPendingContent()) return { status: 'ready', outcome: { kind: 'record', record: remembered, cached: false } };
-	return readPendingContent()
-		? { status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS }
-		: { status: 'loading' };
-}
-
-function clearPending(id: string): void {
-	const state = window.history.state as Record<string, unknown> | null;
-	if (!state || !(PENDING_CONTENT_KEY in state)) return;
-	window.history.replaceState(null, '', recordUrlPath(id));
+	if (remembered) return { status: 'ready', outcome: { kind: 'record', record: remembered, cached: false } };
+	return { status: 'loading' };
 }
 
 function failureState(error: unknown): PageState {
@@ -48,15 +39,29 @@ function failureState(error: unknown): PageState {
 	return { status: 'error', message: error instanceof ApiFailure ? error.message : new ApiFailure('unexpected').message };
 }
 
+function pageTitle(state: PageState): string {
+	switch (state.status) {
+		case 'loading':
+			return LOADING_TITLE;
+		case 'gone':
+			return GONE_PAGE_TITLE;
+		case 'error':
+			return ERROR_PAGE_TITLE;
+		case 'ready':
+			return state.outcome.kind === 'record' ? resultTitle(state.outcome.record.maskedInput) : resultTitle('');
+	}
+}
+
 export function RecordPage({ id }: { id: string }) {
 	const stage = useStage();
 	const [state, setState] = useState<PageState>(() => initialState(id, stage.resultId === id));
 	const resultRef = useRef<HTMLDivElement>(null);
-	const { begin, reset, resolve } = stage;
+	const { reset } = stage;
 	const stageRef = useRef(stage);
 	stageRef.current = stage;
 	const showResult = state.status === 'ready';
 	useShownMark(showResult);
+	useDocumentTitle(pageTitle(state));
 
 	useEffect(() => {
 		if (!isRecordId(id)) {
@@ -64,91 +69,55 @@ export function RecordPage({ id }: { id: string }) {
 			return;
 		}
 		const controller = new AbortController();
-		const pending = readPendingContent();
 		const remembered = stageRef.current.resultId === id ? recallRecord(id) : null;
-
-		function finish(outcome: VerifyOutcome) {
-			if (outcome.kind === 'record') {
-				addToHistory(outcome.record);
-				rememberRecord(outcome.record);
-				if (outcome.record.id !== id) {
-					resolve(currentRole(recordRoleOf(outcome.record)), outcome.record.id);
-					navigate(recordUrlPath(outcome.record.id), { replace: true });
-					return;
-				}
-			}
-			clearPending(id);
-			resolve(outcome.kind === 'record' ? currentRole(recordRoleOf(outcome.record)) : null, outcome.kind === 'record' ? outcome.record.id : null);
-			setState((current) =>
-				current.status === 'waiting'
-					? { status: 'ready', outcome, progress: current.progress, etaSeconds: current.etaSeconds }
-					: { status: 'ready', outcome },
-			);
-		}
-
-		if (pending) {
-			begin(currentForcedRole() ?? predictedRole(pending), { keep: true });
-			setState({ status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS });
-			const onProgress = (event: VerifyProgressEvent) => {
-				if (controller.signal.aborted) return;
-				setState((current) =>
-					current.status === 'waiting' ? { ...current, progress: reduceProgress(current.progress, event) } : current,
-				);
-			};
-			void fetchEtaSeconds(controller.signal).then((seconds) => {
-				if (controller.signal.aborted) return;
-				setState((current) => (current.status === 'waiting' ? { ...current, etaSeconds: seconds } : current));
-			});
-			verifyWithFallback(pending, onProgress, controller.signal).then(finish, (error: unknown) => {
-				if (controller.signal.aborted) return;
-				clearPending(id);
-				setState(failureState(error));
-			});
-		} else if (remembered) {
+		if (remembered) {
 			addToHistory(remembered);
 			setState({ status: 'ready', outcome: { kind: 'record', record: remembered, cached: false } });
-		} else {
-			reset();
-			setState({ status: 'loading' });
-			fetchRecord(id, controller.signal).then(
-				(record) => {
-					if (controller.signal.aborted) return;
-					addToHistory(record);
-					setState({ status: 'ready', outcome: { kind: 'record', record, cached: true } });
-				},
-				(error: unknown) => {
-					if (controller.signal.aborted) return;
-					setState(failureState(error));
-				},
-			);
+			return;
 		}
+		reset();
+		setState({ status: 'loading' });
+		fetchRecord(id, controller.signal).then(
+			(record) => {
+				if (controller.signal.aborted) return;
+				addToHistory(record);
+				setState({ status: 'ready', outcome: { kind: 'record', record, cached: true } });
+			},
+			(error: unknown) => {
+				if (controller.signal.aborted) return;
+				setState(failureState(error));
+			},
+		);
 		return () => controller.abort();
-	}, [id, begin, reset, resolve]);
+	}, [id, reset]);
 
 	useEffect(() => {
-		if (showResult || state.status === 'gone' || state.status === 'error') resultRef.current?.focus();
+		const container = resultRef.current;
+		if (!container) return;
+		if (showResult) {
+			const heading = container.querySelector<HTMLElement>('[data-result-heading]');
+			(heading ?? container).focus();
+			return;
+		}
+		if (state.status === 'gone' || state.status === 'error') container.focus();
 	}, [state.status, showResult]);
+
+	const question = state.status === 'ready' && state.outcome.kind === 'record' ? state.outcome.record.maskedInput : '';
 
 	return (
 		<div className="record-page">
-			<h2>{nb(state.status === 'gone' ? GONE_TEXTS.title : 'Wynik sprawdzenia')}</h2>
+			<h2 className={state.status === 'ready' || state.status === 'loading' ? 'visually-hidden' : undefined}>
+				{nb(state.status === 'gone' ? GONE_TEXTS.title : state.status === 'error' ? 'Nie udało się wczytać wyniku' : 'Wynik sprawdzenia')}
+			</h2>
 			{state.status === 'loading' && (
-				<p role="status" aria-live="polite">
+				<p role="status" aria-live="polite" className="record-page__loading">
 					Wczytuję…
 				</p>
-			)}
-			{state.status === 'waiting' && (
-				<WaitingSteps
-					role={stage.waitingRole}
-					progress={'progress' in state ? (state.progress ?? INITIAL_PROGRESS) : INITIAL_PROGRESS}
-					etaSeconds={'etaSeconds' in state ? (state.etaSeconds ?? DEFAULT_ETA_SECONDS) : DEFAULT_ETA_SECONDS}
-				/>
 			)}
 			<div
 				className="result"
 				ref={resultRef}
 				tabIndex={-1}
-				aria-live="polite"
 				data-engine-ms={showResult ? stage.timing?.engineMs : undefined}
 				data-shown-ms={showResult ? stage.timing?.shownMs : undefined}
 			>
@@ -171,7 +140,7 @@ export function RecordPage({ id }: { id: string }) {
 				{showResult && state.status === 'ready' && (
 					<>
 						<OutcomeView outcome={state.outcome} />
-						{state.outcome.kind === 'record' && <ResultActions id={state.outcome.record.id} />}
+						{state.outcome.kind === 'record' && <ResultActions record={state.outcome.record} question={question} />}
 					</>
 				)}
 			</div>

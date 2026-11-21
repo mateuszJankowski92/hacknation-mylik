@@ -30,14 +30,16 @@ const JARGON_SCOPE =
 	'Sprawdzono wyłącznie w zamkniętym zbiorze źródeł (wersja korpusu v1, 9 dokumentów). Wynik nie jest rozstrzygnięciem prawdy absolutnej.';
 
 describe('jedno podsumowanie i jedna karta na stronę', () => {
-	it('dla 5 twierdzeń: jedno podsumowanie, jedna karta, lista zwinięta', () => {
+	it('dla 5 twierdzeń: jedno podsumowanie, jedna karta, kolejne arkusze widoczne od razu', () => {
 		const { container } = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 5)} />);
 		expect(plain(container.querySelector('.record__summary')?.textContent ?? '')).toMatch(/^Sprawdziłem 5 zdań z tej strony: /);
 		expect(container.querySelectorAll('.record-card')).toHaveLength(1);
 		expect(container.querySelectorAll('img.record-card__image')).toHaveLength(1);
-		const list = container.querySelector('details.record__claims-list') as HTMLDetailsElement;
-		expect(list.open).toBe(false);
+		const list = container.querySelector('div.record__claims-list') as HTMLElement;
+		expect(container.querySelector('details.record__claims-list')).toBeNull();
 		expect(list.querySelectorAll('article.record-claim')).toHaveLength(5);
+		expect(container.querySelectorAll('[data-result-heading]')).toHaveLength(1);
+		expect(container.querySelectorAll('.record-claim > .result-image').length).toBeLessThanOrEqual(1);
 		expect(container.querySelectorAll('article.record-claim')).toHaveLength(5);
 		expect(container.textContent).not.toContain('twierdzenia. Oceniam');
 	});

@@ -1,10 +1,7 @@
 import { useRef, type ReactNode } from 'react';
 import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
-import {
-	MISMATCH_LABELS_PL,
-	type Verdict,
-} from '../../../src/contracts/verdict';
+import { MISMATCH_LABELS_PL } from '../../../src/contracts/verdict';
 import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layout';
 import { citizenText, extractCheckStats } from '../../../src/render/citizen';
 import { countNoun } from '../../../src/render/plural';
@@ -15,29 +12,6 @@ import { usesGesture, type Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
 import './record.css';
 import { nb } from '../typography';
-
-const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
-	potwierdzone: {
-		icon: '✔',
-		tone: 'ok',
-	},
-	falszywe: {
-		icon: '✘',
-		tone: 'danger',
-	},
-	wprowadzajace_w_blad: {
-		icon: '▲',
-		tone: 'warn',
-	},
-	brak_wystarczajacych_dowodow: {
-		icon: '?',
-		tone: 'info',
-	},
-	nie_podlega_weryfikacji: {
-		icon: '○',
-		tone: 'neutral',
-	},
-};
 
 export const ABSTAIN_ONE_SENTENCE =
 	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
@@ -146,10 +120,11 @@ interface RecordClaimProps {
 	extraDetails?: ReactNode;
 	role: Role;
 	serious?: boolean;
+	showImage?: boolean;
+	leading?: boolean;
 }
 
-export function RecordClaim({ result, asOf, extraDetails, role, serious = false }: RecordClaimProps) {
-	const presentation = VERDICT_PRESENTATION[result.verdict];
+export function RecordClaim({ result, asOf, extraDetails, role, serious = false, showImage = true, leading = true }: RecordClaimProps) {
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
 	const pointing = !isAbstain && usesGesture(role, result.verdict, serious);
@@ -185,25 +160,21 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false 
 					id={headingId}
 					className="record-claim__headline"
 					data-length={isAbstain ? 'abstain' : headlineLength(layout.headline)}
+					data-result-heading={leading ? '' : undefined}
+					tabIndex={-1}
 				>
 					{isAbstain ? ABSTAIN_WORDS : nb(layout.headline)}
 				</h3>
-				{!isAbstain && <ResultImage role={role} resultKey={result.verdict} serious={serious} />}
 				<div className="record-claim__summary">
 					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{nb(layout.headline)}</p>}
-					<div className={`verdict verdict--${presentation.tone}`}>
+					<div className="verdict">
 						<p className="verdict__label">
-							<span className="verdict__icon" aria-hidden="true">
-								{presentation.icon}
-							</span>
 							<span className="visually-hidden">Ocena: </span>
 							<strong>{nb(layout.label)}</strong>
 						</p>
-						{certainty && <p className="verdict__certainty">{nb(certainty)}</p>}
 						{layout.uncertaintyNote && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
 					</div>
 
-					<p className="record-claim__asof">{nb(layout.asOf)}</p>
 					<p className="record-claim__evidence-link">
 						<button type="button" onClick={showDetails}>
 							{nb(layout.evidenceLink)}
@@ -216,6 +187,14 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false 
 				<section className="record-claim__primary" aria-label="Główne źródło">
 					<EvidenceBody item={primary} />
 				</section>
+			)}
+
+			{!isAbstain && showImage && <ResultImage role={role} resultKey={result.verdict} serious={serious} />}
+
+			{certainty && (
+				<div className="record-claim__certainty">
+					<ConfidenceGauge strength={result.strength} />
+				</div>
 			)}
 
 			<details className="record-claim__details" ref={detailsRef}>
@@ -237,7 +216,6 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false 
 								</p>
 							)}
 							<p>{nb(citizenText(result.explanation))}</p>
-							{layout.certainty && <ConfidenceGauge strength={result.strength} />}
 							<Refutation result={result} />
 							{profile && profile.total > 0 && <ErrorDots profile={profile} />}
 						</section>

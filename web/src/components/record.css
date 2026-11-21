@@ -24,21 +24,9 @@
 	font-size: var(--text-small);
 }
 
-.record-claim .verdict__certainty {
-	margin: 0;
-	font-size: var(--text-small);
-	color: var(--text);
-}
-
 .record-claim .verdict__note {
 	margin: 0;
 	font-size: var(--text-small);
-}
-
-.record-claim__asof {
-	margin: 0;
-	font-size: var(--text-small);
-	color: var(--muted);
 }
 
 .record-claim__evidence-link {
@@ -66,7 +54,7 @@
 
 .record-claim__primary {
 	position: relative;
-	margin: var(--space-6) 0 var(--section-gap);
+	margin: 0 0 var(--space-4);
 	padding: var(--space-4) var(--space-3);
 	border: var(--outline) solid var(--graphite);
 	border-radius: var(--radius-paper);
@@ -329,17 +317,6 @@
 
 .record .notice {
 	margin: var(--space-3) 0;
-}
-
-.record-page > h2,
-.record-page .result > :not(.record),
-.record-page .record > :not(.record-claim):not(.result-corner),
-.record-page .record-claim > :not(.record-claim__lead) {
-	max-width: var(--measure);
-}
-
-.record-page .record-claim > .record-claim__primary {
-	max-width: 760px;
 }
 
 .case-notice {

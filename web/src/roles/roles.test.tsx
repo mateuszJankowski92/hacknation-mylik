@@ -185,7 +185,7 @@ describe('treść wyniku nie zależy od roli', () => {
 		const record = firstRecord();
 		const withRole = (role: string) => ({ ...record, role }) as VerificationRecord;
 		const weather = render(<RecordView record={withRole('pogodynka')} />);
-		const weatherFigure = weather.container.querySelector('.record-claim__lead .result-image');
+		const weatherFigure = weather.container.querySelector('.record-claim > .result-image');
 		expect(weatherFigure).not.toBeNull();
 		expect(weatherFigure?.getAttribute('data-gesture')).toBeNull();
 		expect(weather.container.querySelector('.record-claim--pointing')).toBeNull();

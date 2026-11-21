@@ -192,7 +192,6 @@ svg.result-image__art {
 }
 
 .record-claim__lead {
-	display: block;
 	margin: 0 0 var(--space-3);
 }
 
@@ -213,11 +212,6 @@ svg.result-image__art {
 	--headline-size: 28px;
 }
 
-.record-claim__lead .result-image {
-	clear: both;
-	margin: 0 auto var(--space-3);
-}
-
 .record-claim__summary > :last-child {
 	margin-bottom: 0;
 }
@@ -230,33 +224,17 @@ svg.result-image__art {
 }
 
 @media (min-width: 760px) {
-	.record-claim__lead {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) auto;
-		grid-template-areas:
-			'head art'
-			'sum art';
-		grid-template-rows: auto 1fr;
-		column-gap: var(--space-8);
-		align-items: start;
-	}
-
 	.record-claim__lead .record-claim__headline,
 	.record-claim__lead .record-claim__headline[data-length] {
 		--headline-size: 36px;
-		grid-area: head;
-	}
-
-	.record-claim__lead .result-image {
-		grid-area: art;
-		width: 240px;
-		margin: 0;
-		justify-self: end;
 	}
 
 	.record-claim__lead .record-claim__summary {
-		grid-area: sum;
 		max-width: var(--measure);
+	}
+
+	.record-claim > .result-image {
+		width: 240px;
 	}
 }
 
@@ -273,18 +251,9 @@ svg.result-image__art {
 		--headline-size: 40px;
 	}
 
-	.record-claim__lead .result-image {
+	.record-claim > .result-image {
 		width: 300px;
 	}
-}
-
-.record-claim__lead:not(:has(.result-image)) {
-	grid-template-columns: minmax(0, 1fr);
-	column-gap: 0;
-}
-
-.record__claims-list .record-claim__lead .result-image {
-	width: 160px;
 }
 
 .record__claims-list .record-claim__lead .record-claim__headline,

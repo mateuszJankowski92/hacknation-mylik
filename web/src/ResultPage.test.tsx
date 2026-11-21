@@ -42,7 +42,7 @@ const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 }
 const LATEST = { corpusVersion: 'x', documents: [] };
 
 describe('strona wyniku /r/<id>', () => {
-	it('po kliknięciu "Sprawdź" od razu przechodzi na /r/<id>, potem pokazuje wynik i przyciski', async () => {
+	it('po kliknięciu "Sprawdź" formularz zostaje, scena czeka w hero, a gotowy wynik otwiera /r/<id>', async () => {
 		stubReducedMotion(true);
 		let release: (response: Response) => void = () => undefined;
 		const fetchMock = stubApi({
@@ -51,19 +51,27 @@ describe('strona wyniku /r/<id>', () => {
 			'/api/verify/stream': () => new Promise<Response>((resolve) => (release = resolve)),
 			'/api/sources/latest': () => ok(LATEST),
 		});
-		render(<App />);
+		const { container } = render(<App />);
 		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await waitFor(() => expect(window.location.pathname).toBe(`/r/${ID}`));
 		await screen.findByLabelText('Postęp sprawdzania');
-		expect(screen.queryByLabelText(/Wklej informację lub link/)).toBeNull();
+		expect(window.location.pathname).toBe('/');
+		expect(container.querySelector('.hero .waiting-steps--hero')).not.toBeNull();
+		const field = screen.getByLabelText(/Wklej informację lub link/) as HTMLTextAreaElement;
+		expect(field.value).toBe('Biblioteka jest czynna od 9 do 17.');
+		expect(field.readOnly).toBe(true);
+		expect(screen.getByRole('button', { name: 'Anuluj' })).toBeTruthy();
+		expect(container.querySelector('.record')).toBeNull();
 		await waitFor(() => expect(fetchMock.mock.calls.some((c) => c[0] === '/api/verify/stream')).toBe(true));
 		release(ok({ ...potwierdzone, record: { ...potwierdzone.record, id: ID } }));
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
+		expect(window.location.pathname).toBe(`/r/${ID}`);
+		expect(screen.queryByLabelText(/Wklej informację lub link/)).toBeNull();
+		expect(container.querySelector('.sheet')).not.toBeNull();
+		expect(screen.getByRole('link', { name: /^Zobacz źródło/ })).toBeTruthy();
+		expect(screen.getByRole('link', { name: 'Zapytaj inaczej' })).toBeTruthy();
 		expect(screen.getByRole('button', { name: 'Kopiuj link' })).toBeTruthy();
-		const download = screen.getByRole('link', { name: 'Pobierz obraz-kartę' });
-		expect(download.getAttribute('href')).toBe(`/api/records/${ID}/card.svg?download=1`);
-		expect(window.history.state).toBeNull();
+		expect(screen.getByRole('link', { name: 'Sprawdź następną' })).toBeTruthy();
 		const saved = JSON.parse(window.localStorage.getItem(HISTORY_KEY) ?? '[]') as Array<{ id: string }>;
 		expect(saved[0]?.id).toBe(ID);
 	});
@@ -142,7 +150,6 @@ describe('wynik "brak wystarczających dowodów"', () => {
 		const outcome = FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow as { kind: 'record'; record: VerificationRecord };
 		const { container } = render(<RecordView record={outcome.record} />);
 		expect(container.querySelector('.confidence__needle')).toBeNull();
-		expect(container.querySelector('.verdict__certainty')).toBeNull();
 		expect(container.textContent).not.toContain('Na ile to pewne');
 		expect(container.textContent).not.toContain('wcale');
 		expect(container.querySelector('.verdict__note')?.textContent).toMatch(/zajrzyj na stronę właściwego urzędu/);

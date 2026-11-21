@@ -27,7 +27,7 @@ function StateShell({
 				<span aria-hidden="true">{icon} </span>
 				{nb('To nie jest ocena zgłoszenia')}
 			</p>
-			<h3 id={`state-${state}`}>{nb(STATE_LABELS_PL[state])}</h3>
+			<h3 id={`state-${state}`} tabIndex={-1} data-result-heading>{nb(STATE_LABELS_PL[state])}</h3>
 			<ResultImage role={currentRole()} resultKey={state} />
 			<p>{nb(message)}</p>
 			<p className="state__advice">

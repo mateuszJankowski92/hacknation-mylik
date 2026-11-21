@@ -57,33 +57,3 @@
 	flex-wrap: wrap;
 	gap: var(--space-1) var(--space-2);
 }
-
-.result-actions {
-	margin: var(--space-4) 0;
-}
-
-.result-actions__buttons {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem;
-}
-
-.result-actions__buttons .button {
-	display: inline-block;
-	text-decoration: none;
-}
-
-.result-actions__status {
-	min-height: 1.6rem;
-	margin: 0.5rem 0 0;
-}
-
-.result-actions__link input {
-	width: 100%;
-	padding: 0.5rem;
-	border: 1px solid var(--border);
-	border-radius: 0.25rem;
-	background: var(--bg);
-	color: var(--text);
-	font: inherit;
-}

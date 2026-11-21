@@ -26,7 +26,7 @@ describe('RecordView', () => {
 			const headline = container.querySelector('.record-claim__headline')?.textContent ?? '';
 			if (verdict === 'brak_wystarczajacych_dowodow') expect(headline).toBe(ABSTAIN_WORDS);
 			else expect(headline.length).toBeGreaterThan(10);
-			expect(container.querySelector('.verdict__certainty') !== null).toBe(
+			expect(container.querySelector('.record-claim__certainty') !== null).toBe(
 				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',
 			);
 			expect(screen.getAllByText('Stan na 10.01.2026, 09:30.').length).toBeGreaterThan(0);
@@ -69,10 +69,13 @@ describe('RecordView', () => {
 		expect(details).toHaveLength(1);
 		const outside = [...container.querySelectorAll('.record-claim__primary a[target="_blank"]')];
 		expect(outside).toHaveLength(1);
-		for (const selector of ['.record-claim__mylik', '.confidence', '.record__footer', '.record-card']) {
+		for (const selector of ['.record-claim__mylik', '.record__footer', '.record-card']) {
 			const node = container.querySelector(selector);
 			if (node) expect(details[0]!.contains(node)).toBe(true);
 		}
+		const gauge = container.querySelector('.confidence');
+		expect(gauge).not.toBeNull();
+		expect(details[0]!.contains(gauge)).toBe(false);
 		expect(details[0]!.querySelector('summary')?.matches(':focus-visible, summary')).toBe(true);
 		expect(container.querySelector('.record-claim__primary')?.textContent).toContain('Przykładowy Urząd Miasta');
 	});
@@ -105,16 +108,16 @@ describe('RecordView', () => {
 		expect(container.querySelector('blockquote')).toBeNull();
 	});
 
-	it('układ: zdanie główne, mała etykieta, pewność, data i odsyłacz w tej kolejności', () => {
+	it('układ: zdanie główne, mała etykieta, odsyłacz, cytat z źródłem, a niżej pewność', () => {
 		const { container } = render(<RecordView record={record('falszywe')} />);
-		const order = ['.record-claim__headline', '.verdict__label', '.verdict__certainty', '.record-claim__asof', '.record-claim__evidence-link']
+		const order = ['.record-claim__headline', '.verdict__label', '.record-claim__evidence-link', '.record-claim__primary', '.record-claim__certainty']
 			.map((selector) => container.querySelector(selector));
 		expect(order.every(Boolean)).toBe(true);
 		for (let i = 1; i < order.length; i++) {
 			expect(order[i - 1]!.compareDocumentPosition(order[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 		}
 		expect(container.querySelector('.record-claim__headline')?.textContent).toMatch(/podał .* co innego: „/);
-		expect(screen.getByText('Na ile to pewne: średnio')).toBeTruthy();
+		expect(container.querySelector('.confidence__word')?.textContent).toBe('Na ile to pewne: średnio');
 		expect(container.querySelector('.verdict__label')?.closest('h1,h2,h3,h4,h5,h6')).toBeNull();
 	});
 
@@ -138,7 +141,7 @@ describe('RecordView', () => {
 		for (const size of headlineSizes) expect(size).toBeGreaterThan(smallText);
 		expect(Math.min(...headlineSizes)).toBeGreaterThanOrEqual(28);
 		expect(Math.max(...headlineSizes)).toBeLessThanOrEqual(48);
-		for (const selector of ['.record-claim .verdict__label', '.record-claim .verdict__certainty']) {
+		for (const selector of ['.record-claim .verdict__label', '.record-claim .verdict__note']) {
 			const block = new RegExp(`${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`).exec(record);
 			expect(block?.[1]).toContain('font-size: var(--text-small)');
 		}
@@ -157,7 +160,7 @@ describe('RecordView', () => {
 	it('własne teksty nie zawierają zakazanych form ani słów', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);
 		const own = [
-			...container.querySelectorAll('.verdict__certainty, .record-claim__asof, .record-claim__note'),
+			...container.querySelectorAll('.confidence__word, .sheet__asof, .record-claim__note'),
 		].map((node) => node.textContent ?? '');
 		expect(findForbiddenForms(own.join(' '))).toEqual([]);
 		const text = (container.textContent ?? '').toLowerCase();
