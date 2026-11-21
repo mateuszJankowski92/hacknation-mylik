@@ -117,3 +117,16 @@ data/            katalog źródeł (sources.json), surowe teksty (raw/), baza (m
 scripts/         ingest i pobieranie źródeł
 tests/           testy (vitest), w tym e2e serwera i test dymny tests/e2e/smoke.sh
 ```
+
+## Dokumentacja zgłoszenia
+
+| Temat | Plik |
+|---|---|
+| Architektura i przepływ danych (F5) | [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) |
+| Modele i dostawcy (F5, T13) | [docs/MODELE.md](docs/MODELE.md), [docs/ZALEZNOSCI.md](docs/ZALEZNOSCI.md) |
+| Źródła, licencje, kwalifikacja i aktualizacja (F6) | [docs/ZRODLA.md](docs/ZRODLA.md), licencje przy każdym źródle w `data/sources.json` |
+| Etykiety i ich definicje | [docs/ETYKIETY.md](docs/ETYKIETY.md) |
+| Ryzyka (F8) | [docs/RYZYKA.md](docs/RYZYKA.md) |
+| Wyniki testów i jak je odtworzyć (F7) | [docs/WYNIKI.md](docs/WYNIKI.md), [docs/MIERNIKI.md](docs/MIERNIKI.md) |
+| Koszt 1 000 zapytań, koszt kanału, zachowanie przy ruchu (T14) | [docs/KOSZTY.md](docs/KOSZTY.md) |
+| Czego Mylik nie obsługuje | [docs/NIEOBSLUGIWANE.md](docs/NIEOBSLUGIWANE.md) |

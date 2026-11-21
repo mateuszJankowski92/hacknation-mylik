@@ -1,5 +1,18 @@
 # Mylik: rejestr ryzyk (Iteracja7)
 
+## Lista ryzyk (F8), stan na 21.11.2026
+
+| Ryzyko | Co może pójść źle | Co robimy | Co zostaje |
+|---|---|---|---|
+| Halucynacje | Model wymyśla fakt, cytat albo źródło. | Etykietę liczy kod (`src/engine/rules.ts`). Cytat musi być dosłownym podciągiem fragmentu z bazy. Bramka wsparcia sprawdza każdy cytat osobno. Model nie podaje adresów ani metadanych źródeł. Słaba podstawa = „brak wystarczających dowodów”. Zdania dla obywatela z szablonów. | Model może źle ocenić stanowisko prawdziwego cytatu. Poprawność cytowań poniżej celu 85% ([MIERNIKI.md](MIERNIKI.md)). Twierdzenie pisze model i może źle streścić wejście. |
+| Stronniczość źródeł | Zamknięta lista pomija część spraw albo jedną stronę sporu. | Jawna lista z zasadami kwalifikacji i wykluczania ([ZRODLA.md](ZRODLA.md)). Etykieta nie zależy od domeny ani wydawcy. Sprzeczne źródła = pokazanie obu stron. | Korpus to głównie źródła urzędowe, więc odzwierciedla ich perspektywę. Tematy spoza listy kończą się wstrzymaniem. |
+| Prywatność | Dane osobowe w zgłoszeniu trafiają do dostawcy modelu lub do bazy. | Maskowanie przed modelem (`src/input/pii.ts`: PESEL, NIP, IBAN, karta, dowód, telefon, e-mail, IP, imię po typowych zwrotach). Numer nadawcy SMS nie jest zapisywany. Log bez treści zgłoszeń. Retencja 30 dni (`RETENTION_DAYS`), ręczne usunięcie: `npx tsx src/security/purge-cli.ts --all`. | Maskowanie to wzorce: nazwisko bez zwrotu typu „Pan” nie jest maskowane. API Anthropic jest spoza EOG. |
+| Prompt injection | Tekst, strona albo źródło każe systemowi zmienić zasady. | Obrona w kodzie, szczegóły w R1 niżej. 14/14 ataków odpartych na żywym modelu, 100% na atrapie. | Detekcja to heurystyka (leetspeak, ROT13, CSS z arkusza). Lista luk w R1. |
+| Dostępność | Osoba bez wiedzy technicznej, słabo widząca albo wrażliwa na ruch nie zrozumie wyniku. | Prosty język (krótkie zdania, bez żargonu), kontrast WCAG AA sprawdzany testem (`web/src/contrast.test.tsx`), układ responsywny, atrybuty `aria-*`, ograniczenie ruchu (`prefers-reduced-motion`), sceny czekania do pominięcia. Adapter SMS (w prototypie: symulator) dla osób bez przeglądarki. | Brak audytu z udziałem użytkowników i czytników ekranu. Tylko język polski. |
+| Nadużycia | Zalew zgłoszeń, koszty, użycie wyniku jako „pieczątki prawdy”. | Limit 20 zgłoszeń na minutę na klienta (`RATE_LIMIT_PER_MIN`), limit rozmiaru (16 KB JSON, 2000 znaków, SMS 480), limit czasu 22 s, powtórka z zapisanego rekordu bez kosztu modelu. Każdy wynik ma datę („Stan na”) i odsyłacz do źródeł, a nie werdykt bez podstawy. | Limit żądań jest w pamięci jednego procesu. Brak budżetu dziennego i limitu na numer telefonu (potrzebne przy prawdziwym SMS, `src/sms/KOSZT.md`). Wynik można wyrwać z kontekstu. |
+
+Szczegóły niżej: R1 (prompt injection), R2 (znane operacje informacyjne).
+
 ## R1. Prompt injection (wymóg F8, zadanie 18)
 
 Stan na 2026-11-21. Treść od obywatela, treść stron i fragmenty źródeł to dane, nie instrukcje.
