@@ -176,7 +176,7 @@ describe('render', () => {
 });
 
 const BANNED_WORDS =
-	/korpus|werdykt|weryfikacj|fragment|rekord|dowod|dowód|siła podstawy|siły podstawy|stanowisk|wstrzym|prompt|model|kanał|incydent|artefakt/iu;
+	/korpus|werdykt|weryfikacj|fragment|rekord|dowod|dowód|siła podstawy|siły podstawy|stanowisk|wstrzym|prompt|model|kanał|incydent|artefakt|wyrok|wyrocz|sędzi|sędzio|orzek|orzeka|rozstrzyga|rozstrzygam|młotek|młotk|temid|(?<!\p{L})szal|(?<!\p{L})wag[aięą](?!\p{L})/iu;
 const LABELS: string[] = Object.values(VERDICT_LABELS_PL);
 
 function citizenTexts(): string[] {

@@ -8,7 +8,7 @@ import {
 import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layout';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
-import { EmptyScale, EMPTY_SCALE_HEADING, EMPTY_SCALE_TITLE } from '../visuals/EmptyScale';
+import { EmptyCertainty, EMPTY_CERTAINTY_HEADING, EMPTY_CERTAINTY_TITLE } from '../visuals/EmptyCertainty';
 import { ErrorDots } from '../visuals/ErrorDots';
 import './record.css';
 
@@ -120,7 +120,7 @@ function Refutation({ result }: { result: ClaimResult }) {
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
 
-export function emptyScaleSentence(result: ClaimResult): string {
+export function emptyCertaintySentence(result: ClaimResult): string {
 	const same = result.evidence.filter((item) => item.stance === 'potwierdza').length;
 	const other = result.evidence.filter((item) => item.stance === 'obala').length;
 	if (same === 0 && other === 0) {
@@ -154,7 +154,7 @@ export function RecordClaim({ result, asOf, extraDetails }: RecordClaimProps) {
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const unmeasurable = isUnmeasurable(result);
-	const certainty = unmeasurable && layout.certainty ? `${EMPTY_SCALE_TITLE}: ${EMPTY_SCALE_HEADING}` : layout.certainty;
+	const certainty = unmeasurable && layout.certainty ? `${EMPTY_CERTAINTY_TITLE}: ${EMPTY_CERTAINTY_HEADING}` : layout.certainty;
 	const detailsRef = useRef<HTMLDetailsElement>(null);
 
 	function showDetails() {
@@ -206,7 +206,7 @@ export function RecordClaim({ result, asOf, extraDetails }: RecordClaimProps) {
 						<q>{result.claim.text}</q>
 					</p>
 					<p>{result.explanation}</p>
-					{layout.certainty && unmeasurable && <EmptyScale sentence={emptyScaleSentence(result)} />}
+					{layout.certainty && unmeasurable && <EmptyCertainty sentence={emptyCertaintySentence(result)} />}
 					{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
 					<Refutation result={result} />
 					{profile && profile.total > 0 && <ErrorDots profile={profile} />}

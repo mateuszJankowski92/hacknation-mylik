@@ -56,8 +56,8 @@ describe('pierwszy ekran strony głównej', () => {
 		expect(placeholder.container.querySelector('svg[aria-hidden="true"]')).not.toBeNull();
 		expect(placeholder.container.querySelector('img')).toBeNull();
 		cleanup();
-		const custom = render(<HeroIllustration src="/postac.webp" alt="Postać z wagą i mapą" />);
-		expect(custom.container.querySelector('img')?.getAttribute('alt')).toBe('Postać z wagą i mapą');
+		const custom = render(<HeroIllustration src="/postac.webp" alt="Postać z mapą i lupą" />);
+		expect(custom.container.querySelector('img')?.getAttribute('alt')).toBe('Postać z mapą i lupą');
 		cleanup();
 		render(<Hero illustration={{ src: '/a.png', alt: 'Opis' }}><p>Pole</p></Hero>);
 		expect(screen.getByAltText('Opis')).toBeTruthy();

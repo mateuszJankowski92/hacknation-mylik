@@ -1,4 +1,3 @@
-import type { ProgressStance } from '../contracts/api';
 import type { StrengthLevel } from '../contracts/verdict';
 
 export type GaugeZoneId = 'mało' | 'średnio' | 'dużo';
@@ -135,61 +134,4 @@ export function buildDotMatrix(errors: number, total: number): DotMatrix | null 
 		});
 	}
 	return { cells, width: columns * DOT_PITCH, height: rows * DOT_PITCH, columns, pitch: DOT_PITCH };
-}
-
-export const SCALE_VIEWBOX = { width: 320, height: 210 } as const;
-export const SCALE_PIVOT = { x: 160, y: 46 } as const;
-export const SCALE_ARM = 104;
-export const SCALE_STRING = 54;
-export const SCALE_MAX_TILT_DEGREES = 9;
-export const SCALE_TILT_PER_SOURCE = 3;
-export const SCALE_MAX_VISIBLE_PEBBLES = 8;
-
-export function scaleTiltDegrees(leftCount: number, rightCount: number): number {
-	const raw = (rightCount - leftCount) * SCALE_TILT_PER_SOURCE;
-	return Math.max(-SCALE_MAX_TILT_DEGREES, Math.min(SCALE_MAX_TILT_DEGREES, raw));
-}
-
-export function panOffsetY(tiltDegrees: number, side: 'left' | 'right'): number {
-	const sign = side === 'right' ? 1 : -1;
-	return round(sign * SCALE_ARM * Math.sin((tiltDegrees * Math.PI) / 180));
-}
-
-export interface PebblePlacement {
-	x: number;
-	y: number;
-}
-
-export function pebblePlacements(count: number): PebblePlacement[] {
-	const visible = Math.min(count, SCALE_MAX_VISIBLE_PEBBLES);
-	const placements: PebblePlacement[] = [];
-	for (let index = 0; index < visible; index += 1) {
-		const column = index % 4;
-		const row = Math.floor(index / 4);
-		placements.push({ x: (column - 1.5) * 22, y: -12 - row * 22 });
-	}
-	return placements;
-}
-
-export type PebbleShape = 'circle' | 'square' | 'diamond' | 'triangle';
-
-export const STANCE_SHAPES: Record<ProgressStance, PebbleShape> = {
-	to_samo: 'circle',
-	co_innego: 'square',
-	inna_data_lub_miejsce: 'diamond',
-	tlo: 'triangle',
-};
-
-export function shapePath(shape: PebbleShape, size: number): string {
-	const half = size / 2;
-	switch (shape) {
-		case 'circle':
-			return `M ${-half} 0 A ${half} ${half} 0 1 0 ${half} 0 A ${half} ${half} 0 1 0 ${-half} 0 Z`;
-		case 'square':
-			return `M ${-half} ${-half} H ${half} V ${half} H ${-half} Z`;
-		case 'diamond':
-			return `M 0 ${-half - 1} L ${half + 1} 0 L 0 ${half + 1} L ${-half - 1} 0 Z`;
-		case 'triangle':
-			return `M 0 ${-half - 1} L ${half + 1} ${half} L ${-half - 1} ${half} Z`;
-	}
 }

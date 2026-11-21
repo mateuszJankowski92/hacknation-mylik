@@ -131,10 +131,11 @@ describe('strona wyniku /r/<id>', () => {
 });
 
 describe('wynik "brak wystarczających dowodów"', () => {
-	it('pokazuje pustą wagę i zdanie zamiast wskazówki', () => {
+	it('pokazuje samo zdanie, czego nie znaleziono, zamiast wskazówki', () => {
 		const outcome = FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow as { kind: 'record'; record: VerificationRecord };
 		const { container } = render(<RecordView record={outcome.record} />);
 		expect(container.querySelector('.confidence--empty')).not.toBeNull();
+		expect(container.querySelector('.confidence--empty svg')).toBeNull();
 		expect(container.querySelector('.confidence__needle')).toBeNull();
 		expect(container.textContent).toContain('tego nie da się ocenić');
 		expect(container.textContent).not.toContain('wcale');

@@ -5,7 +5,7 @@ import { ApiFailure, DEFAULT_ETA_SECONDS, fetchEtaSeconds, fetchRecord, verifyWi
 import { addToHistory } from '../history';
 import { isRecordId, navigate, PENDING_CONTENT_KEY, readPendingContent, recordUrlPath } from '../route';
 import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
-import { WaitingScale } from '../visuals/WaitingScale';
+import { WaitingSteps } from '../visuals/WaitingSteps';
 import { Link } from './Link';
 import { OutcomeView } from './OutcomeView';
 import { ResultActions } from './ResultActions';
@@ -111,7 +111,7 @@ export function RecordPage({ id }: { id: string }) {
 					Wczytuję…
 				</p>
 			)}
-			{state.status === 'waiting' && <WaitingScale progress={state.progress} etaSeconds={state.etaSeconds} />}
+			{state.status === 'waiting' && <WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} />}
 			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
 				{state.status === 'gone' && (
 					<section className="http-error" role="status">

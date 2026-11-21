@@ -119,9 +119,9 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 				parts.push(
 					`${publisherName(confirming[0]!)} potwierdza twierdzenie, a ${publisherName(refuting[0]!)} mu przeczy.`,
 				);
-				parts.push('Pokazuję obie strony. Nie rozstrzygam sporu.');
+				parts.push('Pokazuję obie strony. Nie mówię, kto ma rację.');
 			} else if (contextual.length > 0) {
-				parts.push('Znalazłem tylko tło tematu. Nie rozstrzyga ono, czy to prawda.');
+				parts.push('Znalazłem tylko tło tematu. To nie mówi, czy to prawda.');
 			} else {
 				parts.push('Nie znalazłem w źródłach ani potwierdzenia, ani zaprzeczenia.');
 			}

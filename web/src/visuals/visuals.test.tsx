@@ -1,15 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { buildDotMatrix, buildGaugeZones, gaugeNeedle, scaleTiltDegrees, zoneForStrength } from '../../../src/card/visuals';
+import { buildDotMatrix, buildGaugeZones, gaugeNeedle, zoneForStrength } from '../../../src/card/visuals';
 import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { STRENGTH_LEVELS } from '../../../src/contracts/verdict';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { parseSseBlock } from '../api';
 import { ConfidenceGauge } from './ConfidenceGauge';
 import { ErrorDots } from './ErrorDots';
-import { INITIAL_PROGRESS, describeProgress, reduceProgress, sourcesWord, type ProgressState } from './progress';
-import { WaitingScale } from './WaitingScale';
+import { INITIAL_PROGRESS, describeProgress, progressSteps, reduceProgress, sourcesWord, type ProgressState } from './progress';
+import { WaitingSteps } from './WaitingSteps';
 
 afterEach(cleanup);
 
@@ -46,12 +46,6 @@ describe('geometria wspólna', () => {
 		expect(buildDotMatrix(3, 2)).toBeNull();
 		expect(buildDotMatrix(1, 100000)).toBeNull();
 	});
-
-	it('przechył jest ograniczony', () => {
-		expect(scaleTiltDegrees(0, 50)).toBeLessThanOrEqual(9);
-		expect(scaleTiltDegrees(50, 0)).toBeGreaterThanOrEqual(-9);
-		expect(scaleTiltDegrees(2, 2)).toBe(0);
-	});
 });
 
 describe('postęp', () => {
@@ -83,48 +77,63 @@ describe('postęp', () => {
 	});
 });
 
-describe('WaitingScale', () => {
-	it('puste szale: jeszcze nic nie znalazłem, potem nic nie znalazłem', () => {
-		const { container, rerender } = render(<WaitingScale progress={INITIAL_PROGRESS} etaSeconds={12} elapsedSeconds={2} />);
+describe('WaitingSteps', () => {
+	const stepTexts = (container: HTMLElement) =>
+		[...container.querySelectorAll('.waiting-steps__step')].map((node) => node.textContent?.replace(/^[✓…·]/u, ''));
+
+	it('na starcie czyta wiadomość, potem pokazuje prawdziwe kroki', () => {
+		const { container, rerender } = render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={12} elapsedSeconds={2} />);
 		expect(screen.getByText('Sprawdzam. Zwykle trwa to około 12 sekund.')).toBeTruthy();
 		expect(screen.getByText('Minęło: 2 s')).toBeTruthy();
-		expect(container.textContent).toContain('Jeszcze nic nie znalazłem.');
+		expect(stepTexts(container)).toEqual(['Czytam wiadomość', 'Szukam źródeł', 'Szukam źródeł, które mówią co innego', 'Składam odpowiedź']);
+		const middle = play([
+			{ type: 'zgloszenie_przeczytane', claims: 1 },
+			{ type: 'fragmenty_za', claim: 0, count: 2 },
+			judged('GIS', 'to_samo'),
+			judged('Portal', 'co_innego'),
+			judged('Blog', 'tlo'),
+			{ type: 'szukanie_przeciw_start', claim: 0 },
+		]);
+		rerender(<WaitingSteps progress={middle} etaSeconds={12} elapsedSeconds={3} />);
+		expect(stepTexts(container)).toEqual([
+			'Przeczytałem wiadomość',
+			'Szukałem źródeł. Znalazłem 3 źródła',
+			'Szukam źródeł, które mówią co innego',
+			'Składam odpowiedź',
+		]);
+		expect(container.querySelector('[aria-current="step"]')?.textContent).toContain('Szukam źródeł, które mówią co innego');
+		expect(container.querySelector('svg')).toBeNull();
+	});
+
+	it('bez źródeł: mówi, że nic nie znalazł', () => {
 		const done = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 0 },
 			{ type: 'szukanie_przeciw_koniec', claim: 0, count: 0 },
 		]);
-		rerender(<WaitingScale progress={done} etaSeconds={12} elapsedSeconds={3} />);
-		expect(container.textContent).toContain('Nic nie znalazłem.');
+		const steps = progressSteps(done);
+		expect(steps.map((step) => step.status)).toEqual(['done', 'done', 'done', 'current']);
+		expect(steps[1]!.text).toBe('Szukałem źródeł. Nic nie znalazłem');
 	});
 
-	it('odważniki trafiają na właściwe miejsca, tło i inna data osobno', () => {
-		const progress = play([
-			{ type: 'zgloszenie_przeczytane', claims: 1 },
-			judged('GIS', 'to_samo'),
-			judged('Portal', 'co_innego'),
-			judged('Archiwum', 'inna_data_lub_miejsce'),
-			judged('Blog', 'tlo'),
-		]);
-		const { container } = render(<WaitingScale progress={progress} elapsedSeconds={1} />);
-		const box = (stance: string) => container.querySelector(`.waiting-scale__box--${stance}`)!.textContent;
-		expect(box('to_samo')).toContain('GIS');
-		expect(box('co_innego')).toContain('Portal');
-		expect(box('inna_data_lub_miejsce')).toContain('Archiwum');
-		expect(box('inna_data_lub_miejsce')).not.toContain('GIS');
-		expect(box('tlo')).toContain('Blog');
-		expect(container.querySelectorAll('.waiting-scale__pebble')).toHaveLength(2);
-		expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
-		expect(container.textContent).toContain('decydują reguły');
+	it('bez twierdzeń do sprawdzenia kończy na jednym kroku', () => {
+		expect(progressSteps(play([{ type: 'zgloszenie_przeczytane', claims: 0 }]))).toHaveLength(1);
+	});
+
+	it('teksty kroków nie zawierają zakazanych form', () => {
+		const states = [INITIAL_PROGRESS, play([{ type: 'zgloszenie_przeczytane', claims: 1 }, judged('GIS', 'to_samo')])];
+		for (const state of states) {
+			for (const step of progressSteps(state)) expect(findForbiddenForms(step.text)).toEqual([]);
+		}
 	});
 
 	it('po przekroczeniu mediany pokazuje komunikat o dłuższym czasie', () => {
-		render(<WaitingScale progress={INITIAL_PROGRESS} etaSeconds={10} elapsedSeconds={11} />);
+		render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={10} elapsedSeconds={11} />);
 		expect(screen.getByText('To trwa dłużej niż zwykle. Jeszcze chwila.')).toBeTruthy();
 	});
 
 	it('stan jest ogłaszany jako tekst w regionie aria-live', () => {
-		const { container } = render(<WaitingScale progress={INITIAL_PROGRESS} elapsedSeconds={0} />);
+		const { container } = render(<WaitingSteps progress={INITIAL_PROGRESS} elapsedSeconds={0} />);
 		const live = [...container.querySelectorAll('[aria-live="polite"]')].map((node) => node.textContent);
 		expect(live).toContain('Czytam Twoje zgłoszenie.');
 	});

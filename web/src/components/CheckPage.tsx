@@ -4,7 +4,7 @@ import { ApiFailure, DEFAULT_ETA_SECONDS, fetchEtaSeconds, fetchRecordKey, verif
 import { addToHistory } from '../history';
 import { navigate, PENDING_CONTENT_KEY, recordUrlPath } from '../route';
 import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
-import { WaitingScale } from '../visuals/WaitingScale';
+import { WaitingSteps } from '../visuals/WaitingSteps';
 import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
 import { Hero } from './Hero';
@@ -108,7 +108,7 @@ export function CheckPage() {
 			<Hero>
 				<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
 			</Hero>
-			{state.status === 'loading' && <WaitingScale progress={state.progress} etaSeconds={state.etaSeconds} />}
+			{state.status === 'loading' && <WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} />}
 			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">

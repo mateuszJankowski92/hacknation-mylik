@@ -152,7 +152,7 @@ describe('RecordView', () => {
 		].map((node) => node.textContent ?? '');
 		expect(findForbiddenForms(own.join(' '))).toEqual([]);
 		const text = (container.textContent ?? '').toLowerCase();
-		for (const word of ['korpus', 'werdykt', 'fragment ', 'rekord ', 'prompt', 'incydent', 'artefakt']) {
+		for (const word of ['korpus', 'werdykt', 'fragment ', 'rekord ', 'prompt', 'incydent', 'artefakt', 'wyrok', 'sędzi', 'orzek', 'rozstrzyga', 'młotek', 'Temid', 'szal', ' wag']) {
 			expect(text).not.toContain(word);
 		}
 	});

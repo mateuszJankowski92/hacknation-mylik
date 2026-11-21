@@ -38,7 +38,7 @@ export function App() {
 			</main>
 			<footer className="site-footer">
 				<p>{PROTOTYPE_NOTE}</p>
-				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
+				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.</p>
 			</footer>
 		</>
 	);

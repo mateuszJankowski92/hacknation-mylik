@@ -103,3 +103,38 @@ export function describeProgress(state: ProgressState): string {
 	const tail = extras.length > 0 ? ` ${extras.join(' ')}` : '';
 	return `${found} Mówią to samo: ${same}. Mówią co innego: ${other}.${tail} Składam odpowiedź.`;
 }
+
+export interface ProgressStep {
+	id: 'read' | 'same' | 'against' | 'compose';
+	text: string;
+	status: 'done' | 'current' | 'waiting';
+}
+
+function foundSentence(judged: number): string {
+	return judged === 0 ? 'Nic nie znalazłem' : `Znalazłem ${sourcesWord(judged)}`;
+}
+
+export function progressSteps(state: ProgressState): ProgressStep[] {
+	const judged = state.pebbles.length;
+	const read = state.claims !== null;
+	const sameDone = forSearchFinished(state);
+	const againstStarted = state.againstStarted.length > 0 || state.againstDone.length > 0;
+	const againstDone = againstSearchFinished(state);
+
+	const steps: ProgressStep[] = [
+		{ id: 'read', text: read ? 'Przeczytałem wiadomość' : 'Czytam wiadomość', status: read ? 'done' : 'current' },
+	];
+	if (state.claims === 0) return steps;
+	steps.push({
+		id: 'same',
+		text: sameDone ? `Szukałem źródeł. ${foundSentence(judged)}` : 'Szukam źródeł',
+		status: !read ? 'waiting' : sameDone ? 'done' : 'current',
+	});
+	steps.push({
+		id: 'against',
+		text: againstDone ? 'Sprawdziłem źródła, które mówią co innego' : 'Szukam źródeł, które mówią co innego',
+		status: againstDone ? 'done' : sameDone || againstStarted ? 'current' : 'waiting',
+	});
+	steps.push({ id: 'compose', text: 'Składam odpowiedź', status: againstDone ? 'current' : 'waiting' });
+	return steps;
+}
