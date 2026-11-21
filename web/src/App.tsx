@@ -1,6 +1,7 @@
 import { useRef, type MouseEvent } from 'react';
 import { AccessibilityMenu } from './a11y/AccessibilityMenu';
 import { useEscapeToClose } from './a11y/useEscapeToClose';
+import { ConsentBanner } from './privacy/ConsentBanner';
 import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
@@ -43,6 +44,7 @@ function AppShell() {
 					<AccessibilityMenu />
 				</div>
 			</header>
+			<ConsentBanner />
 			<main id="main" tabIndex={-1}>
 				{route.page === 'check' && <CheckPage />}
 				{route.page === 'record' && <RecordPage id={route.id} />}

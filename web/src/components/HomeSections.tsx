@@ -4,6 +4,7 @@ import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import { fetchLatestSources } from '../api';
 import { formatDate, formatDateTime } from '../format';
 import { clearHistory, loadHistory, type HistoryEntry } from '../history';
+import { useHistoryConsent } from '../privacy/consent';
 import { recordUrlPath } from '../route';
 import { nb } from '../typography';
 import { Link } from './Link';
@@ -16,6 +17,9 @@ const HOME_TEXTS_RAW = {
 	showLess: 'Pokaż mniej',
 	recentClear: 'Wyczyść listę',
 	recentCleared: 'Lista jest pusta.',
+	recentOff: 'Nie zapamiętuję Twoich sprawdzeń. Możesz to zmienić w ustawieniach prywatności.',
+	recentUnset: 'Nie zapamiętuję Twoich sprawdzeń, dopóki nie wybierzesz, czy mam to robić.',
+	recentSettings: 'Ustawienia prywatności',
 	latestTitle: 'Najnowsze ostrzeżenia ze źródeł',
 	latestEmpty: 'Nie mam jeszcze żadnych dokumentów do pokazania.',
 	latestFailed: 'Nie udało się wczytać najnowszych dokumentów. Spróbuj odświeżyć stronę.',
@@ -28,9 +32,14 @@ export const HOME_TEXTS = Object.fromEntries(
 const VISIBLE_ITEMS = 3;
 
 export function RecentChecks() {
+	const consent = useHistoryConsent();
 	const [entries, setEntries] = useState<HistoryEntry[]>(() => loadHistory());
 	const [cleared, setCleared] = useState(false);
 	const [expanded, setExpanded] = useState(false);
+
+	useEffect(() => {
+		setEntries(loadHistory());
+	}, [consent]);
 
 	function handleClear() {
 		clearHistory();
@@ -41,7 +50,12 @@ export function RecentChecks() {
 	return (
 		<section className="home-section" aria-labelledby="recent-title">
 			<h2 id="recent-title">{HOME_TEXTS.recentTitle}</h2>
-			{entries.length === 0 ? (
+			{consent !== 'granted' ? (
+				<p>
+					{consent === 'denied' ? HOME_TEXTS.recentOff : HOME_TEXTS.recentUnset}{' '}
+					<Link to="/prywatnosc#ustawienia">{HOME_TEXTS.recentSettings}</Link>
+				</p>
+			) : entries.length === 0 ? (
 				<p>{HOME_TEXTS.recentEmpty}</p>
 			) : (
 				<>

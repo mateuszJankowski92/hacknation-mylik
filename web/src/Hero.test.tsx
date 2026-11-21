@@ -19,6 +19,7 @@ import { Hero, HeroIllustration } from './components/Hero';
 import { HeroStage } from './components/HeroStage';
 import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
+import { reloadHistoryConsent, setHistoryConsent } from './privacy/consent';
 import { entriesFor, type ManifestEntry } from './roles/manifest';
 import { HERO_SCENES, SCENE_TEXTS, heroEntries, heroScenesFor, heroSequence, type SceneSpec } from './scenes/config';
 import { LEGACY_SCENE_STORAGE_KEY, clearLegacySceneChoice } from './scenes/preferences';
@@ -30,6 +31,7 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 	window.history.replaceState(null, '', '/');
 	window.localStorage.clear();
+	reloadHistoryConsent();
 });
 
 function stubReducedMotion(matches: boolean) {
@@ -186,6 +188,7 @@ describe('nagłówek strony głównej', () => {
 describe('sekcje pod polem', () => {
 	it('pokazują po 3 pozycje, reszta pod "Pokaż więcej"', async () => {
 		stubLatest(5);
+		setHistoryConsent('granted');
 		window.localStorage.setItem(
 			HISTORY_KEY,
 			JSON.stringify(

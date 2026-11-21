@@ -33,3 +33,51 @@
 	font: inherit;
 	font-weight: 700;
 }
+
+.doc__settings {
+	display: grid;
+	gap: var(--space-1);
+	margin: var(--space-4) 0 0;
+	padding: var(--space-2);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	box-shadow: var(--shadow-paper);
+}
+
+.doc__settings h2 {
+	margin: 0;
+}
+
+.doc__settings:focus {
+	outline: none;
+}
+
+.doc__label,
+.doc__status {
+	margin: 0;
+}
+
+.doc__label {
+	font-weight: 700;
+}
+
+.doc__choices {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1);
+}
+
+.doc__choice {
+	flex: 1 1 0;
+}
+
+.doc__choice[aria-pressed='true'] {
+	border-width: 3px;
+	background: var(--paper-shade);
+	font-weight: 700;
+}
+
+.doc__choice[aria-pressed='true']::before {
+	content: '\2713\00a0';
+}

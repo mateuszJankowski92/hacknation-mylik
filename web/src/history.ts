@@ -1,7 +1,8 @@
 import type { VerificationRecord } from '../../src/contracts/record';
 import { VERDICT_LABELS_PL } from '../../src/contracts/verdict';
+import { HISTORY_STORAGE_KEY, historyMayBeSaved } from './privacy/consent';
 
-export const HISTORY_KEY = 'mylik:ostatnie-sprawdzenia:v1';
+export const HISTORY_KEY = HISTORY_STORAGE_KEY;
 export const HISTORY_LIMIT = 8;
 const CLAIM_PREVIEW_CHARS = 140;
 
@@ -25,6 +26,7 @@ function isEntry(value: unknown): value is HistoryEntry {
 }
 
 export function loadHistory(): HistoryEntry[] {
+	if (!historyMayBeSaved()) return [];
 	try {
 		const raw = window.localStorage.getItem(HISTORY_KEY);
 		if (!raw) return [];
@@ -58,6 +60,7 @@ export function entryFromRecord(record: VerificationRecord): HistoryEntry {
 }
 
 export function addToHistory(record: VerificationRecord): void {
+	if (!historyMayBeSaved()) return;
 	try {
 		const entry = entryFromRecord(record);
 		const rest = loadHistory().filter((item) => item.id !== entry.id);

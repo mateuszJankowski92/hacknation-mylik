@@ -8,6 +8,7 @@ import { RecordView } from './components/RecordView';
 import { GONE_TEXTS } from './components/RecordPage';
 import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
+import { reloadHistoryConsent, setHistoryConsent } from './privacy/consent';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
 import { stubReducedMotion } from './testing/motion';
 import { plain } from './typography';
@@ -24,6 +25,7 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 	window.history.replaceState(null, '', '/');
 	window.localStorage.clear();
+	reloadHistoryConsent();
 });
 
 type Handler = (path: string, init?: RequestInit) => Response | Promise<Response>;
@@ -63,6 +65,7 @@ describe('strona wyniku /r/<id>', () => {
 		expect(screen.getByRole('button', { name: 'Anuluj' })).toBeTruthy();
 		expect(container.querySelector('.record')).toBeNull();
 		await waitFor(() => expect(fetchMock.mock.calls.some((c) => c[0] === '/api/verify/stream')).toBe(true));
+		setHistoryConsent('granted');
 		release(ok({ ...potwierdzone, record: { ...potwierdzone.record, id: ID } }));
 		await screen.findByText(VERDICT_LABELS_PL.potwierdzone);
 		expect(window.location.pathname).toBe(`/r/${ID}`);
@@ -165,6 +168,7 @@ describe('wynik "brak wystarczających dowodów"', () => {
 
 describe('strona główna', () => {
 	it('pokazuje ostatnie sprawdzenia z przeglądarki i pozwala je wyczyścić', async () => {
+		setHistoryConsent('granted');
 		window.localStorage.setItem(
 			HISTORY_KEY,
 			JSON.stringify([{ id: ID, text: 'Woda w kranie jest zdatna do picia.', label: 'potwierdzone', checkedAt: '2026-11-20T10:00:00Z' }]),
@@ -179,6 +183,7 @@ describe('strona główna', () => {
 	});
 
 	it('działa, gdy localStorage jest zablokowany', async () => {
+		setHistoryConsent('granted');
 		stubApi({ '/api/sources/latest': () => ok(LATEST) });
 		vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
 			throw new Error('zablokowane');

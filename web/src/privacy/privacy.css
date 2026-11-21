@@ -1,0 +1,89 @@
+.consent-banner {
+	position: fixed;
+	z-index: 15;
+	right: var(--space-2);
+	bottom: var(--space-2);
+	left: var(--space-2);
+	display: grid;
+	gap: var(--space-1);
+	max-width: 36rem;
+	margin: 0 auto;
+	padding: 12px var(--space-2);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	box-shadow: var(--shadow-lift);
+	font-size: var(--text-small);
+	line-height: 1.35;
+}
+
+.consent-banner::after {
+	content: '';
+	position: absolute;
+	top: calc(var(--outline) * -1);
+	right: calc(var(--outline) * -1);
+	width: var(--fold-size);
+	height: var(--fold-size);
+	border-left: var(--outline) solid var(--graphite);
+	border-bottom: var(--outline) solid var(--graphite);
+	background: linear-gradient(
+		225deg,
+		var(--bg) 0 calc(50% - var(--outline) / 2),
+		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
+	);
+	pointer-events: none;
+}
+
+.consent-banner__text {
+	margin: 0;
+}
+
+.consent-banner__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.consent-banner__actions .button {
+	flex: 1 1 auto;
+	padding: var(--space-1) var(--space-2);
+	font-size: inherit;
+}
+
+.consent-banner__more {
+	white-space: nowrap;
+}
+
+html[data-text-size='large'] .consent-banner,
+html[data-text-size='xlarge'] .consent-banner,
+html[data-spacing='wide'] .consent-banner {
+	position: relative;
+	inset: auto;
+	margin: var(--space-1) auto;
+}
+
+@media (max-height: 829px) {
+	.consent-banner {
+		position: relative;
+		inset: auto;
+		margin: var(--space-1) auto;
+	}
+}
+
+.app:has(.consent-banner) {
+	padding-bottom: calc(var(--space-6) + 11rem);
+}
+
+html[data-text-size='large'] .app:has(.consent-banner),
+html[data-text-size='xlarge'] .app:has(.consent-banner),
+html[data-spacing='wide'] .app:has(.consent-banner) {
+	padding-bottom: var(--space-6);
+}
+
+@media (max-height: 829px) {
+	.app:has(.consent-banner) {
+		padding-bottom: var(--space-6);
+	}
+}
