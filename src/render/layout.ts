@@ -6,6 +6,7 @@ import {
 } from '../contracts/index';
 import { EVIDENCE_LINK_TEXT, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import { asOfStamp, formatDate } from './templates';
+import { missingEvidenceText, NOT_FOUND_SENTENCE, reviewSentence } from './answer';
 
 export { EVIDENCE_LINK_TEXT } from './plain';
 
@@ -56,7 +57,16 @@ export function pickLayoutEvidence(claim: ClaimResult): EvidenceItem | undefined
 	);
 }
 
+/**
+ * Zdanie główne. Pytanie rozstrzygające: najpierw bezpośrednia odpowiedź (`directAnswer`), potem zdanie
+ * relacjonujące źródło z datą. Ocena redakcji jest zawsze przypisana redakcji (reviewSentence).
+ */
 export function buildHeadline(claim: ClaimResult, limits: LayoutLimits = {}): string {
+	const body = headlineBody(claim, limits);
+	return claim.directAnswer ? `${claim.directAnswer} ${body}`.trim() : body;
+}
+
+function headlineBody(claim: ClaimResult, limits: LayoutLimits): string {
 	const publisherLimit = limits.publisher ?? DEFAULT_PUBLISHER_CHARS;
 	const quoteLimit = limits.quote ?? DEFAULT_QUOTE_CHARS;
 	const { verdict } = claim;
@@ -67,12 +77,20 @@ export function buildHeadline(claim: ClaimResult, limits: LayoutLimits = {}): st
 		if (confirming && refuting) {
 			return `${publisherName(confirming, publisherLimit)} i ${publisherName(refuting, publisherLimit)} podają sprzeczne informacje. Nie wiem, czy to prawda.`;
 		}
+		if (claim.neededDocument) {
+			// Bez powtórzenia "nie udało się potwierdzić", gdy mówi to już bezpośrednia odpowiedź.
+			if (claim.directAnswer?.startsWith('Nie udało mi się'))
+				return `Do sprawdzenia potrzebuję: ${claim.neededDocument}. ${NOT_FOUND_SENTENCE}`;
+			return missingEvidenceText(claim);
+		}
 		return VERDICT_EXPLANATIONS_PL[verdict];
 	}
+	if (verdict === 'nie_podlega_weryfikacji') return VERDICT_EXPLANATIONS_PL[verdict];
 
 	const relation = RELATIONS[verdict];
 	const item = pickLayoutEvidence(claim);
 	if (!relation || !item) return VERDICT_EXPLANATIONS_PL[verdict];
+	if (item.source.review) return reviewSentence(item, { maxThesis: quoteLimit });
 
 	const date = item.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty';
 	const quote = shorten(item.quote, quoteLimit);

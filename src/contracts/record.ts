@@ -83,6 +83,14 @@ export const ClaimResultSchema = z.object({
   abstainReason: z.string().optional(),
   refutation: RefutationSchema,
   errorProfile: ErrorProfileSchema.optional(),
+  /**
+   * Bezpośrednia odpowiedź na pytanie rozstrzygające ("Tak.", "Nie.", "Częściowo.", "Nie udało mi się
+   * tego potwierdzić."), z szablonu w kodzie (src/render/answer.ts), zgodna z etykietą. Brak = zgłoszenie
+   * nie było pytaniem.
+   */
+  directAnswer: z.string().optional(),
+  /** Przy braku dowodów: jakiego rodzaju dokument rozstrzygnąłby sprawę (ogólny szablon, bez szczegółów). */
+  neededDocument: z.string().optional(),
 });
 export type ClaimResult = z.infer<typeof ClaimResultSchema>;
 

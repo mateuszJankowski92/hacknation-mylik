@@ -21,6 +21,9 @@ import {
 import { buildResultLayout } from './layout';
 import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
+import { decisiveReview, missingEvidenceText, reviewEvidence, reviewSentence } from './answer';
+
+export * from './answer';
 
 export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, buildUncertaintyNote, isUnmeasurable, pickLayoutEvidence, type ResultLayout } from './layout';
 export * from './warning';
@@ -70,30 +73,71 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 		count > 1
 			? `Sprawdziłem ${count} ${pluralPl(count, 'twierdzenie', 'twierdzenia', 'twierdzeń')}. Tu pierwsze.`
 			: '';
-	for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
-		const layout = buildResultLayout(lead, record.asOf, {
-			publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
-			quote,
-		});
-		const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
-		const text = join(layout.headline, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
-		if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
+	// Ocena redakcji: ta sama publikacja co w WWW (adres z indeksu), gdy mieści się w limicie.
+	const review = decisiveReview(lead);
+	const pubLinks = review ? [`Link do publikacji: ${review.source.url}`, ''] : [''];
+	const label = VERDICT_LABELS_PL[lead.verdict];
+	const asOfShort = asOfStamp(record.asOf);
+	const shortCandidates: string[] = [];
+	if (review) {
+		const r = review.source.review!;
+		const when = review.source.publishedAt ? `, ${formatDate(review.source.publishedAt)}` : '';
+		const head = join(lead.directAnswer ?? '', `${publisherName(review, MIN_PUBLISHER_CHARS * 2)}${when}: ocena „${r.rating}”.`);
+		shortCandidates.push(join(head, pubLinks[0]!, `[${label}]`, asOfShort, warning, tail), join(head, pubLinks[0]!, `[${label}]`, asOfShort, tail));
 	}
+	if (lead.neededDocument) {
+		const head = join(lead.directAnswer ?? 'Nie udało mi się potwierdzić tej informacji.', `Potrzebuję: ${lead.neededDocument}.`);
+		shortCandidates.push(join(head, `[${label}]`, asOfShort, warning, tail), join(head, `[${label}]`, asOfShort, tail));
+	}
+	const tryFull = (pubLink: string): string | null => {
+		for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
+			const layout = buildResultLayout(lead, record.asOf, {
+				publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
+				quote,
+			});
+			const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
+			const text = join(layout.headline, pubLink, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
+			if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
+		}
+		return null;
+	};
+	// Kolejność: pełne zdanie z adresem publikacji, skrót z adresem, pełne zdanie bez adresu, skróty.
+	if (review) {
+		const withLink = tryFull(pubLinks[0]!) ?? shortCandidates.find((t) => t.length <= SHORT_ANSWER_MAX_CHARS);
+		if (withLink) return withLink;
+	}
+	const full = tryFull('');
+	if (full) return full;
+	for (const t of shortCandidates) if (t.length <= SHORT_ANSWER_MAX_CHARS) return t;
 	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 });
-	const compactWithWarning = join(VERDICT_EXPLANATIONS_PL[lead.verdict], `[${layout.label}]`, layout.asOf, warning, tail);
+	const compactHead = lead.directAnswer ? join(lead.directAnswer, review ? `${review.source.publisher}: „${review.source.review!.rating}”.` : '') : VERDICT_EXPLANATIONS_PL[lead.verdict];
+	const compactWithWarning = join(compactHead, `[${layout.label}]`, layout.asOf, warning, tail);
 	if (compactWithWarning.length <= SHORT_ANSWER_MAX_CHARS) return compactWithWarning;
-	const compact = join(VERDICT_EXPLANATIONS_PL[lead.verdict], `[${layout.label}]`, layout.asOf, tail);
+	const compact = join(compactHead, `[${layout.label}]`, layout.asOf, tail);
 	if (compact.length <= SHORT_ANSWER_MAX_CHARS) return compact;
 	return join(`[${layout.label}]`, layout.asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 }
 
 export function renderExplanation(claim: ClaimResult, asOf?: string | Date): string {
 	const parts: string[] = [];
+	if (claim.directAnswer) parts.push(claim.directAnswer);
+	// Oceny redakcji (indeks weryfikacji): zawsze przypisane redakcji, z adresem publikacji.
+	const reviews = reviewEvidence(claim);
+	const decisive = decisiveReview(claim);
+	for (const item of decisive ? [decisive] : reviews.slice(0, 1)) {
+		parts.push(reviewSentence(item));
+		if (!decisive) parts.push('Ta ocena dotyczy podobnej, ale nie tej samej tezy, więc na niej nie opieram odpowiedzi.');
+		parts.push(`Link do publikacji: ${item.source.url}`);
+	}
 	const confirming = claim.evidence.filter((e) => e.stance === 'potwierdza');
 	const refuting = claim.evidence.filter((e) => e.stance === 'obala');
 	const contextual = claim.evidence.filter((e) => e.stance === 'rozbieznosc_kontekstu' || e.stance === 'kontekst');
 
-	switch (claim.verdict) {
+	// Podstawa wyłącznie z ocen redakcji: zdanie z przypisaną oceną wyżej wystarcza (bez ogólnych szablonów).
+	const reviewOnly =
+		decisive !== null &&
+		claim.evidence.filter((e) => e.stance !== 'kontekst').every((e) => e.source.layer === 'weryfikacja_redakcji');
+	if (!reviewOnly) switch (claim.verdict) {
 		case 'nie_podlega_weryfikacji':
 			parts.push(VERDICT_SENTENCES.nie_podlega_weryfikacji('', ''));
 			break;
@@ -127,6 +171,9 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 				parts.push('Pokazuję obie strony. Nie mówię, kto ma rację.');
 			} else if (contextual.length > 0) {
 				parts.push('Znalazłem tylko tło tematu. To nie mówi, czy to prawda.');
+			} else if (claim.neededDocument) {
+				const text = missingEvidenceText(claim);
+				parts.push(claim.directAnswer?.startsWith('Nie udało mi się') ? text.replace(/^Nie udało mi się potwierdzić tej informacji\. /u, '') : text);
 			} else {
 				parts.push('Nie znalazłem w źródłach ani potwierdzenia, ani zaprzeczenia.');
 			}

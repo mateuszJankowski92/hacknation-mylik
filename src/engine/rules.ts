@@ -159,9 +159,12 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
   const bestRank = Math.min(...aligned.map((e) => e.rank));
   const weak = bestRank >= WEAK_MATCH_RANK;
 
+  // Ocena redakcji sprawdzającej fakty (indeks weryfikacji, src/factcheck): jak jedno źródło
+  // urzędowe dla poziomu `srednia`; poziom `wysoka` tylko razem ze źródłem urzędowym (dwie domeny).
+  const reviewed = aligned.some((e) => e.source.layer === 'weryfikacja_redakcji');
   let level: StrengthLevel;
   if (domains.size >= 2 && official && !anyArchival && !anyUndated) level = 'wysoka';
-  else if (official || domains.size >= 2) level = 'srednia';
+  else if (official || reviewed || domains.size >= 2) level = 'srednia';
   else level = 'niska';
   if (allArchival) level = down(level);
   else if (anyExpired) level = down(level);
@@ -169,7 +172,8 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
   if (weak) level = down(level);
   if (!LEVELS.includes(level)) level = 'niska';
   // Zad. 29: podstawa wyłącznie z drugiej warstwy (media i instytucje) daje najwyżej `srednia`.
-  const secondaryOnly = aligned.every((e) => e.source.layer === 'media_i_instytucje');
+  // To samo dla podstawy wyłącznie z ocen redakcji (indeks weryfikacji).
+  const secondaryOnly = aligned.every((e) => e.source.layer === 'media_i_instytucje' || e.source.layer === 'weryfikacja_redakcji');
   if (secondaryOnly && level === 'wysoka') level = 'srednia';
 
   const reasons: StrengthReasonCode[] = [];

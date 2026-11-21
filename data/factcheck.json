@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "_opis": "Indeks weryfikacji redakcji (Google Fact Check Tools API, claims:search). Do weryfikacji redakcji docieramy WYŁĄCZNIE przez ten indeks (wskazanie organizatora: bez bezpośredniej integracji z serwisami redakcji, bez pobierania ich stron). Opis: docs/ZRODLA.md, warstwa 3.",
+  "index": {
+    "endpoint": "https://factchecktools.googleapis.com/v1alpha1/claims:search",
+    "languageCode": "pl",
+    "pageSize": 10,
+    "maxQueries": 2,
+    "timeoutMs": 6000
+  },
+  "qualification": "Wydawca kwalifikuje się, gdy jest sygnatariuszem Kodeksu Zasad IFCN albo zweryfikowanym członkiem EFCSN (sprawdzone na oficjalnej liście, z datą sprawdzenia), publikuje weryfikacje po polsku i jego wpisy zwraca indeks Google (pole claimReview.publisher.site). Wpis z innej domeny niż lista odpada w kodzie. Wykluczenie: utrata statusu sygnatariusza lub członka, zmiana wydawcy, wpisy bez oceny lub bez adresu publikacji.",
+  "publishers": [
+    {
+      "id": "demagog",
+      "name": "Demagog",
+      "site": "demagog.org.pl",
+      "enabled": true,
+      "standard": "EFCSN: zweryfikowany członek od 25.05.2023 (members.efcsn.com/signatories, sprawdzone 21.11.2026); IFCN: lista renderowana skryptem, nie odczytano",
+      "added": "2026-11-21"
+    },
+    {
+      "id": "pravda",
+      "name": "Pravda",
+      "site": "pravda.org.pl",
+      "enabled": false,
+      "standard": "EFCSN: zweryfikowany członek od 23.02.2024 (members.efcsn.com/signatories, sprawdzone 21.11.2026); domena NIEPOTWIERDZONA, dlatego wyłączony do potwierdzenia",
+      "added": "2026-11-21"
+    },
+    {
+      "id": "afp-sprawdzam",
+      "name": "AFP Sprawdzam",
+      "site": "sprawdzam.afp.com",
+      "enabled": false,
+      "standard": "EFCSN: na liście jest AFP (Francja), bez osobnego wpisu polskiej redakcji; IFCN: nie odczytano. Wyłączony do potwierdzenia",
+      "added": "2026-11-21"
+    }
+  ],
+  "corpusDirectFactcheck": {
+    "use": false,
+    "sourceIds": ["konkret24", "fakenews-pl"],
+    "_opis": "Dokumenty pobrane wcześniej bezpośrednio ze stron redakcji sprawdzających fakty (data/sources.json). Domyślnie NIEUŻYWANE w ścieżce dowodowej (wyszukiwanie ich pomija); weryfikacje redakcji pobieramy wyłącznie przez indeks Google Fact Check Tools, zgodnie ze wskazaniem organizatora. Pliki zostają na dysku."
+  }
+}

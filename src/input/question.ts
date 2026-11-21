@@ -6,8 +6,15 @@
 
 const E = '(?![\\p{L}\\p{N}])';
 
+/**
+ * Pytanie o to, czy redakcja lub instytucja coś sprawdzała ("Czy X sprawdzał, czy ...?"): teza stoi
+ * po drugim "czy" albo "że". Forma gramatyczna, bez nazw konkretnych redakcji.
+ */
+const REVIEW_LEAD = `czy\\s+(?:redakcj\\p{L}*\\s+)?\\p{L}[\\p{L}.-]*(?:\\s+\\p{L}[\\p{L}.-]*)?\\s+(?:to\\s+|kiedyś\\s+|kiedys\\s+|już\\s+|juz\\s+)?(?:sprawdza\\p{L}*|sprawdzi\\p{L}*|weryfikowa\\p{L}*|zweryfikowa\\p{L}*)\\s*,?\\s*(?:czy|że|ze)`;
+
 /** Wstępy relacjonujące albo pytające, po których stoi teza (z opcjonalnym "że"). */
 const LEAD_INS = [
+  REVIEW_LEAD,
   `czy\\s+(?:to\\s+)?(?:jest\\s+)?prawd(?:a|ą)(?:\\s+jest)?,?\\s+(?:że|ze)`,
   `czy\\s+(?:to\\s+)?(?:jest\\s+)?prawd(?:a|ą)(?:\\s+jest)?\\s*[:,-]?`,
   `czy\\s+(?:naprawdę|naprawde|rzeczywiście|rzeczywiscie|faktycznie|serio|aby|przypadkiem|na\\s+pewno)`,
@@ -75,3 +82,20 @@ export function isOnlyOpenQuestions(text: string): boolean {
 export const OPEN_QUESTION_MESSAGE =
   'Napisz zdanie, które chcesz sprawdzić. Na przykład: „Od jutra bilet w mieście kosztuje 10 zł.”';
 
+
+const REVIEW_QUESTION = new RegExp(`^\\s*${REVIEW_LEAD}${E}`, 'iu');
+const REVIEW_ONLY = /^\s*czy\s+(?:redakcj\p{L}*\s+)?\p{L}[\p{L}.-]*(?:\s+\p{L}[\p{L}.-]*)?\s+(?:to\s+|kiedyś\s+|kiedys\s+|już\s+|juz\s+)?(?:sprawdza\p{L}*|sprawdzi\p{L}*|weryfikowa\p{L}*|zweryfikowa\p{L}*)/iu;
+
+/** Pytanie rozstrzygające (tak/nie): zaczyna się od "czy" albo kończy znakiem zapytania i nie jest pytaniem otwartym. */
+export function isYesNoQuestion(text: string): boolean {
+  const first = text.split('\n').flatMap(sentencesOf).map((s) => s.trim()).find(Boolean) ?? '';
+  if (!first) return false;
+  if (/^\s*(?:a\s+)?czy(?![\p{L}\p{N}])/iu.test(first)) return true;
+  return /\?\s*$/u.test(first) && !OPEN_QUESTION.test(first);
+}
+
+/** Pytanie o to, czy redakcja lub instytucja coś sprawdzała ("Czy X sprawdzał, czy ...?", "Czy X to sprawdzał?"). */
+export function isReviewQuestion(text: string): boolean {
+  const t = text.trim();
+  return REVIEW_QUESTION.test(t) || REVIEW_ONLY.test(t);
+}

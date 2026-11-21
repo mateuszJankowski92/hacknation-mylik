@@ -5,6 +5,7 @@ import { DEFAULT_EVAL_RESULTS_PATH } from './errorProfile';
 import { createPageFetcher } from './fetch/index';
 import { createEngineCore, type EngineDeps } from './pipeline';
 import { defaultRenderer } from './render';
+import { createFactcheckFromEnv } from '../factcheck/index';
 
 export type { EngineDeps, EngineExtraDeps, EngineOptions, EngineTraceEvent, PrepareFn } from './pipeline';
 export {
@@ -67,6 +68,9 @@ export function createEngine(deps: EngineDeps): Engine {
     prepare: deps.prepare ?? prepareInput,
     fetchPage: deps.fetchPage ?? createPageFetcher(),
     renderer: deps.renderer ?? defaultRenderer,
+    // Indeks weryfikacji redakcji: z konfiguracji i środowiska (FACTCHECK_LAYER, GOOGLE_FACTCHECK_API_KEY);
+    // `null` w zależnościach wyłącza go jawnie.
+    factcheck: deps.factcheck !== undefined ? deps.factcheck : createFactcheckFromEnv(),
     options: { ...deps.options, errorProfilePath },
   });
 }

@@ -76,6 +76,15 @@ import {
   LIVE_USED_LIMITATION,
   liveSourceNotice,
 } from '../live/text';
+import {
+  FACTCHECK_DOWN_LIMITATION,
+  FACTCHECK_DOWN_MESSAGE,
+  FACTCHECK_INJECTION_NOTICE,
+  FACTCHECK_NOT_FOUND_LIMITATION,
+  FACTCHECK_USED_LIMITATION,
+} from '../factcheck/text';
+import { isFactcheckFailure, type FactcheckLayer, type FactcheckStatus } from '../factcheck/layer';
+import { annotateAnswer, answerMode } from '../render/answer';
 
 export { buildShortAnswer };
 
@@ -172,6 +181,11 @@ export interface EngineExtraDeps {
    * nie dał rozstrzygającego dowodu dla twierdzenia. Brak lub `null` = wyłączona (jak dotąd).
    */
   live?: LiveLayer | null;
+  /**
+   * Indeks weryfikacji redakcji (src/factcheck, Google Fact Check Tools): równolegle z wyszukiwaniem
+   * w zbiorze urzędowym, dla każdego twierdzenia faktograficznego. Brak lub `null` = wyłączony.
+   */
+  factcheck?: FactcheckLayer | null;
 }
 
 export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
@@ -463,6 +477,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     deps.supportGate !== undefined ? deps.supportGate : isSupportGate(llm) ? llm : null;
   const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
   const live: LiveLayer | null = deps.live ?? null;
+  const factcheck: FactcheckLayer | null = deps.factcheck ?? null;
   const deadlineMs = deps.options?.deadlineMs ?? (live ? LIVE_DEADLINE_MS : DEFAULT_DEADLINE_MS);
   /** Liczenia w toku po kluczu rekordu (jedno liczenie na tę samą treść naraz, niezależnie od kanału). */
   const inflight = new Map<string, Promise<VerifyOutcome>>();
@@ -557,6 +572,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
 
     // Zad. 29: przy drugiej warstwie numer okna czasu wchodzi do klucza (świeże wiadomości po oknie).
     if (live) keyInput = `${keyInput}\n#warstwa2:${Math.floor(started / liveWindowMs)}`;
+    // Indeks weryfikacji: odpowiedź zależy od stanu indeksu, więc okno czasu wchodzi do klucza (jak wyżej).
+    if (factcheck) keyInput = `${keyInput}\n#indeks:${Math.floor(started / liveWindowMs)}`;
 
     // (2) klucz rekordu i cache
     const recordId = computeRecordKey(keyInput, corpusVersion);
@@ -665,6 +682,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     }
 
     type AssessFn = (groups: Passage[][], sentList: Passage[]) => Promise<{ accepted: AcceptedEvidence[]; rejected: number }>;
+    interface FactcheckOutcome {
+      accepted: AcceptedEvidence[];
+      rejected: number;
+      status: FactcheckStatus;
+      flagged: number;
+    }
+    /** Status indeksu weryfikacji dla twierdzenia (do decyzji o stanie technicznym). */
+    const fcStatuses = new Map<string, FactcheckStatus>();
     interface LiveOutcome {
       accepted: AcceptedEvidence[];
       rejected: number;
@@ -783,6 +808,134 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         };
       }
 
+      // (5) ocena stanowisk (model, porcje równolegle) i (6) bramka cytatów (kod); ten sam przebieg
+      // dla fragmentów korpusu i dla fragmentów drugiej warstwy (zad. 29).
+      const modelFlagged = new Set<string>();
+      /**
+       * Ocena jednej porcji. Zad. 35: gdy odpowiedź jest niezgodna ze schematem także po ponowieniu
+       * (np. brak oceny części fragmentów), porcję dzielimy na pół i oceniamy połówki osobno. Każdy fragment
+       * nadal dostaje ocenę; dopiero błąd przy pojedynczym fragmencie daje stan techniczny.
+       */
+      async function assessChunk(g: Passage[]): Promise<Awaited<ReturnType<typeof llm.assessPassages>>> {
+        try {
+          return await retry(() => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) }));
+        } catch (e) {
+          if (!(isLlmError(e) && e.code === 'invalid_output' && g.length > 1)) throw e;
+          deadline.check();
+          const mid = Math.ceil(g.length / 2);
+          const [a, b] = await Promise.all([assessChunk(g.slice(0, mid)), assessChunk(g.slice(mid))]);
+          // Połówka A liczona tu, połówka B przez wołającego (dwa wywołania).
+          addUsage(usage, a.usage);
+          return { assessments: [...(a.assessments ?? []), ...(b.assessments ?? [])], usage: b.usage };
+        }
+      }
+      /**
+       * Indeks weryfikacji dla twierdzenia: wyszukanie (własny limit czasu), ten sam krok oceny i bramka
+       * wsparcia co dla zbioru urzędowego, potem reguły doboru (zgodność tezy i zdarzenia, tabela ocen).
+       * Awaria, limit, brak klucza, przekroczenie czasu: status techniczny, nigdy werdykt.
+       */
+      async function runFactcheck(c: ExtractedClaim, sd: ClaimSide): Promise<FactcheckOutcome> {
+        const layer = factcheck!;
+        const budget = Math.min(layer.budgetMs, deadline.remaining() - LIVE_RESERVE_MS);
+        if (budget < 1_000) {
+          store.logEvent('factcheck_search', { recordId, channel, detail: { claimId: c.id, status: 'przekroczony_czas', stage: 'start' } });
+          return { accepted: [], rejected: 0, status: 'przekroczony_czas', flagged: 0 };
+        }
+        const found = await layer.find(c, { budgetMs: budget, now: nowDate });
+        for (const f of found.flagged) {
+          for (const sig of f.signals) sd.signals.push(`fragment:${f.passageId}:${sig}`);
+          sd.notices.push({ type: 'ograniczenie_techniczne', text: FACTCHECK_INJECTION_NOTICE, passageId: f.passageId });
+          store.logEvent('injection_signal', { recordId, channel, detail: { where: 'indeks_weryfikacji', passageId: f.passageId, claimId: c.id, signals: f.signals } });
+          sd.injectionEvents++;
+        }
+        // Bez treści zgłoszenia i bez klucza: tylko liczby i kody.
+        store.logEvent('factcheck_search', {
+          recordId,
+          channel,
+          detail: {
+            claimId: c.id,
+            status: found.status,
+            hits: found.hits,
+            otherPublishers: found.otherPublishers,
+            passages: found.passages.length,
+            flagged: found.flagged.length,
+            queries: found.queries,
+            ms: found.ms,
+            ...(found.httpStatus ? { httpStatus: found.httpStatus } : {}),
+          },
+        });
+        const base: FactcheckOutcome = { accepted: [], rejected: 0, status: found.status, flagged: found.flagged.length };
+        if (found.passages.length === 0) return base;
+        try {
+          const r = await assessAndGate([found.passages], found.passages);
+          const sel = layer.select(c, r.accepted, nowDate);
+          for (const n of sel.notices ?? []) sd.notices.push(n);
+          if (sel.dropped || sel.reasons)
+            store.logEvent('factcheck_search', { recordId, channel, detail: { claimId: c.id, status: 'dobor', dropped: sel.dropped ?? 0, ...(sel.reasons ?? {}) } });
+          return { ...base, accepted: sel.accepted, rejected: r.rejected + (sel.dropped ?? 0) };
+        } catch (e) {
+          if (e instanceof DeadlineExceeded) throw e;
+          store.logEvent('factcheck_search', { recordId, channel, detail: { claimId: c.id, status: 'blad_oceny', code: technicalDetail(e) } });
+          return { ...base, status: 'blad_sieci' };
+        }
+      }
+      async function assessAndGate(groups: Passage[][], sentList: Passage[]): Promise<{ accepted: AcceptedEvidence[]; rejected: number }> {
+        const sentIdSet = new Set(sentList.map((p) => p.id));
+        const assessedAll = await Promise.all(
+          groups.map((g) => assessChunk(g)),
+        );
+        deadline.check();
+        const assessments = assessedAll.flatMap((a) => {
+          addUsage(usage, a.usage);
+          return Array.isArray(a.assessments) ? a.assessments : [];
+        });
+        trace({
+          type: 'assess',
+          claimId: claim.id,
+          items: assessments.map((a) => ({ passageId: a.passageId, documentId: sentList.find((p) => p.id === a.passageId)?.documentId ?? '', stance: a.stance })),
+        });
+        for (const a of assessments)
+          if (a?.injectionSuspected === true && sentIdSet.has(a.passageId) && !modelFlagged.has(a.passageId)) {
+            modelFlagged.add(a.passageId);
+            side.signals.push(`fragment:${a.passageId}:zgloszone_przez_model`);
+            side.notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
+            store.logEvent('injection_signal', {
+              recordId,
+              channel,
+              detail: { where: 'fragment', passageId: a.passageId, claimId: claim.id, signals: ['zgloszone_przez_model'] },
+            });
+            side.injectionEvents++;
+          }
+        const gate = validateCitations(assessments, sentList, { flaggedPassageIds: modelFlagged, claimText: claim.text });
+        let acc = gate.accepted;
+        let rejected = gate.rejected.length;
+        if (supportGate) {
+          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u), retry);
+          deadline.check();
+          trace({ type: 'gate', claimId: claim.id, before: evView(acc), after: evView(checked.accepted) });
+          acc = checked.accepted;
+          rejected += checked.stats.dropped;
+          if (checked.stats.checked > 0)
+            store.logEvent('support_gate', { recordId, channel, detail: { claimId: claim.id, gate: supportGate.name, ...checked.stats } });
+        }
+        for (const a of acc) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
+        const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
+        if (unknown > 0) store.logEvent('llm_unknown_passage', { recordId, channel, detail: { claimId: claim.id, count: unknown } });
+        if (rejected > 0) {
+          const byReason: Record<string, number> = {};
+          for (const r of gate.rejected) byReason[r.reason] = (byReason[r.reason] ?? 0) + 1;
+          store.logEvent('citation_rejected', {
+            recordId,
+            channel,
+            detail: { claimId: claim.id, count: rejected, ...byReason },
+          });
+        }
+        return { accepted: acc, rejected };
+      }
+      // (3b) indeks weryfikacji redakcji: startuje od razu, równolegle z wyszukiwaniem w zbiorze urzędowym.
+      const fcRun: Promise<FactcheckOutcome> | null = factcheck ? runFactcheck(claim, side) : null;
+      fcRun?.catch(() => {});
+
       // (4) wyszukiwanie "za" (kilka zapytań, scalenie rang) i "przeciw" (kod), równolegle
       const fQueries = forQueries(claim);
       const cQuery = counterQuery(claim);
@@ -868,80 +1021,6 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const considered = sent.length + flagged.size;
       trace({ type: 'candidates', claimId: claim.id, passageIds: sent.map((p) => p.id), documentIds: sent.map((p) => p.documentId) });
 
-      // (5) ocena stanowisk (model, porcje równolegle) i (6) bramka cytatów (kod); ten sam przebieg
-      // dla fragmentów korpusu i dla fragmentów drugiej warstwy (zad. 29).
-      const modelFlagged = new Set<string>();
-      /**
-       * Ocena jednej porcji. Zad. 35: gdy odpowiedź jest niezgodna ze schematem także po ponowieniu
-       * (np. brak oceny części fragmentów), porcję dzielimy na pół i oceniamy połówki osobno. Każdy fragment
-       * nadal dostaje ocenę; dopiero błąd przy pojedynczym fragmencie daje stan techniczny.
-       */
-      async function assessChunk(g: Passage[]): Promise<Awaited<ReturnType<typeof llm.assessPassages>>> {
-        try {
-          return await retry(() => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) }));
-        } catch (e) {
-          if (!(isLlmError(e) && e.code === 'invalid_output' && g.length > 1)) throw e;
-          deadline.check();
-          const mid = Math.ceil(g.length / 2);
-          const [a, b] = await Promise.all([assessChunk(g.slice(0, mid)), assessChunk(g.slice(mid))]);
-          // Połówka A liczona tu, połówka B przez wołającego (dwa wywołania).
-          addUsage(usage, a.usage);
-          return { assessments: [...(a.assessments ?? []), ...(b.assessments ?? [])], usage: b.usage };
-        }
-      }
-      async function assessAndGate(groups: Passage[][], sentList: Passage[]): Promise<{ accepted: AcceptedEvidence[]; rejected: number }> {
-        const sentIdSet = new Set(sentList.map((p) => p.id));
-        const assessedAll = await Promise.all(
-          groups.map((g) => assessChunk(g)),
-        );
-        deadline.check();
-        const assessments = assessedAll.flatMap((a) => {
-          addUsage(usage, a.usage);
-          return Array.isArray(a.assessments) ? a.assessments : [];
-        });
-        trace({
-          type: 'assess',
-          claimId: claim.id,
-          items: assessments.map((a) => ({ passageId: a.passageId, documentId: sentList.find((p) => p.id === a.passageId)?.documentId ?? '', stance: a.stance })),
-        });
-        for (const a of assessments)
-          if (a?.injectionSuspected === true && sentIdSet.has(a.passageId) && !modelFlagged.has(a.passageId)) {
-            modelFlagged.add(a.passageId);
-            side.signals.push(`fragment:${a.passageId}:zgloszone_przez_model`);
-            side.notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
-            store.logEvent('injection_signal', {
-              recordId,
-              channel,
-              detail: { where: 'fragment', passageId: a.passageId, claimId: claim.id, signals: ['zgloszone_przez_model'] },
-            });
-            side.injectionEvents++;
-          }
-        const gate = validateCitations(assessments, sentList, { flaggedPassageIds: modelFlagged, claimText: claim.text });
-        let acc = gate.accepted;
-        let rejected = gate.rejected.length;
-        if (supportGate) {
-          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u), retry);
-          deadline.check();
-          trace({ type: 'gate', claimId: claim.id, before: evView(acc), after: evView(checked.accepted) });
-          acc = checked.accepted;
-          rejected += checked.stats.dropped;
-          if (checked.stats.checked > 0)
-            store.logEvent('support_gate', { recordId, channel, detail: { claimId: claim.id, gate: supportGate.name, ...checked.stats } });
-        }
-        for (const a of acc) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
-        const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
-        if (unknown > 0) store.logEvent('llm_unknown_passage', { recordId, channel, detail: { claimId: claim.id, count: unknown } });
-        if (rejected > 0) {
-          const byReason: Record<string, number> = {};
-          for (const r of gate.rejected) byReason[r.reason] = (byReason[r.reason] ?? 0) + 1;
-          store.logEvent('citation_rejected', {
-            recordId,
-            channel,
-            detail: { claimId: claim.id, count: rejected, ...byReason },
-          });
-        }
-        return { accepted: acc, rejected };
-      }
       let accepted: AcceptedEvidence[] = [];
       let rejectedCount = 0;
       if (sent.length > 0) {
@@ -953,6 +1032,20 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         const r = await assessAndGate([...splitEven(bySearch(forSel), ASSESS_CHUNK), ...splitEven(bySearch(counterSel), ASSESS_CHUNK)], sent);
         accepted = r.accepted;
         rejectedCount = r.rejected;
+      }
+
+      // (6a) indeks weryfikacji: dowody z ocen redakcji dołączają do dowodów zbioru urzędowego.
+      let fcStatus: FactcheckStatus | null = null;
+      let fcUsed = false;
+      let fcFlagged = 0;
+      if (fcRun) {
+        const fc = await fcRun;
+        deadline.check();
+        fcStatus = fc.status;
+        fcFlagged = fc.flagged;
+        fcUsed = fc.accepted.some((a) => DECISIVE.has(a.stance));
+        accepted = [...accepted, ...fc.accepted];
+        rejectedCount += fc.rejected;
       }
 
       // (6b) druga warstwa (zad. 29): tylko gdy korpus nie dał żadnego rozstrzygającego dowodu.
@@ -1020,7 +1113,10 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           if (e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance))
             side.notices.push({ type: 'status_zrodla', text: liveSourceNotice(e.source.publisher), passageId: e.passageId });
       } else if (liveNothing) limitations.push(LIVE_NOT_FOUND_LIMITATION);
-      const flaggedHere = flagged.size + rankFlagged.size + modelFlagged.size + liveFlagged;
+      if (fcUsed) limitations.push(FACTCHECK_USED_LIMITATION);
+      else if (fcStatus && isFactcheckFailure(fcStatus)) limitations.push(FACTCHECK_DOWN_LIMITATION);
+      else if (fcStatus) limitations.push(FACTCHECK_NOT_FOUND_LIMITATION);
+      const flaggedHere = flagged.size + rankFlagged.size + modelFlagged.size + liveFlagged + fcFlagged;
       if (flaggedHere > 0) limitations.push(injectionLimitation(flaggedHere));
 
       const mismatchKinds = accepted
@@ -1046,6 +1142,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         limitations,
         refutation,
       };
+      if (fcStatus) fcStatuses.set(claim.id, fcStatus);
       const profile = errorProfileFor(errorTable, strength.level);
       if (profile) result.errorProfile = profile;
       if (decision.abstain) {
@@ -1065,6 +1162,19 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       notices.push(...side.notices);
       for (const s of side.signals) injectionSignals.add(s);
       injectionEvents += side.injectionEvents;
+    }
+
+    // Scenariusz J: indeks niedostępny, a zbiór urzędowy nie rozstrzyga żadnego twierdzenia -> stan techniczny
+    // (nigdy "nie znaleziono"). Gdy coś rozstrzyga, wynik zostaje z dopiskiem (limitations wyżej).
+    const fcFailed = [...fcStatuses.values()].some(isFactcheckFailure);
+    const anyDecided = results.some((r) => r.verdict !== 'brak_wystarczajacych_dowodow' && r.verdict !== 'nie_podlega_weryfikacji');
+    if (fcFailed && !anyDecided) {
+      store.logEvent('factcheck_unavailable', {
+        recordId,
+        channel,
+        detail: { statuses: [...new Set([...fcStatuses.values()].filter(isFactcheckFailure))] },
+      });
+      return toState(stateOutcome('awaria_techniczna', FACTCHECK_DOWN_MESSAGE, 'indeks_weryfikacji'), recordId);
     }
 
     // Profil błędów także dla nie_podlega_weryfikacji (siła `brak`), jeśli plik go zawiera.
@@ -1115,6 +1225,11 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       r.evidence.filter((e) => e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance));
     const liveFetched = results.flatMap((r) => liveDecisive(r).map((e) => e.source.fetchedAt)).sort();
     if (liveFetched.length) asOf = new Date(liveFetched[liveFetched.length - 1]!).toISOString();
+
+    // (8b') forma odpowiedzi (src/render/answer.ts, szablony): pytanie rozstrzygające dostaje na początku
+    // bezpośrednią odpowiedź zgodną z wynikiem; przy braku dowodów opis brakującego dokumentu.
+    const mode = answerMode(prepared.kind === 'tekst' ? prepared.maskedInput : '');
+    for (const r of results) annotateAnswer(r, { mode, indexChecked: fcStatuses.has(r.claim.id) && !isFactcheckFailure(fcStatuses.get(r.claim.id)!) });
 
     // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
     if (renderer) for (const r of results) r.explanation = safeExplanation(renderer, r, asOf);

@@ -2,6 +2,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import type { Passage, SourceType } from '../contracts/source';
 import type { CorpusStats, SearchOptions, Searcher } from '../contracts/search';
 import { buildFtsQuery } from './query';
+import { excludedCorpusSourceIds } from '../factcheck/config';
 
 const DEFAULT_LIMIT = 8;
 
@@ -48,26 +49,36 @@ function toPassage(row: PassageRow, score?: number): Passage {
 	};
 }
 
-export function createSearcher(db: DatabaseSync): Searcher {
+export interface SearcherOptions {
+	/**
+	 * Źródła pominięte w ścieżce dowodowej (wyszukiwanie, fragmenty, liczniki). Domyślnie dokumenty
+	 * pobrane wcześniej bezpośrednio ze stron redakcji sprawdzających fakty (data/factcheck.json,
+	 * `corpusDirectFactcheck`): weryfikacje redakcji bierzemy wyłącznie z indeksu Google Fact Check Tools.
+	 */
+	excludeSourceIds?: string[];
+}
+
+export function createSearcher(db: DatabaseSync, opts: SearcherOptions = {}): Searcher {
+	const excluded = JSON.stringify(opts.excludeSourceIds ?? excludedCorpusSourceIds());
 	const versionStatement = db.prepare("SELECT value FROM corpus_meta WHERE key = 'version'");
 	const searchStatement = db.prepare(`${PASSAGE_SELECT}, bm25(passages_fts) AS rank
 		FROM passages_fts
 		JOIN passages p ON p.rowid = passages_fts.rowid
 		JOIN documents d ON d.id = p.document_id
 		JOIN sources s ON s.id = d.source_id
-		WHERE passages_fts MATCH ?
+		WHERE passages_fts MATCH ? AND s.id NOT IN (SELECT value FROM json_each(?))
 		ORDER BY rank
 		LIMIT ?`);
 	const getStatement = db.prepare(`${PASSAGE_SELECT}
 		FROM passages p
 		JOIN documents d ON d.id = p.document_id
 		JOIN sources s ON s.id = d.source_id
-		WHERE p.id = ?`);
+		WHERE p.id = ? AND s.id NOT IN (SELECT value FROM json_each(?))`);
 	const asOfStatement = db.prepare('SELECT MAX(fetched_at) AS value FROM documents');
 	const statsStatement = db.prepare(
-		`SELECT (SELECT COUNT(*) FROM documents) AS documents,
-		        (SELECT COUNT(DISTINCT domain) FROM sources) AS domains,
-		        (SELECT COUNT(DISTINCT source_type) FROM sources) AS source_types`,
+		`SELECT (SELECT COUNT(*) FROM documents WHERE source_id NOT IN (SELECT value FROM json_each(?1))) AS documents,
+		        (SELECT COUNT(DISTINCT domain) FROM sources WHERE id NOT IN (SELECT value FROM json_each(?1))) AS domains,
+		        (SELECT COUNT(DISTINCT source_type) FROM sources WHERE id NOT IN (SELECT value FROM json_each(?1))) AS source_types`,
 	);
 
 	return {
@@ -86,7 +97,7 @@ export function createSearcher(db: DatabaseSync): Searcher {
 			if (!match) return [];
 			const limit = Math.max(1, Math.floor(opts?.limit ?? DEFAULT_LIMIT));
 			try {
-				const rows = searchStatement.all(match, limit) as unknown as PassageRow[];
+				const rows = searchStatement.all(match, excluded, limit) as unknown as PassageRow[];
 				return rows.map((row) => toPassage(row, Math.abs(row.rank ?? 0)));
 			} catch {
 				return [];
@@ -94,12 +105,12 @@ export function createSearcher(db: DatabaseSync): Searcher {
 		},
 
 		getPassage(id: string): Passage | null {
-			const row = getStatement.get(id) as PassageRow | undefined;
+			const row = getStatement.get(id, excluded) as PassageRow | undefined;
 			return row ? toPassage(row) : null;
 		},
 
 		stats(): CorpusStats {
-			const row = statsStatement.get() as { documents: number; domains: number; source_types: number };
+			const row = statsStatement.get(excluded) as { documents: number; domains: number; source_types: number };
 			return { documents: row.documents, domains: row.domains, sourceTypes: row.source_types };
 		},
 	};

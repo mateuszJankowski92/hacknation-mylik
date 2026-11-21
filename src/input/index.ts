@@ -2,9 +2,9 @@ import type { NeedsClarification, PreparedInput, VerifyInput } from '../contract
 import { cleanText, countLetters, normalizeForKey } from './normalize';
 import { maskPii } from './pii';
 import { normalizeUrl } from './url';
-import { isOnlyOpenQuestions, OPEN_QUESTION_MESSAGE, questionToStatement } from './question';
+import { isOnlyOpenQuestions, isReviewQuestion, isYesNoQuestion, OPEN_QUESTION_MESSAGE, questionToStatement } from './question';
 
-export { isOnlyOpenQuestions, OPEN_QUESTION_MESSAGE, questionToStatement };
+export { isOnlyOpenQuestions, isReviewQuestion, isYesNoQuestion, OPEN_QUESTION_MESSAGE, questionToStatement };
 
 export { maskPii };
 

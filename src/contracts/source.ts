@@ -17,13 +17,29 @@ export const SOURCE_TYPE_LABELS_PL: Record<SourceType, string> = {
  * druga warstwa, szukana na żywo wyłącznie na jawnej liście serwisów (data/live-sources.json).
  * Wpływa tylko na siłę podstawy (z samej drugiej warstwy najwyżej `srednia`), nigdy na werdykt.
  */
-export const SOURCE_LAYERS = ['urzedowe', 'media_i_instytucje'] as const;
+export const SOURCE_LAYERS = ['urzedowe', 'media_i_instytucje', 'weryfikacja_redakcji'] as const;
 export const SourceLayerSchema = z.enum(SOURCE_LAYERS);
 export type SourceLayer = z.infer<typeof SourceLayerSchema>;
 export const SOURCE_LAYER_LABELS_PL: Record<SourceLayer, string> = {
   urzedowe: 'źródło urzędowe',
   media_i_instytucje: 'media i instytucje',
+  weryfikacja_redakcji: 'ocena redakcji sprawdzającej fakty',
 };
+
+/**
+ * Wpis z indeksu weryfikacji (Google Fact Check Tools, claims:search): dosłowne pola odpowiedzi API.
+ * `label` to nasza etykieta z jawnej tabeli ocen (src/factcheck/ratings.ts) albo null (tylko tło).
+ * `inverse`: pytanie użytkownika jest odwrotnością sprawdzanej tezy (ustala kod po ocenie relacji).
+ */
+export const ReviewInfoSchema = z.object({
+  claimReviewed: z.string(),
+  claimant: z.string().nullable(),
+  claimDate: z.string().nullable(),
+  rating: z.string(),
+  label: z.enum(['potwierdzone', 'falszywe', 'wprowadzajace_w_blad', 'brak_wystarczajacych_dowodow']).nullable(),
+  inverse: z.boolean().optional(),
+});
+export type ReviewInfo = z.infer<typeof ReviewInfoSchema>;
 
 export const SourceMetaSchema = z.object({
   documentId: z.string().min(1),
@@ -42,6 +58,8 @@ export const SourceMetaSchema = z.object({
   license: z.string(),
   /** Warstwa źródła (zad. 29); brak = `urzedowe` (zgodność ze starszymi rekordami v2). */
   layer: SourceLayerSchema.optional(),
+  /** Tylko dla warstwy `weryfikacja_redakcji`: pola wpisu z indeksu weryfikacji. */
+  review: ReviewInfoSchema.optional(),
 });
 export type SourceMeta = z.infer<typeof SourceMetaSchema>;
 
