@@ -129,4 +129,60 @@ export const FIXTURE_OUTCOMES: Record<string, VerifyOutcome> = {
 	},
 };
 
+const LONG_QUESTION =
+	'Czy to prawda, że biblioteka miejska jest czynna w weekendy i w święta, bo koleżanka z pracy mówiła, że widziała ogłoszenie na drzwiach i ktoś jeszcze pisał o tym w grupie osiedlowej na Facebooku?';
+
+const LONG_QUOTE =
+	'Biblioteka Miejska w Przykładowie jest czynna od poniedziałku do piątku w godzinach 9:00-17:00, a w soboty od 10:00 do 14:00. W niedziele i święta biblioteka jest nieczynna.';
+
+const KNOWN_OP_NOTICE = {
+	type: 'dopasowanie_incydentu' as const,
+	text: 'Podobna wiadomość została opisana przez EUvsDisinfo 2025-03-01: „Biblioteki miejskie zostaną zamknięte w całym kraju” https://euvsdisinfo.eu/report/przyklad Stan na 21.11.2026.',
+};
+
+function longRecord(idChar: string, claims: ClaimResult[]): VerificationRecord {
+	return {
+		...buildRecord(idChar, claims),
+		maskedInput: LONG_QUESTION,
+		notices: [KNOWN_OP_NOTICE],
+	};
+}
+
+FIXTURE_OUTCOMES.potwierdzone_dlugie = {
+	kind: 'record',
+	cached: false,
+	record: longRecord('f', [
+		buildClaim('potwierdzone', {
+			claim: { id: 'c1', text: 'Biblioteka miejska jest czynna w weekendy.', kind: 'faktograficzna' },
+			directAnswer: 'Tak, ale tylko w soboty.',
+			evidence: [
+				{ ...FIXTURE_EVIDENCE, quote: LONG_QUOTE },
+				{ ...FIXTURE_EVIDENCE, passageId: 'fixture-doc-2#0', stance: 'kontekst', quote: 'W święta państwowe biblioteka jest nieczynna.' },
+			],
+			refutation: { performed: true, queries: ['biblioteka nieczynna w weekendy'], found: 0 },
+		}),
+	]),
+};
+
+FIXTURE_OUTCOMES.kilka_twierdzen = {
+	kind: 'record',
+	cached: false,
+	record: {
+		...buildRecord('9', [
+			buildClaim('potwierdzone', { claim: { id: 'c1', text: 'Biblioteka miejska jest czynna w soboty.', kind: 'faktograficzna' }, evidence: [{ ...FIXTURE_EVIDENCE, quote: LONG_QUOTE }] }),
+			buildClaim('falszywe', {
+				claim: { id: 'c2', text: 'Biblioteka jest czynna w niedziele.', kind: 'faktograficzna' },
+				evidence: [{ ...FIXTURE_EVIDENCE, passageId: 'fixture-doc-1#1', stance: 'obala', quote: 'W niedziele i święta biblioteka jest nieczynna.' }],
+			}),
+			buildClaim('brak_wystarczajacych_dowodow', {
+				claim: { id: 'c3', text: 'Wstęp do biblioteki jest bezpłatny dla wszystkich.', kind: 'faktograficzna' },
+				strength: { level: 'brak', reasons: ['brak_dowodow'] },
+				evidence: [],
+				abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
+			}),
+		]),
+		maskedInput: 'Biblioteka jest czynna w soboty i w niedziele, a wstęp jest bezpłatny dla wszystkich.',
+	},
+};
+
 export const FIXTURE_QUOTE_TEXT = FIXTURE_QUOTE;

@@ -131,7 +131,7 @@ function Refutation({ result }: { result: ClaimResult }) {
 			</p>
 			{refutation.queries.some((query) => query.trim()) && (
 				<p className="record-claim__queries">
-					Czego szukałem: {refutation.queries.filter((query) => query.trim()).map((query) => `„${query}”`).join(', ')}.
+					{nb(`Czego szukałem: ${refutation.queries.filter((query) => query.trim()).map((query) => `„${query}”`).join(', ')}.`)}
 				</p>
 			)}
 		</>
