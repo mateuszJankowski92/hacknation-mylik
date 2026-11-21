@@ -54,7 +54,7 @@ Uruchomienie lokalne bez Discorda: nic się nie zmienia (puste zmienne `DISCORD_
 
 Prywatność i bezpieczeństwo: identyfikator użytkownika Discorda nie jest zapisywany ani przekazywany do silnika (do limitu zgłoszeń służy skrót z losową solą, tylko w pamięci procesu); wiadomości nie pingują nikogo (`allowed_mentions` puste, znaczniki `<@...>` usuwane z tekstu); limit zgłoszeń na użytkownika to `RATE_LIMIT_PER_MIN` na minutę; załączniki i obrazki są pomijane.
 
-Pozostałe polecenia: `npm test` (61 plików, ok. 910 testów, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
+Pozostałe polecenia: `npm test` (78 plików, 1231 testów i 1 pominięty, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
 ## Wyniki w skrócie
 
