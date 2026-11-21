@@ -261,3 +261,21 @@ Scenariusz J na żywo: proces z celowo złym kluczem (zmienna środowiskowa proc
 | pułapki (6) | 5 (wstrzymania) | **1** (T01) | - | - |
 
 **T01 (błędne przypisanie):** „Czy Ukraina płaci Orlenowi za paliwo z opóźnieniem ponad 90 dni?” dało „Tak.” z oceną Demagoga „Fałsz” dla tezy „Ukraina nie płaci Orlenowi za paliwo” (uznanej przez model za tezę odwrotną). Szczegół („opóźnienie ponad 90 dni”) zmienia tezę, a nazwy i data się zgadzały, więc reguły kodu jej nie odrzuciły. Pierwszy podejrzany: pominięcie bramki wsparcia dla tez z oceną redakcji (poprawka 2 po pierwszej próbie). Decyzja o zmianie należy do prowadzącego; do czasu decyzji kod bez zmian.
+
+### Zmiana po T01 i próba 3 (22.11.2026, silnik 108928016877, commit 1f09998)
+
+Decyzja prowadzącego (wariant a, wzmocniony): (1) teza odwrotna („obala”) wraca przez bramkę wsparcia, ta sama teza („potwierdza”) bez bramki; (2) reguła szczegółu w kodzie dla obu relacji: konkret ilościowy lub czasowy z pytania (liczba, data, okres, próg „ponad/powyżej/poniżej”, zakres „jedyny/pierwszy/wszyscy/każdy/nikt/żaden/najwięcej”), którego nie ma w tezie ani tytule wpisu redakcji, albo niezgodna data: ocena redakcji nie daje „Tak/Nie”, tylko wstrzymanie z blokiem „podobna sprawa” („Redakcja X sprawdziła podobne twierdzenie: „…” i oceniła je jako „…”, data, link. To nie rozstrzyga Twojego pytania wprost.”); (3) sprawdzana teza zawsze widoczna dosłownie, przy tezie odwrotnej „sprawdziła twierdzenie odwrotne do Twojego: „…””. Testy bez sieci na neutralnych danych.
+
+| Próba (indeks na żywo, Haiku) | Pytania | Zgodne | Błędne „Tak/Nie” | Wstrzymania zamiast odpowiedzi |
+|---|---|---|---|---|
+| 1, pierwszy przebieg (przed poprawkami) | 18 | 16 | 0 | 1 |
+| 1, po poprawkach ogólnych (silnik df83667635c9) | 18 | 18 | 0 | 0 |
+| 2, świeża (df83667635c9), zwykłe | 10 | 8 | 0 | 1 |
+| 2, świeża (df83667635c9), pułapki | 6 | 5 | **1 (T01)** | - |
+| 1, po zmianie (108928016877) | 18 | 18 | 0 | 0 |
+| 2, po zmianie, zwykłe | 10 | 7 | 0 | 2 (F01, F05) |
+| 2, po zmianie, pułapki | 6 | 6 | 0 | - |
+| **3, nowa (niewidziana), zwykłe** | 4 | 1 | 0 | 3 |
+| **3, nowa (niewidziana), pułapki innego rodzaju niż T01** | 4 | 4 | 0 | - |
+
+Po zmianie: 0 błędnych przypisań oceny redakcji w żadnej próbie; koszt to więcej wstrzymań. Przyczyny wstrzymań w próbie 3 (bez poprawek): G01 indeks nic nie zwrócił dla krótkich fraz; G02 właściwy wpis nie został uznany za tę samą tezę; G03 imię „Billa” w pytaniu, a w tezie tylko „Gatesa” (reguła nazw własnych). F05 w próbie 2 dostał dwie sprzeczne oceny relacji tej samej tezy (wstrzymanie „sprzeczne źródła”). F01 i F08 bez zmian (decyzja prowadzącego). Mediana czasu 5,8-6,7 s; koszt modelu trzech prób ok. $0,14. Małe próby, jeden przebieg każda: to sygnał, nie pomiar.
