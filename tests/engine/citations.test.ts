@@ -7,18 +7,18 @@ const TEXT = 'Rada gminy przyjęła w środę uchwałę o budowie nowej ścieżk
 const P = passage('d1#0', TEXT);
 
 describe('validateCitations', () => {
-  it('dosłowny cytat przechodzi i jest wycięty z tekstu źródła', () => {
+  it('dosłowny cytat przechodzi, jest wycięty z tekstu źródła i rozszerzony do pełnego zdania', () => {
     const r = validateCitations([{ passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie', injectionSuspected: false }], [P]);
     expect(r.rejected).toEqual([]);
     expect(r.accepted).toHaveLength(1);
-    expect(r.accepted[0]!.quote).toBe('przyjęła w środę uchwałę o budowie');
+    expect(r.accepted[0]!.quote).toBe('Rada gminy przyjęła w środę uchwałę o budowie nowej ścieżki rowerowej wzdłuż rzeki.');
   });
   it('spacje i nowe linie nie psują dopasowania; zwracany jest oryginalny przedział', () => {
     const r = validateCitations(
       [{ passageId: 'd1#0', stance: 'potwierdza', quote: '  wzdłuż   rzeki. \n Prace ruszą wiosną. ', injectionSuspected: false }],
       [P],
     );
-    expect(r.accepted[0]!.quote).toBe('wzdłuż rzeki.\nPrace ruszą wiosną.');
+    expect(r.accepted[0]!.quote).toBe('Rada gminy przyjęła w środę uchwałę o budowie nowej ścieżki rowerowej wzdłuż rzeki.\nPrace ruszą wiosną.');
   });
   it('zmieniona jedna litera albo diakrytyk odpada', () => {
     const r = validateCitations(

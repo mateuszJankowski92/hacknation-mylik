@@ -4,6 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import type { Searcher } from '../contracts/index';
 import type { EvalCase } from './cases';
+import type { EvalPart } from './cases';
 import type { CaseOutcome, ErrorProfileMap, Metrics, Ratio } from './metrics';
 
 export const DEFAULT_RESULTS_PATH = 'data/eval/results.json';
@@ -13,6 +14,12 @@ export const REVIEW_SAMPLE_SIZE = 20;
 
 export interface RunReport {
   run: string;
+  /** Część zestawu: strojeniowy (data/eval/cases.json) albo kontrolny (data/eval/control/cases.json). */
+  part?: EvalPart;
+  /** Skrót wersji silnika (src/engine/fingerprint.ts) z chwili przebiegu. */
+  engineVersion?: string;
+  /** Pozycje z oczekiwanym werdyktem, które nie weszły do profilu (stan techniczny, brak tezy). */
+  errorProfileExcluded?: { items: number; technicalState: number; missingThesis: number };
   provider: string;
   model: string;
   judge: string;
@@ -32,11 +39,20 @@ export interface ResultsFile {
   updatedAt: string;
   description: string;
   defaultRun: string | null;
-  /** Czytane przez silnik (src/engine/errorProfile.ts): profil z przebiegu modelu domyślnego. */
+  /**
+   * Czytane przez silnik (src/engine/errorProfile.ts): profil WYŁĄCZNIE z zestawu kontrolnego, z przebiegu
+   * modelu domyślnego. Silnik pokazuje go tylko, gdy `errorProfileMeta` zgadza się z modelem i wersją silnika.
+   */
   errorProfile: ErrorProfileMap;
   errorProfileSource: string | null;
+  errorProfileMeta: { part: 'kontrolny'; model: string; engineVersion: string; createdAt: string; minBucket: number; excluded?: RunReport['errorProfileExcluded'] } | null;
   unsupported: { id: string; scenario: string; reason: string }[];
+  /** Przebiegi zestawu strojeniowego (klucz: model). */
   runs: Record<string, RunReport>;
+  /** Przebiegi zestawu kontrolnego (klucz: model). */
+  controlRuns?: Record<string, RunReport>;
+  /** Mierniki wcześniejszych przebiegów (bez przypadków), np. przed zmianą silnika; zachowywane przy scalaniu. */
+  history?: { label: string; run: string; corpusVersion: string; finishedAt: string; metrics: RunReport['metrics'] }[];
 }
 
 export const MVP_TARGETS = {
@@ -55,8 +71,8 @@ export function failedCases(outcomes: CaseOutcome[]): RunReport['failedCases'] {
     .map((o) => ({
       id: o.id,
       scenario: o.scenario,
-      expected: o.expectedVerdict ?? o.expectedState ?? '?',
-      got: o.predictedVerdict ?? o.predictedState ?? o.error ?? '?',
+      expected: o.expectedVerdict ?? o.expectedState ?? (o.items?.map((i) => i.expected).join('+') || '?'),
+      got: o.expectedVerdict || o.expectedState || !o.items?.length ? (o.predictedVerdict ?? o.predictedState ?? o.error ?? '?') : o.items.map((i) => i.predicted ?? '?').join('+'),
       ...(o.detail ? { detail: o.detail } : {}),
     }));
 }
@@ -76,24 +92,42 @@ function readResults(path: string): ResultsFile | null {
 }
 
 /** Dopisuje przebieg do pliku wyników; profil błędów dla silnika bierze z modelu domyślnego (albo z atrapy, gdy brak). */
+export const PROFILE_MIN_BUCKET = 20;
+
 export function mergeResults(
   path: string,
   run: RunReport,
   opts: { defaultRun: string; unsupported: ResultsFile['unsupported']; now?: Date },
 ): ResultsFile {
   const prev = readResults(path);
-  const runs = { ...(prev?.runs ?? {}), [run.run]: run };
-  const source = runs[opts.defaultRun] ? opts.defaultRun : runs.mock ? 'mock' : run.run;
+  const control = run.part === 'kontrolny';
+  const runs = control ? { ...(prev?.runs ?? {}) } : { ...(prev?.runs ?? {}), [run.run]: run };
+  const controlRuns = control ? { ...(prev?.controlRuns ?? {}), [run.run]: run } : { ...(prev?.controlRuns ?? {}) };
+  // Profil omylności tylko z zestawu kontrolnego modelu domyślnego (w trybie atrapy: z przebiegu atrapy).
+  const source = controlRuns[opts.defaultRun] ? opts.defaultRun : controlRuns.mock ? 'mock' : null;
+  const src = source ? controlRuns[source]! : null;
   const file: ResultsFile = {
     schema: RESULTS_SCHEMA,
     updatedAt: (opts.now ?? new Date()).toISOString(),
     description:
-      'Wyniki zestawu testowego MYLIK (npm run eval). Mierniki według sekcji 6 wytycznych. errorProfile: pomyłki na liczbę przypadków według siły podstawy, z przebiegu modelu domyślnego.',
+      'Wyniki zestawu testowego MYLIK (npm run eval). runs: zestaw strojeniowy, controlRuns: zestaw kontrolny. Mierniki według sekcji 6 wytycznych i docs/MIERNIKI.md. errorProfile: pomyłki na liczbę tez według siły podstawy, wyłącznie z zestawu kontrolnego modelu domyślnego (errorProfileMeta: model, wersja silnika, data).',
     defaultRun: opts.defaultRun,
-    errorProfile: runs[source]?.errorProfile ?? {},
-    errorProfileSource: source ?? null,
+    errorProfile: src?.errorProfile ?? {},
+    errorProfileSource: source ? `kontrolny/${source}` : null,
+    errorProfileMeta: src
+      ? {
+          part: 'kontrolny',
+          model: src.model,
+          engineVersion: src.engineVersion ?? 'nieznana',
+          createdAt: src.finishedAt,
+          minBucket: PROFILE_MIN_BUCKET,
+          ...(src.errorProfileExcluded ? { excluded: src.errorProfileExcluded } : {}),
+        }
+      : null,
     unsupported: opts.unsupported,
     runs,
+    ...(Object.keys(controlRuns).length ? { controlRuns } : {}),
+    ...(prev?.history?.length ? { history: prev.history } : {}),
   };
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, `${JSON.stringify(file, null, 2)}\n`);
@@ -134,12 +168,47 @@ export function buildReviewSample(run: RunReport, searcher: Searcher, size = REV
   return {
     generatedAt: run.finishedAt,
     run: run.run,
+    ...(run.part ? { part: run.part } : {}),
     judge: run.judge,
     method:
       'Ocena automatyczna: dosłowny podciąg (kod) i wsparcie tezy (sędzia, inny model niż oceniany). Do ręcznego przeglądu: wpisz humanSupports (true/false) i humanNote.',
     population: items.length,
     items: items.slice(0, size),
   };
+}
+
+/** Czytelna wersja próbki do ręcznego przeglądu (Markdown); wynik człowieka wpisuje się w pliku JSON. */
+export function reviewSampleMarkdown(sample: ReturnType<typeof buildReviewSample>): string {
+  const lines = [
+    `# Próbka cytatów do ręcznego przeglądu`,
+    '',
+    `Przebieg: ${sample.run}${sample.part ? ` (zestaw ${sample.part})` : ''}, sędzia automatyczny: ${sample.judge}, stan na ${sample.generatedAt}.`,
+    `Wylosowano ${sample.items.length} z ${sample.population} par twierdzenie-cytat (kolejność wg skrótu SHA-256, niezależna od wyników).`,
+    '',
+    'Jak oceniać: przeczytaj twierdzenie, relację i cytat w otoczeniu fragmentu. Wpisz w pliku review_sample.json w polu `humanSupports` true (cytat uczciwie uzasadnia relację) albo false, a w `humanNote` krótki powód.',
+    '',
+  ];
+  sample.items.forEach((it, i) => {
+    const x = it as Record<string, unknown>;
+    lines.push(
+      `## ${i + 1}. ${String(x.caseId)} (${String(x.stance)})`,
+      '',
+      `- **Twierdzenie:** ${String(x.claim)}`,
+      `- **Werdykt systemu:** ${String(x.verdict)}`,
+      `- **Cytat:** „${String(x.quote)}”`,
+      `- **Źródło:** ${String(x.sourceTitle ?? '(brak tytułu)')} (${String(x.sourceUrl ?? '')})`,
+      `- **Sędzia automatyczny:** ${x.autoSupports === null ? 'brak oceny' : x.autoSupports ? 'wspiera' : 'nie wspiera'}${x.autoReason ? ` (${String(x.autoReason)})` : ''}`,
+      `- **Ocena człowieka:** ${x.humanSupports === null ? '[ ] wspiera  [ ] nie wspiera' : x.humanSupports ? 'wspiera' : 'nie wspiera'}`,
+      '',
+      '<details><summary>Cały fragment</summary>',
+      '',
+      String(x.passageText ?? '(brak)'),
+      '',
+      '</details>',
+      '',
+    );
+  });
+  return `${lines.join('\n')}\n`;
 }
 
 export function writeJson(path: string, data: unknown): void {

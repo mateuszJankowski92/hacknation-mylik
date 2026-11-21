@@ -16,7 +16,16 @@ import type {
 import type { ClaimKind, ExtractedClaim } from '../contracts/claim';
 import type { MismatchKind, Stance } from '../contracts/verdict';
 import { looksLikeInjection } from './sanitize';
-import { MAX_CLAIMS, ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT, buildAssessUserMessage, buildExtractUserMessage } from './prompts';
+import type { SupportCheckRequest, SupportCheckResult, SupportCheckVerdict, SupportGate } from '../engine/supportGate';
+import {
+  MAX_CLAIMS,
+  ASSESS_SYSTEM_PROMPT,
+  EXTRACT_SYSTEM_PROMPT,
+  SUPPORT_GATE_SYSTEM_PROMPT,
+  buildAssessUserMessage,
+  buildExtractUserMessage,
+  buildSupportUserMessage,
+} from './prompts';
 
 const MAX_SEARCH_TERMS = 10;
 /** Minimalny udział słów kluczowych twierdzenia obecnych w zdaniu fragmentu. */
@@ -133,7 +142,7 @@ function coverage(claimStems: string[], sentence: string): { ratio: number; hits
   return { ratio: hits / claimStems.length, hits };
 }
 
-export class MockLlmProvider implements LlmProvider {
+export class MockLlmProvider implements LlmProvider, SupportGate {
   readonly name = 'mock';
 
   async extractClaims(req: ExtractClaimsRequest): Promise<ExtractClaimsResult> {
@@ -187,5 +196,22 @@ export class MockLlmProvider implements LlmProvider {
 
     const out = { assessments };
     return { assessments, usage: usageFor(ASSESS_SYSTEM_PROMPT + buildAssessUserMessage(req), out) };
+  }
+
+  /** Bramka wsparcia atrapy: te same reguły leksykalne, ale na samym cytacie (bez fragmentu). */
+  async checkSupport(req: SupportCheckRequest): Promise<SupportCheckResult> {
+    const claimStems = [...new Set(keywords(req.claim).map(stem))];
+    const claimNegated = hasNegation(req.claim);
+    const minHits = Math.min(2, claimStems.length);
+    const verdicts: SupportCheckVerdict[] = req.quotes.map((q) => {
+      const c = coverage(claimStems, q);
+      if (!q.trim() || claimStems.length === 0 || c.ratio < COVERAGE_THRESHOLD || c.hits < minHits)
+        return { relation: 'nie_rozstrzyga', reason: 'za mało wspólnych słów' };
+      if (hasNegation(q) !== claimNegated) return { relation: 'obala', reason: 'przeczenie' };
+      const mismatch = numberMismatch(req.claim, q);
+      if (mismatch) return { relation: 'rozbieznosc_kontekstu', mismatch, reason: 'inne liczby' };
+      return { relation: 'potwierdza', reason: 'zgodne słowa i liczby' };
+    });
+    return { verdicts, usage: usageFor(SUPPORT_GATE_SYSTEM_PROMPT + buildSupportUserMessage(req), { verdicts }) };
   }
 }

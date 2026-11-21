@@ -22,6 +22,18 @@ export interface ClaimOutcome {
   evidence: EvidenceOutcome[];
 }
 
+/** Jedna oceniana pozycja: całe zgłoszenie (etykieta `verdict`) albo jedna teza zgłoszenia złożonego. */
+export interface VerdictItem {
+  /** Opis tezy (tylko przy etykietach per twierdzenie). */
+  about?: string;
+  expected: Verdict;
+  /** Werdykt systemu, stan techniczny albo `brak_tezy` (system nie wyodrębnił takiej tezy). */
+  predicted?: string;
+  /** Siła podstawy twierdzenia, z którego wzięto werdykt (brak przy stanie). */
+  strength?: StrengthLevel;
+  correct: boolean;
+}
+
 export interface CaseOutcome {
   id: string;
   scenario: EvalCase['scenario'];
@@ -37,6 +49,8 @@ export interface CaseOutcome {
   predictedState?: State;
   /** Siła podstawy głównego twierdzenia. */
   strength?: StrengthLevel;
+  /** Oceniane pozycje (macro-F1, profil omylności): jedna na zgłoszenie albo jedna na tezę. */
+  items?: VerdictItem[];
   correct: boolean;
   latencyMs: number;
   costUsd: number;
@@ -118,6 +132,17 @@ export function macroF1(pairs: { expected: Verdict; predicted: string | undefine
   return { value: f1s.length ? f1s.reduce((a, b) => a + b, 0) / f1s.length : null, classes, den: pairs.length };
 }
 
+/** Pozycje z oczekiwanym werdyktem (per zgłoszenie albo per teza); przypadki pominięte też się liczą (jako brak odpowiedzi). */
+export function verdictItems(outcomes: CaseOutcome[]): VerdictItem[] {
+  return outcomes.flatMap((o) =>
+    o.items?.length
+      ? o.items
+      : o.expectedVerdict
+        ? [{ expected: o.expectedVerdict, ...(o.predictedVerdict ?? o.predictedState ? { predicted: o.predictedVerdict ?? o.predictedState } : {}), ...(o.strength ? { strength: o.strength } : {}), correct: o.correct }]
+        : [],
+  );
+}
+
 export function median(values: number[]): number | null {
   if (!values.length) return null;
   const s = [...values].sort((a, b) => a - b);
@@ -134,8 +159,7 @@ function percentile(values: number[], p: number): number | null {
 export function computeMetrics(outcomes: CaseOutcome[], judge: { name: string; costUsd: number }): Metrics {
   const supported = outcomes.filter((o) => o.supported);
   const executed = supported.filter((o) => o.kind !== 'skipped');
-  const verdictCases = supported.filter((o) => o.expectedVerdict !== undefined);
-  const pairs = verdictCases.map((o) => ({ expected: o.expectedVerdict!, predicted: o.predictedVerdict ?? o.predictedState }));
+  const pairs = verdictItems(supported).map((i) => ({ expected: i.expected, predicted: i.predicted }));
 
   // Pokrycie cytowań: tezy faktograficzne z werdyktem merytorycznym, które mają dosłowny dowód zgodny z werdyktem.
   let covNum = 0;
@@ -220,14 +244,36 @@ export function computeMetrics(outcomes: CaseOutcome[], judge: { name: string; c
   };
 }
 
-/** Profil omylności według siły podstawy: liczby bezwzględne (np. 2 pomyłki na 31). */
+/**
+ * Profil omylności według siły podstawy: liczby bezwzględne (np. 2 pomyłki na 31). Pozycja = teza z oczekiwanym
+ * werdyktem, na którą system odpowiedział werdyktem (także wstrzymaniem się: trafnym albo nie). Odpowiedzi stanem
+ * technicznym i brak tezy nie mają siły, więc nie wchodzą do koszyków (liczone osobno: `errorProfileExcluded`).
+ */
+/** Pozycje z oczekiwanym werdyktem, które nie trafiły do profilu (stan techniczny, brak tezy). */
+export function errorProfileExcluded(outcomes: CaseOutcome[]): { items: number; technicalState: number; missingThesis: number } {
+  let technicalState = 0;
+  let missingThesis = 0;
+  for (const o of outcomes) {
+    if (!o.supported) continue;
+    for (const i of verdictItems([o])) {
+      if (i.strength && o.kind === 'record') continue;
+      if (o.kind !== 'record') technicalState++;
+      else missingThesis++;
+    }
+  }
+  return { items: technicalState + missingThesis, technicalState, missingThesis };
+}
+
 export function errorProfileByStrength(outcomes: CaseOutcome[]): ErrorProfileMap {
   const out: ErrorProfileMap = {};
   for (const o of outcomes) {
-    if (!o.supported || o.kind !== 'record' || !o.expectedVerdict || !o.strength) continue;
-    const cell = (out[o.strength] ??= { errors: 0, total: 0 });
-    cell.total++;
-    if (!o.correct) cell.errors++;
+    if (!o.supported || o.kind !== 'record') continue;
+    for (const i of verdictItems([o])) {
+      if (!i.strength) continue;
+      const cell = (out[i.strength] ??= { errors: 0, total: 0 });
+      cell.total++;
+      if (!i.correct) cell.errors++;
+    }
   }
   // Stała kolejność kluczy.
   const sorted: ErrorProfileMap = {};

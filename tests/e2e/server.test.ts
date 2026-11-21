@@ -11,6 +11,7 @@ import { ingestCatalog } from '../../src/corpus/index';
 import { openDb } from '../../src/db/open';
 import type { AppConfig } from '../../src/config';
 import type { IncidentMatcher } from '../../src/engine/incidents';
+import { engineFingerprint } from '../../src/engine/fingerprint';
 import { bootstrap, combineIncidentMatchers, type Bootstrapped } from '../../src/server/bootstrap';
 
 const TEXTS: Record<string, string> = {
@@ -351,10 +352,21 @@ describe('serwer HTTP: integracja fali 2 (SMS, karta, statystyki, limit, ostrze�
   it('profil błędów z EVAL_RESULTS_PATH trafia do rekordu', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'mylik-eval-'));
     const path = join(dir, 'results.json');
-    writeFileSync(path, JSON.stringify({ wysoka: { errors: 1, total: 10 }, srednia: { errors: 2, total: 10 }, niska: { errors: 3, total: 10 }, brak: { errors: 0, total: 10 } }));
+    const errorProfile = { wysoka: { errors: 1, total: 20 }, srednia: { errors: 2, total: 20 }, niska: { errors: 3, total: 20 }, brak: { errors: 0, total: 20 } };
+    // Profil tylko z zestawu kontrolnego, dla modelu i wersji silnika serwera (zad. 20).
+    const meta = { part: 'kontrolny', model: 'mock', engineVersion: engineFingerprint(), createdAt: '2026-11-21T00:00:00Z' };
+    writeFileSync(path, JSON.stringify({ errorProfile, errorProfileMeta: meta }));
     const b = boot({ config: { evalResultsPath: path } });
     const out = VerifyOutcomeSchema.parse(await (await post(b, { text: MATCHING })).json());
     if (out.kind !== 'record') throw new Error('oczekiwano rekordu');
     expect(out.record.claims.some((c) => c.errorProfile !== undefined)).toBe(true);
+
+    // Inna wersja silnika albo inny model: zdanie o omylności się nie pokazuje.
+    const stale = join(dir, 'stale.json');
+    writeFileSync(stale, JSON.stringify({ errorProfile, errorProfileMeta: { ...meta, engineVersion: 'stara' } }));
+    const b2 = boot({ config: { evalResultsPath: stale } });
+    const out2 = VerifyOutcomeSchema.parse(await (await post(b2, { text: MATCHING })).json());
+    if (out2.kind !== 'record') throw new Error('oczekiwano rekordu');
+    expect(out2.record.claims.every((c) => c.errorProfile === undefined)).toBe(true);
   });
 });

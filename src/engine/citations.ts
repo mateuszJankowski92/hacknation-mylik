@@ -14,7 +14,8 @@ export type CitationRejectReason =
   | 'url_w_cytacie'
   | 'instrukcja_w_cytacie'
   | 'fragment_z_sygnalem'
-  | 'injection_wg_modelu';
+  | 'injection_wg_modelu'
+  | 'brak_kluczowych_elementow';
 
 export interface AcceptedEvidence {
   passage: Passage;
@@ -44,6 +45,11 @@ export interface CitationResult {
 export interface ValidateCitationsOptions {
   /** Fragmenty z wykrytym sygnałem injection: nigdy nie są dowodem. */
   flaggedPassageIds?: ReadonlySet<string>;
+  /**
+   * Tekst twierdzenia. Gdy podany, cytat "potwierdza" musi zawierać choć jedną liczbę z twierdzenia
+   * (jeśli twierdzenie ma liczby: kwoty, daty, ilości), inaczej odpada jako `brak_kluczowych_elementow`.
+   */
+  claimText?: string;
 }
 
 /** Zwija białe znaki do pojedynczej spacji i przycina; nie zmienia liter ani diakrytyków. */
@@ -77,16 +83,103 @@ function normalizeWithMap(text: string): { source: string; norm: string; map: nu
   return { source, norm, map };
 }
 
-/** Znajduje cytat w fragmencie; zwraca oryginalny wycinek źródła albo null. */
-export function locateQuote(passageText: string, quote: string): string | null {
+/** Znajduje cytat w fragmencie; zwraca przedział w tekście źródła (po NFC) albo null. */
+export function locateQuoteRange(passageText: string, quote: string): { source: string; start: number; end: number } | null {
   const q = normalizeWhitespace(quote);
   if (!q) return null;
   const { source, norm, map } = normalizeWithMap(passageText);
   const at = norm.indexOf(q);
   if (at < 0) return null;
-  const start = map[at]!;
-  const end = map[at + q.length - 1]! + 1;
-  return source.slice(start, end);
+  return { source, start: map[at]!, end: map[at + q.length - 1]! + 1 };
+}
+
+/** Znajduje cytat w fragmencie; zwraca oryginalny wycinek źródła albo null. */
+export function locateQuote(passageText: string, quote: string): string | null {
+  const r = locateQuoteRange(passageText, quote);
+  return r ? r.source.slice(r.start, r.end) : null;
+}
+
+const SENTENCE_END = /[.!?…]/u;
+const SENTENCE_START = /[\p{Lu}\p{N}"„«(\[]/u;
+
+/** Czy pozycja `i` zaczyna zdanie (początek tekstu, nowa linia albo koniec zdania i wielka litera). */
+function isSentenceStart(source: string, i: number): boolean {
+  if (i <= 0) return true;
+  let j = i - 1;
+  let sawSpace = false;
+  while (j >= 0 && /\s/u.test(source[j]!)) {
+    if (source[j] === '\n') return true;
+    sawSpace = true;
+    j--;
+  }
+  if (j < 0) return true;
+  return sawSpace && SENTENCE_END.test(source[j]!) && SENTENCE_START.test(source[i]!);
+}
+
+/** Czy zdanie kończy się na pozycji `end` (wyłącznie). */
+function isSentenceEnd(source: string, end: number): boolean {
+  if (end >= source.length) return true;
+  if (!SENTENCE_END.test(source[end - 1]!) && source[end] !== '\n') {
+    // koniec linii bez kropki (np. nagłówek) też kończy zdanie
+    let k = end;
+    while (k < source.length && source[k] !== '\n' && /\s/u.test(source[k]!)) k++;
+    return k >= source.length || source[k] === '\n';
+  }
+  let k = end;
+  while (k < source.length && /\s/u.test(source[k]!)) {
+    if (source[k] === '\n') return true;
+    k++;
+  }
+  return k >= source.length || (k > end && SENTENCE_START.test(source[k]!));
+}
+
+/**
+ * Rozszerza przedział cytatu do pełnych zdań (początek i koniec zdania w tekście źródła).
+ * Cytat urwany w pół zdania traci podmiot albo zastrzeżenie; pełne zdanie czyta się samodzielnie.
+ * Gdy pełne zdania przekraczają limit długości, zostaje przedział od modelu.
+ */
+export function snapToSentences(source: string, start: number, end: number, maxChars = MAX_QUOTE_CHARS): { start: number; end: number } {
+  let s = start;
+  while (s > 0 && !isSentenceStart(source, s)) s--;
+  while (s < start && /\s/u.test(source[s]!)) s++;
+  let e = end;
+  while (e < source.length && !isSentenceEnd(source, e)) e++;
+  while (e > end && /\s/u.test(source[e - 1]!)) e--;
+  if (normalizeWhitespace(source.slice(s, e)).length > maxChars) return { start, end };
+  return { start: s, end: e };
+}
+
+/**
+ * Cytat poszerzony o zdanie poprzedzające (gdy podmiot nazwano zdanie wcześniej, a cytat używa zaimka
+ * albo ogólnego określenia). Zwraca ciągły wycinek źródła albo null (brak zdania wcześniej, za długi).
+ */
+export function withPreviousSentence(passageText: string, quote: string, maxChars = MAX_QUOTE_CHARS): string | null {
+  const r = locateQuoteRange(passageText, quote);
+  if (!r) return null;
+  const { source, start, end } = r;
+  let s = start - 1;
+  while (s > 0 && /\s/u.test(source[s]!)) s--;
+  if (s <= 0) return null;
+  while (s > 0 && !isSentenceStart(source, s)) s--;
+  const out = source.slice(s, end).trim();
+  if (out === source.slice(start, end).trim() || normalizeWhitespace(out).length > maxChars) return null;
+  return out;
+}
+
+/** Liczby z tekstu, znormalizowane ("1 500" -> "1500", "10,2" bez zmian). */
+export function numbersIn(text: string): Set<string> {
+  const out = new Set<string>();
+  for (const m of text.normalize('NFC').matchAll(/\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)?/gu)) out.add(m[0].replace(/[ \u00a0\u202f]/gu, ''));
+  return out;
+}
+
+/** Twierdzenie bez liczb: brak wymogu. Z liczbami: cytat musi mieć choć jedną z nich. */
+export function hasKeyNumbers(claimText: string, quote: string): boolean {
+  const need = numbersIn(claimText);
+  if (need.size === 0) return true;
+  const have = numbersIn(quote);
+  for (const n of need) if (have.has(n)) return true;
+  return false;
 }
 
 /**
@@ -95,6 +188,7 @@ export function locateQuote(passageText: string, quote: string): string | null {
  * białych znaków musi być podciągiem fragmentu; (c) 20..600 znaków; (d) stanowisko inne niż
  * `bez_zwiazku` wymaga cytatu; (e) cytat bez URL-a i bez znamion instrukcji. Fragment
  * oznaczony sygnałem injection (przez kod albo zgłoszony przez model) nie może być dowodem. Dowody deduplikowane po fragmencie.
+ * (f) cytat rozszerzony do pełnych zdań źródła; (g) przy `claimText` cytat "potwierdza" zawiera liczbę z twierdzenia.
  */
 export function validateCitations(
   assessments: readonly PassageAssessment[],
@@ -153,9 +247,17 @@ export function validateCitations(
       reject('instrukcja_w_cytacie');
       continue;
     }
-    const original = locateQuote(entry.passage.text, q);
-    if (original === null) {
+    const range = locateQuoteRange(entry.passage.text, q);
+    if (range === null) {
       reject('brak_w_zrodle');
+      continue;
+    }
+    // Pełne zdania; poszerzenie nie może wnieść adresu ani znamion instrukcji.
+    const snapped = snapToSentences(range.source, range.start, range.end);
+    let original = range.source.slice(snapped.start, snapped.end);
+    if (containsUrl(original) || detectInjectionSignals(original).length > 0) original = range.source.slice(range.start, range.end);
+    if (opts.claimText !== undefined && a.stance === 'potwierdza' && !hasKeyNumbers(opts.claimText, original)) {
+      reject('brak_kluczowych_elementow');
       continue;
     }
     if (seen.has(a.passageId)) {

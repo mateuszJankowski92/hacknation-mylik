@@ -29,7 +29,9 @@ import {
   type LlmUsage,
   type PassageAssessment,
 } from '../contracts/llm';
+import type { SupportCheckRequest, SupportCheckResult, SupportGate } from '../engine/supportGate';
 import { estimateCostUsd } from './pricing';
+import { SupportGateOutputSchema, verdictsFromOutput } from './supportGate';
 import {
   ASSESS_SYSTEM_PROMPT,
   EXTRACT_SYSTEM_PROMPT,
@@ -37,6 +39,8 @@ import {
   buildAssessUserMessage,
   buildExtractUserMessage,
   buildSchemaRetryNote,
+  buildSupportUserMessage,
+  SUPPORT_GATE_SYSTEM_PROMPT,
 } from './prompts';
 
 export const DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-5-5';
@@ -102,7 +106,7 @@ function issuesSummary(error: z.ZodError): string {
     .join('; ');
 }
 
-export class AnthropicProvider implements LlmProvider {
+export class AnthropicProvider implements LlmProvider, SupportGate {
   readonly name = 'anthropic';
   readonly model: string;
   private readonly apiKey?: string;
@@ -165,6 +169,26 @@ export class AnthropicProvider implements LlmProvider {
       injectionSuspected: a.injectionSuspected,
     }));
     return { assessments, usage };
+  }
+
+  /** Bramka wsparcia: osobne wywołanie z samym twierdzeniem i samymi cytatami (bez fragmentów i źródeł). */
+  async checkSupport(req: SupportCheckRequest): Promise<SupportCheckResult> {
+    if (req.quotes.length === 0) return { verdicts: [] };
+    const { data, usage } = await this.callStructured(
+      SUPPORT_GATE_SYSTEM_PROMPT,
+      buildSupportUserMessage(req),
+      SupportGateOutputSchema,
+      (out) => {
+        const seen = new Set<number>();
+        for (const it of out.items) {
+          if (it.index < 0 || it.index >= req.quotes.length) throw new SchemaProblem('indeks cytatu spoza danych');
+          if (seen.has(it.index)) throw new SchemaProblem('powtórzona ocena cytatu');
+          seen.add(it.index);
+        }
+        if (seen.size !== req.quotes.length) throw new SchemaProblem('brak oceny dla części cytatów');
+      },
+    );
+    return { verdicts: verdictsFromOutput(data, req.quotes.length), usage };
   }
 
   /**

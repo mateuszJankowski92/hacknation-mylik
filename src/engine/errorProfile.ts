@@ -89,6 +89,52 @@ export function loadErrorProfileTable(path: string): ErrorProfileTable | null {
   }
 }
 
+/** Najmniejsza liczba przypadków w koszyku, przy której pokazujemy zdanie o omylności. */
+export const MIN_PROFILE_BUCKET = 20;
+
+/** Metadane profilu w pliku wyników: z jakiego zestawu, dla jakiego modelu i wersji silnika. */
+export interface ErrorProfileMeta {
+  part: string;
+  model: string;
+  engineVersion: string;
+  createdAt: string;
+}
+
+export interface ProfileExpectation {
+  /** Model, którym działa serwer (np. `claude-sonnet-5-5`, `mock`). */
+  model: string;
+  /** Skrót wersji silnika (`engineFingerprint()`). */
+  engineVersion: string;
+  minBucket?: number;
+}
+
+/**
+ * Profil do pokazania obywatelowi: wyłącznie z zestawu KONTROLNEGO, dla dokładnie tego modelu i tej wersji
+ * silnika; koszyki z mniej niż `minBucket` przypadkami są pomijane. Cokolwiek się nie zgadza -> null
+ * (zdanie o omylności się nie pokazuje).
+ */
+export function verifiedErrorProfile(json: unknown, expect: ProfileExpectation): ErrorProfileTable | null {
+  if (!json || typeof json !== 'object' || Array.isArray(json)) return null;
+  const o = json as Record<string, unknown>;
+  const meta = o.errorProfileMeta as Partial<ErrorProfileMeta> | undefined;
+  if (!meta || meta.part !== 'kontrolny' || meta.model !== expect.model || meta.engineVersion !== expect.engineVersion) return null;
+  const table = fromMap(o.errorProfile);
+  if (!table) return null;
+  const min = expect.minBucket ?? MIN_PROFILE_BUCKET;
+  const out: ErrorProfileTable = {};
+  for (const [k, v] of Object.entries(table)) if (v && v.total >= min) out[k as StrengthLevel] = v;
+  return Object.keys(out).length ? out : null;
+}
+
+export function loadVerifiedErrorProfile(path: string, expect: ProfileExpectation): ErrorProfileTable | null {
+  try {
+    if (!existsSync(path)) return null;
+    return verifiedErrorProfile(JSON.parse(readFileSync(path, 'utf8')), expect);
+  } catch {
+    return null;
+  }
+}
+
 export function errorProfileFor(table: ErrorProfileTable | null, level: StrengthLevel): ErrorProfile | undefined {
   const cell = table?.[level];
   if (!cell) return undefined;

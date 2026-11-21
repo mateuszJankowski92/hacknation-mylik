@@ -5,6 +5,10 @@ import { z } from 'zod';
 import { NOTICE_TYPES, STATES, VERDICTS } from '../contracts/index';
 
 export const DEFAULT_CASES_PATH = 'data/eval/cases.json';
+/** Zestaw KONTROLNY: pisany osobno, nigdy nie służy do zmian w silniku ani promptach. */
+export const DEFAULT_CONTROL_CASES_PATH = 'data/eval/control/cases.json';
+export const EVAL_PARTS = ['strojeniowy', 'kontrolny'] as const;
+export type EvalPart = (typeof EVAL_PARTS)[number];
 export const DEFAULT_INCIDENTS_FIXTURE = 'data/eval/incidents_fixture.json';
 
 export const SCENARIOS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'inne'] as const;
@@ -27,13 +31,27 @@ export const CATEGORIES = [
 export const FAULTS = ['no_key', 'rate_limit', 'timeout', 'provider_error', 'invalid_output', 'search_down', 'empty_corpus'] as const;
 export type Fault = (typeof FAULTS)[number];
 
+/**
+ * Etykieta jednej tezy zgłoszenia złożonego (ocena per twierdzenie). Teza jest odnajdywana wśród
+ * twierdzeń wyodrębnionych przez system po słowach kluczowych (początki słów, wszystkie muszą wystąpić).
+ */
+export const ThesisSchema = z.object({
+  about: z.string().min(1),
+  keywords: z.array(z.string().min(2)).min(1),
+  verdict: z.enum(VERDICTS),
+});
+export type Thesis = z.infer<typeof ThesisSchema>;
+
 const ExpectedSchema = z
   .object({
     verdict: z.enum(VERDICTS).optional(),
     state: z.enum(STATES).optional(),
+    claims: z.array(ThesisSchema).min(1).optional(),
     notice: z.enum(NOTICE_TYPES).optional(),
   })
-  .refine((e) => (e.verdict === undefined) !== (e.state === undefined), { message: 'Podaj dokładnie jedno: verdict albo state.' });
+  .refine((e) => [e.verdict, e.state, e.claims].filter((x) => x !== undefined).length === 1, {
+    message: 'Podaj dokładnie jedno: verdict, state albo claims (etykiety tez).',
+  });
 
 export const EvalCaseSchema = z
   .object({
@@ -81,6 +99,15 @@ export function parseCases(json: unknown): CasesFile {
   }
   for (const c of file.cases) if (c.pairWith && !ids.has(c.pairWith)) throw new Error(`pairWith ${c.id} -> nieznany ${c.pairWith}`);
   return file;
+}
+
+/** Twierdzenie pasuje do tezy, gdy każde słowo kluczowe jest początkiem któregoś słowa twierdzenia. */
+export function matchesThesis(claimText: string, thesis: Pick<Thesis, 'keywords'>): boolean {
+  const words = claimText.toLocaleLowerCase('pl').match(/[\p{L}\p{N}]+/gu) ?? [];
+  return thesis.keywords.every((k) => {
+    const key = k.toLocaleLowerCase('pl');
+    return words.some((w) => w.startsWith(key));
+  });
 }
 
 export function loadCases(path = DEFAULT_CASES_PATH): CasesFile {

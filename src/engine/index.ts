@@ -10,10 +10,30 @@ export type { EngineDeps, EngineExtraDeps, EngineOptions, PrepareFn } from './pi
 export { createEngineCore, counterQuery, MAX_CLAIMS, MAX_COUNTER_PASSAGES, MAX_PASSAGES_PER_CLAIM, searchQuery } from './pipeline';
 export { decideVerdict, computeStrength, isArchival, isExpired } from './rules';
 export { validateCitations } from './citations';
+export { applySupportGate, type SupportGateStats } from './pipeline';
+export {
+  isSupportGate,
+  SUPPORT_RELATIONS,
+  type SupportCheckRequest,
+  type SupportCheckResult,
+  type SupportCheckVerdict,
+  type SupportGate,
+  type SupportRelation,
+} from './supportGate';
 export { detectInjectionSignals, stripInjectedSegments } from './injection';
 export { createPageFetcher, type PageFetcher, type PageFetchResult, type Resolver, type Transport } from './fetch/index';
 export { incidentMatcherFromRecords, loadIncidentMatcher, type IncidentMatcher } from './incidents';
-export { DEFAULT_EVAL_RESULTS_PATH, loadErrorProfileTable, parseErrorProfileTable } from './errorProfile';
+export {
+  DEFAULT_EVAL_RESULTS_PATH,
+  loadErrorProfileTable,
+  loadVerifiedErrorProfile,
+  MIN_PROFILE_BUCKET,
+  parseErrorProfileTable,
+  verifiedErrorProfile,
+  type ErrorProfileMeta,
+} from './errorProfile';
+export { computeEngineFingerprint, engineFingerprint } from './fingerprint';
+export { llmModelName } from './pipeline';
 export { defaultRenderer, type EngineRenderer } from './render';
 
 /**

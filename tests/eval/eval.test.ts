@@ -3,7 +3,7 @@ import { mkdtempSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { parseErrorProfileTable } from '../../src/engine/index';
+import { parseErrorProfileTable, verifiedErrorProfile } from '../../src/engine/index';
 import {
   computeMetrics,
   errorProfileByStrength,
@@ -174,17 +174,31 @@ describe('przebieg mock (bez klucza i sieci)', () => {
 
     const saved = JSON.parse(readFileSync(resultsPath, 'utf8'));
     expect(saved.runs.mock).toBeTruthy();
-    expect(saved.errorProfileSource).toBe('mock');
+    expect(saved.runs.mock.part).toBe('strojeniowy');
+    expect(saved.runs.mock.engineVersion).toMatch(/^[0-9a-f]{12}$/);
+    // Profil omylności nigdy z zestawu strojeniowego.
+    expect(saved.errorProfileSource).toBeNull();
+    expect(saved.errorProfileMeta).toBeNull();
+    expect(saved.errorProfile).toEqual({});
     expect(saved.unsupported.map((u: { id: string }) => u.id)).toEqual(['F01', 'H01']);
-    expect(parseErrorProfileTable(saved)).not.toBeNull();
     const review = JSON.parse(readFileSync(reviewPath, 'utf8'));
     expect(review.items.length).toBeGreaterThan(0);
     expect(review.items[0]).toHaveProperty('humanSupports', null);
+    expect(readFileSync(join(dir, 'review.md'), 'utf8')).toContain('humanSupports');
 
-    // Przebieg modelu domyślnego ma pierwszeństwo jako źródło profilu dla silnika.
-    const fake: RunReport = { ...res.run, run: 'claude-haiku-5-5', errorProfile: { srednia: { errors: 2, total: 31 } } };
+    // Zgłoszenie złożone oceniane per teza (I02: dwie tezy z osobnymi etykietami).
+    expect(byId.get('I02')!.items!.length).toBe(2);
+
+    // Przebieg kontrolny modelu domyślnego jest jedynym źródłem profilu; metadane: model, wersja silnika, data.
+    const fake: RunReport = { ...res.run, run: 'claude-haiku-5-5', model: 'claude-haiku-5-5', part: 'kontrolny', errorProfile: { srednia: { errors: 2, total: 31 } } };
     const merged = mergeResults(resultsPath, fake, { defaultRun: 'claude-haiku-5-5', unsupported: [] });
-    expect(Object.keys(merged.runs).sort()).toEqual(['claude-haiku-5-5', 'mock']);
+    expect(Object.keys(merged.runs)).toEqual(['mock']);
+    expect(Object.keys(merged.controlRuns!)).toEqual(['claude-haiku-5-5']);
     expect(merged.errorProfile).toEqual({ srednia: { errors: 2, total: 31 } });
+    expect(merged.errorProfileMeta).toMatchObject({ part: 'kontrolny', model: 'claude-haiku-5-5', engineVersion: res.run.engineVersion, minBucket: 20 });
+    expect(verifiedErrorProfile(merged, { model: 'claude-haiku-5-5', engineVersion: res.run.engineVersion! })).toEqual({ srednia: { errors: 2, total: 31 } });
+    expect(verifiedErrorProfile(merged, { model: 'claude-sonnet-5-5', engineVersion: res.run.engineVersion! })).toBeNull();
+    expect(verifiedErrorProfile(merged, { model: 'claude-haiku-5-5', engineVersion: 'inna' })).toBeNull();
+    expect(parseErrorProfileTable(merged)).not.toBeNull();
   }, 60_000);
 });

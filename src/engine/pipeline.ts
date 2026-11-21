@@ -26,8 +26,10 @@ import {
 } from '../contracts/index';
 import { maskPii } from '../input/index';
 import { cleanText } from '../input/normalize';
-import { validateCitations } from './citations';
-import { loadErrorProfileTable, errorProfileFor, type ErrorProfileTable } from './errorProfile';
+import { hasKeyNumbers, validateCitations, withPreviousSentence, type AcceptedEvidence } from './citations';
+import { isSupportGate, normalizeVerdicts, type SupportGate } from './supportGate';
+import { errorProfileFor, loadVerifiedErrorProfile, type ErrorProfileTable } from './errorProfile';
+import { engineFingerprint } from './fingerprint';
 import { errorToOutcome, isLlmError, SearchFailure, stateOutcome, technicalDetail } from './errors';
 import {
   abstainReasonText,
@@ -50,7 +52,7 @@ import {
 } from './explain';
 import type { PageFetcher } from './fetch/index';
 import { MAX_INCIDENT_NOTICES, type IncidentMatcher } from './incidents';
-import { detectInjectionSignals, screenClaim, stripInjectedSegments } from './injection';
+import { containsUrl, detectInjectionSignals, screenClaim, stripInjectedSegments } from './injection';
 import { createProgressEmitter, type ProgressEmitter, type ProgressEngine } from './progress';
 import { buildShortAnswer, safeExplanation, safeShortAnswer, type EngineRenderer } from './render';
 import {
@@ -77,7 +79,10 @@ export type PrepareFn = (i: VerifyInput) => PreparedInput | NeedsClarification;
 export interface EngineOptions {
   /** Próg archiwalności w miesiącach (domyślnie 24). */
   archivalMonths?: number;
-  /** Ścieżka pliku wyników zestawu testowego (profil błędów). Brak = bez profilu. */
+  /**
+   * Ścieżka pliku wyników zestawu testowego (profil błędów). Brak = bez profilu. Profil jest użyty tylko,
+   * gdy pochodzi z zestawu kontrolnego dla tego samego modelu i wersji silnika (`verifiedErrorProfile`).
+   */
   errorProfilePath?: string;
   /** Gotowa tabela profilu błędów (pierwszeństwo przed ścieżką; testy). */
   errorProfile?: ErrorProfileTable | null;
@@ -92,6 +97,11 @@ export interface EngineExtraDeps {
   incidents?: IncidentMatcher | null;
   /** Składanie zdań (src/render). Brak = szablony silnika. */
   renderer?: EngineRenderer;
+  /**
+   * Bramka wsparcia (drugie, niezależne sprawdzenie cytatów rozstrzygających). Brak = dostawca modelu,
+   * jeśli sam ją implementuje (`checkSupport`); `null` = wyłączona.
+   */
+  supportGate?: SupportGate | null;
 }
 
 export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
@@ -157,6 +167,97 @@ function uniqueById(list: readonly Passage[]): Passage[] {
   return list.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
 }
 
+const DECISIVE = new Set(['potwierdza', 'obala', 'rozbieznosc_kontekstu']);
+
+export interface SupportGateStats {
+  /** Ile cytatów rozstrzygających sprawdzono. */
+  checked: number;
+  /** Zostały z relacją taką jak w ocenie. */
+  kept: number;
+  /** Zostały, ale bramka ustaliła inną relację (ona wygrywa). */
+  changed: number;
+  /** Odpadły: cytat sam nie rozstrzyga twierdzenia. */
+  dropped: number;
+  /** Ponowione z poprzedzającym zdaniem źródła (podmiot zdanie wcześniej). */
+  retried: number;
+  /** Z tego uratowane (cytat poszerzony). */
+  rescued: number;
+}
+
+/**
+ * Bramka wsparcia: każdy cytat rozstrzygający (potwierdza, obala, rozbieżność) idzie do bramki SAM,
+ * tylko z twierdzeniem. Cytat, który sam nie rozstrzyga, dostaje jedną szansę z poprzedzającym zdaniem
+ * tego samego fragmentu (ciągły wycinek źródła); potem odpada. Relacja bramki zastępuje relację oceny.
+ * Dowody `kontekst` przechodzą bez zmian (nie wpływają na werdykt rozstrzygający).
+ */
+export async function applySupportGate(
+  gate: SupportGate,
+  claimText: string,
+  accepted: AcceptedEvidence[],
+  onUsage: (u: LlmUsage | undefined) => void,
+): Promise<{ accepted: AcceptedEvidence[]; stats: SupportGateStats }> {
+  const stats: SupportGateStats = { checked: 0, kept: 0, changed: 0, dropped: 0, retried: 0, rescued: 0 };
+  const items = accepted.filter((a) => DECISIVE.has(a.stance));
+  if (items.length === 0) return { accepted, stats };
+  stats.checked = items.length;
+  const first = await gate.checkSupport({ claim: claimText, quotes: items.map((a) => a.quote) });
+  onUsage(first.usage);
+  const verdicts = normalizeVerdicts(first, items.length);
+
+  const retry: { index: number; quote: string }[] = [];
+  verdicts.forEach((v, i) => {
+    if (v.relation !== 'nie_rozstrzyga') return;
+    const ext = withPreviousSentence(items[i]!.passage.text, items[i]!.quote);
+    if (ext && !containsUrl(ext) && detectInjectionSignals(ext).length === 0) retry.push({ index: i, quote: ext });
+  });
+  const quotes = items.map((a) => a.quote);
+  if (retry.length > 0) {
+    stats.retried = retry.length;
+    const second = await gate.checkSupport({ claim: claimText, quotes: retry.map((r) => r.quote) });
+    onUsage(second.usage);
+    normalizeVerdicts(second, retry.length).forEach((v, j) => {
+      if (v.relation === 'nie_rozstrzyga') return;
+      const { index, quote } = retry[j]!;
+      verdicts[index] = v;
+      quotes[index] = quote;
+      stats.rescued++;
+    });
+  }
+
+  const out = new Map<AcceptedEvidence, AcceptedEvidence | null>();
+  items.forEach((a, i) => {
+    const v = verdicts[i]!;
+    // Bramka nie omija wymogu liczb: "potwierdza" bez liczby z twierdzenia odpada.
+    if (v.relation === 'nie_rozstrzyga' || (v.relation === 'potwierdza' && !hasKeyNumbers(claimText, quotes[i]!))) {
+      out.set(a, null);
+      stats.dropped++;
+      return;
+    }
+    const stance = v.relation;
+    const mismatch: MismatchKind | undefined =
+      stance === 'rozbieznosc_kontekstu' ? (v.mismatch ?? a.mismatch ?? 'warunki') : undefined;
+    if (stance === a.stance) stats.kept++;
+    else stats.changed++;
+    const { mismatch: _old, ...rest } = a;
+    out.set(a, { ...rest, stance, quote: quotes[i]!, ...(mismatch !== undefined ? { mismatch } : {}) });
+  });
+  const result: AcceptedEvidence[] = [];
+  for (const a of accepted) {
+    if (!out.has(a)) result.push(a);
+    else {
+      const r = out.get(a);
+      if (r) result.push(r);
+    }
+  }
+  return { accepted: result, stats };
+}
+
+/** Nazwa modelu dostawcy (pole `model`, gdy jest; inaczej nazwa dostawcy, np. `mock`). */
+export function llmModelName(llm: { name: string }): string {
+  const m = (llm as { model?: unknown }).model;
+  return typeof m === 'string' && m ? m : llm.name;
+}
+
 export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const now = deps.now ?? (() => new Date());
   const store: EngineStore = createStore(deps.db, now);
@@ -165,10 +266,12 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     deps.options?.errorProfile !== undefined
       ? deps.options.errorProfile
       : deps.options?.errorProfilePath
-        ? loadErrorProfileTable(deps.options.errorProfilePath)
+        ? loadVerifiedErrorProfile(deps.options.errorProfilePath, { model: llmModelName(deps.llm), engineVersion: engineFingerprint() })
         : null;
   const { searcher, llm, prepare } = deps;
   const renderer = deps.renderer;
+  const supportGate: SupportGate | null =
+    deps.supportGate !== undefined ? deps.supportGate : isSupportGate(llm) ? llm : null;
 
   async function search(query: string, limit: number): Promise<Passage[]> {
     try {
@@ -375,7 +478,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const sentIds = new Set(sent.map((p) => p.id));
 
       // (5) ocena stanowisk (model) i (6) bramka cytatów (kod)
-      let accepted: ReturnType<typeof validateCitations>['accepted'] = [];
+      let accepted: AcceptedEvidence[] = [];
       let rejectedCount = 0;
       const modelFlagged = new Set<string>();
       if (sent.length > 0) {
@@ -394,10 +497,17 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
             });
             injectionEvents++;
           }
-        const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged });
+        const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged, claimText: claim.text });
         accepted = gate.accepted;
-        for (const a of accepted) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
         rejectedCount = gate.rejected.length;
+        if (supportGate) {
+          const checked = await applySupportGate(supportGate, claim.text, accepted, (u) => addUsage(usage, u));
+          accepted = checked.accepted;
+          rejectedCount += checked.stats.dropped;
+          if (checked.stats.checked > 0)
+            store.logEvent('support_gate', { recordId, channel, detail: { claimId: claim.id, gate: supportGate.name, ...checked.stats } });
+        }
+        for (const a of accepted) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
         const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
         if (unknown > 0) store.logEvent('llm_unknown_passage', { recordId, channel, detail: { claimId: claim.id, count: unknown } });
         if (rejectedCount > 0) {

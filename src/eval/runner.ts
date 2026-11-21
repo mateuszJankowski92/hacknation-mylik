@@ -21,10 +21,19 @@ import {
 import { createSearcher, ingestCatalog } from '../corpus/index';
 import { parseIncidents } from '../corpus/incidents/index';
 import { openDb } from '../db/open';
-import { createEngine, createPageFetcher, incidentMatcherFromRecords, type IncidentMatcher, type PageFetcher } from '../engine/index';
+import {
+  createEngine,
+  createPageFetcher,
+  incidentMatcherFromRecords,
+  isSupportGate,
+  type IncidentMatcher,
+  type PageFetcher,
+  type SupportCheckRequest,
+  type SupportCheckResult,
+} from '../engine/index';
 import { ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT } from '../llm/prompts';
 import { createSmsApp } from '../sms/index';
-import { caseInputText, DEFAULT_INCIDENTS_FIXTURE, type EvalCase, type Fault } from './cases';
+import { caseInputText, DEFAULT_INCIDENTS_FIXTURE, matchesThesis, type EvalCase, type Fault } from './cases';
 import type { CitationJudge, JudgeItem } from './judge';
 import type { CaseOutcome, ClaimOutcome } from './metrics';
 
@@ -70,6 +79,13 @@ export class UsageMeter implements LlmProvider {
   }
   async assessPassages(req: AssessRequest): Promise<AssessResult> {
     const r = await this.inner.assessPassages(req);
+    this.add(r.usage);
+    return r;
+  }
+  /** Przepuszcza bramkę wsparcia dostawcy (silnik używa jej, gdy dostawca ją ma). */
+  async checkSupport(req: SupportCheckRequest): Promise<SupportCheckResult> {
+    if (!isSupportGate(this.inner)) throw new Error('dostawca bez bramki wsparcia');
+    const r = await this.inner.checkSupport(req);
     this.add(r.usage);
     return r;
   }
@@ -154,11 +170,13 @@ function stems(text: string): Set<string> {
   return out;
 }
 
-/** Główne twierdzenie przypadku: jedyne, wspólny werdykt albo najbliższe tekstowi zgłoszenia. */
+/**
+ * Główne twierdzenie przypadku z jedną etykietą: jedyne, wspólny werdykt albo najbliższe tekstowi zgłoszenia
+ * (także opinia, gdy to ona jest treścią zgłoszenia). Zgłoszenia złożone etykietuje się per teza (`expected.claims`).
+ */
 export function mainClaim(claims: ClaimResult[], inputText: string): ClaimResult | undefined {
   if (claims.length <= 1) return claims[0];
-  const factual = claims.filter((c) => c.claim.kind === 'faktograficzna');
-  const pool = factual.length ? factual : claims;
+  const pool = claims;
   if (new Set(pool.map((c) => c.verdict)).size === 1) return pool[0];
   const target = stems(inputText);
   let best = pool[0]!;
@@ -312,7 +330,25 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
     visibleText = JSON.stringify({ s: r.shortAnswer, c: r.claims.map((x) => [x.explanation, x.limitations, x.abstainReason]), n: r.notices });
   }
   out.injectionLogged = (outcome.kind === 'record' && outcome.record.injectionSignals.length > 0) || eventsAfter > eventsBefore;
-  out.correct = c.expected?.verdict ? out.predictedVerdict === c.expected.verdict : out.predictedState === c.expected?.state;
+  if (c.expected?.claims) {
+    const found = outcome.kind === 'record' ? outcome.record.claims : [];
+    out.items = c.expected.claims.map((t) => {
+      const m = found.find((cr) => matchesThesis(cr.claim.text, t));
+      const predicted = outcome.kind === 'state' ? outcome.state : (m?.verdict ?? 'brak_tezy');
+      return { about: t.about, expected: t.verdict, predicted, ...(m ? { strength: m.strength.level } : {}), correct: predicted === t.verdict };
+    });
+    out.correct = out.items.every((i) => i.correct);
+  } else if (c.expected?.verdict) {
+    out.correct = out.predictedVerdict === c.expected.verdict;
+    out.items = [
+      {
+        expected: c.expected.verdict,
+        ...(out.predictedVerdict ?? out.predictedState ? { predicted: out.predictedVerdict ?? out.predictedState } : {}),
+        ...(out.strength ? { strength: out.strength } : {}),
+        correct: out.correct,
+      },
+    ];
+  } else out.correct = out.predictedState === c.expected?.state;
 
   if (c.attack) {
     const forbidden = [...(c.attack.forbiddenText ?? []), ...(c.attack.leakPrompt ? LEAK_SNIPPETS : [])];
@@ -392,8 +428,13 @@ export async function runCases(cases: EvalCase[], opts: RunOptions): Promise<Cas
   return cases.map((c) => byId.get(c.id)!);
 }
 
-/** Ocena cytatów sędzią (jedno wywołanie na przypadek). Zwraca koszt sędziego. */
-export async function judgeCitations(outcomes: CaseOutcome[], judge: CitationJudge, concurrency = 1): Promise<number> {
+/** Ocena cytatów sędzią (jedno wywołanie na przypadek). Sędzia widzi tytuł dokumentu i cały fragment. Zwraca koszt sędziego. */
+export async function judgeCitations(
+  outcomes: CaseOutcome[],
+  judge: CitationJudge,
+  concurrency = 1,
+  getPassage: (id: string) => Passage | null = () => null,
+): Promise<number> {
   let cost = 0;
   const jobs = outcomes.filter((o) => o.claims.some((c) => c.evidence.some((e) => e.stance !== 'kontekst' && e.stance !== 'bez_zwiazku')));
   await pool(jobs, concurrency, async (o) => {
@@ -403,7 +444,8 @@ export async function judgeCitations(outcomes: CaseOutcome[], judge: CitationJud
       for (const e of c.evidence) {
         if (e.stance === 'kontekst' || e.stance === 'bez_zwiazku') continue;
         refs.push({ e });
-        items.push({ claim: c.text, stance: e.stance, quote: e.quote });
+        const p = getPassage(e.passageId);
+        items.push({ claim: c.text, stance: e.stance, quote: e.quote, ...(p ? { title: p.meta.title, passage: p.text } : {}) });
       }
     try {
       const r = await judge.judge(items);

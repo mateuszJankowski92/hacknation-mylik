@@ -1,0 +1,953 @@
+{
+  "schema": "mylik-citation-diagnosis/1",
+  "date": "2026-11-21",
+  "source": "data/eval/results.json z przebiegów przed zad. 20 (korpus f5c4abe1feb3, sędzia: claude-sonnet-5-5 / claude-opus-5-5)",
+  "method": "Ręczna klasyfikacja każdego cytatu, który sędzia automatyczny uznał za niewspierający (90 pozycji z 3 przebiegów). Jedna, główna przyczyna na pozycję.",
+  "causes": {
+    "a": "cytat dosłowny, ale o czymś innym niż twierdzenie",
+    "b": "wspiera tylko część twierdzenia",
+    "c": "cytat to tło, a stanowisko potwierdza/obala/rozbieżność",
+    "d": "zbyt krótki albo urwany: brak podmiotu lub kluczowego elementu, który stoi w sąsiednim zdaniu fragmentu",
+    "e": "błąd sędziego (cytat wspiera, sędzia odrzucił)",
+    "f": "błędna etykieta w zestawie",
+    "g": "(dodatkowa) błędna relacja: cytat rozstrzyga, ale w innym kierunku niż zadeklarowano (np. przeczy, a zadeklarowano rozbieżność kontekstu)",
+    "h": "(dodatkowa) zniekształcone twierdzenie po ekstrakcji (cytat wspiera wejście, nie twierdzenie)"
+  },
+  "totals": {
+    "a": 6,
+    "b": 22,
+    "c": 14,
+    "d": 29,
+    "e": 4,
+    "g": 14,
+    "h": 1
+  },
+  "perRun": {
+    "claude-haiku-5-5": {
+      "d": 7,
+      "b": 7,
+      "g": 12,
+      "c": 6,
+      "e": 1,
+      "a": 4,
+      "h": 1
+    },
+    "claude-sonnet-5-5": {
+      "d": 12,
+      "b": 7,
+      "g": 1,
+      "c": 4,
+      "e": 1
+    },
+    "claude-opus-5-5": {
+      "d": 10,
+      "b": 8,
+      "g": 1,
+      "a": 2,
+      "c": 4,
+      "e": 2
+    }
+  },
+  "items": [
+    {
+      "n": 1,
+      "run": "claude-haiku-5-5",
+      "caseId": "A01",
+      "claim": "Odcinek drogi ekspresowej S19 Krynice - Białystok Zachód oddano do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat podaje datę oddania do ruchu, ale nie wymienia S19 ani odcinka Krynice - Białystok Zachód, więc nie wiadomo, że dotyczy tego samego odcinka.",
+      "cause": "d"
+    },
+    {
+      "n": 2,
+      "run": "claude-haiku-5-5",
+      "caseId": "A03",
+      "claim": "Rząd przyjął Program Ochrony Ludności i Obrony Cywilnej na lata 2027-2031.",
+      "stance": "potwierdza",
+      "quote": "Przyjęty Program Ochrony Ludności i Obrony Cywilnej pokazuje jasny kierunek",
+      "judgeReason": "Cytat mówi o przyjętym programie, ale nie wskazuje, kto go przyjął ani na jakie lata, więc nie potwierdza twierdzenia dosłownie.",
+      "cause": "b"
+    },
+    {
+      "n": 3,
+      "run": "claude-haiku-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Projekt przewiduje inwestycję w wysokości ponad 102 mld zł.",
+      "judgeReason": "Cytat mówi o projekcie i inwestycji ponad 102 mld zł, bez wskazania, że to budżet programu, więc nie potwierdza wprost.",
+      "cause": "d"
+    },
+    {
+      "n": 4,
+      "run": "claude-haiku-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "W ciągu pięciu kolejnych lat na realizację tych planów ma trafić ponad 102 mld zł.",
+      "judgeReason": "Cytat mówi o 'tych planach' bez wskazania programu, więc dosłownie nie potwierdza budżetu programu.",
+      "cause": "d"
+    },
+    {
+      "n": 5,
+      "run": "claude-haiku-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej wynosi ponad 102 mld zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "a w latach 2027-2031 zainwestujemy kolejne 105 mld zł",
+      "judgeReason": "Cytat podaje kwotę 105 mld zł, a nie 102 mld zł, więc nie potwierdza twierdzenia, a opis relacji jest nietrafny.",
+      "cause": "g"
+    },
+    {
+      "n": 6,
+      "run": "claude-haiku-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "a kolejne 102 mld zł będą zainwestowane w ochronę ludności i obronę cywilną od 2027 r.",
+      "judgeReason": "Cytat mówi o 102 mld zł od 2027 r., bez 'ponad' i bez wskazania programu, więc nie potwierdza w pełni.",
+      "cause": "b"
+    },
+    {
+      "n": 7,
+      "run": "claude-haiku-5-5",
+      "caseId": "A04",
+      "claim": "Polska pokonała Rosję w głosowaniu o wybór do Wspólnej Jednostki Kontrolnej ONZ.",
+      "stance": "potwierdza",
+      "quote": "W wyborach na forum Zgromadzenia Ogólnego ONZ Polska pokonała Rosję, uzyskując poparcie 95 państw członkowskich.",
+      "judgeReason": "Cytat mówi o pokonaniu Rosji w wyborach na forum Zgromadzenia Ogólnego, ale nie wskazuje, że chodziło o wybór do Wspólnej Jednostki Kontrolnej.",
+      "cause": "d"
+    },
+    {
+      "n": 8,
+      "run": "claude-haiku-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach, w których oszuści podszywają się pod Policję.",
+      "stance": "potwierdza",
+      "quote": "CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji",
+      "judgeReason": "Cytat potwierdza ostrzeżenie i podszywanie się pod Policję, ale nie wspomina o mandatach, więc nie uzasadnia pełnego twierdzenia.",
+      "cause": "b"
+    },
+    {
+      "n": 9,
+      "run": "claude-haiku-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach, w których oszuści podszywają się pod Policję.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Cyberprzestępcy w fałszywych wiadomościach SMS informują o aktualizacji sprawy dotyczącej przekroczenia prędkości",
+      "judgeReason": "Cytat nie podaje innej daty, miejsca, skali ani warunków tego samego zdarzenia, tylko opisuje treść fałszywych SMS-ów o przekroczeniu prędkości.",
+      "cause": "c"
+    },
+    {
+      "n": 10,
+      "run": "claude-haiku-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach, w których oszuści podszywają się pod Policję.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Wiadomość o konieczności pilnego opłacenia mandatu może być próbą oszustwa.",
+      "judgeReason": "Cytat ogólnie mówi o możliwym oszustwie z mandatem, bez wskazania innej daty, miejsca, skali ani warunków tego samego zdarzenia.",
+      "cause": "c"
+    },
+    {
+      "n": 11,
+      "run": "claude-haiku-5-5",
+      "caseId": "A08",
+      "claim": "Czasowe zawieszenie prawa do azylu na granicy z Białorusią zostało przedłużone o kolejne 60 dni.",
+      "stance": "potwierdza",
+      "quote": "Kolejne przedłużenie wynika z wyraźnej skuteczności tego rozwiązania prawnego",
+      "judgeReason": "Cytat mówi tylko o kolejnym przedłużeniu i jego skuteczności, bez wskazania okresu 60 dni ani granicy z Białorusią.",
+      "cause": "b"
+    },
+    {
+      "n": 12,
+      "run": "claude-haiku-5-5",
+      "caseId": "A17",
+      "claim": "Policja wysyła SMS-y z linkiem do pilnej zapłaty mandatu przez stronę internetową.",
+      "stance": "obala",
+      "quote": "Wiadomość o konieczności pilnego opłacenia mandatu może być próbą oszustwa.",
+      "judgeReason": "Cytat mówi tylko, że taka wiadomość może być oszustwem, ale nie stwierdza, że Policja takich SMS-ów nie wysyła, więc nie przeczy twierdzeniu wprost.",
+      "cause": "c"
+    },
+    {
+      "n": 13,
+      "run": "claude-haiku-5-5",
+      "caseId": "B01",
+      "claim": "W programie bug bounty NASK za znalezienie jednej podatności można dostać milion złotych.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Pula nagród to milion złotych.",
+      "judgeReason": "Cytat mówi tylko o puli nagród wynoszącej milion zł, bez żadnych różnic w skali czy warunkach względem twierdzenia, więc nie uzasadnia deklarowanej relacji.",
+      "cause": "e"
+    },
+    {
+      "n": 14,
+      "run": "claude-haiku-5-5",
+      "caseId": "B05",
+      "claim": "Prom Bursztyn Unity przywraca polską banderę po pięciu latach przerwy.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Polska bandera wraca po 22 latach.",
+      "judgeReason": "Cytat nie wymienia promu Bursztyn Unity, więc nie wynika z niego, że opisuje to samo zdarzenie, a jedynie podaje 22 lata przerwy.",
+      "cause": "d"
+    },
+    {
+      "n": 15,
+      "run": "claude-haiku-5-5",
+      "caseId": "B07",
+      "claim": "Według GIS z powodu Eboli w Kongu zmarło dotąd 4148 osób.",
+      "stance": "potwierdza",
+      "quote": "w DRK zaraportowano 8603 przypadki potwierdzone, w tym 4148 przypadków śmiertelnych",
+      "judgeReason": "Cytat podaje 4148 przypadków śmiertelnych w DRK, ale nie wskazuje GIS jako źródła ani nie wspomina o Eboli, więc dosłownie nie potwierdza całego twierdzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 16,
+      "run": "claude-haiku-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Ponad 1500 punktów w całej Polsce. Krajowy trening rodzinny na czas kryzysu już w najbliższą sobotę.",
+      "judgeReason": "Cytat mówi o ponad 1500 punktach i sobocie, ale nie podaje innej daty ani innego miejsca, więc nie opisuje różnicy w stosunku do twierdzenia.",
+      "cause": "c"
+    },
+    {
+      "n": 17,
+      "run": "claude-haiku-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "17 października w godz. 10.00-14.00 w całej Polsce odbędzie się krajowy trening rodzinny w ramach Akademii Ochrony Ludności i Obrony Cywilnej. W przynajmniej 1500 punktach edukacyjnych - głównie szkołach - dzieci i dorośli będą mogli wspólnie przećwiczyć reagowanie w sytuacjach zagrożenia",
+      "judgeReason": "Cytat potwierdza datę i co najmniej 1500 punktów, ale mówi o przyszłym wydarzeniu i nie podaje roku 2026 ani tego, że się odbyło.",
+      "cause": "b"
+    },
+    {
+      "n": 18,
+      "run": "claude-haiku-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "17 października warto znaleźć punkt treningowy w swojej okolicy i wziąć udział w ćwiczeniach razem z rodziną.",
+      "judgeReason": "Cytat podaje tylko datę 17 października, bez liczby punktów, roku i potwierdzenia odbycia.",
+      "cause": "c"
+    },
+    {
+      "n": 19,
+      "run": "claude-haiku-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "W skali kraju zgłoszono już ponad 1500 punktów treningowych.",
+      "judgeReason": "Cytat podaje ponad 1500 zgłoszonych punktów, ale nie podaje daty ani nie potwierdza odbycia.",
+      "cause": "b"
+    },
+    {
+      "n": 20,
+      "run": "claude-haiku-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "17 października w szkołach i innych miejscach publicznych odbędzie się Krajowy Trening Rodzinny.",
+      "judgeReason": "Cytat podaje datę, ale nie liczbę 1500 punktów ani roku, a wydarzenie jest zapowiedziane.",
+      "cause": "b"
+    },
+    {
+      "n": 21,
+      "run": "claude-haiku-5-5",
+      "caseId": "D05",
+      "claim": "Polska podpisała z Japonią umowę na budowę kolei magnetycznej z Warszawy do Gdańska.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Do końca 2032 r. zostanie uruchomiony odcinek KDP Warszawa - Port Polska - Łódź.",
+      "judgeReason": "Cytat mówi o uruchomieniu odcinka kolei dużych prędkości Warszawa - Port Polska - Łódź do 2032 r., nie wspomina o Japonii, kolei magnetycznej ani trasie do Gdańska, więc nie opisuje tego samego zdarzenia w innej wersji.",
+      "cause": "a"
+    },
+    {
+      "n": 22,
+      "run": "claude-haiku-5-5",
+      "caseId": "E01",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 50 zł miesięcznie.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Bezpłatne narzędzie, zawierające ponad 88 tys. punktów schronienia dla 24 mln osób, pomaga szybko znaleźć najbliższy taki punkt i prowadzi do niego - również bez dostępu do internetu.",
+      "judgeReason": "Cytat mówi, że narzędzie jest bezpłatne, a nie że opisuje to samo zdarzenie z inną datą, miejscem czy skalą; zaprzecza cenie 50 zł.",
+      "cause": "g"
+    },
+    {
+      "n": 23,
+      "run": "claude-haiku-5-5",
+      "caseId": "E01",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 50 zł miesięcznie.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Bezpłatne narzędzie, zawierające ponad 88 tys. punktów schronienia dla 24 mln osób, pomaga szybko znaleźć najbliższy taki punkt i prowadzi do niego - również bez dostępu do internetu.",
+      "judgeReason": "Cytat mówi, że narzędzie jest bezpłatne, a nie że opisuje to samo zdarzenie z inną datą, miejscem czy skalą; zaprzecza cenie 50 zł.",
+      "cause": "g"
+    },
+    {
+      "n": 24,
+      "run": "claude-haiku-5-5",
+      "caseId": "E01",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 50 zł miesięcznie.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia także wtedy, gdy zabraknie Internetu.",
+      "judgeReason": "Cytat opisuje narzędzie jako bezpłatne, co przeczy cenie, a nie wskazuje innych warunków tego samego zdarzenia.",
+      "cause": "g"
+    },
+    {
+      "n": 25,
+      "run": "claude-haiku-5-5",
+      "caseId": "E01",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 50 zł miesięcznie.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia także wtedy, gdy zabraknie Internetu.",
+      "judgeReason": "Cytat opisuje narzędzie jako bezpłatne, co przeczy cenie, a nie wskazuje innych warunków tego samego zdarzenia.",
+      "cause": "g"
+    },
+    {
+      "n": 26,
+      "run": "claude-haiku-5-5",
+      "caseId": "E03",
+      "claim": "Rosja pokonała Polskę w wyborach do Wspólnej Jednostki Kontrolnej ONZ.",
+      "stance": "potwierdza",
+      "quote": "W wyborach na forum Zgromadzenia Ogólnego ONZ Polska pokonała Rosję, uzyskując poparcie 95 państw członkowskich.",
+      "judgeReason": "Cytat mówi, że to Polska pokonała Rosję w wyborach, więc jest przeciwieństwem twierdzenia.",
+      "cause": "g"
+    },
+    {
+      "n": 27,
+      "run": "claude-haiku-5-5",
+      "caseId": "E06",
+      "claim": "Odcinek S19 Krynice - Białystok Zachód oddano do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat mówi o oddaniu do ruchu 20 października 2026 r., ale nie wymienia odcinka Krynice - Białystok Zachód ani drogi S19, więc nie potwierdza dosłownie twierdzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 28,
+      "run": "claude-haiku-5-5",
+      "caseId": "G01",
+      "claim": "Odcinek drogi ekspresowej S19 Krynki - Białystok Zachód ma 10,2 km długości.",
+      "stance": "potwierdza",
+      "quote": "Odcinek S19 Krynice - Dobrzyniewo - Białystok Zachód ma 10,2 km długości.",
+      "judgeReason": "Cytat dotyczy odcinka Krynice - Dobrzyniewo - Białystok Zachód, a twierdzenie mówi o odcinku Krynki - Białystok Zachód, więc nazwa początku odcinka się różni i cytat nie potwierdza dosłownie tego samego odcinka.",
+      "cause": "h"
+    },
+    {
+      "n": 29,
+      "run": "claude-haiku-5-5",
+      "caseId": "G03",
+      "claim": "Wczoraj nad Sopotem przeleciał balon z Białorusi pełen ulotek.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Wskazany dron, który wczoraj rano przekroczył przestrzeń powietrzną Litwy i eksplodował na terenie tego kraju był dronem ukraińskim.",
+      "judgeReason": "Cytat dotyczy drona ukraińskiego nad Litwą, a nie balonu z Białorusi z ulotkami nad Sopotem, więc nie opisuje tego samego zdarzenia z inną datą czy miejscem.",
+      "cause": "a"
+    },
+    {
+      "n": 30,
+      "run": "claude-haiku-5-5",
+      "caseId": "I01",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "minister obrony Władysław Kosiniak-Kamysz już w dniu ataku informował, że wbrew niektórych doniesieniom nie był nigdy żołnierzem Wojska Polskiego.",
+      "judgeReason": "Cytat mówi tylko o tym, że sprawca nie był żołnierzem, i nic nie mówi o jego sympatiach wobec ukraińskich nacjonalistów.",
+      "cause": "a"
+    },
+    {
+      "n": 31,
+      "run": "claude-haiku-5-5",
+      "caseId": "I01",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą.",
+      "judgeReason": "Cytat opisuje próby powiązania sprawcy z Ukrainą przez rosyjskie źródła, ale nie wskazuje, że jego uwielbienie dla ukraińskich nacjonalistów jest nieprawdziwe.",
+      "cause": "c"
+    },
+    {
+      "n": 32,
+      "run": "claude-haiku-5-5",
+      "caseId": "I02",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "wbrew niektórych doniesieniom nie był nigdy żołnierzem Wojska Polskiego",
+      "judgeReason": "Cytat mówi tylko o tym, że sprawca nie był żołnierzem Wojska Polskiego, i nie odnosi się do jego sympatii wobec ukraińskich nacjonalistów.",
+      "cause": "a"
+    },
+    {
+      "n": 33,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL jest płatna.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia",
+      "judgeReason": "Cytat mówi, że narzędzie jest bezpłatne, a nie że opisuje to samo zdarzenie w innych warunkach; relacja nie pasuje.",
+      "cause": "g"
+    },
+    {
+      "n": 34,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL jest płatna.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia",
+      "judgeReason": "Cytat mówi, że narzędzie jest bezpłatne, a nie że opisuje to samo zdarzenie w innych warunkach; relacja nie pasuje.",
+      "cause": "g"
+    },
+    {
+      "n": 35,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 20 zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Bezpłatne narzędzie, zawierające ponad 88 tys. punktów schronienia dla 24 mln osób",
+      "judgeReason": "Cytat nie opisuje tego samego zdarzenia z innymi warunkami, tylko mówi o bezpłatności, więc deklarowana relacja jest błędna.",
+      "cause": "g"
+    },
+    {
+      "n": 36,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 20 zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Bezpłatne narzędzie, zawierające ponad 88 tys. punktów schronienia dla 24 mln osób",
+      "judgeReason": "Cytat nie opisuje tego samego zdarzenia z innymi warunkami, tylko mówi o bezpłatności, więc deklarowana relacja jest błędna.",
+      "cause": "g"
+    },
+    {
+      "n": 37,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 20 zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia także wtedy, gdy zabraknie Internetu.",
+      "judgeReason": "Cytat mówi o bezpłatności i działaniu bez Internetu, a nie o tym samym zdarzeniu w innych warunkach.",
+      "cause": "g"
+    },
+    {
+      "n": 38,
+      "run": "claude-haiku-5-5",
+      "caseId": "I03",
+      "claim": "Aplikacja Gdzie się ukryć PL kosztuje 20 zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "To proste, bezpłatne narzędzie może pomóc znaleźć najbliższe miejsce schronienia także wtedy, gdy zabraknie Internetu.",
+      "judgeReason": "Cytat mówi o bezpłatności i działaniu bez Internetu, a nie o tym samym zdarzeniu w innych warunkach.",
+      "cause": "g"
+    },
+    {
+      "n": 39,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A01",
+      "claim": "Odcinek drogi ekspresowej S19 Krynice - Białystok Zachód oddano do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat podaje datę oddania odcinka do ruchu, ale nie wskazuje, że chodzi o odcinek S19 Krynice - Białystok Zachód.",
+      "cause": "d"
+    },
+    {
+      "n": 40,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Rząd przyjął Program Ochrony Ludności i Obrony Cywilnej na lata 2027-2031.",
+      "stance": "potwierdza",
+      "quote": "Rząd przeznaczy ponad 102 mld zł na Program Ochrony Ludności i Obrony Cywilnej na lata 2027-2031.",
+      "judgeReason": "Cytat mówi o przeznaczeniu środków, a nie o przyjęciu programu.",
+      "cause": "b"
+    },
+    {
+      "n": 41,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Budżet na ochronę ludności i obronę cywilną w najbliższych pięciu latach wyniesie ponad 102 mld zł.",
+      "judgeReason": "Cytat nie wymienia programu ani lat 2027-2031, mówi ogólnie o najbliższych pięciu latach.",
+      "cause": "d"
+    },
+    {
+      "n": 42,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Projekt przewiduje inwestycję w wysokości ponad 102 mld zł.",
+      "judgeReason": "Cytat nie precyzuje, którego projektu dotyczy kwota.",
+      "cause": "d"
+    },
+    {
+      "n": 43,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "a kolejne 102 mld zł będą zainwestowane w ochronę ludności i obronę cywilną od 2027 r.",
+      "judgeReason": "Cytat podaje 102 mld zł bez słowa „ponad”, nie wymienia programu i nie określa okresu do 2031.",
+      "cause": "b"
+    },
+    {
+      "n": 44,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Od 2027 roku przeznaczymy 102 mld zł na ochronę ludności, a znaczna część tych środków będzie przeznaczona właśnie na edukację",
+      "judgeReason": "Cytat podaje 102 mld zł bez „ponad” i bez wskazania programu oraz okresu.",
+      "cause": "b"
+    },
+    {
+      "n": 45,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "obala",
+      "quote": "a w latach 2027-2031 zainwestujemy kolejne 105 mld zł",
+      "judgeReason": "Kwota 105 mld zł jest zgodna z „ponad 102 mld zł”, a cytat nie wskazuje programu.",
+      "cause": "g"
+    },
+    {
+      "n": 46,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "W ciągu pięciu kolejnych lat na realizację tych planów ma trafić ponad 102 mld zł.",
+      "judgeReason": "Z cytatu nie wynika, o jakie plany chodzi, ani jakich lat dotyczą.",
+      "cause": "d"
+    },
+    {
+      "n": 47,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach.",
+      "stance": "potwierdza",
+      "quote": "CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji, m.in. Wydziały Ruchu Drogowego i Komendy Wojewódzkie Policji.",
+      "judgeReason": "Cytat mówi o ostrzeżeniu przed kampanią SMS z podszywaniem się pod Policję, ale nie wspomina o mandatach.",
+      "cause": "b"
+    },
+    {
+      "n": 48,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A06",
+      "claim": "W fałszywych SMS-ach o mandatach oszuści podszywają się pod Policję.",
+      "stance": "potwierdza",
+      "quote": "Oszuści podszywają się pod Policję CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji, m.in. Wydziały Ruchu Drogowego i Komendy Wojewódzkie Policji.",
+      "judgeReason": "Cytat potwierdza podszywanie się pod Policję w SMS-ach, lecz nie wspomina, że dotyczą one mandatów.",
+      "cause": "b"
+    },
+    {
+      "n": 49,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A08",
+      "claim": "Czasowe zawieszenie prawa do azylu na granicy z Białorusią zostało przedłużone o kolejne 60 dni.",
+      "stance": "potwierdza",
+      "quote": "Opublikowane w Dzienniku Ustaw rozporządzenie przedłuża obowiązywanie dotychczasowych przepisów od 17 listopada na kolejne 60 dni.",
+      "judgeReason": "Cytat mówi o przedłużeniu bliżej nieokreślonych przepisów o 60 dni, ale nie wspomina ani o azylu, ani o granicy z Białorusią.",
+      "cause": "d"
+    },
+    {
+      "n": 50,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A09",
+      "claim": "Sanepid wykrył pleśń w jednej partii wody mineralnej Jurajska Sport.",
+      "stance": "potwierdza",
+      "quote": "Po przeprowadzeniu badań laboratoryjnych potwierdzono, iż w przedmiotowym produkcie wykryto obecność pleśni.",
+      "judgeReason": "Cytat potwierdza wykrycie pleśni w produkcie, ale nie wskazuje, że chodzi o wodę Jurajska Sport, jedną partię ani że badania przeprowadził sanepid.",
+      "cause": "d"
+    },
+    {
+      "n": 51,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A14",
+      "claim": "Rosja wygrała z Polską wybory do Wspólnej Jednostki Kontrolnej ONZ.",
+      "stance": "obala",
+      "quote": "W wyborach na forum Zgromadzenia Ogólnego ONZ Polska pokonała Rosję, uzyskując poparcie 95 państw członkowskich.",
+      "judgeReason": "Cytat mówi o zwycięstwie Polski nad Rosją w wyborach na forum Zgromadzenia Ogólnego, ale nie wskazuje, że chodziło o Wspólną Jednostkę Kontrolną, więc nie przeczy wprost twierdzeniu.",
+      "cause": "d"
+    },
+    {
+      "n": 52,
+      "run": "claude-sonnet-5-5",
+      "caseId": "A17",
+      "claim": "Policja wysyła SMS-y z linkiem do pilnej zapłaty mandatu przez stronę internetową.",
+      "stance": "obala",
+      "quote": "Wiadomość o konieczności pilnego opłacenia mandatu może być próbą oszustwa.",
+      "judgeReason": "Cytat mówi jedynie, że taka wiadomość „może być” oszustwem, co nie wyklucza, że Policja wysyła takie SMS-y.",
+      "cause": "c"
+    },
+    {
+      "n": 53,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B01",
+      "claim": "W programie bug bounty NASK za znalezienie jednej podatności można otrzymać milion złotych.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Pula nagród to milion złotych.",
+      "judgeReason": "Cytat mówi tylko o puli miliona złotych, nie wskazuje innej skali nagrody za pojedynczą podatność.",
+      "cause": "e"
+    },
+    {
+      "n": 54,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B04",
+      "claim": "Siedziba Dowództwa Wojsk Medycznych powstaje w Gdańsku.",
+      "stance": "obala",
+      "quote": "Budowa docelowej infrastruktury w Krakowie zapewni dowództwu warunki do realizacji zadań sztabowych i koordynacyjnych.",
+      "judgeReason": "Cytat mówi o budowie infrastruktury w Krakowie, ale nie stwierdza wprost, że chodzi o siedzibę Dowództwa Wojsk Medycznych, a nie np. inny obiekt.",
+      "cause": "d"
+    },
+    {
+      "n": 55,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B04",
+      "claim": "Siedziba Dowództwa Wojsk Medycznych powstaje w Gdańsku.",
+      "stance": "obala",
+      "quote": "odbyła się uroczystość podpisania aktu erekcyjnego pod budowę siedziby Dowództwa Wojsk Medycznych",
+      "judgeReason": "Cytat nie wskazuje lokalizacji budowy siedziby.",
+      "cause": "c"
+    },
+    {
+      "n": 56,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B04",
+      "claim": "Siedziba Dowództwa Wojsk Medycznych powstaje w Gdańsku.",
+      "stance": "obala",
+      "quote": "w wojskowej służbie zdrowia i wojskach medycznych, które będą się integrować tutaj, w Krakowie.",
+      "judgeReason": "Cytat mówi o integracji wojsk medycznych w Krakowie, ale nie wprost o siedzibie dowództwa.",
+      "cause": "d"
+    },
+    {
+      "n": 57,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B05",
+      "claim": "Prom Bursztyn Unity przywraca polską banderę po pięciu latach przerwy.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Polska bandera wraca po 22 latach.",
+      "judgeReason": "Cytat nie wymienia promu Bursztyn Unity, więc nie wiadomo, czy dotyczy tego samego zdarzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 58,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B06",
+      "claim": "W Demokratycznej Republice Konga potwierdzono dotąd 8603 przypadki Eboli.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "łącznie liczba potwierdzonych przypadków przekracza 10,4 tys.",
+      "judgeReason": "Cytat podaje inną liczbę przypadków, ale nie wskazuje ani miejsca, ani choroby, więc nie da się stwierdzić, że chodzi o to samo zdarzenie.",
+      "cause": "d"
+    },
+    {
+      "n": 59,
+      "run": "claude-sonnet-5-5",
+      "caseId": "B07",
+      "claim": "Według Głównego Inspektoratu Sanitarnego z powodu eboli w Kongu zmarło dotąd 4148 osób.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Do chwili obecnej (stan na 06.10.2026 r.) w DRK zaraportowano 8603 przypadki potwierdzone, w tym 4148 przypadków śmiertelnych",
+      "judgeReason": "Cytat podaje tę samą liczbę 4148 zgonów w DRK, więc nie różni się skalą, miejscem ani warunkami, lecz potwierdza twierdzenie.",
+      "cause": "b"
+    },
+    {
+      "n": 60,
+      "run": "claude-sonnet-5-5",
+      "caseId": "C02",
+      "claim": "W Marszu Niepodległości 11 listopada 2026 roku szło około 250 tysięcy osób.",
+      "stance": "potwierdza",
+      "quote": "Według szacunków warszawskiego ratusza 11 listopada w tegorocznym Marszu Niepodległości, zorganizowanym przez środowiska prawicowe, uczestniczyło około 250 tysięcy osób.",
+      "judgeReason": "Cytat podaje liczbę około 250 tysięcy uczestników, ale mówi tylko o „tegorocznym” marszu i nie potwierdza, że chodzi o rok 2026.",
+      "cause": "b"
+    },
+    {
+      "n": 61,
+      "run": "claude-sonnet-5-5",
+      "caseId": "E06",
+      "claim": "Odcinek S19 Krynice - Białystok Zachód został oddany do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat podaje datę oddania do ruchu, ale nie wskazuje, że chodzi o odcinek S19 Krynice - Białystok Zachód.",
+      "cause": "d"
+    },
+    {
+      "n": 62,
+      "run": "claude-sonnet-5-5",
+      "caseId": "I01",
+      "claim": "Zamachowiec z Krakowa był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą.",
+      "judgeReason": "Cytat opisuje jedynie próby powiązania sprawcy z Ukrainą przez rosyjskie źródła, ale nie wyklucza wprost, że był wielbicielem ukraińskich nacjonalistów.",
+      "cause": "c"
+    },
+    {
+      "n": 63,
+      "run": "claude-sonnet-5-5",
+      "caseId": "I02",
+      "claim": "Zamachowiec z Krakowa był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą.",
+      "judgeReason": "Cytat mówi jedynie o próbach powiązania sprawcy z Ukrainą przez źródła rosyjskie i nie stwierdza wprost, że nie był on wielbicielem ukraińskich nacjonalistów.",
+      "cause": "c"
+    },
+    {
+      "n": 64,
+      "run": "claude-opus-5-5",
+      "caseId": "A01",
+      "claim": "Odcinek drogi ekspresowej S19 Krynice - Białystok Zachód oddano do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat podaje datę oddania do ruchu, ale nie wymienia ani drogi S19, ani odcinka Krynice - Białystok Zachód, więc nie potwierdza dosłownie całego twierdzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 65,
+      "run": "claude-opus-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Projekt przewiduje inwestycję w wysokości ponad 102 mld zł.",
+      "judgeReason": "Cytat mówi o projekcie i inwestycji ponad 102 mld zł, ale nie wskazuje programu ani okresu 2027-2031.",
+      "cause": "d"
+    },
+    {
+      "n": 66,
+      "run": "claude-opus-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Od 2027 roku przeznaczymy 102 mld zł na ochronę ludności, a znaczna część tych środków będzie przeznaczona właśnie na edukację - powiedział szef MSWiA Marcin Kierwiński.",
+      "judgeReason": "Cytat podaje 102 mld zł, a nie ponad 102 mld zł, i nie wskazuje końca okresu ani nazwy programu.",
+      "cause": "b"
+    },
+    {
+      "n": 67,
+      "run": "claude-opus-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "W ciągu pięciu kolejnych lat na realizację tych planów ma trafić ponad 102 mld zł.",
+      "judgeReason": "Cytat mówi o ponad 102 mld zł na plany w ciągu pięciu lat, ale bez wskazania, że to ten program ani lat 2027-2031.",
+      "cause": "d"
+    },
+    {
+      "n": 68,
+      "run": "claude-opus-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Dlatego przy realizacji rekordowego Programu Ochrony Ludności i Obrony Cywilnej, na który w latach 2025-2026 przeznaczyliśmy 34 mld zł, a w latach 2027-2031 zainwestujemy kolejne 105 mld zł, Polska czerpie z fińskiego doświadczenia.",
+      "judgeReason": "Cytat podaje 105 mld zł na lata 2027-2031, a nie ponad 102 mld zł, więc nie potwierdza kwoty; relacja o innej skali nie jest tu właściwie opisana jako poparcie.",
+      "cause": "g"
+    },
+    {
+      "n": 69,
+      "run": "claude-opus-5-5",
+      "caseId": "A03",
+      "claim": "Budżet Programu Ochrony Ludności i Obrony Cywilnej na lata 2027-2031 wynosi ponad 102 mld zł.",
+      "stance": "potwierdza",
+      "quote": "Efektywnie wdrażamy zapisy o ochronie ludności i obronie cywilnej oraz przeznaczaliśmy rekordowe 34 mld złotych na lata 2025-2026, a kolejne 102 mld zł będą zainwestowane w ochronę ludności i obronę cywilną od 2027 r.",
+      "judgeReason": "Cytat podaje 102 mld zł od 2027 r. na ochronę ludności, ale nie mówi ponad 102 mld ani o okresie do 2031, ani o nazwie programu.",
+      "cause": "b"
+    },
+    {
+      "n": 70,
+      "run": "claude-opus-5-5",
+      "caseId": "A04",
+      "claim": "W głosowaniu do Wspólnej Jednostki Kontrolnej ONZ Polska pokonała Rosję.",
+      "stance": "potwierdza",
+      "quote": "W wyborach na forum Zgromadzenia Ogólnego ONZ Polska pokonała Rosję, uzyskując poparcie 95 państw członkowskich.",
+      "judgeReason": "Cytat mówi o pokonaniu Rosji w wyborach na forum Zgromadzenia Ogólnego, ale nie wskazuje, że chodziło o wybory do Wspólnej Jednostki Kontrolnej.",
+      "cause": "d"
+    },
+    {
+      "n": 71,
+      "run": "claude-opus-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach.",
+      "stance": "potwierdza",
+      "quote": "CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji, m.in. Wydziały Ruchu Drogowego i Komendy Wojewódzkie Policji.",
+      "judgeReason": "Cytat mówi o kampanii SMS z podszywaniem się pod Policję, ale nie wspomina o mandatach, więc nie potwierdza dosłownie twierdzenia.",
+      "cause": "b"
+    },
+    {
+      "n": 72,
+      "run": "claude-opus-5-5",
+      "caseId": "A06",
+      "claim": "CERT Polska ostrzega przed fałszywymi SMS-ami o mandatach.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Komunikat został wysłany przez CSIRT KNF.",
+      "judgeReason": "Cytat mówi tylko, że komunikat wysłał CSIRT KNF, i nie opisuje tego samego zdarzenia z inną datą, miejscem, skalą ani warunkami.",
+      "cause": "a"
+    },
+    {
+      "n": 73,
+      "run": "claude-opus-5-5",
+      "caseId": "A06",
+      "claim": "W fałszywych SMS-ach o mandatach oszuści podszywają się pod Policję.",
+      "stance": "potwierdza",
+      "quote": "CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji, m.in. Wydziały Ruchu Drogowego i Komendy Wojewódzkie Policji.",
+      "judgeReason": "Cytat potwierdza podszywanie się pod Policję w kampanii SMS, ale nie wspomina o mandatach, więc nie uzasadnia twierdzenia w całości.",
+      "cause": "b"
+    },
+    {
+      "n": 74,
+      "run": "claude-opus-5-5",
+      "caseId": "A08",
+      "claim": "Czasowe zawieszenie prawa do azylu na granicy z Białorusią przedłużono o kolejne 60 dni.",
+      "stance": "potwierdza",
+      "quote": "Opublikowane w Dzienniku Ustaw rozporządzenie przedłuża obowiązywanie dotychczasowych przepisów od 17 listopada na kolejne 60 dni.",
+      "judgeReason": "Cytat mówi o przedłużeniu dotychczasowych przepisów na 60 dni, ale nie wspomina o azylu ani o granicy z Białorusią, więc nie potwierdza twierdzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 75,
+      "run": "claude-opus-5-5",
+      "caseId": "A09",
+      "claim": "Sanepid wykrył pleśń w jednej partii wody mineralnej Jurajska Sport.",
+      "stance": "potwierdza",
+      "quote": "Po przeprowadzeniu badań laboratoryjnych potwierdzono, iż w przedmiotowym produkcie wykryto obecność pleśni.",
+      "judgeReason": "Cytat mówi tylko o wykryciu pleśni w produkcie po badaniach laboratoryjnych, ale nie wskazuje sanepidu, wody Jurajska Sport ani jednej partii.",
+      "cause": "d"
+    },
+    {
+      "n": 76,
+      "run": "claude-opus-5-5",
+      "caseId": "A11",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był obywatelem Ukrainy.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą.",
+      "judgeReason": "Cytat mówi tylko, że źródła próbowały powiązać sprawcę z Ukrainą, ale sam nie podaje jego obywatelstwa ani nie obala twierdzenia wprost.",
+      "cause": "c"
+    },
+    {
+      "n": 77,
+      "run": "claude-opus-5-5",
+      "caseId": "A14",
+      "claim": "Rosja pokonała Polskę w wyborach do Wspólnej Jednostki Kontrolnej ONZ.",
+      "stance": "obala",
+      "quote": "Sukces polskiego kandydata na forum ONZ jest efektem szeroko zakrojonej kampanii i skuteczności działań prowadzonych przez polską dyplomację na arenie międzynarodowej.",
+      "judgeReason": "Cytat mówi tylko o sukcesie polskiego kandydata, nie wspomina o Rosji ani o wyniku starcia, więc nie przeczy wprost twierdzeniu.",
+      "cause": "c"
+    },
+    {
+      "n": 78,
+      "run": "claude-opus-5-5",
+      "caseId": "A16",
+      "claim": "Epidemia Eboli w Ugandzie wciąż trwa.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Aktualnie nie ma szybkiego wzrostu zachorowań, ale wciąż dochodzi do nowych przypadków w kolejnych rejonach Kongo - wskazuje dr Grzesiowski.",
+      "judgeReason": "Cytat dotyczy nowych przypadków w Kongo, a nie tego samego zdarzenia w Ugandzie z inną datą czy skalą.",
+      "cause": "a"
+    },
+    {
+      "n": 79,
+      "run": "claude-opus-5-5",
+      "caseId": "A18",
+      "claim": "Prom Bursztyn Unity został zbudowany w chińskiej stoczni.",
+      "stance": "obala",
+      "quote": "Bursztyn Unity jest bliźniaczą jednostką promu Jantar Unity, który również został zbudowany w Gdańskiej Stoczni Remontowej.",
+      "judgeReason": "Cytat mówi tylko, że bliźniaczy Jantar Unity powstał w Gdańsku, a nie podaje miejsca budowy Bursztyn Unity, więc dosłownie nie przeczy twierdzeniu.",
+      "cause": "e"
+    },
+    {
+      "n": 80,
+      "run": "claude-opus-5-5",
+      "caseId": "B02",
+      "claim": "Obwodnica Sztumu została oddana do ruchu.",
+      "stance": "obala",
+      "quote": "Na realizację zadania przewidziano 22 miesiące, zakończenie prac jest planowane w II kwartale 2029 r.",
+      "judgeReason": "Cytat podaje tylko planowany termin zakończenia prac w 2029 r., ale nie mówi, że obwodnica nie została oddana do ruchu, więc nie przeczy twierdzeniu wprost.",
+      "cause": "e"
+    },
+    {
+      "n": 81,
+      "run": "claude-opus-5-5",
+      "caseId": "B04",
+      "claim": "Siedziba Dowództwa Wojsk Medycznych powstaje w Gdańsku.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "w wojskowej służbie zdrowia i wojskach medycznych, które będą się integrować tutaj, w Krakowie.",
+      "judgeReason": "Cytat mówi tylko o integracji wojsk medycznych w Krakowie i nie wspomina o siedzibie dowództwa ani jej budowie, więc nie opisuje tego samego zdarzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 82,
+      "run": "claude-opus-5-5",
+      "caseId": "B05",
+      "claim": "Prom Bursztyn Unity przywraca polską banderę po pięciu latach przerwy.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Polska bandera wraca po 22 latach.",
+      "judgeReason": "Cytat nie wymienia promu Bursztyn Unity, więc nie wynika z niego, że chodzi o to samo zdarzenie, a podana przerwa to 22 lata.",
+      "cause": "d"
+    },
+    {
+      "n": 83,
+      "run": "claude-opus-5-5",
+      "caseId": "B06",
+      "claim": "W Demokratycznej Republice Konga potwierdzono dotąd 8603 przypadki Eboli.",
+      "stance": "rozbieznosc_kontekstu",
+      "quote": "Do chwili obecnej (stan na 06.10.2026 r.) w DRK zaraportowano 8603 przypadki potwierdzone, w tym 4148 przypadków śmiertelnych, zaś 896 osób jest hospitalizowanych w warunkach izolacji.",
+      "judgeReason": "Cytat podaje tę samą liczbę 8603 potwierdzonych przypadków w DRK, więc nie pokazuje innej daty, miejsca ani skali, a jedynie dodaje datę stanu.",
+      "cause": "b"
+    },
+    {
+      "n": 84,
+      "run": "claude-opus-5-5",
+      "caseId": "B06",
+      "claim": "W Demokratycznej Republice Konga potwierdzono dotąd 8603 przypadki Eboli.",
+      "stance": "obala",
+      "quote": "Międzynarodowy niepokój budzi także wciąż aktywność wirusa Ebola - łącznie liczba potwierdzonych przypadków przekracza 10,4 tys.",
+      "judgeReason": "Cytat mówi o łącznej liczbie przypadków powyżej 10,4 tys. bez wskazania miejsca, więc nie przeczy liczbie 8603 w DRK.",
+      "cause": "d"
+    },
+    {
+      "n": 85,
+      "run": "claude-opus-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "Ponad 1500 punktów w całej Polsce. Krajowy trening rodzinny na czas kryzysu już w najbliższą sobotę.",
+      "judgeReason": "Cytat mówi o ponad 1500 punktach i zapowiada trening w najbliższą sobotę, ale nie podaje daty 17 października 2026 ani że już się odbył.",
+      "cause": "b"
+    },
+    {
+      "n": 86,
+      "run": "claude-opus-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "17 października w godz. 10.00-14.00 w całej Polsce odbędzie się krajowy trening rodzinny w ramach Akademii Ochrony Ludności i Obrony Cywilnej.",
+      "judgeReason": "Cytat podaje datę 17 października i zasięg krajowy, ale nie wspomina o 1500 punktach ani roku 2026.",
+      "cause": "b"
+    },
+    {
+      "n": 87,
+      "run": "claude-opus-5-5",
+      "caseId": "C03",
+      "claim": "Krajowy Trening Rodzinny odbył się 17 października 2026 roku w 1500 punktach w całej Polsce.",
+      "stance": "potwierdza",
+      "quote": "W skali kraju zgłoszono już ponad 1500 punktów treningowych.",
+      "judgeReason": "Cytat mówi tylko o zgłoszeniu ponad 1500 punktów, bez daty i bez potwierdzenia, że trening się odbył.",
+      "cause": "b"
+    },
+    {
+      "n": 88,
+      "run": "claude-opus-5-5",
+      "caseId": "E06",
+      "claim": "Odcinek drogi ekspresowej S19 Krynice - Białystok Zachód oddano do ruchu 20 października 2026 roku.",
+      "stance": "potwierdza",
+      "quote": "Oddany do ruchu 20 października 2026 r. odcinek będzie częścią ekspresowej, północno-zachodniej obwodnicy Białegostoku.",
+      "judgeReason": "Cytat podaje datę oddania do ruchu, ale nie wymienia drogi S19 ani odcinka Krynice - Białystok Zachód, więc nie potwierdza w pełni twierdzenia.",
+      "cause": "d"
+    },
+    {
+      "n": 89,
+      "run": "claude-opus-5-5",
+      "caseId": "I01",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był obywatelem Ukrainy.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą.",
+      "judgeReason": "Cytat mówi tylko o próbach powiązania sprawcy z Ukrainą, ale nie podaje jego obywatelstwa, więc nie przeczy twierdzeniu wprost.",
+      "cause": "c"
+    },
+    {
+      "n": 90,
+      "run": "claude-opus-5-5",
+      "caseId": "I01",
+      "claim": "Zamachowiec, który zabijał ludzi w Krakowie, był wielbicielem ukraińskich nacjonalistów.",
+      "stance": "obala",
+      "quote": "Mimo tego rosyjskie i prorosyjskie źródła w sieci usilnie starały się powiązać sprawcę z Ukrainą. Chwytano się różnych sposobów, w tym tworzenia sfabrykowanych materiałów lub sugerowania skomplikowanych i nieprawdziwych powiązań.",
+      "judgeReason": "Cytat mówi o nieprawdziwych powiązaniach z Ukrainą, ale nie wspomina o wielbieniu ukraińskich nacjonalistów, więc nie przeczy wprost.",
+      "cause": "c"
+    }
+  ]
+}

@@ -9,7 +9,7 @@
  */
 
 /** Nazwy znaczników używanych w wiadomościach do modelu. */
-export const DATA_TAGS = ['dane_uzytkownika', 'twierdzenie', 'fragment', 'fragmenty'] as const;
+export const DATA_TAGS = ['dane_uzytkownika', 'twierdzenie', 'fragment', 'fragmenty', 'cytat', 'cytaty'] as const;
 
 // `<` + opcjonalny `/` + opcjonalne białe znaki + nazwa znacznika + granica słowa.
 const TAG_LIKE = new RegExp(`<(\\s*/?\\s*)(${DATA_TAGS.join('|')})(?![\\p{L}\\p{N}_])`, 'giu');
@@ -34,6 +34,10 @@ export function wrapClaim(text: string): string {
 
 export function wrapPassage(id: string, text: string): string {
   return `<fragment id="${escapeAttr(id)}">\n${neutralizeTags(text)}\n</fragment>`;
+}
+
+export function wrapQuotes(quotes: readonly string[]): string {
+  return `<cytaty>\n${quotes.map((q, i) => `<cytat index="${i}">\n${neutralizeTags(q)}\n</cytat>`).join('\n')}\n</cytaty>`;
 }
 
 export function wrapPassages(passages: ReadonlyArray<{ id: string; text: string }>): string {

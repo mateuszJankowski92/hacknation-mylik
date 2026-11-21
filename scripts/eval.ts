@@ -1,9 +1,13 @@
-// npm run eval [-- --mock] [--model <id>] [--compare] [--only A01,B02] [--concurrency N] [--out <plik>]
+// npm run eval [-- --mock] [--model <id>] [--compare] [--part strojeniowy|kontrolny|oba] [--only A01,B02]
+//   [--concurrency N] [--out <plik>] [--review <plik>] [--corpus-root <katalog>]
+// Części: strojeniowy (data/eval/cases.json) i kontrolny (data/eval/control/cases.json, pomijany, gdy pliku brak).
+// Zestawu kontrolnego nie używa się do zmian w silniku ani promptach; profil omylności pochodzi tylko z niego.
 // Liczy mierniki z sekcji 6 wytycznych i zapisuje data/eval/results.json (z niego profil błędów czyta silnik).
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig } from '../src/config';
 import { DEFAULT_ANTHROPIC_MODEL } from '../src/llm/index';
-import { metricsTable, runEval, type ResultsFile, type RunReport } from '../src/eval/index';
+import { DEFAULT_CONTROL_CASES_PATH, metricsTable, runEval, type EvalPart, type ResultsFile, type RunReport } from '../src/eval/index';
 
 /** Pełne porównanie modeli (identyfikatory z tabeli modeli skilla claude-api, stan 2026-11-03). */
 const COMPARE_MODELS = ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-opus-5-5'] as const;
@@ -37,10 +41,25 @@ async function main(): Promise<void> {
     .map((s) => s.trim())
     .filter(Boolean);
   const concurrency = arg('--concurrency') ? Number(arg('--concurrency')) : undefined;
+  const partArg = arg('--part') ?? 'oba';
+  if (!['strojeniowy', 'kontrolny', 'oba'].includes(partArg)) {
+    console.error('--part: strojeniowy, kontrolny albo oba');
+    process.exit(2);
+  }
+  const hasControl = existsSync(join(rootDir, DEFAULT_CONTROL_CASES_PATH));
+  if (partArg === 'kontrolny' && !hasControl) {
+    console.error(`Brak zestawu kontrolnego: ${DEFAULT_CONTROL_CASES_PATH}`);
+    process.exit(2);
+  }
+  if (partArg === 'oba' && !hasControl) console.log(`Brak ${DEFAULT_CONTROL_CASES_PATH}: tylko zestaw strojeniowy.`);
+  const parts: EvalPart[] =
+    partArg === 'oba' ? (hasControl ? ['strojeniowy', 'kontrolny'] : ['strojeniowy']) : [partArg as EvalPart];
   const runs: RunReport[] = [];
   let file: ResultsFile | undefined;
-  for (const model of models) {
+  for (const model of models)
+  for (const part of parts) {
     const res = await runEval({
+      part,
       rootDir,
       provider,
       model,
@@ -48,6 +67,7 @@ async function main(): Promise<void> {
       defaultRun: defaultModel,
       ...(arg('--out') ? { resultsPath: arg('--out') } : {}),
       ...(arg('--review') ? { reviewPath: arg('--review') } : {}),
+      ...(arg('--corpus-root') ? { corpusRoot: arg('--corpus-root') } : {}),
       ...(flag('--compare') ? { writeReview: model === defaultModel } : {}),
       ...(only ? { only } : {}),
       ...(concurrency ? { concurrency } : {}),
@@ -56,14 +76,17 @@ async function main(): Promise<void> {
     runs.push(res.run);
     file = res.file;
     const c = res.run.metrics.cost;
-    console.log(`Koszt przebiegu ${model}: silnik $${c.engineUsd.toFixed(4)}, sędzia $${c.judgeUsd.toFixed(4)}, razem $${c.totalUsd.toFixed(4)}`);
+    console.log(`Koszt przebiegu ${model} (${part}): silnik $${c.engineUsd.toFixed(4)}, sędzia $${c.judgeUsd.toFixed(4)}, razem $${c.totalUsd.toFixed(4)}`);
   }
-  console.log('');
-  console.log(metricsTable(runs));
+  for (const part of parts) {
+    console.log('');
+    console.log(`Zestaw ${part}:`);
+    console.log(metricsTable(runs.filter((r) => r.part === part)));
+  }
   console.log('');
   for (const r of runs)
     console.log(
-      `Przypadki z błędnym wynikiem (${r.run}): ${r.failedCases.length ? r.failedCases.map((f) => `${f.id} (${f.expected} -> ${f.got})`).join(', ') : 'brak'}`,
+      `Przypadki z błędnym wynikiem (${r.run}, ${r.part}): ${r.failedCases.length ? r.failedCases.map((f) => `${f.id} (${f.expected} -> ${f.got})`).join(', ') : 'brak'}`,
     );
   console.log('Przypadki, których system nie obsługuje:');
   for (const u of file?.unsupported ?? []) console.log(`  ${u.id} [${u.scenario}]: ${u.reason}`);
