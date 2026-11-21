@@ -28,7 +28,7 @@ export function SourcesPage() {
 	return (
 		<div>
 			<h2>Źródła, z których korzystam</h2>
-			<p>Sprawdzam doniesienia wyłącznie w tym zamkniętym zbiorze źródeł. Poniżej pełna lista.</p>
+			<p>Sprawdzam tylko w tych źródłach. Poniżej cała lista.</p>
 			<div role="status" aria-live="polite">
 				{state.status === 'loading' && <p>Wczytuję…</p>}
 			</div>

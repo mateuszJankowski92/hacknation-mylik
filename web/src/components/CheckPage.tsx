@@ -73,7 +73,7 @@ export function CheckPage() {
 			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">
-						<h2>Nie udało się wykonać sprawdzenia</h2>
+						<h2>Nie udało się sprawdzić</h2>
 						<p>{state.message}</p>
 					</section>
 				)}

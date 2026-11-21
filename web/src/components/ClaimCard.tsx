@@ -1,11 +1,11 @@
 import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
+import { STANCE_LABELS_PL, VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict';
 import {
-	STANCE_LABELS_PL,
-	STRENGTH_LABELS_PL,
-	STRENGTH_REASON_LABELS_PL,
-	VERDICT_LABELS_PL,
-	type Verdict,
-} from '../../../src/contracts/verdict';
+	REASON_PLAIN_PL,
+	STRENGTH_PLAIN_PL,
+	STRENGTH_TITLE_PL,
+	VERDICT_EXPLANATIONS_PL,
+} from '../../../src/render/plain';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import { formatDate } from '../format';
 
@@ -18,7 +18,7 @@ const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
 };
 
 const ABSTAIN_SUGGESTION =
-	'Nie traktuj tego jako potwierdzenia ani zaprzeczenia. Sprawdź informację w oficjalnym źródle, na przykład na stronie właściwego urzędu.';
+	'Nie bierz tego za potwierdzenie ani za zaprzeczenie. Sprawdź informację w oficjalnym źródle, na przykład na stronie właściwego urzędu.';
 
 function EvidenceBlock({ item }: { item: EvidenceItem }) {
 	const { source } = item;
@@ -27,8 +27,8 @@ function EvidenceBlock({ item }: { item: EvidenceItem }) {
 			{item.archival && (
 				<p className="evidence__archival" role="note">
 					<span aria-hidden="true">⚠ </span>
-					<strong>Uwaga, materiał archiwalny.</strong> Źródło mogło się zdezaktualizować, więc sprawdź, czy
-					informacja jest nadal aktualna.
+					<strong>Uwaga, materiał archiwalny.</strong> To stare źródło. Sprawdź, czy informacja
+					nadal się zgadza.
 				</p>
 			)}
 			<p className="evidence__stance">
@@ -91,24 +91,20 @@ export function ClaimCard({ result }: { result: ClaimResult }) {
 						{presentation.icon}
 					</span>
 					<span className="visually-hidden">Ocena: </span>
-					{isAbstain ? 'Nie wiem: ' : ''}
 					<strong>{VERDICT_LABELS_PL[result.verdict]}</strong>
 				</p>
-				{isAbstain && (
-					<p className="verdict__abstain">
-						Nie mam wystarczających dowodów w zbiorze źródeł, żeby to ocenić. To uczciwa odpowiedź, a nie
-						błąd.
-					</p>
-				)}
+				<p className={isAbstain ? 'verdict__explanation verdict__abstain' : 'verdict__explanation'}>
+					{VERDICT_EXPLANATIONS_PL[result.verdict]}
+				</p>
 			</div>
 
 			<p className="claim-card__strength">
-				Siła podstawy: <strong>{STRENGTH_LABELS_PL[result.strength.level]}</strong>
+				{STRENGTH_TITLE_PL}: <strong>{STRENGTH_PLAIN_PL[result.strength.level]}</strong>
 			</p>
 			{result.strength.reasons.length > 0 && (
 				<ul className="claim-card__reasons">
 					{result.strength.reasons.map((reason) => (
-						<li key={reason}>{STRENGTH_REASON_LABELS_PL[reason]}</li>
+						<li key={reason}>{REASON_PLAIN_PL[reason]}</li>
 					))}
 				</ul>
 			)}
@@ -131,7 +127,7 @@ export function ClaimCard({ result }: { result: ClaimResult }) {
 
 			{(limitations.length > 0 || isAbstain) && (
 				<section aria-label="Czego nie udało się ustalić" className="claim-card__limits">
-					<h4>Czego nie udało się ustalić i ograniczenia</h4>
+					<h4>Czego nie udało się ustalić</h4>
 					{limitations.length > 0 && (
 						<ul>
 							{limitations.map((text) => (

@@ -26,11 +26,11 @@ export const SIMULATOR_HTML = `<!doctype html>
 <main class="phone">
 	<header class="phone__header">
 		<div class="phone__title">MYLIK (symulator SMS)</div>
-		<div class="phone__note">Symulacja telefonu. To nie jest prawdziwy SMS i nic nie jest wysyłane do operatora.</div>
+		<div class="phone__note">To tylko symulacja telefonu. Nic nie idzie do operatora.</div>
 	</header>
 	<div class="phone__thread" id="thread" aria-live="polite"></div>
 	<form class="phone__form" id="form">
-		<textarea class="phone__input" id="input" rows="2" maxlength="480" placeholder="Wpisz doniesienie do sprawdzenia" aria-label="Treść SMS"></textarea>
+		<textarea class="phone__input" id="input" rows="2" maxlength="480" placeholder="Wpisz, co chcesz sprawdzić" aria-label="Treść SMS"></textarea>
 		<button class="phone__send" id="send" type="submit">Wyślij</button>
 	</form>
 	<div class="phone__counter" id="counter">0 / 480</div>
@@ -72,7 +72,7 @@ export const SIMULATOR_HTML = `<!doctype html>
 		})
 			.then(function (res) { return res.text(); })
 			.then(function (reply) { addBubble('in', reply); })
-			.catch(function () { addBubble('in', 'Nie udało się połączyć z usługą. To nie jest ocena zgłoszenia. Spróbuj ponownie później.'); })
+			.catch(function () { addBubble('in', 'Nie udało się połączyć z usługą. Zgłoszenie nie zostało ocenione. Spróbuj ponownie później.'); })
 			.then(function () { send.disabled = false; input.focus(); });
 	});
 })();

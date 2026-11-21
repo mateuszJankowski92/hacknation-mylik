@@ -17,6 +17,7 @@ import {
 	pluralPl,
 	strengthSentence,
 } from './templates';
+import { STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 
 export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measureLanguage } from './metrics';
 
@@ -53,34 +54,44 @@ function leadClaim(record: VerificationRecord): ClaimResult | undefined {
 
 function sourceSentence(claim: ClaimResult, publisherLimit: number): string {
 	const verdict: Verdict = claim.verdict;
-	const item = evidenceFor(claim);
+	if (verdict === 'nie_podlega_weryfikacji') return '';
 	if (verdict === 'brak_wystarczajacych_dowodow') {
 		const confirming = claim.evidence.find((e) => e.stance === 'potwierdza');
 		const refuting = claim.evidence.find((e) => e.stance === 'obala');
 		if (confirming && refuting) {
 			return `${publisherName(confirming, publisherLimit)} i ${publisherName(refuting, publisherLimit)} podają sprzeczne informacje.`;
 		}
+		return '';
 	}
+	const item = evidenceFor(claim);
 	if (!item) return VERDICT_SENTENCES[verdict]('Źródło', 'bez daty');
 	return VERDICT_SENTENCES[verdict](publisherName(item, publisherLimit), dateOf(item));
+}
+
+function join(...parts: string[]): string {
+	return parts.filter((p) => p.length > 0).join(' ');
 }
 
 export function renderShortAnswer(record: VerificationRecord, cardUrl: string): string {
 	const lead = leadClaim(record);
 	const asOf = asOfSentence(record.asOf);
 	const tail = `Pełna karta: ${cardUrl}`;
-	if (!lead) return `Nie znalazłem w zgłoszeniu twierdzenia do sprawdzenia. ${asOf} ${tail}`.slice(0, SHORT_ANSWER_MAX_CHARS);
+	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 
-	const label = `Werdykt: ${VERDICT_LABELS_PL[lead.verdict]}.`;
+	const label = `Wynik: ${VERDICT_LABELS_PL[lead.verdict]}.`;
+	const meaning = VERDICT_EXPLANATIONS_PL[lead.verdict];
+	const count = record.claims.length;
 	const extra =
-		record.claims.length > 1 ? ` Sprawdziłem ${record.claims.length} twierdzenia, tu pierwsze z nich.` : '';
+		count > 1
+			? `Sprawdziłem ${count} ${pluralPl(count, 'twierdzenie', 'twierdzenia', 'twierdzeń')}. Tu pierwsze.`
+			: '';
 	for (let limit = MAX_PUBLISHER_CHARS; limit >= MIN_PUBLISHER_CHARS; limit -= 12) {
-		const text = `${label} ${sourceSentence(lead, limit)}${extra} ${asOf} ${tail}`;
+		const text = join(label, meaning, sourceSentence(lead, limit), extra, asOf, tail);
 		if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
 	}
-	const compact = `${label} ${sourceSentence(lead, MIN_PUBLISHER_CHARS)} ${asOf} ${tail}`;
+	const compact = join(label, meaning, asOf, tail);
 	if (compact.length <= SHORT_ANSWER_MAX_CHARS) return compact;
-	return `${label} ${asOf} ${tail}`.slice(0, SHORT_ANSWER_MAX_CHARS);
+	return join(label, asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 }
 
 export function renderExplanation(claim: ClaimResult, asOf?: string | Date): string {
@@ -94,17 +105,17 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 			parts.push(VERDICT_SENTENCES.nie_podlega_weryfikacji('', ''));
 			break;
 		case 'potwierdzone':
-			parts.push(`Zbiór źródeł zawiera ${nSources(confirming.length)} zgodne z twierdzeniem.`);
+			parts.push(`Znalazłem ${nSources(confirming.length)} zgodne z twierdzeniem.`);
 			if (confirming[0]) parts.push(VERDICT_SENTENCES.potwierdzone(publisherName(confirming[0]), dateOf(confirming[0])));
-			parts.push('Nie znalazłem źródła, które twierdzeniu przeczy.');
+			parts.push('Nie znalazłem źródła, które temu przeczy.');
 			break;
 		case 'falszywe':
-			parts.push(`Zbiór źródeł zawiera ${nSources(refuting.length)} przeczące twierdzeniu.`);
+			parts.push(`Znalazłem ${nSources(refuting.length)} przeczące twierdzeniu.`);
 			if (refuting[0]) parts.push(VERDICT_SENTENCES.falszywe(publisherName(refuting[0]), dateOf(refuting[0])));
-			parts.push('Nie znalazłem źródła, które twierdzenie potwierdza.');
+			parts.push('Nie znalazłem źródła, które to potwierdza.');
 			break;
 		case 'wprowadzajace_w_blad': {
-			parts.push('Źródła potwierdzają główną część twierdzenia, a twierdzenie pomija ważny kontekst.');
+			parts.push('Źródła potwierdzają główną część twierdzenia. Pomija ono jednak ważny kontekst.');
 			const item = contextual[0];
 			if (item) {
 				const kind = item.mismatch ? ` (${MISMATCH_LABELS_PL[item.mismatch]})` : '';
@@ -117,13 +128,13 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 				parts.push(
 					`${publisherName(confirming[0]!)} potwierdza twierdzenie, a ${publisherName(refuting[0]!)} mu przeczy.`,
 				);
-				parts.push('Pokazuję obie strony i nie rozstrzygam sporu.');
+				parts.push('Pokazuję obie strony. Nie rozstrzygam sporu.');
 			} else if (contextual.length > 0) {
-				parts.push('Znalezione fragmenty podają tylko tło tematu i nie rozstrzygają twierdzenia.');
+				parts.push('Znalazłem tylko tło tematu. Nie rozstrzyga ono, czy to prawda.');
 			} else {
-				parts.push('Nie znalazłem w zbiorze źródeł potwierdzenia ani zaprzeczenia.');
+				parts.push('Nie znalazłem w źródłach ani potwierdzenia, ani zaprzeczenia.');
 			}
-			parts.push('Wstrzymuję się od oceny.');
+			parts.push('Nie oceniam tego twierdzenia.');
 			break;
 	}
 
@@ -134,14 +145,7 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 	return parts.join(' ');
 }
 
-const STATE_TEMPLATES: Record<State, string> = {
-	awaria_techniczna:
-		'Sprawdzenie nie doszło do skutku z powodu awarii technicznej. Nie wystawiłem oceny zgłoszenia. Spróbuj ponownie później.',
-	brak_mozliwosci_sprawdzenia:
-		'Nie mogę wykonać tego sprawdzenia w zamkniętym zbiorze źródeł. Nie wystawiłem oceny zgłoszenia.',
-	potrzeba_doprecyzowania:
-		'Nie znalazłem w zgłoszeniu konkretnej informacji do sprawdzenia. Napisz, co dokładnie się wydarzyło, kogo lub czego dotyczy, gdzie i kiedy.',
-};
+const STATE_TEMPLATES: Record<State, string> = STATE_MESSAGES_PL;
 
 export function renderStateMessage(state: State, asOf?: string | Date): string {
 	return `${STATE_TEMPLATES[state]} ${asOfSentence(toIso(asOf))}`;
@@ -170,7 +174,7 @@ export function renderNotices(input: NoticeInput): Notice[] {
 				const age = input.archivalMonths ? ` starszego niż ${input.archivalMonths} mies.` : '';
 				notices.push({
 					type: 'material_archiwalny',
-					text: `${who} podaje materiał archiwalny z ${published}${age}. Stan faktyczny mógł się zmienić. ${stamp}`,
+					text: `${who} podaje stary materiał z ${published}${age}. Sytuacja mogła się zmienić. ${stamp}`,
 					passageId: item.passageId,
 				});
 			}
@@ -179,7 +183,7 @@ export function renderNotices(input: NoticeInput): Notice[] {
 				seen.add(`s:${item.passageId}`);
 				notices.push({
 					type: 'status_zrodla',
-					text: `Treść dokumentu z ${published} (${who}) obowiązywała do ${formatDate(validUntil)}. ${stamp}`,
+					text: `Dokument z ${published} (${who}) obowiązywał do ${formatDate(validUntil)}. ${stamp}`,
 					passageId: item.passageId,
 				});
 			}
@@ -197,7 +201,7 @@ export function renderNotices(input: NoticeInput): Notice[] {
 	if (input.injectionSignals.length > 0) {
 		notices.push({
 			type: 'ograniczenie_techniczne',
-			text: `W zgłoszeniu znalazłem treść przypominającą polecenia dla systemu. Takie polecenia nie wpływają na ocenę. ${stamp}`,
+			text: `W zgłoszeniu znalazłem tekst podobny do poleceń dla systemu. Takie polecenia nie wpływają na wynik. ${stamp}`,
 		});
 	}
 	return notices;
@@ -213,14 +217,15 @@ export interface LimitationInput {
 
 export function renderLimitations(input: LimitationInput): string[] {
 	const stamp = asOfSentence(toIso(input.asOf));
+	const docs = `${input.documents} ${pluralPl(input.documents, 'dokument', 'dokumenty', 'dokumentów')}`;
 	const list = [
-		`Sprawdziłem wyłącznie w zamkniętym zbiorze źródeł (wersja korpusu ${input.corpusVersion}, ${input.documents} ${pluralPl(input.documents, 'dokument', 'dokumenty', 'dokumentów')}). Wynik nie rozstrzyga prawdy absolutnej. ${stamp}`,
+		`Sprawdzałem tylko w zamkniętym zbiorze źródeł (wersja ${input.corpusVersion}, ${docs}). To nie daje pewności absolutnej. ${stamp}`,
 	];
 	if (input.hasArchival) {
-		list.push(`Część dowodów pochodzi z materiałów archiwalnych, więc stan faktyczny mógł się zmienić. ${stamp}`);
+		list.push(`Część źródeł to stare materiały, więc sytuacja mogła się zmienić. ${stamp}`);
 	}
 	if (input.abstained) {
-		list.push(`Wstrzymałem się od oceny, więc zgłoszenie może wymagać przeglądu przez człowieka. ${stamp}`);
+		list.push(`Nie oceniłem tego twierdzenia, więc warto, żeby przejrzał je człowiek. ${stamp}`);
 	}
 	return list;
 }

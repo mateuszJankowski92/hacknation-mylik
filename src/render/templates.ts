@@ -1,14 +1,7 @@
-import { STRENGTH_LABELS_PL, type StrengthReasonCode, type Verdict } from '../contracts/index';
+import type { StrengthLevel, StrengthReasonCode, Verdict } from '../contracts/index';
+import { REASON_PLAIN_PL, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL } from './plain';
 
-export const REASON_PHRASES: Record<StrengthReasonCode, string> = {
-	zrodlo_urzedowe: 'źródło urzędowe',
-	kilka_niezaleznych_zrodel: 'kilka niezależnych źródeł',
-	jedno_zrodlo: 'tylko jedno źródło',
-	zrodlo_archiwalne: 'źródło archiwalne',
-	sprzeczne_zrodla: 'źródła podają sprzeczne informacje',
-	slabe_dopasowanie: 'słabe dopasowanie źródeł do twierdzenia',
-	brak_dowodow: 'brak dowodów w korpusie',
-};
+export const REASON_PHRASES: Record<StrengthReasonCode, string> = REASON_PLAIN_PL;
 
 export function formatDate(iso: string): string {
 	const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
@@ -28,11 +21,10 @@ export function nSources(n: number): string {
 	return `${n} ${pluralPl(n, 'źródło', 'źródła', 'źródeł')}`;
 }
 
-export function strengthSentence(level: keyof typeof STRENGTH_LABELS_PL, reasons: StrengthReasonCode[]): string {
+export function strengthSentence(level: StrengthLevel, reasons: StrengthReasonCode[]): string {
 	const why = reasons.map((r) => REASON_PHRASES[r]).join(', ');
-	return why
-		? `Siła podstawy: ${STRENGTH_LABELS_PL[level]}. Powód: ${why}.`
-		: `Siła podstawy: ${STRENGTH_LABELS_PL[level]}.`;
+	const head = `${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[level]}.`;
+	return why ? `${head} Powody: ${why}.` : head;
 }
 
 export function asOfSentence(asOf: string): string {
@@ -43,8 +35,8 @@ export const VERDICT_SENTENCES: Record<Verdict, (source: string, date: string) =
 	potwierdzone: (source, date) => `${source} podaje ${date} informację zgodną z twierdzeniem.`,
 	falszywe: (source, date) => `${source} podaje ${date} informację przeczącą twierdzeniu.`,
 	wprowadzajace_w_blad: (source, date) =>
-		`${source} podaje ${date} kontekst, który twierdzenie pomija i który zmienia jego wymowę.`,
-	brak_wystarczajacych_dowodow: () => 'Nie znalazłem w zbiorze źródeł potwierdzenia ani zaprzeczenia.',
+		`${source} podaje ${date} kontekst, który zmienia wymowę twierdzenia.`,
+	brak_wystarczajacych_dowodow: () => 'Nie znalazłem w źródłach ani potwierdzenia, ani zaprzeczenia.',
 	nie_podlega_weryfikacji: () =>
-		'Twierdzenie wyraża opinię lub prognozę, więc Mylik nie sprawdza go w źródłach.',
+		'To opinia albo przewidywanie, więc nie sprawdzam tego w źródłach.',
 };

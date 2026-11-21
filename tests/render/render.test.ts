@@ -3,6 +3,7 @@ import {
 	SHORT_ANSWER_MAX_CHARS,
 	STATES,
 	VERDICTS,
+	VERDICT_LABELS_PL,
 	type ClaimResult,
 	type EvidenceItem,
 	type VerificationRecord,
@@ -17,7 +18,13 @@ import {
 	renderShortAnswer,
 	renderStateMessage,
 } from '../../src/render/index';
-import { VERDICT_SENTENCES } from '../../src/render/templates';
+import { VERDICT_SENTENCES, strengthSentence } from '../../src/render/templates';
+import {
+	REASON_PLAIN_PL,
+	STATE_MESSAGES_PL,
+	VERDICT_EXPLANATIONS_PL,
+} from '../../src/render/plain';
+import { splitSentences } from '../../src/render/metrics';
 
 const ASOF = '2026-11-21T12:00:00+01:00';
 
@@ -131,7 +138,7 @@ describe('render', () => {
 		for (const c of [...SCENARIOS, claim('potwierdzone', [long])]) {
 			const text = renderShortAnswer(record([c, c, c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
 			expect(text.length).toBeLessThanOrEqual(SHORT_ANSWER_MAX_CHARS);
-			expect(text).toContain('Werdykt:');
+			expect(text).toContain('Wynik:');
 			expect(text).toContain('Stan na 21.11.2026');
 			expect(text).toContain('Pełna karta: https://mylik.pl/karta/');
 		}
@@ -163,5 +170,60 @@ describe('render', () => {
 	it('średnia długość zdania w szablonach jest umiarkowana', () => {
 		const texts = SCENARIOS.map((c) => renderExplanation(c, ASOF));
 		expect(averageSentenceLength(texts)).toBeLessThan(20);
+	});
+});
+
+const BANNED_WORDS =
+	/korpus|werdykt|weryfikacj|fragment|rekord|dowod|dowód|siła podstawy|siły podstawy|stanowisk|wstrzym|prompt|model|kanał|incydent|artefakt/iu;
+const LABELS: string[] = Object.values(VERDICT_LABELS_PL);
+
+function citizenTexts(): string[] {
+	const texts: string[] = [];
+	for (const c of SCENARIOS) {
+		texts.push(renderExplanation(c, ASOF));
+		texts.push(renderShortAnswer(record([c]), 'https://mylik.pl/k/abc'));
+		texts.push(renderShortAnswer(record([c, c]), 'https://mylik.pl/k/abc'));
+		texts.push(...renderNotices({ claims: [c], injectionSignals: ['x'], asOf: ASOF, archivalMonths: 12 }).map((n) => n.text));
+	}
+	texts.push(...renderLimitations({ corpusVersion: 'v1', documents: 5, asOf: ASOF, hasArchival: true, abstained: true }));
+	texts.push(...STATES.map((s) => renderStateMessage(s, ASOF)));
+	texts.push(...Object.values(STATE_MESSAGES_PL), ...Object.values(VERDICT_EXPLANATIONS_PL), ...Object.values(REASON_PLAIN_PL));
+	texts.push(...VERDICTS.map((v) => VERDICT_SENTENCES[v]('Rządowe Centrum Bezpieczeństwa', '20.11.2026')));
+	texts.push(strengthSentence('srednia', ['jedno_zrodlo', 'sprzeczne_zrodla']), strengthSentence('brak', []));
+	return texts;
+}
+
+function withoutLabels(text: string): string {
+	return LABELS.reduce((acc, label) => acc.split(label).join(' '), text);
+}
+
+describe('prosty język', () => {
+	it('średnia długość zdania do 12 słów, żadne zdanie powyżej 20', () => {
+		const texts = citizenTexts().map(withoutLabels);
+		expect(averageSentenceLength(texts)).toBeLessThanOrEqual(12);
+		for (const t of texts) {
+			for (const sentence of splitSentences(t)) {
+				const words = sentence.split(/\s+/u).filter(Boolean).length;
+				expect(words, sentence).toBeLessThanOrEqual(20);
+			}
+		}
+	});
+
+	it('brak słów zakazanych w tekstach dla obywatela', () => {
+		for (const t of citizenTexts()) expect(withoutLabels(t), t).not.toMatch(BANNED_WORDS);
+	});
+
+	it('każda etykieta ma objaśnienie i jest ono w krótkiej odpowiedzi', () => {
+		for (const v of VERDICTS) {
+			expect(VERDICT_EXPLANATIONS_PL[v].length).toBeGreaterThan(10);
+			expect(findForbiddenForms(VERDICT_EXPLANATIONS_PL[v])).toEqual([]);
+		}
+		for (const c of SCENARIOS) {
+			const text = renderShortAnswer(record([c]), 'https://mylik.pl/karta/' + 'x'.repeat(60));
+			expect(text).toContain(VERDICT_EXPLANATIONS_PL[c.verdict]);
+		}
+		expect(VERDICT_EXPLANATIONS_PL.brak_wystarczajacych_dowodow).toBe(
+			'Nie znalazłem tego w sprawdzonych źródłach. Nie wiem, czy to prawda.',
+		);
 	});
 });
