@@ -1,0 +1,193 @@
+On This Page
+
+The threat landscape
+
+Russia
+
+China
+
+EU CSDP missions and operations
+
+EEAS responses to FIMI
+
+Situational awareness
+
+Diplomatic action
+
+1st Report on FIMI
+
+2nd Report on FIMI
+
+3rd Report on FIMI
+
+Identity-Based Disinformation/FIMI OSINT guidelines
+
+EEAS Strategic Communication Task Forces
+
+Related Press
+
+Related Stories
+
+The threat landscape
+
+FIMI is a mostly non-illegal pattern of behaviour that threatens or has the potential to negatively impact values, procedures and political processes. Such activity is manipulative in character, conducted in an intentional and coordinated manner. Actors of such activity can be state or non-state actors, including their proxies inside and outside of their own territory.
+
+FIMI often seeks to stoke polarisation and divisions inside and outside the EU while also aiming to undermine the EU’s global standing and ability to pursue its policy objectives and interests.
+
+Our work to monitor and address FIMI reflects the EEAS' external mandate. We focus in particular on Russia and China.
+
+Image
+
+Russia
+
+Russian state and pro-Kremlin affiliated actors coordinate to conduct FIMI attacks. These operations are carried out through Russian diplomatic networks and security services, state-controlled media, social media channels, private companies and local proxies, used in an integrated manner to multiply and amplify each other.
+
+EUvsDisinfo is the flagship project of the EEAS to address and respond to Russia’s ongoing information manipulation operations affecting the European Union, EU Member States, countries in the EU’s neighbourhood, in Sub-Saharan Africa and other global partners. EUvsDisinfo aims to increase public awareness and understanding of the Kremlin’s information operation, and to help citizens in Europe and beyond develop resilience to information manipulation and disinformation.
+
+The EUvsDisinfo website reaches millions of readers every year. It includes the world’s largest public archive of pro-Kremlin disinformation . The website also features articles, interviews and guest content published in 13 different languages. You can follow EUvsDisinfo on Facebook , Instagram , LinkedIn , X , Bluesky , Threads and YouTube .
+
+China
+
+China is a multifaceted FIMI actor with an arsenal that is diverse and includes various tactics that are often used in combination with other forms of interference, for example economic coercion, transnational repression, and cyber threats. Chinese FIMI activities consist of promoting its message while building its presence in the global information space and suppressing critical voices.
+
+The EU-China: A Strategic Outlook paper identifies China's information manipulation and interference activities as a challenge that needs to be addressed.
+
+The EEAS’ work on China as a FIMI actor aims to increase the situational awareness and understanding of the methods of information manipulation and interference, which China uses outside of its borders. This is reinforced through regular exchanges with civil society, EU Member States, and likeminded partners; and it feeds into designing responses to Chinese manipulative activities, ranging from policy development to exposure and awareness raising. EUvsDisinfo has a dedicated page with articles about China.
+
+EU CSDP missions and operations
+
+FIMI in conflict-affected areas poses a serious risk to EU civilian and military (CSDP) missions.
+
+By seeking to damage the reputation of EU missions and operations, often by misleading populations in partner countries about their role and mandate, FIMI activities can negatively impact the ability of the missions to attain their objectives. Threat actors also deploy FIMI to stoke resentment and at times violence, putting the lives of personnel at risk.
+
+The EEAS supports EU CSDP missions and operations in their capability to address and counter FIMI. This is done by equipping the missions with the relevant instruments of the FIMI Toolbox, such as situational awareness, capacity building and advice.
+
+Image Copyright European Union, 2025 Click here to view a larger version of this image.
+
+EEAS responses to Foreign Information Manipulation and Interference (FIMI)
+
+Through countering FIMI, the EEAS promotes information integrity and fundamental freedoms. In its response to the FIMI threat, the EEAS goes beyond addressing disinformation and misleading narratives, focusing on the manipulative behaviour of FIMI actors. The EEAS benefits from a decade’s worth of experience in combatting disinformation and FIMI. We have developed the EU FIMI Toolbox, adopting a whole-of-society approach, on four pillars: Situational awareness, resilience building, disruption & regulation and external action:
+
+We monitor and address Russia and China as FIMI actors; see the Russia and China sections above.
+
+To maintain situational awareness, we facilitate the Rapid Alert System (RAS), where we exchange and coordinate with all EU Member States and Institutions.
+
+We build resilience to FIMI by empowering civil society, supporting independent media and running capacity building projects.
+
+As the EU, we have developed strong legislation, notably the Digital Services Act.
+
+Internationally, we work with NATO and G7 countries and others. We harmonise our methodologies for detecting FIMI and are build tools for joint action such as the G7 Rapid Response Mechanism (RRM). We resolutely engage in external action to impose costs to malign FIMI actors through exposures, political attribution and sanctions.
+
+Situational awareness
+
+The EEAS has initiated a standardised an analytical model that continues to evolve and shape the global understanding of the FIMI threat. This model has been adopted across the FIMI defenders community, including by government partners and NATO, fostering increased data exchange and collaboration, while driving whole-of-society responses to the threat.
+
+At the heart of the EEAS’s approach is a methodology designed to detect FIMI activities according to comprehensive frameworks and taxonomies (such as the ABCDE Framework, TTPs catalogues and STIX data-sharing language). The model integrates narrative analysis with a focus on examining the Tactics, Techniques, and Procedures (TTPs) used by threat actors, to uncover how FIMI campaigns are structured, executed, and adapted over time.
+
+Through its annual FIMI Threat Reports, produced by in-house data analysis experts, the EEAS progressively builds and refines its standardized analytical methodology, with each edition introducing a new layer of insights, tools, and frameworks.
+
+Diplomatic action
+
+As a part the EU’s diplomatic service, EEAS, diplomatic action is at the core of our approach to countering FIMI. We manage the Rapid Alert System, in which EU Member States and EU Institutions exchange information and coordinate responses to FIMI.
+
+We contribute to developing restrictive measures (sanctions) targeting FIMI actors, notably Russia in the framework of the EU sanctions regimes in response to Russia’s invasion of Ukraine and Russia’s destabilising activities (hybrid threats).
+
+We engage partners globally under the counter-FIMI agenda. We exchange information and coordinate political action with partners, including exposure of FIMI actors, notably in the framework of the G7 Collective Response Framework and with NATO.
+
+Building resilience
+
+The EEAS seeks to strengthen societal resilience against FIMI through a whole-of-society approach placing information integrity at the core of its interventions.
+
+Key activities are strategic communications and awareness raising, including by supporting independent media and fact-checking networks across the globe; capacity building for stakeholders, including tailored training, methodological support, and cross-sector collaboration for and with EU institutions, EU Member States and partners; empowerment of civil society, supporting transparency, accountability, and democratic resilience; and enhancement of digital, media, and information literacy, equipping societies with skills to critically assess information and detect manipulation techniques, mitigating the impact of FIMI.
+
+We are leading the effort to build a defender community facilitated by the Information Sharing and Analysis Centre (FIMI ISAC).
+
+By integrating resilience-building measures into its broader approach, the EEAS contributes to long-term stability, institutional robustness, and democratic security in the face of the evolving FIMI threat.
+
+1st Report on FIMI
+
+Based on a first sample of specific FIMI cases, the first edition of the EEAS report on Foreign Information Manipulation and Interference (FIMI) outlines how building on shared taxonomies and standards can fuel our collective understanding of the threat and help inform appropriate countermeasures in the short to the long term.
+
+Read the 1st Report on FIMI
+
+2nd Report on FIMI
+
+The 2nd EEAS Report on Foreign Information Manipulation and Interference (FIMI) Threats builds on the 1st Report and completes the work towards a common framework for networked defence against FIMI. This Response Framework proposes to link analysis even more effectively to timely responses, highlighting the importance of cooperation between all stakeholders. The insights of this report are based on 750 investigated FIMI incidents between 1 December 2022 and 30 November 2023. In conclusion, a case study applies the Response Framework to FIMI incidents investigated in past elections in the EU and beyond, which can be further applied by the community of experts during the multiple elections taking place in 2024.
+
+Read the 2nd Report on FIMI
+
+3rd Report on FIMI
+
+The 3rd EEAS Report on Foreign Information Manipulation and Interference (FIMI) Threats maps out the digital infrastructure deployed by foreign actors, mainly by Russia, but also by China, to manipulate and interfere in the information space of the EU and partner countries.
+
+Read the 3rd EEAS Report on Foreign Information Manipulation and Interference Threats
+
+4th Report on FIMI
+
+The 4th EEAS Annual Report on FIMI Threats builds on the methodology of the Response Framework to FIMI threats, on the FIMI Toolbox and on the FIMI Deterrence Playbook as a framework to make FIMI activity more costly and less sustainable for perpetrators.
+
+Read the 4th EEAS Report on Foreign Information Manipulation and Interference Threats.
+
+Remote video URL The guidelines were launched during a conference held in Brussels on 14 November 2024. Watch it here.
+
+Identity-Based Disinformation/FIMI OSINT guidelines
+
+Identity-based disinformation (IBD)-focused FIMI campaigns target vulnerable groups such as racial or ethnic minorities, LGBTIQ+ individuals, amplifying existing prejudices against them. Similarly, gendered disinformation campaigns targeting explicitly women and girls because of their gender, are a tool used to enforce silence and reinforce violence.
+
+In order to detect and identify IBD, Open Source tools and methodologies give us the ability to carry in depth investigations by aggregating analysed data from diverse, publicly available sources. The resulting information, known as Open Source Intelligence (OSINT) , is an indispensable tool in detecting and countering FIMI and obtaining more detail about these types of issue-specific attacks.
+
+The EEAS has developed a guide, “ How to Detect and Analyse Identity-Based Disinformation/FIMI: A Practical Guide to Conduct Open Source Investigations ”, to enable analysts, victims and civil society organisations to carry these type of open source investigations (OSINT) and, ultimately, mitigate the impact of IBD-focused FIMI threats on democratic integrity.
+
+This guide serves two goals: First, it enhances the OSINT community’s capacity to recognise and investigate identity-based aspects of disinformation. Second, it provides victims of identity-based FIMI with tools to detect and document those heinous attacks.
+
+EEAS Strategic Communication Task Forces
+
+Find out about the work of the EEAS Strategic Communication Task Forces .
+
+Related Press
+
+Russia’s FIMI and malicious cyber activities: Council imposes sanctions on 30 individuals and two entities
+
+EU-Japan: First Dialogue on Foreign Information Manipulation and Interference (FIMI)
+
+Keynote speech by HRVP Kaja Kallas at the 2026 Conference on Countering Foreign Information Manipulation and Interference: ‘From Insight to Impact’
+
+European political parties and foundations: Council signs off new rules to improve transparency of funding and counter foreign interference
+
+G7 Rapid Response Mechanism (RRM) statement on Russian Influence Campaign
+
+Opening remarks by Executive Vice-President Dombrovskis, High Representative/Vice-President Borrell and Commissioner Urpilainen at the press conference on A New Agenda for Relations between the EU and Latin America and the Caribbean
+
+Related Stories
+
+The EU extends sanctions to nearly all major Russian banks
+
+New joint report exposes desperate Russian attempts to derail Ukraine’s journey towards EU membership
+
+EUvsDisinfo: Disrupting the foundations of FIMI
+
+FIMI Explorer interactive dashboard on foreign information manipulation activities
+
+Dismantling the Foreign Information Manipulation and Interference (FIMI) house of cards
+
+Working together for the sovereignty of a democratic choice
+
+Collaboration key to journalistic integrity in age of influence
+
+Resilience 2.0: Empowering the European Union towards 2040 and beyond
+
+Related Publications
+
+2025 Report on EEAS Activities to Counter Foreign Information Manipulation and Interference (FIMI)
+
+Beyond the Battlefield: Russia’s Information War Against Ukraine’s European Future
+
+4th EEAS Annual Report on Foreign Information Manipulation and Interference Threats
+
+2024 Report on EEAS Activities to Counter Foreign Information Manipulation and Interference (FIMI)
+
+African initiative: from public diplomacy to covert influence operations
+
+3rd EEAS Report on Foreign Information Manipulation and Interference Threats
+
+How to Detect & Analyse Identity-Based Disinformation/FIMI: A Practical Guide to Conduct Open Source Investigations

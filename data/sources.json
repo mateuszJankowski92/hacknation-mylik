@@ -1,0 +1,192 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": "msz",
+      "publisher": "Ministerstwo Spraw Zagranicznych",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Informacja publiczna organu władzy publicznej (gov.pl), materiały informacyjne MSZ; wykorzystanie w prototypie z podaniem wydawcy, adresu i daty pobrania (art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych - urzędowe materiały informacyjne i cytat). Retencja: tylko tekst, bez obrazów i załączników, przechowywany w zamkniętym korpusie prototypu do końca hackathonu.",
+      "documents": [
+        {
+          "id": "msz-001",
+          "title": "Jakiej pomocy może udzielić konsul?",
+          "url": "https://www.gov.pl/web/dyplomacja/jakiej-pomocy-moze-udzielic-konsul",
+          "publishedAt": null,
+          "file": "data/raw/msz-001.txt"
+        },
+        {
+          "id": "msz-003",
+          "title": "Jak konsul może mi pomóc, jeśli pilnie potrzebuję paszport?",
+          "url": "https://www.gov.pl/web/dyplomacja/jak-konsul-moze-mi-pomoc-jesli-pilnie-potrzebuje-paszport",
+          "publishedAt": null,
+          "file": "data/raw/msz-003.txt"
+        },
+        {
+          "id": "msz-004",
+          "title": "Jak odebrać paszport u konsula?",
+          "url": "https://www.gov.pl/web/dyplomacja/jak-odebrac-paszport-u-konsula",
+          "publishedAt": null,
+          "file": "data/raw/msz-004.txt"
+        },
+        {
+          "id": "msz-005",
+          "title": "Czy przysługuje mi zniżka na paszport?",
+          "url": "https://www.gov.pl/web/dyplomacja/czy-przysluguje-mi-znizka-na-paszport",
+          "publishedAt": null,
+          "file": "data/raw/msz-005.txt"
+        },
+        {
+          "id": "msz-006",
+          "title": "Jak powinno wyglądać zdjęcie do paszportu?",
+          "url": "https://www.gov.pl/web/dyplomacja/jak-powinno-wygladac-zdjecie-do-paszportu",
+          "publishedAt": null,
+          "file": "data/raw/msz-006.txt"
+        },
+        {
+          "id": "msz-007",
+          "title": "Wizy",
+          "url": "https://www.gov.pl/web/dyplomacja/wizy",
+          "publishedAt": null,
+          "file": "data/raw/msz-007.txt"
+        },
+        {
+          "id": "msz-008",
+          "title": "Paszporty",
+          "url": "https://www.gov.pl/web/dyplomacja/paszporty",
+          "publishedAt": null,
+          "file": "data/raw/msz-008.txt"
+        },
+        {
+          "id": "msz-010",
+          "title": "Twój paszport za granicą. Pytania i odpowiedzi",
+          "url": "https://www.gov.pl/web/dyplomacja/twoj-paszport-za-granica-pytania-i-odpowiedzi",
+          "publishedAt": null,
+          "file": "data/raw/msz-010.txt"
+        },
+        {
+          "id": "msz-011",
+          "title": "Checklista wyjazdowa MSZ",
+          "url": "https://www.gov.pl/web/dyplomacja/checklista-wyjazdowa-msz",
+          "publishedAt": null,
+          "file": "data/raw/msz-011.txt"
+        },
+        {
+          "id": "msz-012",
+          "title": "Centrum Informacji Konsularnej",
+          "url": "https://www.gov.pl/web/dyplomacja/centrum-informacji-konsularnej",
+          "publishedAt": null,
+          "file": "data/raw/msz-012.txt"
+        },
+        {
+          "id": "msz-013",
+          "title": "Obszary polityki zagranicznej",
+          "url": "https://www.gov.pl/web/dyplomacja/obszary-polityki-zagranicznej",
+          "publishedAt": null,
+          "file": "data/raw/msz-013.txt"
+        },
+        {
+          "id": "msz-015",
+          "title": "Podstawowe informacje",
+          "url": "https://www.gov.pl/web/dyplomacja/podstawowe-informacje",
+          "publishedAt": null,
+          "file": "data/raw/msz-015.txt"
+        },
+        {
+          "id": "msz-017",
+          "title": "Jak zarejestrować się na wizytę paszportową u konsula?",
+          "url": "https://www.gov.pl/web/dyplomacja/1-jak-zarejestrowac-sie-na-wizyte-paszportowa-u-konsula",
+          "publishedAt": null,
+          "file": "data/raw/msz-017.txt"
+        }
+      ]
+    },
+    {
+      "id": "sejm",
+      "publisher": "Sejm RP",
+      "domain": "api.sejm.gov.pl",
+      "sourceType": "prawo",
+      "license": "Akt normatywny (art. 4 pkt 1 ustawy o prawie autorskim i prawach pokrewnych - brak ochrony prawnoautorskiej). Źródło: Sejmowy interfejs ELI (api.sejm.gov.pl). Uwaga: tekst ogłoszony w Dz.U. 2015 poz. 1274; późniejsze zmiany ustawy mogą nie być w nim uwzględnione (należy sprawdzić tekst jednolity). Retencja: do końca hackathonu.",
+      "documents": [
+        {
+          "id": "dzu-2015-1274",
+          "title": "Ustawa z dnia 25 czerwca 2015 r. Prawo konsularne (Dz.U. 2015 poz. 1274, tekst ogłoszony)",
+          "url": "https://api.sejm.gov.pl/eli/acts/DU/2015/1274/text.html",
+          "publishedAt": "2015-08-31",
+          "file": "data/raw/dzu-2015-1274.txt"
+        }
+      ]
+    },
+    {
+      "id": "eu",
+      "publisher": "Unia Europejska (portal europa.eu)",
+      "domain": "european-union.europa.eu",
+      "sourceType": "urzedowe",
+      "license": "Treści UE na europa.eu na licencji CC BY 4.0, o ile nie zaznaczono inaczej (nota prawna https://european-union.europa.eu/legal-notice_en); wymagane podanie źródła i oznaczenie zmian (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "documents": [
+        {
+          "id": "eu-polska",
+          "title": "Polska – Informacje o kraju UE",
+          "url": "https://european-union.europa.eu/principles-countries-history/eu-countries/poland_pl",
+          "publishedAt": "2024-12-11",
+          "file": "data/raw/eu-polska.txt"
+        },
+        {
+          "id": "eu-podroze",
+          "title": "Podróże w UE, Twoje prawa",
+          "url": "https://european-union.europa.eu/live-work-study/travelling-eu_pl",
+          "publishedAt": "2025-06-26",
+          "file": "data/raw/eu-podroze.txt"
+        }
+      ]
+    },
+    {
+      "id": "eeas",
+      "publisher": "Europejska Służba Działań Zewnętrznych (EEAS)",
+      "domain": "eeas.europa.eu",
+      "sourceType": "organizacja",
+      "license": "EEAS: ponowne wykorzystanie dozwolone z podaniem źródła (nota prawna EEAS, https://www.eeas.europa.eu/eeas/legal-notice_en, oparta na decyzji Komisji z 12.12.2011 o ponownym wykorzystaniu dokumentów); bez wykorzystania grafik objętych prawami osób trzecich (tylko tekst). Retencja: do końca hackathonu.",
+      "documents": [
+        {
+          "id": "eeas-fimi",
+          "title": "Information Integrity and Countering Foreign Information Manipulation & Interference (FIMI)",
+          "url": "https://www.eeas.europa.eu/eeas/tackling-disinformation-foreign-information-manipulation-interference_en",
+          "publishedAt": null,
+          "file": "data/raw/eeas-fimi.txt"
+        }
+      ]
+    },
+    {
+      "id": "ec-home",
+      "publisher": "Komisja Europejska, DG ds. Migracji i Spraw Wewnętrznych",
+      "domain": "home-affairs.ec.europa.eu",
+      "sourceType": "urzedowe",
+      "license": "Treści Komisji Europejskiej na licencji CC BY 4.0, o ile nie zaznaczono inaczej (decyzja Komisji 2011/833/UE o ponownym wykorzystaniu dokumentów; nota prawna europa.eu); wymagane podanie źródła (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "documents": [
+        {
+          "id": "ec-schengen",
+          "title": "Schengen, visa, borders",
+          "url": "https://home-affairs.ec.europa.eu/policies/schengen_en",
+          "publishedAt": "2021-06-04",
+          "file": "data/raw/ec-schengen.txt"
+        }
+      ]
+    },
+    {
+      "id": "youreurope",
+      "publisher": "Twoja Europa (Komisja Europejska)",
+      "domain": "europa.eu",
+      "sourceType": "urzedowe",
+      "license": "Portal Twoja Europa, treści UE na licencji CC BY 4.0, o ile nie zaznaczono inaczej (nota prawna https://european-union.europa.eu/legal-notice_en); wymagane podanie źródła (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "documents": [
+        {
+          "id": "youreurope-wjazd",
+          "title": "Dokumenty potrzebne do podróżowania po Europie",
+          "url": "https://europa.eu/youreurope/citizens/travel/entry-exit/index_pl.htm",
+          "publishedAt": null,
+          "file": "data/raw/youreurope-wjazd.txt"
+        }
+      ]
+    }
+  ]
+}
