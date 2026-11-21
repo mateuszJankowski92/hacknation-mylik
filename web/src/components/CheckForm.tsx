@@ -1,6 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type KeyboardEvent } from 'react';
 import { MAX_INPUT_LENGTH, validateContent } from '../api';
 import { nb } from '../typography';
+import { isSubmitShortcut, submitShortcutHint } from './shortcut';
 
 const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
 
@@ -16,8 +17,16 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 	const tooLong = validity === 'too_long';
 	const blocked = validity !== 'ok' || loading;
 	const showCounter = content.length >= COUNTER_THRESHOLD;
+	const [shortcutHint] = useState(submitShortcutHint);
 
 	function handleSubmit(event: FormEvent) {
+		event.preventDefault();
+		if (blocked) return;
+		onSubmit(content);
+	}
+
+	function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+		if (!isSubmitShortcut({ key: event.key, metaKey: event.metaKey, ctrlKey: event.ctrlKey, isComposing: event.nativeEvent.isComposing })) return;
 		event.preventDefault();
 		if (blocked) return;
 		onSubmit(content);
@@ -34,6 +43,8 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 				rows={3}
 				value={content}
 				onChange={(event) => setContent(event.target.value)}
+				onKeyDown={handleKeyDown}
+				aria-keyshortcuts="Control+Enter Meta+Enter"
 				aria-describedby="content-counter content-error"
 				aria-invalid={tooLong}
 				autoComplete="off"
@@ -48,6 +59,11 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 				<button type="submit" className="button button--primary" disabled={blocked}>
 					Sprawdź
 				</button>
+				{shortcutHint && !loading && (
+					<span className="check-form__hint" aria-hidden="true">
+						{shortcutHint}
+					</span>
+				)}
 				{loading && (
 					<button type="button" className="button" onClick={onCancel}>
 						Anuluj
