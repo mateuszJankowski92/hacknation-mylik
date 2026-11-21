@@ -90,7 +90,7 @@ const ev = (id: string, text: string, stance: 'potwierdza' | 'obala' | 'kontekst
 });
 
 describe('applySupportGate', () => {
-  it('niewspierający odpada, inny kierunek bramki zastępuje ocenę, kontekst nie jest sprawdzany', async () => {
+  it('niewspierający odpada, niezgoda bramki z oceną usuwa dowód, kontekst nie jest sprawdzany', async () => {
     const gate = new FakeGate((_c, q) =>
       q.startsWith('Tło') ? { relation: 'nie_rozstrzyga', reason: 'tło' } : { relation: 'obala', reason: 'wyklucza' },
     );
@@ -100,18 +100,26 @@ describe('applySupportGate', () => {
       ev('c#0', 'Ogólne informacje o usłudze.', 'kontekst'),
     ];
     const out = await applySupportGate(gate, 'Usługa kosztuje dużo.', items, () => {});
-    expect(out.accepted.map((a) => [a.passage.id, a.stance])).toEqual([
-      ['b#0', 'obala'],
-      ['c#0', 'kontekst'],
-    ]);
-    expect(out.accepted[0]!.mismatch).toBeUndefined();
-    expect(out.stats).toMatchObject({ checked: 2, dropped: 1, changed: 1, kept: 0 });
+    expect(out.accepted.map((a) => [a.passage.id, a.stance])).toEqual([['c#0', 'kontekst']]);
+    expect(out.stats).toMatchObject({ checked: 2, dropped: 2, changed: 1, kept: 0 });
     // Każdy cytat osobnym wywołaniem (sam w sobie), bez cytatów kontekstu.
     expect(gate.calls.map((c) => c.quotes)).toEqual([['Tło sprawy jest takie.'], ['Usługa jest całkowicie darmowa.']]);
   });
-  it('ten sam kierunek ("przeciw"): zostaje stanowisko z oceny (sedno czy szczegół ocenia się z całym fragmentem)', async () => {
+  it('ten sam kierunek, ale inna relacja ("obala" wobec "rozbieżności"): oba dowody odpadają', async () => {
     const gate = new FakeGate((_c, q) =>
       q.includes('100') ? { relation: 'obala', reason: 'inna liczba' } : { relation: 'rozbieznosc_kontekstu', mismatch: 'data', reason: 'inna data' },
+    );
+    const items = [
+      ev('a#0', 'Na miejsce wysłano 100 strażaków.', 'rozbieznosc_kontekstu'),
+      ev('b#0', 'Zdarzenia nie było, to wymysł.', 'obala'),
+    ];
+    const out = await applySupportGate(gate, 'Wysłano 900 strażaków.', items, () => {});
+    expect(out.accepted).toHaveLength(0);
+    expect(out.stats).toMatchObject({ checked: 2, kept: 0, changed: 2, dropped: 2 });
+  });
+  it('zgodna relacja zostaje, z rodzajem rozbieżności z oceny', async () => {
+    const gate = new FakeGate((_c, q) =>
+      q.includes('100') ? { relation: 'rozbieznosc_kontekstu', mismatch: 'data', reason: 'inna liczba' } : { relation: 'obala', reason: 'nie było' },
     );
     const items = [
       ev('a#0', 'Na miejsce wysłano 100 strażaków.', 'rozbieznosc_kontekstu'),
@@ -143,7 +151,7 @@ describe('applySupportGate', () => {
   it('rozbieżność bez rodzaju: zostaje rodzaj z oceny albo "warunki"', async () => {
     const gate = new FakeGate(() => ({ relation: 'rozbieznosc_kontekstu', reason: 'inne' }));
     const out = await applySupportGate(gate, 'Coś było.', [ev('a#0', 'Coś było gdzie indziej.', 'rozbieznosc_kontekstu'), ev('b#0', 'Coś było kiedy indziej.', 'potwierdza')], () => {});
-    expect(out.accepted.map((a) => a.mismatch)).toEqual(['skala', 'warunki']);
+    expect(out.accepted.map((a) => a.mismatch)).toEqual(['skala']);
   });
 });
 

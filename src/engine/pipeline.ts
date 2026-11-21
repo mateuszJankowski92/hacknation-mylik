@@ -125,6 +125,8 @@ export interface EngineOptions {
   trace?: (event: EngineTraceEvent) => void;
   /** Limit czasu na zgłoszenie w ms (domyślnie DEFAULT_DEADLINE_MS); po nim stan `awaria_techniczna`. */
   deadlineMs?: number;
+  /** Przerwa przed ponowieniem po błędzie przejściowym modelu (domyślnie RETRY_DELAY_MS; testy). */
+  retryDelayMs?: number;
   /**
    * Zad. 29: okno ponownego użycia rekordu przy włączonej drugiej warstwie (domyślnie 6 h). Numer okna
    * wchodzi do klucza, więc zapisany rekord jest trwały (ten sam adres = to samo), a po oknie powstaje nowy.
@@ -291,7 +293,7 @@ export interface SupportGateStats {
   checked: number;
   /** Zostały z relacją taką jak w ocenie. */
   kept: number;
-  /** Zostały, ale bramka ustaliła inną relację (ona wygrywa). */
+  /** Bramka ustaliła inną relację niż ocena (zad. 35: taki dowód odpada, liczony też w `dropped`). */
   changed: number;
   /** Odpadły: cytat sam nie rozstrzyga twierdzenia. */
   dropped: number;
@@ -301,9 +303,29 @@ export interface SupportGateStats {
   rescued: number;
 }
 
-/** Kierunek stanowiska: "za" (potwierdza) albo "przeciw" (obala, rozbieżność kontekstu). */
-function direction(stance: string): 'za' | 'przeciw' | null {
-  return stance === 'potwierdza' ? 'za' : stance === 'obala' || stance === 'rozbieznosc_kontekstu' ? 'przeciw' : null;
+export type RetryFn = <T>(call: () => Promise<T>) => Promise<T>;
+
+/** Przerwa przed jedynym ponowieniem po błędzie przejściowym (limit zapytań, błąd 5xx dostawcy). */
+export const RETRY_DELAY_MS = 700;
+/** Ponawiamy tylko, gdy po przerwie zostaje co najmniej tyle czasu do limitu zgłoszenia. */
+export const RETRY_MIN_REMAINING_MS = 6_000;
+
+/**
+ * Jedno ponowienie wywołania modelu po błędzie przejściowym (`retryable`: 429, 5xx, zerwane połączenie),
+ * gdy zostało dość czasu. Przekroczenie czasu odpowiedzi i błędy trwałe (klucz, schemat) nie są ponawiane.
+ * Zad. 35: dwa stany techniczne w końcowym przebiegu to limit zapytań przy równoległych wywołaniach.
+ */
+export function makeRetry(remaining: () => number, delayMs = RETRY_DELAY_MS): RetryFn {
+  return async <T>(call: () => Promise<T>): Promise<T> => {
+    try {
+      return await call();
+    } catch (e) {
+      const transient = isLlmError(e) && e.retryable === true && e.code !== 'timeout';
+      if (!transient || remaining() < delayMs + RETRY_MIN_REMAINING_MS) throw e;
+      await new Promise((r) => setTimeout(r, delayMs));
+      return call();
+    }
+  };
 }
 
 /** Każdy cytat osobnym wywołaniem bramki (cytat oceniany sam w sobie), wywołania równolegle. */
@@ -312,10 +334,19 @@ async function checkEach(
   claimText: string,
   quotes: readonly string[],
   onUsage: (u: LlmUsage | undefined) => void,
+  retry: RetryFn,
 ): Promise<ReturnType<typeof normalizeVerdicts>> {
   return Promise.all(
     quotes.map(async (q) => {
-      const r = await gate.checkSupport({ claim: claimText, quotes: [q] });
+      let r: Awaited<ReturnType<SupportGate['checkSupport']>>;
+      try {
+        r = await retry(() => gate.checkSupport({ claim: claimText, quotes: [q] }));
+      } catch (e) {
+        // Bramka odpowiedziała, ale niezgodnie ze schematem (także po ponowieniu): cytat nie jest
+        // potwierdzony, więc dowód odpada (ostrożnie). Inne błędy (klucz, sieć, limit) idą dalej: stan techniczny.
+        if (isLlmError(e) && e.code === 'invalid_output') return normalizeVerdicts(undefined, 1)[0]!;
+        throw e;
+      }
       onUsage(r.usage);
       return normalizeVerdicts(r, 1)[0]!;
     }),
@@ -327,9 +358,9 @@ async function checkEach(
  * tylko z twierdzeniem (osobne wywołania, równolegle). Cytat, który sam nie rozstrzyga, dostaje jedną
  * szansę z poprzedzającym zdaniem tego samego fragmentu (ciągły wycinek źródła, sprawdzany równolegle
  * z samym cytatem); potem odpada.
- * Bramka rozstrzyga, CZY cytat przesądza i W KTÓRĄ STRONĘ ("za" albo "przeciw"). Gdy kierunek zgadza się
- * z oceną, zostaje stanowisko z oceny: rozróżnienie "obala" i "rozbieżność kontekstu" (sedno czy szczegół)
- * wymaga całego fragmentu, a bramka z założenia widzi tylko cytat. Przy innym kierunku wygrywa bramka.
+ * Dowód zostaje tylko przy zgodzie: bramka musi dać dokładnie tę relację co ocena (zad. 35; wcześniej
+ * wystarczał ten sam kierunek, co przepuszczało słabe dowody "rozbieżności", najczęściej odrzucane przez
+ * sędziego cytowań). Przy niezgodzie dowód odpada.
  * Dowody `kontekst` przechodzą bez zmian (nie wpływają na werdykt rozstrzygający).
  */
 export async function applySupportGate(
@@ -337,6 +368,7 @@ export async function applySupportGate(
   claimText: string,
   accepted: AcceptedEvidence[],
   onUsage: (u: LlmUsage | undefined) => void,
+  retry: RetryFn = (f) => f(),
 ): Promise<{ accepted: AcceptedEvidence[]; stats: SupportGateStats }> {
   const stats: SupportGateStats = { checked: 0, kept: 0, changed: 0, dropped: 0, retried: 0, rescued: 0 };
   const items = accepted.filter((a) => DECISIVE.has(a.stance));
@@ -350,8 +382,8 @@ export async function applySupportGate(
   });
   const extIdx = extended.flatMap((e, i) => (e ? [i] : []));
   const [verdicts, extVerdicts] = await Promise.all([
-    checkEach(gate, claimText, items.map((a) => a.quote), onUsage),
-    checkEach(gate, claimText, extIdx.map((i) => extended[i]!), onUsage),
+    checkEach(gate, claimText, items.map((a) => a.quote), onUsage, retry),
+    checkEach(gate, claimText, extIdx.map((i) => extended[i]!), onUsage, retry),
   ]);
   const quotes = items.map((a) => a.quote);
   extIdx.forEach((index, j) => {
@@ -368,19 +400,24 @@ export async function applySupportGate(
   items.forEach((a, i) => {
     const v = verdicts[i]!;
     // Bramka nie omija wymogu liczb: "potwierdza" bez liczby z twierdzenia odpada.
-    if (v.relation === 'nie_rozstrzyga' || (v.relation === 'potwierdza' && !hasKeyNumbers(claimText, quotes[i]!))) {
+    // Zad. 35: dowód zostaje tylko, gdy dwa niezależne sprawdzenia (ocena z całym fragmentem i bramka
+    // z samym cytatem) dają TĘ SAMĄ relację. Każda niezgoda (także "obala" wobec "rozbieżności") to słaby
+    // dowód: odpada, a bez innych dowodów system się wstrzymuje (wstrzymanie lepsze niż zgadywanie).
+    if (
+      v.relation === 'nie_rozstrzyga' ||
+      v.relation !== a.stance ||
+      (v.relation === 'potwierdza' && !hasKeyNumbers(claimText, quotes[i]!))
+    ) {
       out.set(a, null);
       stats.dropped++;
+      if (v.relation !== 'nie_rozstrzyga' && v.relation !== a.stance) stats.changed++;
       return;
     }
-    const sameDirection = direction(v.relation) === direction(a.stance);
-    const stance = sameDirection ? a.stance : v.relation;
     const mismatch: MismatchKind | undefined =
-      stance === 'rozbieznosc_kontekstu' ? ((sameDirection ? a.mismatch : v.mismatch) ?? v.mismatch ?? a.mismatch ?? 'warunki') : undefined;
-    if (stance === a.stance) stats.kept++;
-    else stats.changed++;
+      a.stance === 'rozbieznosc_kontekstu' ? (a.mismatch ?? v.mismatch ?? 'warunki') : undefined;
+    stats.kept++;
     const { mismatch: _old, ...rest } = a;
-    out.set(a, { ...rest, stance, quote: quotes[i]!, ...(mismatch !== undefined ? { mismatch } : {}) });
+    out.set(a, { ...rest, quote: quotes[i]!, ...(mismatch !== undefined ? { mismatch } : {}) });
   });
   const result: AcceptedEvidence[] = [];
   for (const a of accepted) {
@@ -442,6 +479,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
 
   async function run(input: VerifyInput, progress: ProgressEmitter, deadline: Deadline): Promise<VerifyOutcome> {
     const channel = input.channel;
+    const retry = makeRetry(() => deadline.remaining(), deps.options?.retryDelayMs);
     const started = now().getTime();
     store.logEvent('verify_start', { channel, detail: { inputKind: input.url !== undefined ? 'url' : 'tekst' } });
 
@@ -577,7 +615,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         : stateOutcome('potrzeba_doprecyzowania', MESSAGES.clarification, 'no_checkable_claims');
     if (!stripped.text.trim()) return toState(nothingToCheck(), recordId);
 
-    const extracted = await llm.extractClaims({ text: stripped.text });
+    const extracted = await retry(() => llm.extractClaims({ text: stripped.text }));
     deadline.check();
     addUsage(usage, extracted.usage);
     const rawClaims = Array.isArray(extracted.claims) ? extracted.claims : [];
@@ -787,11 +825,11 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const rankFlagged = new Set<string>();
       if (ranker && union.length > MAX_ASSESS) {
         try {
-          const ranked = await ranker.rankPassages({
+          const ranked = await retry(() => ranker.rankPassages({
             claim: claim.text,
             passages: union.map((p) => ({ id: p.id, text: p.text })),
             limit: MAX_ASSESS,
-          });
+          }));
           addUsage(usage, ranked.usage);
           // Fragment z poleceniami wskazany przez model porządkujący: jak zgłoszony przez model oceny.
           const unionIds = new Set(union.map((p) => p.id));
@@ -836,7 +874,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       async function assessAndGate(groups: Passage[][], sentList: Passage[]): Promise<{ accepted: AcceptedEvidence[]; rejected: number }> {
         const sentIdSet = new Set(sentList.map((p) => p.id));
         const assessedAll = await Promise.all(
-          groups.map((g) => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) })),
+          groups.map((g) => retry(() => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) }))),
         );
         deadline.check();
         const assessments = assessedAll.flatMap((a) => {
@@ -864,7 +902,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         let acc = gate.accepted;
         let rejected = gate.rejected.length;
         if (supportGate) {
-          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u));
+          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u), retry);
           deadline.check();
           trace({ type: 'gate', claimId: claim.id, before: evView(acc), after: evView(checked.accepted) });
           acc = checked.accepted;
