@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { App } from './App';
 import { OutcomeView } from './components/OutcomeView';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
-import { writeSceneSkipped } from './scenes/preferences';
+import { stubReducedMotion } from './testing/motion';
 import { nb } from './typography';
 
 const NBSP = '\u00a0';
@@ -67,7 +67,7 @@ function visibleTextOrphans(root: HTMLElement): string[] {
 
 describe('widoczne teksty interfejsu nie zostawiają jednoliterowych spójników na końcu wiersza', () => {
 	it('strona główna', () => {
-		writeSceneSkipped(true);
+		stubReducedMotion(true);
 		vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ corpusVersion: 'x', documents: [] }), { status: 200 })));
 		const { container } = render(<App />);
 		expect(visibleTextOrphans(container)).toEqual([]);
@@ -75,7 +75,7 @@ describe('widoczne teksty interfejsu nie zostawiają jednoliterowych spójników
 
 	for (const key of Object.keys(FIXTURE_OUTCOMES)) {
 		it(`wynik: ${key}`, () => {
-			writeSceneSkipped(true);
+			stubReducedMotion(true);
 			const { container } = render(<OutcomeView outcome={FIXTURE_OUTCOMES[key]!} />);
 			expect(visibleTextOrphans(container)).toEqual([]);
 		});

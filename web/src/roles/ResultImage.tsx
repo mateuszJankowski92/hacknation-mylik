@@ -1,12 +1,22 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { connectionIsSlow, prefersReducedMotion, readSceneSkipped, subscribeSceneSkipped } from '../scenes/preferences';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SCENE_TEXTS } from '../scenes/config';
+import { animationStartsAutomatically } from '../scenes/preferences';
 import type { ResultKey, Role } from './config';
 import { resultImageFor } from './config';
 import { assetUrl, resultSceneFor } from './manifest';
 import { RoleArt } from './RoleArt';
 import { nb } from '../typography';
 
-function ResultClip({ file, poster }: { file: string; poster: string | null }) {
+const RESULT_CONTROL_SUFFIX = 'obrazu wyniku';
+
+interface ResultClipProps {
+	file: string;
+	poster: string | null;
+	paused: boolean;
+	onEnded: () => void;
+}
+
+function ResultClip({ file, poster, paused, onEnded }: ResultClipProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const [playing, setPlaying] = useState(false);
 	const [failed, setFailed] = useState(false);
@@ -15,12 +25,16 @@ function ResultClip({ file, poster }: { file: string; poster: string | null }) {
 		const video = videoRef.current;
 		if (!video || typeof video.play !== 'function') return;
 		try {
+			if (paused) {
+				video.pause();
+				return;
+			}
 			const attempt = video.play() as Promise<void> | undefined;
 			attempt?.catch(() => undefined);
 		} catch {
 			return;
 		}
-	}, []);
+	}, [paused]);
 
 	if (failed) return null;
 	return (
@@ -39,33 +53,66 @@ function ResultClip({ file, poster }: { file: string; poster: string | null }) {
 			disableRemotePlayback
 			controlsList="nofullscreen noremoteplayback"
 			onPlaying={() => setPlaying(true)}
+			onEnded={onEnded}
 			onError={() => setFailed(true)}
 		/>
 	);
 }
 
-function useResultClip(role: Role, resultKey: ResultKey) {
-	const skipped = useSyncExternalStore(subscribeSceneSkipped, readSceneSkipped, () => false);
+function useAfterFirstPaint(): boolean {
 	const [afterFirstPaint, setAfterFirstPaint] = useState(false);
 	useEffect(() => {
 		setAfterFirstPaint(true);
 	}, []);
-	const entry = resultSceneFor(role, resultKey);
-	if (!entry || !afterFirstPaint || skipped || prefersReducedMotion() || connectionIsSlow()) return null;
-	return { file: assetUrl(entry.plik), poster: entry.plakat ? assetUrl(entry.plakat) : null };
+	return afterFirstPaint;
 }
 
 export function ResultImage({ role, resultKey }: { role: Role; resultKey: ResultKey }) {
 	const spec = resultImageFor(role, resultKey);
-	const clip = useResultClip(role, resultKey);
+	const afterFirstPaint = useAfterFirstPaint();
+	const [stopped, setStopped] = useState(false);
+	const [finished, setFinished] = useState(false);
+	const [replayed, setReplayed] = useState(false);
+	const [playId, setPlayId] = useState(0);
+	const entry = resultSceneFor(role, resultKey);
+	const mayPlay = animationStartsAutomatically() || replayed;
+	const mounted = Boolean(entry) && afterFirstPaint && mayPlay;
+	const running = Boolean(entry) && mayPlay && !stopped && !finished;
+
+	const handleReplay = useCallback(() => {
+		setStopped(false);
+		setFinished(false);
+		setReplayed(true);
+		setPlayId((current) => current + 1);
+	}, []);
+
 	if (!spec) return null;
 	return (
 		<figure className={`result-image result-image--${resultKey}`}>
 			<div className="result-image__stage stage">
 				<RoleArt owner={role} name={resultKey} alt={spec.caption} className="result-image__art" />
-				{clip && <ResultClip file={clip.file} poster={clip.poster} />}
+				{mounted && entry && (
+					<ResultClip
+						key={playId}
+						file={assetUrl(entry.plik)}
+						poster={entry.plakat ? assetUrl(entry.plakat) : null}
+						paused={stopped}
+						onEnded={() => setFinished(true)}
+					/>
+				)}
 			</div>
 			<figcaption className="result-image__caption">{nb(spec.caption)}</figcaption>
+			{entry && (
+				<button
+					type="button"
+					className="result-image__control text-button"
+					data-playback={running ? 'skip' : 'replay'}
+					aria-label={`${running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay} ${RESULT_CONTROL_SUFFIX}`}
+					onClick={running ? () => setStopped(true) : handleReplay}
+				>
+					{running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay}
+				</button>
+			)}
 		</figure>
 	);
 }

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import { artAlt, type Role } from '../roles/config';
 import { RoleArt } from '../roles/RoleArt';
 import { SCENE_START_TIMEOUT_MS, SCENE_TEXTS, type SceneSpec } from '../scenes/config';
-import { connectionIsSlow, prefersReducedMotion, readSceneSkipped, subscribeSceneSkipped, writeSceneSkipped } from '../scenes/preferences';
+import { animationStartsAutomatically } from '../scenes/preferences';
 import { SceneMarks } from '../scenes/SceneStage';
 import { useStage, type StageSlotInfo } from './StageContext';
 import './stage.css';
@@ -29,6 +29,7 @@ function sameBox(a: Box | null, b: Box | null): boolean {
 
 interface ClipProps {
 	scene: SceneSpec;
+	paused: boolean;
 	done: boolean;
 	finishing: boolean;
 	onFinished: () => void;
@@ -36,7 +37,7 @@ interface ClipProps {
 	onPlaying: () => void;
 }
 
-function StageClip({ scene, done, finishing, onFinished, onFailed, onPlaying }: ClipProps) {
+function StageClip({ scene, paused, done, finishing, onFinished, onFailed, onPlaying }: ClipProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const startedRef = useRef(false);
 	const latest = useRef({ finishing, onFinished, onFailed, onPlaying });
@@ -53,12 +54,16 @@ function StageClip({ scene, done, finishing, onFinished, onFailed, onPlaying }: 
 		const video = videoRef.current;
 		if (!video || typeof video.play !== 'function') return;
 		try {
+			if (paused) {
+				video.pause();
+				return;
+			}
 			const attempt = video.play() as Promise<void> | undefined;
 			attempt?.catch(() => undefined);
 		} catch {
 			return;
 		}
-	}, []);
+	}, [paused]);
 
 	useEffect(() => {
 		const video = videoRef.current;
@@ -112,7 +117,9 @@ function targetSlot(phase: string, foreground: StageSlotInfo | null, corner: Sta
 
 export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | null> }) {
 	const stage = useStage();
-	const skipped = useSyncExternalStore(subscribeSceneSkipped, readSceneSkipped, () => false);
+	const [stopped, setStopped] = useState(false);
+	const [replayed, setReplayed] = useState(false);
+	const [playId, setPlayId] = useState(0);
 	const [box, setBox] = useState<Box | null>(null);
 	const [animating, setAnimating] = useState(false);
 	const [hidden, setHidden] = useState(true);
@@ -125,10 +132,13 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 	const target = targetSlot(stage.phase, stage.foregroundSlot, stage.cornerSlot);
 	const targetElement = target?.element ?? null;
 	const mode = stage.phase === 'working' ? 'foreground' : 'corner';
-	const reducedMotion = prefersReducedMotion();
 	const scene = stage.scene;
-	const clipMounted = Boolean(scene?.file) && !skipped && !reducedMotion && !connectionIsSlow() && !clipFailed && stage.phase !== 'idle';
+	const clipAvailable = Boolean(scene?.file) && !clipFailed && stage.phase !== 'idle';
+	const mayPlay = animationStartsAutomatically() || replayed;
+	const clipMounted = clipAvailable && mayPlay;
 	const clipVisible = clipMounted && !clipFinished;
+	const clipRunning = clipVisible && !stopped;
+	const control = clipRunning ? (clipPlaying ? 'skip' : 'none') : clipAvailable && (stopped || !mayPlay) ? 'replay' : 'none';
 	const stillRole: Role = stage.resultRole ?? stage.cornerSlot?.role ?? stage.waitingRole;
 
 	useEffect(() => {
@@ -136,8 +146,19 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 			setClipFailed(false);
 			setClipPlaying(false);
 			setClipFinished(false);
+			setStopped(false);
+			setReplayed(false);
 		}
-	}, [stage.phase, scene]);
+	}, [stage.phase, stage.runId]);
+
+	const handleReplay = useCallback(() => {
+		setStopped(false);
+		setReplayed(true);
+		setClipFailed(false);
+		setClipPlaying(false);
+		setClipFinished(false);
+		setPlayId((current) => current + 1);
+	}, []);
 
 	const measure = useCallback(() => {
 		const app = appRef.current;
@@ -197,6 +218,7 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 			data-phase={stage.phase}
 			data-animating={animating ? 'true' : 'false'}
 			data-clip={clipVisible ? (clipPlaying ? 'playing' : 'loading') : 'none'}
+			data-control={control}
 			style={{ top: box.top, left: box.left, width: box.width, height: box.height }}
 		>
 			<div
@@ -208,8 +230,9 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 				<RoleArt owner={stillRole} name="praca" alt="" decorative className="character-stage__media character-stage__figure" />
 				{clipMounted && scene && (
 					<StageClip
-						key={`${stage.waitingRole}-${scene.id}`}
+						key={`${stage.runId}-${playId}-${stage.waitingRole}-${scene.id}`}
 						scene={scene}
+						paused={stopped}
 						done={clipFinished}
 						finishing={stage.phase === 'result'}
 						onFinished={() => setClipFinished(true)}
@@ -219,9 +242,14 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 				)}
 				{stage.phase === 'working' && <SceneMarks progress={stage.progress} />}
 			</div>
-			{clipVisible && clipPlaying && (
-				<button type="button" className="character-stage__skip text-button" onClick={() => writeSceneSkipped(true)}>
+			{control === 'skip' && (
+				<button type="button" className="character-stage__skip text-button" onClick={() => setStopped(true)}>
 					{SCENE_TEXTS.skip}
+				</button>
+			)}
+			{control === 'replay' && (
+				<button type="button" className="character-stage__skip text-button" onClick={handleReplay}>
+					{SCENE_TEXTS.replay}
 				</button>
 			)}
 		</div>

@@ -1,33 +1,12 @@
-const STORAGE_KEY = 'mylik.pomin-animacje';
+export const LEGACY_SCENE_STORAGE_KEY = 'mylik.pomin-animacje';
 
-let memoryValue: boolean | null = null;
-const listeners = new Set<() => void>();
-
-export function readSceneSkipped(): boolean {
-	if (memoryValue !== null) return memoryValue;
+export function clearLegacySceneChoice(): void {
+	if (typeof window === 'undefined') return;
 	try {
-		return window.localStorage.getItem(STORAGE_KEY) === '1';
+		window.localStorage.removeItem(LEGACY_SCENE_STORAGE_KEY);
 	} catch {
-		return false;
+		return;
 	}
-}
-
-export function writeSceneSkipped(skipped: boolean): void {
-	try {
-		if (skipped) window.localStorage.setItem(STORAGE_KEY, '1');
-		else window.localStorage.removeItem(STORAGE_KEY);
-		memoryValue = null;
-	} catch {
-		memoryValue = skipped;
-	}
-	listeners.forEach((listener) => listener());
-}
-
-export function subscribeSceneSkipped(listener: () => void): () => void {
-	listeners.add(listener);
-	return () => {
-		listeners.delete(listener);
-	};
 }
 
 export function prefersReducedMotion(): boolean {
@@ -40,4 +19,8 @@ export function connectionIsSlow(): boolean {
 	const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
 	if (!connection) return false;
 	return connection.saveData === true || connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g';
+}
+
+export function animationStartsAutomatically(): boolean {
+	return !prefersReducedMotion() && !connectionIsSlow();
 }

@@ -71,7 +71,7 @@
 	margin: 0 0 var(--space-1) var(--space-2);
 }
 
-.app:has(.character-stage[data-clip='playing'][data-mode='corner']) .stage-slot--corner {
+.app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .stage-slot--corner {
 	margin-bottom: 56px;
 }
 

@@ -3,7 +3,6 @@ import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
-import { SceneSetting } from './scenes/SceneSetting';
 import { useRoute } from './route';
 import { CharacterStage } from './stage/CharacterStage';
 import { StageProvider } from './stage/StageContext';
@@ -44,7 +43,6 @@ function AppShell() {
 			</main>
 			<footer className="site-footer">
 				<p>{nb(PROTOTYPE_NOTE)}</p>
-				<SceneSetting />
 				<p>{nb('Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.')}</p>
 			</footer>
 			<CharacterStage appRef={appRef} />

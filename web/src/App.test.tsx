@@ -4,12 +4,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STATE_LABELS_PL, VERDICT_LABELS_PL, VERDICTS, STATES } from '../../src/contracts/verdict';
 import { App } from './App';
 import { OutcomeView } from './components/OutcomeView';
-import { writeSceneSkipped } from './scenes/preferences';
+import { stubReducedMotion } from './testing/motion';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from './fixtures/outcomes';
 import { plain } from './typography';
 
 beforeEach(() => {
-	writeSceneSkipped(true);
+	stubReducedMotion(true);
 });
 
 afterEach(() => {

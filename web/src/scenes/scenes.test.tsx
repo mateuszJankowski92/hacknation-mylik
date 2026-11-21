@@ -7,7 +7,6 @@ import { App } from '../App';
 import { FIXTURE_OUTCOMES } from '../fixtures/outcomes';
 import { INITIAL_PROGRESS, reduceProgress } from '../visuals/progress';
 import { SCENES, SCENE_TEXTS, pickScene, type SceneSpec } from './config';
-import { readSceneSkipped, writeSceneSkipped } from './preferences';
 import { SceneMarks } from './SceneStage';
 
 const STATE_KEY = 'brak_mozliwosci_sprawdzenia';
@@ -60,7 +59,6 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 	window.history.replaceState(null, '', '/');
 	window.localStorage.clear();
-	writeSceneSkipped(false);
 });
 
 describe('sceny czekania', () => {
@@ -140,40 +138,52 @@ describe('sceny czekania', () => {
 		expect(document.querySelector('.character-stage')?.getAttribute('data-clip')).toBe('none');
 	});
 
-	it('"Pomiń animację" zatrzymuje scenę od razu i zapamiętuje wybór', async () => {
+	it('"Pomiń animację" zatrzymuje scenę od razu (nieruchoma klatka) tylko dla tego sprawdzenia, bez zapisu wyboru', async () => {
 		SCENES.pogodynka = [testScene({ file: '/postacie/pogodynka/sceny/a.mp4', poster: null, durationSec: 7 })];
+		const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
 		stubApi(100);
 		submit();
 		await screen.findByLabelText('Postęp sprawdzania');
+		const video = document.querySelector('.character-stage video') as HTMLVideoElement;
 		await act(async () => {
-			fireEvent.playing(document.querySelector('.character-stage video') as HTMLVideoElement);
+			fireEvent.playing(video);
 		});
 		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
-		expect(readSceneSkipped()).toBe(true);
-		expect(window.localStorage.getItem('mylik.pomin-animacje')).toBe('1');
-		expect(document.querySelector('.character-stage video')).toBeNull();
+		expect(pause).toHaveBeenCalled();
+		expect(document.querySelector('.character-stage video')).toBe(video);
 		expect(screen.queryByRole('button', { name: SCENE_TEXTS.skip })).toBeNull();
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.replay })).toBeTruthy();
+		expect(window.localStorage.length).toBe(0);
 		await screen.findByText(STATE_LABEL, undefined, { timeout: 600 });
-		expect(document.querySelector('.character-stage img, .character-stage svg')).not.toBeNull();
+		fireEvent.click(screen.getByRole('link', { name: 'Mylik' }));
+		fireEvent.change(await screen.findByLabelText(/Wklej informację lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await new Promise((resolve) => setTimeout(resolve, 20));
-		expect(document.querySelector('.character-stage video')).toBeNull();
-		await screen.findByText(STATE_LABEL, undefined, { timeout: 600 });
+		await screen.findByLabelText('Postęp sprawdzania');
+		const next = document.querySelector('.character-stage video') as HTMLVideoElement;
+		expect(next).not.toBeNull();
+		await act(async () => {
+			fireEvent.playing(next);
+		});
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
 	});
 
-	it('wybór można przywrócić w ustawieniach strony', async () => {
+	it('"Odtwórz animację" w widoku czekania wznawia scenę od początku', async () => {
 		SCENES.pogodynka = [testScene({ file: '/postacie/pogodynka/sceny/a.mp4', poster: null, durationSec: 7 })];
-		writeSceneSkipped(true);
-		stubApi(0);
-		render(<App />);
-		const setting = screen.getByRole('checkbox', { name: SCENE_TEXTS.setting }) as HTMLInputElement;
-		expect(setting.checked).toBe(false);
-		fireEvent.click(setting);
-		expect(setting.checked).toBe(true);
-		expect(readSceneSkipped()).toBe(false);
-		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'Coś do sprawdzenia.' } });
-		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await waitFor(() => expect(document.querySelector('.character-stage video')).not.toBeNull());
+		stubApi(600);
+		submit();
+		await screen.findByLabelText('Postęp sprawdzania');
+		const video = document.querySelector('.character-stage video') as HTMLVideoElement;
+		await act(async () => {
+			fireEvent.playing(video);
+		});
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
+		const replayed = document.querySelector('.character-stage video') as HTMLVideoElement;
+		expect(replayed).not.toBe(video);
+		await act(async () => {
+			fireEvent.playing(replayed);
+		});
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
 	});
 
 	it('pominięcie działa, gdy localStorage rzuca błędem', async () => {
@@ -192,11 +202,10 @@ describe('sceny czekania', () => {
 		});
 		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
 		await screen.findByText(STATE_LABEL, undefined, { timeout: 600 });
-		expect(readSceneSkipped()).toBe(true);
-		expect(document.querySelector('.character-stage video')).toBeNull();
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.replay })).toBeTruthy();
 	});
 
-	it('ograniczenie ruchu: nieruchomy plakat i wynik bez czekania', async () => {
+	it('ograniczenie ruchu: nieruchoma postać z "Odtwórz animację", wynik bez czekania', async () => {
 		SCENES.pogodynka = [testScene({ file: '/postacie/pogodynka/sceny/a.mp4', poster: null, durationSec: 7 })];
 		stubReducedMotion(true);
 		stubApi(100);
@@ -205,6 +214,7 @@ describe('sceny czekania', () => {
 		expect(document.querySelector('.character-stage video')).toBeNull();
 		expect(document.querySelector('.character-stage img, .character-stage svg')).not.toBeNull();
 		expect(screen.queryByRole('button', { name: SCENE_TEXTS.skip })).toBeNull();
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.replay })).toBeTruthy();
 		await screen.findByText(STATE_LABEL, undefined, { timeout: 400 });
 	});
 

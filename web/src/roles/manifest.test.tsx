@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { cleanup, render, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
-import { SCENES, sceneFromEntry } from '../scenes/config';
-import { writeSceneSkipped } from '../scenes/preferences';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { SCENES, SCENE_TEXTS, sceneFromEntry } from '../scenes/config';
+import { stubReducedMotion } from '../testing/motion';
 import { RESULT_KEYS, ROLES, type ResultKey } from './config';
 import {
 	ASSET_DIRECTORY,
@@ -22,7 +22,7 @@ const MAX_TOTAL_BYTES = 25 * 1024 * 1024;
 
 afterEach(() => {
 	cleanup();
-	writeSceneSkipped(false);
+	vi.unstubAllGlobals();
 });
 
 function publicFile(path: string): string {
@@ -125,8 +125,8 @@ describe('manifest ilustracji', () => {
 	it('scena otwierająca roli startowej to jeden klip bez pętli, z plakatem webp', () => {
 		const opening = entriesFor('start', 'scena_otwierajaca');
 		expect(opening).toHaveLength(1);
-		expect(opening[0]?.plik).toBe('postacie/start/scena__otwarcie.mp4');
-		expect(opening[0]?.plakat).toBe('postacie/start/scena__otwarcie__plakat.webp');
+		expect(opening[0]?.plik).toBe('postacie/start/scena__otwarcie_v5.mp4');
+		expect(opening[0]?.plakat).toBe('postacie/start/scena__otwarcie_v5__plakat.webp');
 		expect(opening[0]?.petla).toBe(false);
 		expect(opening[0]?.dlugosc_s).toBeGreaterThanOrEqual(8);
 		expect(opening[0]?.dlugosc_s).toBeLessThanOrEqual(12);
@@ -158,12 +158,30 @@ describe('obraz wyniku z klipem', () => {
 		}
 	});
 
-	it('pominięcie animacji zostawia sam nieruchomy obraz', async () => {
-		writeSceneSkipped(true);
+	it('ograniczenie ruchu zostawia nieruchomy obraz z "Odtwórz animację", a kliknięcie ją uruchamia', async () => {
+		stubReducedMotion(true);
 		const { container } = render(<ResultImage role="pogodynka" resultKey="falszywe" />);
 		await new Promise((done) => setTimeout(done, 20));
 		expect(container.querySelector('video')).toBeNull();
 		expect(container.querySelector('.result-image__art')).not.toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: `${SCENE_TEXTS.replay} obrazu wyniku` }));
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+		expect(screen.getByRole('button', { name: `${SCENE_TEXTS.skip} obrazu wyniku` })).toBeTruthy();
+	});
+
+	it('"Pomiń animację" zatrzymuje klip w miejscu, a "Odtwórz animację" uruchamia go od nowa bez zapisu wyboru', async () => {
+		const { container } = render(<ResultImage role="pogodynka" resultKey="falszywe" />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+		const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+		fireEvent.click(screen.getByRole('button', { name: `${SCENE_TEXTS.skip} obrazu wyniku` }));
+		await waitFor(() => expect(pause).toHaveBeenCalled());
+		expect(container.querySelector('video')).not.toBeNull();
+		expect(window.localStorage.length).toBe(0);
+		const before = container.querySelector('video');
+		fireEvent.click(screen.getByRole('button', { name: `${SCENE_TEXTS.replay} obrazu wyniku` }));
+		await waitFor(() => expect(container.querySelector('video')).not.toBe(before));
+		expect(screen.getByRole('button', { name: `${SCENE_TEXTS.skip} obrazu wyniku` })).toBeTruthy();
+		pause.mockRestore();
 	});
 
 	it('błąd klipu chowa go i zostaje obraz', async () => {

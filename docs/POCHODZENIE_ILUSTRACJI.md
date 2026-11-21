@@ -20,7 +20,7 @@ Wszystkie pliki mają białe tło (#FFFFFF), bez przezroczystości, a klipy nie 
 
 Źródłem jest `web/src/roles/manifest.json` (kopia paczki z katalogu roboczego galerii, tylko role użyte w interfejsie). Czytają z niego konfiguracja ról (`web/src/roles/manifest.ts`) i sceny (`web/src/scenes/config.ts`): ścieżki, teksty alternatywne, długości scen i rodzaj pliku nie są wpisane w kodzie. Pliki leżą w `web/public/postacie/<katalog>/`. Do repozytorium trafiły tylko lekkie wersje: obrazy `.webp` (720 x 900 px), klipy `.mp4` (576 x 720 px) i plakaty `.webp`. Pełnych obrazów PNG i archiwum prób nie ma.
 
-Scena otwierająca (`start/scena__otwarcie.mp4`, 10 s) jest domyślną sceną hero strony głównej: wiadomość przylatuje do postaci, postać rozkłada mapę, przypina znacznik źródła, a obok zostaje czysta biała plama. Sceny ról grają dopiero po wpisaniu wiadomości (czekanie i wynik).
+Scena otwierająca (`start/scena__otwarcie_v5.mp4`, 8,4 s) jest domyślną sceną hero strony głównej: wiadomość przylatuje do postaci, postać rozkłada mapę i trzyma ją w rękach. To wariant v5 (Seedance 2.5, 13 s), przycięty ffmpeg-iem do 8,4 s, czyli przed momentem, w którym postać przypina znacznik; poprzedni klip (v1) miał błąd: pinezka była przypinana z zewnątrz mapy. Warianty v2 i v3 też odrzucono (pinezka na krawędzi, druga mapa na podłodze). Sceny ról grają dopiero po wpisaniu wiadomości (czekanie i wynik).
 
 Katalog `sport_pilkarz` jest w paczce, ale nieużywany. Zamiana roli sportowej z komentatora na piłkarza to zmiana jednej wartości: `ASSET_DIRECTORY.sport` w `web/src/roles/manifest.ts` (z `'sport'` na `'sport_pilkarz'`).
 

@@ -13,7 +13,7 @@ import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
 import { entriesFor, type ManifestEntry } from './roles/manifest';
 import { HERO_SCENES, SCENE_TEXTS, heroEntries, heroScenesFor, heroSequence, type SceneSpec } from './scenes/config';
-import { readSceneSkipped, writeSceneSkipped } from './scenes/preferences';
+import { LEGACY_SCENE_STORAGE_KEY, clearLegacySceneChoice } from './scenes/preferences';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -22,7 +22,6 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 	window.history.replaceState(null, '', '/');
 	window.localStorage.clear();
-	writeSceneSkipped(false);
 });
 
 function stubReducedMotion(matches: boolean) {
@@ -179,21 +178,21 @@ describe('scena przy pracy w hero', () => {
 			...entriesFor('start', 'scena_czekania')[0],
 			rodzaj: 'scena_otwierajaca',
 			stan: 'otwarcie',
-			plik: 'postacie/start/scena__otwarcie.mp4',
-			plakat: 'postacie/start/scena__otwarcie__plakat.png',
+			plik: 'postacie/start/scena__otwarcie_v5.mp4',
+			plakat: 'postacie/start/scena__otwarcie_v5__plakat.png',
 			petla: false,
 		};
 		const withOpening = heroScenesFor([opening]);
 		expect(withOpening.map((item) => item.id)).toEqual(['start-otwarcie']);
-		expect(withOpening[0]?.file).toBe('/postacie/start/scena__otwarcie.mp4');
+		expect(withOpening[0]?.file).toBe('/postacie/start/scena__otwarcie_v5.mp4');
 		expect(heroEntries().length).toBeGreaterThan(0);
 		for (const entry of heroEntries()) expect(['scena_otwierajaca', 'scena_czekania']).toContain(entry.rodzaj);
 	});
 
 	it('domyślna scena hero to scena otwierająca z manifestu, a sceny ról w niej nie grają', () => {
 		expect(HERO_SCENES.map((item) => item.id)).toEqual(['start-otwarcie']);
-		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__otwarcie.mp4');
-		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__otwarcie__plakat.webp');
+		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__otwarcie_v5.mp4');
+		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__otwarcie_v5__plakat.webp');
 		expect(HERO_SCENES[0]?.loop).toBe(false);
 		for (const item of HERO_SCENES) expect(item.file).toMatch(/^\/postacie\/start\//);
 	});
@@ -240,17 +239,65 @@ describe('scena przy pracy w hero', () => {
 		expect(container.querySelector('img')?.getAttribute('src')).toMatch(/praca__spoczynek\.webp$/);
 	});
 
-	it('"Pomiń animację" zostawia nieruchomą postać i zapamiętuje wybór', () => {
+	it('"Pomiń animację" zatrzymuje tylko to odtwarzanie, a w tym samym miejscu jest "Odtwórz animację"', async () => {
 		stubLatest(0);
 		const { container } = render(<App />);
-		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
-		expect(readSceneSkipped()).toBe(true);
-		expect(container.querySelector('.hero video')).toBeNull();
-		expect(container.querySelector('.hero img')?.getAttribute('src')).toMatch(/praca__spoczynek\.webp$/);
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
+		const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+		const skip = screen.getByRole('button', { name: SCENE_TEXTS.skip });
+		fireEvent.click(skip);
+		await waitFor(() => expect(pause).toHaveBeenCalled());
+		expect(container.querySelector('.hero video')).not.toBeNull();
 		expect(screen.queryByRole('button', { name: SCENE_TEXTS.skip })).toBeNull();
+		const replay = screen.getByRole('button', { name: SCENE_TEXTS.replay });
+		expect(replay.parentElement).toBe(skip.parentElement);
+		expect(window.localStorage.length).toBe(0);
+		pause.mockRestore();
 	});
 
-	it('ograniczenie ruchu: sam plakat, bez wideo i bez przycisku pomijania', () => {
+	it('"Odtwórz animację" uruchamia scenę od początku', async () => {
+		const scenes = [scene('pierwszy'), scene('drugi')];
+		const { container } = render(<HeroStage scenes={scenes} />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
+		expect(container.querySelector('video')?.getAttribute('src')).toBe('/postacie/start/drugi.mp4');
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
+		expect(container.querySelector('video')?.getAttribute('src')).toBe('/postacie/start/pierwszy.mp4');
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+	});
+
+	it('po naturalnym końcu sceny zostaje ostatnia klatka i "Odtwórz animację"', async () => {
+		const { container } = render(<HeroStage scenes={[scene('jedyny')]} />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
+		expect(container.querySelector('video')).not.toBeNull();
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.replay })).toBeTruthy();
+	});
+
+	it('pominięcie nie przechodzi na następne wejście na stronę główną: scena startuje od nowa', async () => {
+		stubLatest(0);
+		const first = render(<App />);
+		await waitFor(() => expect(first.container.querySelector('.hero video')).not.toBeNull());
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
+		first.unmount();
+		const second = render(<App />);
+		await waitFor(() => expect(second.container.querySelector('.hero video')).not.toBeNull());
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+		expect(window.localStorage.getItem(LEGACY_SCENE_STORAGE_KEY)).toBeNull();
+	});
+
+	it('stary zapis wyboru z pamięci przeglądarki jest czyszczony przy starcie i nic nie wyłącza', async () => {
+		window.localStorage.setItem(LEGACY_SCENE_STORAGE_KEY, '1');
+		clearLegacySceneChoice();
+		expect(window.localStorage.getItem(LEGACY_SCENE_STORAGE_KEY)).toBeNull();
+		window.localStorage.setItem(LEGACY_SCENE_STORAGE_KEY, '1');
+		stubLatest(0);
+		const { container } = render(<App />);
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
+	});
+
+	it('ograniczenie ruchu: nieruchomy plakat z widocznym "Odtwórz animację", kliknięcie uruchamia scenę', async () => {
 		stubReducedMotion(true);
 		stubLatest(0);
 		const { container } = render(<App />);
@@ -259,6 +306,9 @@ describe('scena przy pracy w hero', () => {
 		expect(poster.getAttribute('src')).toBe((HERO_SCENES.find((item) => item.loop) ?? HERO_SCENES[0])?.poster);
 		expect(poster.getAttribute('alt')).toBeTruthy();
 		expect(screen.queryByRole('button', { name: SCENE_TEXTS.skip })).toBeNull();
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
 	});
 });
 

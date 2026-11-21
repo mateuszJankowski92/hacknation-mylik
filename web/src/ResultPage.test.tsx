@@ -9,14 +9,14 @@ import { GONE_TEXTS } from './components/RecordPage';
 import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
-import { writeSceneSkipped } from './scenes/preferences';
+import { stubReducedMotion } from './testing/motion';
 import { plain } from './typography';
 
 const ID = 'a'.repeat(64);
 const potwierdzone = FIXTURE_OUTCOMES.potwierdzone as { kind: 'record'; record: VerificationRecord };
 
 beforeEach(() => {
-	writeSceneSkipped(true);
+	stubReducedMotion(true);
 });
 
 afterEach(() => {
@@ -43,7 +43,7 @@ const LATEST = { corpusVersion: 'x', documents: [] };
 
 describe('strona wyniku /r/<id>', () => {
 	it('po kliknięciu "Sprawdź" od razu przechodzi na /r/<id>, potem pokazuje wynik i przyciski', async () => {
-		writeSceneSkipped(true);
+		stubReducedMotion(true);
 		let release: (response: Response) => void = () => undefined;
 		const fetchMock = stubApi({
 			'/api/verify/key': () => ok({ recordId: ID }),

@@ -19,6 +19,7 @@ export interface StageSlotInfo {
 export interface StageValue {
 	phase: StagePhase;
 	scene: SceneSpec | null;
+	runId: number;
 	waitingRole: Role;
 	resultRole: Role | null;
 	resultId: string | null;
@@ -39,6 +40,7 @@ const NO_OPERATION = () => undefined;
 const DETACHED_STAGE: StageValue = {
 	phase: 'idle',
 	scene: null,
+	runId: 0,
 	waitingRole: DEFAULT_ROLE,
 	resultRole: null,
 	resultId: null,
@@ -65,6 +67,7 @@ interface Marks {
 export function StageProvider({ children }: { children: ReactNode }) {
 	const [phase, setPhase] = useState<StagePhase>('idle');
 	const [scene, setScene] = useState<SceneSpec | null>(null);
+	const [runId, setRunId] = useState(0);
 	const [waitingRole, setWaitingRole] = useState<Role>(DEFAULT_ROLE);
 	const [resultRole, setResultRole] = useState<Role | null>(null);
 	const [resultId, setResultId] = useState<string | null>(null);
@@ -84,6 +87,7 @@ export function StageProvider({ children }: { children: ReactNode }) {
 		(role: Role = DEFAULT_ROLE, options: { keep?: boolean } = {}) => {
 			if (options.keep && phaseRef.current === 'working') return;
 			marks.current = { start: Date.now() };
+			setRunId((current) => current + 1);
 			setWaitingRole(role);
 			setResultRole(null);
 			setResultId(null);
@@ -136,6 +140,7 @@ export function StageProvider({ children }: { children: ReactNode }) {
 		() => ({
 			phase,
 			scene,
+			runId,
 			waitingRole,
 			resultRole,
 			resultId,
@@ -150,7 +155,7 @@ export function StageProvider({ children }: { children: ReactNode }) {
 			setProgress,
 			registerSlot,
 		}),
-		[phase, scene, waitingRole, resultRole, resultId, progress, timing, foregroundSlot, cornerSlot, begin, resolve, reset, markShown, registerSlot],
+		[phase, scene, runId, waitingRole, resultRole, resultId, progress, timing, foregroundSlot, cornerSlot, begin, resolve, reset, markShown, registerSlot],
 	);
 
 	return <StageContext.Provider value={value}>{children}</StageContext.Provider>;

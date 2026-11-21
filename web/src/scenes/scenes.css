@@ -27,21 +27,6 @@
 	opacity: 0.6;
 }
 
-.scene-setting {
-	margin: 0.5rem 0;
-}
-
-.scene-setting__label {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-.scene-setting__hint {
-	margin: 0.25rem 0 0;
-	color: var(--muted);
-}
-
 @keyframes scene-pop {
 	from {
 		transform: scale(0);

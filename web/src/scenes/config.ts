@@ -15,9 +15,7 @@ export const SCENE_START_TIMEOUT_MS = 3000;
 
 export const SCENE_TEXTS = {
 	skip: 'Pomiń animację',
-	setting: 'Pokazuj animację podczas czekania',
-	settingHint: 'Możesz ją wyłączyć. Wynik pokaże się od razu po odpowiedzi.',
-	settingsLabel: 'Ustawienia strony',
+	replay: 'Odtwórz animację',
 	marksLabel: 'Tyle źródeł znalazłem do tej pory',
 } as const;
 
