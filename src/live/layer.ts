@@ -15,6 +15,7 @@ import type { Notice } from '../contracts/index';
 import { detectInjectionSignals, type InjectionSignalCode } from '../engine/injection';
 import { cleanText } from '../input/normalize';
 import type { LiveSearchHit, LiveSearcher } from './search';
+import { selectLiveEvidence } from './select';
 import type { LiveSource, LiveSourceList } from './sources';
 
 /** Najwyżej tyle stron pobieramy dla jednego twierdzenia. */
@@ -306,6 +307,7 @@ export function createLiveLayer(opts: LiveLayerOptions): LiveLayer {
   return {
     sources,
     budgetMs: opts.budgetMs ?? DEFAULT_LIVE_BUDGET_MS,
+    select: selectLiveEvidence,
     async find(claim, { budgetMs, now }) {
       const started = Date.now();
       const out: LiveFindResult = {

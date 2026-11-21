@@ -90,6 +90,22 @@ describe('silnik z drugą warstwą', () => {
     expect(searcher.calls).toHaveLength(1);
   });
 
+  it('zad. 29b: dowód przeciwny z drugiej warstwy nie daje "fałszywe" (tylko potwierdza albo milczy)', async () => {
+    const refute: AssessFn = (req) =>
+      req.passages.map((p) => {
+        const m = /[^.]*wygrała z Holandią 2:1[^.]*\./.exec(p.text);
+        return m
+          ? { passageId: p.id, stance: 'obala' as const, quote: m[0].trim(), injectionSuspected: false }
+          : { passageId: p.id, stance: 'bez_zwiazku' as const, quote: '', injectionSuspected: false };
+      });
+    const { engine, db } = setup(testLayer(new FakeLiveSearcher(fixtureHits()), fakeFetcher(fixturePages())), refute);
+    const c = (await record(engine)).claims[0]!;
+    expect(c.verdict).toBe('brak_wystarczajacych_dowodow');
+    expect(c.evidence.some((e) => e.source.layer === 'media_i_instytucje' && e.stance === 'obala')).toBe(false);
+    const ev = events(db).filter((e) => e.type === 'live_search').map((e) => JSON.parse(e.detail!));
+    expect(ev.some((d) => d.status === 'odrzucone_regulami' && d.nie_potwierdza >= 1)).toBe(true);
+  });
+
   it('korpus rozstrzyga: warstwa druga nie startuje', async () => {
     const searcher = new FakeLiveSearcher(fixtureHits());
     const official = passage('pzpn-urz#0', 'Komunikat urzędu: reprezentacja Polski wygrała z Holandią 2:1 w sobotę.', { sourceType: 'urzedowe' });

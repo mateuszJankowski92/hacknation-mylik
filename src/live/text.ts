@@ -21,3 +21,9 @@ export const LIVE_TIMEOUT_NOTICE =
   'Szukanie w mediach z naszej listy trwało za długo. Przerwałem je i nic z niego nie dodałem.';
 
 export const LIVE_INJECTION_NOTICE = 'Na stronie z naszej listy są polecenia dla mnie. Pominąłem ten tekst.';
+
+/** Gdy twierdzenie nie ma daty: odpowiedź pokazuje datę najnowszej strony, na której się oparła. */
+export function liveDateNotice(isoDay: string): string {
+  const [y, m, d] = isoDay.split('-');
+  return `Ta strona jest z ${d}.${m}.${y}. Później mogło się coś zmienić.`;
+}

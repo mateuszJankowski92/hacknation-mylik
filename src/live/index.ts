@@ -9,6 +9,7 @@ export * from './layer';
 export * from './search';
 export * from './sources';
 export * from './text';
+export * from './select';
 
 /** Limit czasu pobrania jednej strony drugiej warstwy (krótszy niż dla adresu od obywatela). */
 export const LIVE_PAGE_TIMEOUT_MS = 5_000;
