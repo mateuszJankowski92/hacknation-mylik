@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
@@ -192,8 +192,8 @@ describe('scena przy pracy w hero', () => {
 	it('domyślna scena hero to klip startowy "rozglada" z oceną 9 bez błędu pinezki, a sceny ról w niej nie grają', () => {
 		expect(entriesFor('start', 'scena_otwierajaca')).toHaveLength(0);
 		expect(HERO_SCENES.map((item) => item.id)).toEqual(['start-rozglada']);
-		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__rozglada.mp4');
-		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__rozglada__plakat.webp');
+		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__rozglada__petla.mp4');
+		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__rozglada__petla__plakat.webp');
 		expect(HERO_SCENES[0]?.loop).toBe(true);
 		for (const item of HERO_SCENES) expect(item.file).toMatch(/^\/postacie\/start\//);
 	});
@@ -256,16 +256,72 @@ describe('scena przy pracy w hero', () => {
 		pause.mockRestore();
 	});
 
-	it('"Odtwórz animację" uruchamia scenę od początku', async () => {
+	it('"Odtwórz animację" wznawia to samo odtwarzanie, bez zaczynania od nowa', async () => {
 		const scenes = [scene('pierwszy'), scene('drugi')];
 		const { container } = render(<HeroStage scenes={scenes} />);
 		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
 		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
-		expect(container.querySelector('video')?.getAttribute('src')).toBe('/postacie/start/drugi.mp4');
+		const video = container.querySelector('video') as HTMLVideoElement;
+		expect(video.getAttribute('src')).toBe('/postacie/start/drugi.mp4');
 		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
+		expect(container.querySelector('video')).toBe(video);
+		expect(video.getAttribute('src')).toBe('/postacie/start/drugi.mp4');
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+	});
+
+	it('po naturalnym końcu ostatniej sceny "Odtwórz animację" uruchamia sekwencję od początku', async () => {
+		const scenes = [scene('pierwszy'), scene('drugi')];
+		const { container } = render(<HeroStage scenes={scenes} />);
+		await waitFor(() => expect(container.querySelector('video')).not.toBeNull());
+		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
+		fireEvent.ended(container.querySelector('video') as HTMLVideoElement);
 		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
 		expect(container.querySelector('video')?.getAttribute('src')).toBe('/postacie/start/pierwszy.mp4');
 		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+	});
+
+	it('domyślnie hero gra w pętli bez końca: zapętlony klip, brak przejścia do następnej sceny i przycisku "Odtwórz animację"', async () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
+		const video = container.querySelector('.hero video') as HTMLVideoElement;
+		expect(video.loop).toBe(true);
+		expect(video.hasAttribute('loop')).toBe(true);
+		const source = video.getAttribute('src');
+		fireEvent.ended(video);
+		expect(container.querySelector('.hero video')?.getAttribute('src')).toBe(source);
+		expect(screen.queryByRole('button', { name: SCENE_TEXTS.replay })).toBeNull();
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+	});
+
+	it('klip pętli jest przygotowany bez skoku: manifest opisuje przenikanie końca w początek, a plik i plakat istnieją', () => {
+		const entry = entriesFor('start', 'scena_czekania').find((item) => item.stan === 'rozglada') as ManifestEntry & { petla_bez_skoku?: string };
+		expect(entry.petla).toBe(true);
+		expect(entry.petla_bez_skoku).toMatch(/przenikają/);
+		expect(entry.plik).toMatch(/__petla\.mp4$/);
+		expect(statSync(join(HERE, '..', 'public', entry.plik)).size).toBeLessThan(1.5 * 1024 * 1024);
+		expect(existsSync(join(HERE, '..', 'public', entry.plakat as string))).toBe(true);
+	});
+
+	it('"Pomiń animację" zatrzymuje pętlę na bieżącej klatce, a "Odtwórz animację" wznawia ten sam film bez przeładowania', async () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		await waitFor(() => expect(container.querySelector('.hero video')).not.toBeNull());
+		const video = container.querySelector('.hero video') as HTMLVideoElement;
+		const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+		const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.skip }));
+		await waitFor(() => expect(pause).toHaveBeenCalledTimes(1));
+		expect(container.querySelector('.hero video')).toBe(video);
+		play.mockClear();
+		fireEvent.click(screen.getByRole('button', { name: SCENE_TEXTS.replay }));
+		await waitFor(() => expect(play).toHaveBeenCalled());
+		expect(container.querySelector('.hero video')).toBe(video);
+		expect(video.loop).toBe(true);
+		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
+		pause.mockRestore();
+		play.mockRestore();
 	});
 
 	it('po naturalnym końcu sceny zostaje ostatnia klatka i "Odtwórz animację"', async () => {

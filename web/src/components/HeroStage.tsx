@@ -39,6 +39,21 @@ function HeroClip({ scene, paused, onEnded, onFailed }: HeroClipProps) {
 		}
 	}, [paused]);
 
+	function handleEnded() {
+		const video = videoRef.current;
+		if (!scene.loop || !video) {
+			callbacks.current.onEnded();
+			return;
+		}
+		video.currentTime = 0;
+		try {
+			const attempt = video.play() as Promise<void> | undefined;
+			attempt?.catch(() => undefined);
+		} catch {
+			return;
+		}
+	}
+
 	return (
 		<div className="hero__media" role="img" aria-label={scene.alt}>
 			<video
@@ -59,7 +74,7 @@ function HeroClip({ scene, paused, onEnded, onFailed }: HeroClipProps) {
 				onPlaying={() => {
 					startedRef.current = true;
 				}}
-				onEnded={() => callbacks.current.onEnded()}
+				onEnded={handleEnded}
 				onError={() => callbacks.current.onFailed()}
 			/>
 		</div>
@@ -108,11 +123,12 @@ export function HeroStage({ illustration, scenes = HERO_SCENES }: { illustration
 
 	const handleReplay = useCallback(() => {
 		setStopped(false);
-		setFinished(false);
 		setReplayed(true);
+		if (!finished) return;
+		setFinished(false);
 		setIndex(0);
 		setPlayId((current) => current + 1);
-	}, []);
+	}, [finished]);
 
 	return (
 		<div className="hero__illustration">
