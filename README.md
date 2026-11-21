@@ -54,6 +54,8 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `KNOWN_OPS_DIR` | `data/known-ops` | Znane operacje informacyjne (EUvsDisinfo), tylko ostrzeżenia. Brak plików nie przeszkadza. |
 | `INCIDENTS_PATH` | brak | Plik bazy incydentów (JSON/CSV), tylko ostrzeżenia. Brak = wyszukiwanie domyślne; brak pliku nie przeszkadza. |
 | `PUBLIC_BASE_URL` | brak | Publiczny adres serwisu dla odsyłacza na karcie SVG; brak = adres względny. |
+| `LIVE_LAYER` | `off` | Druga warstwa źródeł (zad. 29): `on` = gdy zbiór urzędowy nie da rozstrzygającej podstawy, szukanie na żywo wyłącznie w serwisach z `data/live-sources.json` (wymaga `LLM_PROVIDER=anthropic`). `off` = system działa jak dotąd. Opis: `docs/ZRODLA.md`. |
+| `LIVE_SOURCES_PATH` | `data/live-sources.json` | Jawna lista serwisów drugiej warstwy (do audytu). |
 
 `GET /api/health` zwraca nazwę dostawcy i modelu (bez klucza). Konfiguracja wypisywana przy starcie zawiera tylko informację, czy klucz jest ustawiony.
 
@@ -84,6 +86,7 @@ src/corpus/      katalog źródeł, podział na fragmenty, ingest, wyszukiwarka 
 src/input/       walidacja, normalizacja i maskowanie danych osobowych
 src/llm/         dostawcy modelu (mock, anthropic) i prompty
 src/engine/      potok weryfikacji, bramka cytatów, reguły werdyktu, zapis rekordów
+src/live/        druga warstwa źródeł: lista serwisów, wyszukiwanie adresów, pobranie stron (LIVE_LAYER)
 src/server/      serwer HTTP (Hono): trasy, pliki statyczne, składanie zależności
 src/main.ts      punkt wejścia serwera
 web/             interfejs React (budowany przez Vite do dist/web)
