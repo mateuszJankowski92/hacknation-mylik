@@ -1,6 +1,7 @@
 // FIXTURE: wymyślone, neutralne dane do podglądu i testów. Nie są częścią produkcyjnego bundla.
 import type { ClaimResult, EvidenceItem, VerificationRecord, VerifyOutcome } from '../../../src/contracts/record';
 import type { Verdict } from '../../../src/contracts/verdict';
+import { annotateAnswer, type AnswerMode } from '../../../src/render/answer';
 
 const FIXTURE_QUOTE = 'Biblioteka miejska jest czynna od poniedziałku do piątku w godzinach 9:00-17:00.';
 
@@ -57,6 +58,11 @@ function buildClaim(verdict: Verdict, overrides: Partial<ClaimResult> = {}): Cla
 	};
 }
 
+function answered(claim: ClaimResult, mode: AnswerMode = 'twierdzenie'): ClaimResult {
+	annotateAnswer(claim, { mode, indexChecked: true });
+	return claim;
+}
+
 export const FIXTURE_OUTCOMES: Record<string, VerifyOutcome> = {
 	potwierdzone: {
 		kind: 'record',
@@ -88,12 +94,14 @@ export const FIXTURE_OUTCOMES: Record<string, VerifyOutcome> = {
 		kind: 'record',
 		cached: false,
 		record: buildRecord('d', [
-			buildClaim('brak_wystarczajacych_dowodow', {
-				strength: { level: 'brak', reasons: ['brak_dowodow'] },
-				evidence: [],
-				explanation: 'W zbiorze źródeł nie ma fragmentów, które dotyczą tego twierdzenia.',
-				abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
-			}),
+			answered(
+				buildClaim('brak_wystarczajacych_dowodow', {
+					strength: { level: 'brak', reasons: ['brak_dowodow'] },
+					evidence: [],
+					explanation: 'W zbiorze źródeł nie ma fragmentów, które dotyczą tego twierdzenia.',
+					abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
+				}),
+			),
 		]),
 	},
 	nie_podlega_weryfikacji: {
@@ -174,15 +182,41 @@ FIXTURE_OUTCOMES.kilka_twierdzen = {
 				claim: { id: 'c2', text: 'Biblioteka jest czynna w niedziele.', kind: 'faktograficzna' },
 				evidence: [{ ...FIXTURE_EVIDENCE, passageId: 'fixture-doc-1#1', stance: 'obala', quote: 'W niedziele i święta biblioteka jest nieczynna.' }],
 			}),
-			buildClaim('brak_wystarczajacych_dowodow', {
-				claim: { id: 'c3', text: 'Wstęp do biblioteki jest bezpłatny dla wszystkich.', kind: 'faktograficzna' },
-				strength: { level: 'brak', reasons: ['brak_dowodow'] },
-				evidence: [],
-				abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
-			}),
+			answered(
+				buildClaim('brak_wystarczajacych_dowodow', {
+					claim: { id: 'c3', text: 'Wstęp do biblioteki jest bezpłatny dla wszystkich.', kind: 'faktograficzna' },
+					strength: { level: 'brak', reasons: ['brak_dowodow'] },
+					evidence: [],
+					abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
+				}),
+			),
 		]),
 		maskedInput: 'Biblioteka jest czynna w soboty i w niedziele, a wstęp jest bezpłatny dla wszystkich.',
 	},
 };
+
+const YES_NO_QUESTION = 'Czy biblioteka miejska jest czynna w weekendy?';
+
+function questionRecord(idChar: string, claim: ClaimResult): VerifyOutcome {
+	return { kind: 'record', cached: false, record: { ...buildRecord(idChar, [answered(claim, 'pytanie')]), maskedInput: YES_NO_QUESTION } };
+}
+
+FIXTURE_OUTCOMES.pytanie_tak = questionRecord('1', buildClaim('potwierdzone'));
+
+FIXTURE_OUTCOMES.pytanie_nie = questionRecord('2', buildClaim('falszywe', { evidence: [{ ...FIXTURE_EVIDENCE, stance: 'obala' }] }));
+
+FIXTURE_OUTCOMES.pytanie_czesciowo = questionRecord(
+	'3',
+	buildClaim('wprowadzajace_w_blad', { evidence: [{ ...FIXTURE_EVIDENCE, stance: 'rozbieznosc_kontekstu', mismatch: 'data' }] }),
+);
+
+FIXTURE_OUTCOMES.pytanie_brak_wystarczajacych_dowodow = questionRecord(
+	'4',
+	buildClaim('brak_wystarczajacych_dowodow', {
+		strength: { level: 'brak', reasons: ['brak_dowodow'] },
+		evidence: [],
+		abstainReason: 'Żadne źródło w zbiorze nie omawia tego twierdzenia.',
+	}),
+);
 
 export const FIXTURE_QUOTE_TEXT = FIXTURE_QUOTE;

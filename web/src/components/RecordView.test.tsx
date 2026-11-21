@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { VERDICT_LABELS_PL, VERDICTS } from '../../../src/contracts/verdict';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from '../fixtures/outcomes';
-import { ABSTAIN_WORDS } from './RecordClaim';
+import { plain } from '../typography';
 import { RecordView } from './RecordView';
 
 afterEach(cleanup);
@@ -24,7 +24,7 @@ describe('RecordView', () => {
 			const { container } = render(<RecordView record={record(verdict)} />);
 			expect(screen.getByText(VERDICT_LABELS_PL[verdict])).toBeTruthy();
 			const headline = container.querySelector('.record-claim__headline')?.textContent ?? '';
-			if (verdict === 'brak_wystarczajacych_dowodow') expect(headline).toBe(ABSTAIN_WORDS);
+			if (verdict === 'brak_wystarczajacych_dowodow') expect(plain(headline)).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: .+ Brak wyniku w moich źródłach nie oznacza, że to nieprawda\.$/u);
 			else expect(headline.length).toBeGreaterThan(10);
 			expect(container.querySelector('.record-claim__certainty') !== null).toBe(
 				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',

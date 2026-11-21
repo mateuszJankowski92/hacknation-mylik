@@ -16,7 +16,7 @@ import { nb } from '../typography';
 export const ABSTAIN_ONE_SENTENCE =
 	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
 export const NO_QUOTE_TEXT = 'Nie ma cytatu z tego źródła.';
-export const ABSTAIN_WORDS = 'Nie wiem.';
+export const BLANK_SPOT_NOTE = 'Biała plama: miejsce na mapie, którego nikt jeszcze nie opisał.';
 
 const MEDIUM_HEADLINE_CHARS = 90;
 const LONG_HEADLINE_CHARS = 180;
@@ -65,7 +65,7 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 			)}
 			{item.stance === 'rozbieznosc_kontekstu' && item.mismatch && (
 				<p className="record-evidence__mismatch">
-					Źródło opisuje to samo, ale w innym kontekście: {MISMATCH_LABELS_PL[item.mismatch]}.
+					{nb(`Źródło opisuje to samo, ale w innym kontekście: ${MISMATCH_LABELS_PL[item.mismatch]}.`)}
 				</p>
 			)}
 			{item.quote.trim() ? (
@@ -122,9 +122,10 @@ interface RecordClaimProps {
 	serious?: boolean;
 	showImage?: boolean;
 	leading?: boolean;
+	blankSpotNote?: boolean;
 }
 
-export function RecordClaim({ result, asOf, extraDetails, role, serious = false, showImage = true, leading = true }: RecordClaimProps) {
+export function RecordClaim({ result, asOf, extraDetails, role, serious = false, showImage = true, leading = true, blankSpotNote = true }: RecordClaimProps) {
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
 	const pointing = !isAbstain && usesGesture(role, result.verdict, serious);
@@ -138,8 +139,6 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const certainty = layout.certainty;
-	const hasConflict =
-		result.evidence.some((item) => item.stance === 'potwierdza') && result.evidence.some((item) => item.stance === 'obala');
 	const detailsRef = useRef<HTMLDetailsElement>(null);
 
 	function showDetails() {
@@ -159,14 +158,14 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 				<h3
 					id={headingId}
 					className="record-claim__headline"
-					data-length={isAbstain ? 'abstain' : headlineLength(layout.headline)}
+					data-length={headlineLength(layout.headline)}
 					data-result-heading={leading ? '' : undefined}
 					tabIndex={-1}
 				>
-					{isAbstain ? ABSTAIN_WORDS : nb(layout.headline)}
+					{nb(layout.headline)}
 				</h3>
+				{isAbstain && blankSpotNote && <p className="record-claim__blank-spot">{nb(BLANK_SPOT_NOTE)}</p>}
 				<div className="record-claim__summary">
-					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{nb(layout.headline)}</p>}
 					<div className="verdict">
 						<p className="verdict__label">
 							<span className="visually-hidden">Ocena: </span>

@@ -61,9 +61,10 @@ describe('warianty fixture', () => {
 		});
 	}
 
-	it('pokazuje uczciwe "Nie wiem" przy wstrzymaniu się', () => {
+	it('przy wstrzymaniu się pokazuje zdanie z silnika, a nie stały napis "Nie wiem."', () => {
 		render(<OutcomeView outcome={FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow} />);
-		expect(screen.getAllByText(/Nie wiem/).length).toBeGreaterThan(0);
+		expect(screen.getAllByText(/Nie udało mi się potwierdzić tej informacji/).length).toBeGreaterThan(0);
+		expect(screen.queryByText('Nie wiem.')).toBeNull();
 		expect(screen.getByText(/Szukaj dalej na stronie właściwego urzędu/)).toBeTruthy();
 	});
 

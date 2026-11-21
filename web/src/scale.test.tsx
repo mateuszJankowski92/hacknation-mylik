@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import type { VerificationRecord } from '../../src/contracts/record';
-import { ABSTAIN_WORDS, headlineLength } from './components/RecordClaim';
+import { BLANK_SPOT_NOTE, headlineLength } from './components/RecordClaim';
 import { RecordView } from './components/RecordView';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
 import { plain } from './typography';
@@ -143,15 +143,15 @@ describe('czekanie i wynik w skali', () => {
 		expect(sheet).toMatch(/@media \(min-width: 760px\) \{[\s\S]*?\.sheet__top \{[^}]*padding-right: calc\(120px \+ var\(--space-6\)\);/);
 	});
 
-	it('zdanie wyniku: 28-32 px na telefonie, 40-48 px na dużym ekranie, "Nie wiem." co najmniej tyle', () => {
+	it('zdanie wyniku: 28-32 px na telefonie, 40-48 px na dużym ekranie, biała plama w tej samej skali', () => {
 		const phone = [block(roles, '.record-claim__lead .record-claim__headline'), block(roles, ".record-claim__lead .record-claim__headline[data-length='medium']"), block(roles, ".record-claim__lead .record-claim__headline[data-length='long']")]
 			.map((text) => Number(/--headline-size:\s*(\d+)px/.exec(text)?.[1]));
 		expect(phone).toEqual([32, 30, 28]);
 		const wide = [...roles.matchAll(/@media \(min-width: 1024px\) \{([\s\S]*?)\n\}/g)].map((match) => match[1]).join('\n');
 		expect([...wide.matchAll(/--headline-size:\s*(\d+)px/g)].map((match) => Number(match[1]))).toEqual([48, 44, 40]);
 		const abstain = readCss('components/record.css');
-		expect(abstain).toMatch(/--headline-size: 44px/);
-		expect(abstain).toMatch(/--headline-size: clamp\(56px, 6vw, 72px\)/);
+		expect(abstain).not.toMatch(/record-claim--abstain[^{]*record-claim__headline[^{]*\{[^}]*--headline-size/);
+		expect(abstain).toMatch(/\.record-claim__blank-spot \{[^}]*font-size: 18px;/);
 	});
 
 	it('przejście rozmiaru trwa 300-400 ms i jest wyłączone przy ograniczeniu ruchu', () => {
@@ -177,12 +177,13 @@ describe('wynik w skali: widok', () => {
 		expect(headlineLength('a'.repeat(260))).toBe('long');
 	});
 
-	it('"brak wystarczających dowodów": dwa słowa, jedno zdanie, bez obrazu wyniku, etykieta mała', () => {
+	it('"brak wystarczających dowodów": duże zdanie z silnika, bez obrazu wyniku, etykieta mała', () => {
 		const { container } = render(<RecordView record={record('brak_wystarczajacych_dowodow')} />);
 		expect(container.querySelector('.record-claim--abstain')).not.toBeNull();
 		const headline = container.querySelector('.record-claim__headline');
-		expect(headline?.textContent).toBe(ABSTAIN_WORDS);
-		expect(ABSTAIN_WORDS.split(' ')).toHaveLength(2);
+		expect(plain(headline?.textContent ?? '')).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: /u);
+		expect(plain(headline?.textContent ?? '')).not.toBe('Nie wiem.');
+		expect(headline?.getAttribute('data-length')).toMatch(/^(short|medium|long)$/);
 		const note = container.querySelector('.record-claim__summary .verdict__note');
 		expect(plain(note?.textContent ?? '')).toMatch(/Nie znalazłem tego w sprawdzonych źródłach/);
 		expect(plain(note?.textContent ?? '')).toMatch(/zajrzyj na stronę właściwego urzędu/);
@@ -191,7 +192,7 @@ describe('wynik w skali: widok', () => {
 		expect(container.querySelector('.record-claim__primary')).toBeNull();
 	});
 
-	it('sprzeczne źródła: pod "Nie wiem." stoi zdanie z nazwami wydawców', () => {
+	it('sprzeczne źródła: duże zdanie z nazwami wydawców pochodzi z silnika', () => {
 		const base = structuredClone(record('brak_wystarczajacych_dowodow'));
 		const evidence = structuredClone(record('potwierdzone').claims[0]!.evidence[0]!);
 		base.claims[0]!.evidence = [
@@ -199,7 +200,7 @@ describe('wynik w skali: widok', () => {
 			{ ...evidence, passageId: 'p2', stance: 'obala', source: { ...evidence.source, publisher: 'Urząd B' } },
 		];
 		const { container } = render(<RecordView record={base} />);
-		expect(container.querySelector('.record-claim__headline')?.textContent).toBe(ABSTAIN_WORDS);
-		expect(plain(container.querySelector('.record-claim__abstain-sentence')?.textContent ?? '')).toMatch(/Urząd A i Urząd B podają sprzeczne informacje/);
+		expect(plain(container.querySelector('.record-claim__headline')?.textContent ?? '')).toMatch(/Urząd A i Urząd B podają sprzeczne informacje/);
+		expect(plain(container.querySelector('.record-claim__blank-spot')?.textContent ?? '')).toBe(BLANK_SPOT_NOTE);
 	});
 });

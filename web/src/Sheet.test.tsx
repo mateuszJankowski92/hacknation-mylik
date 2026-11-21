@@ -109,13 +109,62 @@ describe('arkusz wyniku: układ od góry', () => {
 		expect(screen.queryByRole('button', { name: QUESTION_TEXTS.expand })).toBeNull();
 	});
 
-	it('"Nie wiem." to ten sam arkusz z białą plamą, bez cytatu i bez obrazu', () => {
+	it('"Nie udało mi się tego potwierdzić" to ten sam arkusz z białą plamą, bez cytatu i bez obrazu', () => {
 		const { container } = render(<RecordView record={ABSTAIN.record} />);
 		expect(container.querySelector('.sheet .record-claim--abstain')).not.toBeNull();
-		expect(container.querySelector('.record-claim__headline')?.textContent).toBe('Nie wiem.');
+		const headline = plain(container.querySelector('.record-claim__headline')?.textContent ?? '');
+		expect(headline).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: .+ Brak wyniku w moich źródłach nie oznacza, że to nieprawda\.$/u);
+		expect(headline).not.toBe('Nie wiem.');
 		expect(container.querySelector('.record-claim__primary')).toBeNull();
 		const sheetCss = readFileSync(join(HERE, 'components', 'sheet.css'), 'utf8');
 		expect(sheetCss).toMatch(/\.sheet \.record-claim--abstain::before \{[^}]*var\(--bg\)/);
+	});
+
+	it('przy grafice białej plamy stoi małe zdanie (zwykły akapit, nie nagłówek), po dużym zdaniu', () => {
+		const { container } = render(<RecordView record={ABSTAIN.record} />);
+		const note = container.querySelector('.record-claim__blank-spot') as HTMLElement;
+		expect(note.tagName).toBe('P');
+		expect(plain(note.textContent ?? '')).toBe('Biała plama: miejsce na mapie, którego nikt jeszcze nie opisał.');
+		expect(precedes(container.querySelector('.record-claim__headline'), note)).toBe(true);
+		expect(container.querySelectorAll('.record-claim__blank-spot')).toHaveLength(1);
+		cleanup();
+		const answered = render(<RecordView record={SHORT.record} />);
+		expect(answered.container.querySelector('.record-claim__blank-spot')).toBeNull();
+	});
+
+	it('kilka twierdzeń: zdanie o białej plamie tylko przy pierwszej, z każdym zdaniem z silnika', () => {
+		const record = structuredClone(MANY.record);
+		const abstain = structuredClone(record.claims.find((result) => result.verdict === 'brak_wystarczajacych_dowodow')!);
+		abstain.claim = { ...abstain.claim, id: 'c4' };
+		record.claims.push(abstain);
+		const { container } = render(<RecordView record={record} />);
+		const headlines = Array.from(container.querySelectorAll('.record-claim--abstain .record-claim__headline')).map((node) => plain(node.textContent ?? ''));
+		expect(headlines).toHaveLength(2);
+		for (const text of headlines) expect(text).toMatch(/^Nie udało mi się potwierdzić tej informacji\./u);
+		expect(container.querySelectorAll('.record-claim__blank-spot')).toHaveLength(1);
+		expect(container.querySelector('.record-claim--abstain .record-claim__blank-spot')).not.toBeNull();
+	});
+
+	it('pytanie rozstrzygające zaczyna duże zdanie od odpowiedzi: Tak., Nie., Częściowo., Nie udało mi się tego potwierdzić.', () => {
+		const expected: Array<[string, RegExp]> = [
+			['pytanie_tak', /^Tak\. /u],
+			['pytanie_nie', /^Nie\. /u],
+			['pytanie_czesciowo', /^Częściowo\. /u],
+			['pytanie_brak_wystarczajacych_dowodow', /^Nie udało mi się tego potwierdzić\. Do sprawdzenia potrzebuję: /u],
+		];
+		for (const [key, pattern] of expected) {
+			const outcome = FIXTURE_OUTCOMES[key] as { kind: 'record'; record: VerificationRecord };
+			const { container } = render(<RecordView record={outcome.record} />);
+			const headline = container.querySelector('.record-claim__headline');
+			expect(plain(headline?.textContent ?? ''), key).toMatch(pattern);
+			expect(headline?.tagName).toBe('H3');
+			cleanup();
+		}
+	});
+
+	it('w kodzie interfejsu nie ma stałego napisu "Nie wiem." jako wyniku', () => {
+		const sources = ['components/RecordClaim.tsx', 'components/RecordView.tsx', 'components/OutcomeView.tsx'].map((file) => readFileSync(join(HERE, file), 'utf8'));
+		for (const source of sources) expect(source).not.toMatch(/['"`]Nie wiem\.['"`]/u);
 	});
 
 	it('kilka twierdzeń to kolejne sekcje arkusza, widoczne od razu', () => {

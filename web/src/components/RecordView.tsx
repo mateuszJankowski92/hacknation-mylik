@@ -89,6 +89,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 	const role = currentRole(recordRoleOf(record));
 	const note = topicNote(role);
 	const serious = recordSerious(record);
+	const firstAbstain = record.claims.findIndex((result) => result.verdict === 'brak_wystarczajacych_dowodow');
 
 	return (
 		<div className="record" data-role={role}>
@@ -131,6 +132,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 									asOf={record.asOf}
 									leading={index === 0}
 									showImage={index === 0}
+									blankSpotNote={index === firstAbstain}
 								/>
 							))}
 						</div>

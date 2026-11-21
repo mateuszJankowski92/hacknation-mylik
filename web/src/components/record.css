@@ -209,13 +209,19 @@
 	margin-bottom: var(--space-4);
 }
 
-.record-claim--abstain .record-claim__lead .record-claim__headline,
-.record-claim--abstain .record-claim__lead .record-claim__headline[data-length] {
-	--headline-size: 44px;
-	margin: var(--space-6) 0 var(--space-3);
+.record-claim--abstain .record-claim__lead .record-claim__headline {
+	margin: var(--space-6) 0 var(--space-2);
 	font-weight: 800;
-	line-height: 1;
+	line-height: 1.1;
 	letter-spacing: -0.02em;
+}
+
+.record-claim__blank-spot {
+	max-width: var(--measure);
+	margin: 0 0 var(--space-3);
+	color: var(--muted);
+	font-size: 18px;
+	line-height: 1.4;
 }
 
 .record-claim--abstain .record-claim__summary {
@@ -241,8 +247,7 @@
 	color: var(--neutral-fg);
 }
 
-.record-claim--abstain .verdict .verdict__note,
-.record-claim__abstain-sentence {
+.record-claim--abstain .verdict .verdict__note {
 	margin: 0 0 var(--space-2);
 	font-size: 20px;
 	line-height: 1.5;
@@ -253,14 +258,11 @@
 		margin: var(--space-10) 0;
 	}
 
-	.record-claim--abstain .record-claim__lead .record-claim__headline,
-	.record-claim--abstain .record-claim__lead .record-claim__headline[data-length] {
-		--headline-size: clamp(56px, 6vw, 72px);
-		margin: var(--space-8) 0 var(--space-4);
+	.record-claim--abstain .record-claim__lead .record-claim__headline {
+		margin: var(--space-8) 0 var(--space-2);
 	}
 
-	.record-claim--abstain .verdict .verdict__note,
-	.record-claim__abstain-sentence {
+	.record-claim--abstain .verdict .verdict__note {
 		font-size: 22px;
 	}
 }
