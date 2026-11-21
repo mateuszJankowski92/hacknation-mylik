@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { openDb } from '../../src/db/open';
 import { createEngine } from '../../src/engine/index';
 import { createSmsApp } from '../../src/sms/index';
+import { createDiscordApp, DISCORD_INTERACTIONS_PATH } from '../../src/discord/index';
+import { fakeFetch, makeKeys, signedRequest, slashInteraction } from '../discord/helpers';
 import { smsVariant } from '../../src/eval/runner';
 import type { Engine } from '../../src/contracts/index';
 import { FakeSearcher, ScriptedLlm, claim, countRecords, fixedNow, passage, stanceTable } from './fakes';
@@ -56,6 +58,18 @@ async function viaSms(engine: Engine, text: string): Promise<string> {
   return res.text();
 }
 
+async function viaDiscord(engine: Engine, text: string): Promise<string> {
+  const keys = makeKeys();
+  const { fetch: fetchImpl, calls } = fakeFetch();
+  const tasks: Array<() => Promise<void>> = [];
+  const app = createDiscordApp({ engine, publicKey: keys.publicKeyHex, fetch: fetchImpl, schedule: (task) => void tasks.push(task) });
+  const res = await app.request(DISCORD_INTERACTIONS_PATH, signedRequest(keys, slashInteraction(text)));
+  expect((await res.json()).type).toBe(5);
+  for (const task of tasks) await task();
+  expect(calls).toHaveLength(1);
+  return calls[0]!.body.content;
+}
+
 describe('spójność kanałów', () => {
   it('WWW, a potem SMS w różnych zapisach: zawsze ten sam zapisany rekord', async () => {
     const { db, engine, llm } = setup();
@@ -73,7 +87,20 @@ describe('spójność kanałów', () => {
       expect(www.kind === 'record' && www.record.id).toBe(first.record.id);
       const reply = await viaSms(engine, text);
       expect(reply).toContain(first.record.id);
+      const discord = await viaDiscord(engine, text);
+      expect(discord, text).toBe(reply);
     }
+    expect(llm.extractCalls).toBe(1);
+    expect(countRecords(db)).toBe(1);
+  });
+
+  it('Discord pierwszy, potem WWW i SMS: ten sam rekord, jedno liczenie', async () => {
+    const { db, engine, llm } = setup();
+    const discord = await viaDiscord(engine, smsVariant(BASE));
+    const www = await engine.verify({ text: BASE, channel: 'www' });
+    expect(www.kind === 'record' && www.cached).toBe(true);
+    if (www.kind === 'record') expect(discord).toContain(`/r/${www.record.id}`);
+    expect(await viaSms(engine, BASE)).toBe(discord);
     expect(llm.extractCalls).toBe(1);
     expect(countRecords(db)).toBe(1);
   });

@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { Hono, type MiddlewareHandler } from 'hono';
 import { createCardApp } from '../card/index';
 import { createCaseStore, type CaseStore } from '../cases/index';
+import { createDiscordApp } from '../discord/index';
 import { createStatsApp, requestLogger, type LogEventFn } from '../obs/index';
 import { RATE_LIMIT_MESSAGE_PL, rateLimit } from '../security/index';
 import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
@@ -22,6 +23,8 @@ export interface AppDeps extends RouteDeps {
   log?: ((line: string) => void) | null;
   /** Zapis zdarzeń kanału SMS (kanał `sms` w tabeli events). Domyślnie `logEvent`. */
   logEventSms?: LogEventFn;
+  /** Kanał Discord (POST /discord/interactions): klucz publiczny aplikacji, jej identyfikator, zapis zdarzeń. */
+  discord?: { publicKey?: string; applicationId?: string; logEvent?: LogEventFn };
   /** Limit zgłoszeń na minutę na klienta (POST /api/* i POST /sms/webhook osobno). 0 = bez limitu. */
   rateLimitPerMin?: number;
   /** Liczba zaufanych proxy przed serwerem (X-Forwarded-For). 0 = adres gniazda. */
@@ -116,6 +119,17 @@ export function createApp(deps: AppDeps): Hono {
   app.route('/', createStatsApp({ db: deps.db }));
   app.route('/', createCardApp({ engine: deps.engine, baseUrl: deps.publicBaseUrl }));
   app.route('/', createSmsApp({ engine: deps.engine, logEvent: deps.logEventSms ?? deps.logEvent }));
+  app.route(
+    '/',
+    createDiscordApp({
+      engine: deps.engine,
+      publicKey: deps.discord?.publicKey,
+      applicationId: deps.discord?.applicationId,
+      publicBaseUrl: deps.publicBaseUrl,
+      rateLimitPerMin: limit,
+      logEvent: deps.discord?.logEvent ?? deps.logEvent,
+    }),
+  );
 
   const cases = deps.cases ?? createCaseStore(deps.db);
   app.route(

@@ -170,7 +170,7 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
 
   const insertEvent = db.prepare('INSERT INTO events(ts, record_id, channel, type, detail) VALUES (?, NULL, ?, ?, ?)');
   const eventLogger =
-    (channel: 'www' | 'sms') => (type: string, detail: Record<string, string | number | boolean | null>) => {
+    (channel: 'www' | 'sms' | 'discord') => (type: string, detail: Record<string, string | number | boolean | null>) => {
       insertEvent.run(new Date().toISOString(), channel, type, JSON.stringify(detail));
     };
   const logEvent = eventLogger('www');
@@ -219,6 +219,11 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     modelName,
     logEvent,
     logEventSms: eventLogger('sms'),
+    discord: {
+      publicKey: config.discordPublicKey,
+      applicationId: config.discordApplicationId,
+      logEvent: eventLogger('discord'),
+    },
     rateLimitPerMin: config.rateLimitPerMin,
     trustedProxyHops: config.trustedProxyHops,
     publicBaseUrl: config.publicBaseUrl,

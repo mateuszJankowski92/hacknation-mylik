@@ -26,15 +26,19 @@ Adapter SMS (w prototypie: symulator). Pokaz działa w przeglądarce pod `/sms` 
 - odpowiedź: do 320 znaków, z polskimi znakami to do 5 części SMS; przy cenie 5 do 15 groszy za część to do 0,25-0,75 zł za odpowiedź, czyli **do 250-750 zł za 1 000 odpowiedzi**;
 - model: ten sam rekord co w WWW, więc koszt modelu jak wyżej.
 
+## Koszt kanału Discord
+
+0 zł po stronie kanału: aplikacja Discord, komendy i webhook interakcji są bezpłatne, odpowiedzi idą przez darmowe webhooki interakcji (bez bramki, bez opłaty za wiadomość), a serwer to ten sam proces co WWW. Koszt modelu jest jak wyżej, a powtórzone zgłoszenie bierze zapisany rekord bez kosztu modelu. Ograniczenia Discorda, nie cenowe: limity zapytań webhooków (adapter ponawia przy 429 i 5xx), 2000 znaków wiadomości, token interakcji ważny 15 minut.
+
 ## Zachowanie przy większym ruchu
 
 | Mechanizm | Wartość | Gdzie |
 |---|---|---|
-| Limit żądań | 20 zgłoszeń na minutę na klienta, osobno `POST /api/*` i `POST /sms/webhook`; po nim odpowiedź 429 z prostym komunikatem | `RATE_LIMIT_PER_MIN`, `src/security/rate-limit.ts` |
+| Limit żądań | 20 zgłoszeń na minutę na klienta, osobno `POST /api/*` i `POST /sms/webhook`; po nim odpowiedź 429 z prostym komunikatem; na Discordzie ten sam limit na użytkownika, odpowiedź w wiadomości | `RATE_LIMIT_PER_MIN`, `src/security/rate-limit.ts` |
 | Limit czasu | 22 s na zgłoszenie (24 s z drugą warstwą); po nim stan „awaria techniczna”, nigdy etykieta | `DEFAULT_DEADLINE_MS`, `src/engine/pipeline.ts` |
 | Limit API modelu | błąd 429, przekroczony czas lub przeciążenie u dostawcy: stan „awaria techniczna” (bez automatycznych ponowień w SDK) | `src/llm/anthropic.ts` |
 | Powtórki | ten sam tekst i ta sama wersja korpusu: zapisany rekord, bez modelu | `computeRecordKey`, `src/engine` |
 | Retencja | rekordy i zdarzenia 30 dni, czyszczenie przy starcie i co godzinę | `RETENTION_DAYS`, `src/security/retention.ts` |
-| Wielkość wejścia | JSON do 16 KB, tekst do 2000 znaków, SMS do 480 | `src/server`, `src/input`, `src/sms` |
+| Wielkość wejścia | JSON do 16 KB, tekst do 2000 znaków, SMS do 480, Discord do 2000 | `src/server`, `src/input`, `src/sms`, `src/discord` |
 
 Ograniczenia skali: limit żądań jest w pamięci jednego procesu, a baza to jeden plik SQLite. Więcej mocy to mocniejsza maszyna. Kilka serwerów naraz wymaga wspólnego limitu i wspólnej bazy. Głównym ograniczeniem przepustowości są limity konta u dostawcy modelu.

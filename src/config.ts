@@ -30,6 +30,9 @@ const ConfigSchema = z.object({
   URZEDNIK_OSOBA: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
   URZEDNIK_ADRES_POWIADOMIEN: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
   CASE_RETENTION_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(365)),
+  // Kanał Discord (docs/ARCHITEKTURA.md): bez klucza publicznego POST /discord/interactions zwraca 503, zły klucz daje 401 (nie psuje startu).
+  DISCORD_APPLICATION_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+  DISCORD_PUBLIC_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 export interface AppConfig {
@@ -58,6 +61,8 @@ export interface AppConfig {
   clerkPerson?: string;
   clerkNotifyAddress?: string;
   caseRetentionDays: number;
+  discordApplicationId?: string;
+  discordPublicKey?: string;
 }
 
 /** Czyta konfigurację ze zmiennych środowiskowych. Nie czyta pliku `.env`. */
@@ -82,6 +87,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     URZEDNIK_OSOBA: env.URZEDNIK_OSOBA,
     URZEDNIK_ADRES_POWIADOMIEN: env.URZEDNIK_ADRES_POWIADOMIEN,
     CASE_RETENTION_DAYS: env.CASE_RETENTION_DAYS,
+    DISCORD_APPLICATION_ID: env.DISCORD_APPLICATION_ID?.trim(),
+    DISCORD_PUBLIC_KEY: env.DISCORD_PUBLIC_KEY?.trim(),
   });
   return {
     llmProvider: c.LLM_PROVIDER,
@@ -103,6 +110,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     clerkPerson: c.URZEDNIK_OSOBA,
     clerkNotifyAddress: c.URZEDNIK_ADRES_POWIADOMIEN,
     caseRetentionDays: c.CASE_RETENTION_DAYS,
+    discordApplicationId: c.DISCORD_APPLICATION_ID,
+    discordPublicKey: c.DISCORD_PUBLIC_KEY,
   };
 }
 
@@ -128,5 +137,7 @@ export function redactedConfig(cfg: AppConfig): Record<string, string | number |
     clerkPerson: cfg.clerkPerson ?? '[brak]',
     clerkNotifyAddress: cfg.clerkNotifyAddress ? '[ustawiony]' : '[brak]',
     caseRetentionDays: cfg.caseRetentionDays,
+    discordApplicationId: cfg.discordApplicationId ? '[ustawiony]' : '[brak]',
+    discordPublicKey: cfg.discordPublicKey ? '[ustawiony]' : '[brak]',
   };
 }

@@ -21,6 +21,8 @@ Stan na 21.11.2026 (aktualizacja zad. 40). Ujawniamy to jury i obywatelom wprost
 | Więcej niż 5 twierdzeń w jednym tekście | Sprawdzamy najwyżej 5 najważniejszych. | `MAX_CLAIMS` w `src/engine/pipeline.ts` |
 | Same polecenia dla systemu, bez informacji | Prośba o opisanie zdarzenia; bez rekordu (znana luka, [RYZYKA.md](RYZYKA.md)). | `src/engine/injection.ts` |
 | Zdarzenia nowsze niż migawka źródeł | Zwykle „brak wystarczających dowodów”. Druga warstwa źródeł mogłaby pomóc, ale jest domyślnie wyłączona. | [ZRODLA.md](ZRODLA.md) |
+| Załączniki, obrazki i osadzenia na Discordzie | Nic: czytamy wyłącznie tekst komendy lub treść wskazanej wiadomości. Wiadomość bez tekstu (same załączniki) dostaje prosty komunikat, bez sprawdzania. Wynik z polecenia z menu wiadomości jest zawsze widoczny tylko dla pytającego (to polecenie nie ma opcji). | `src/discord/handler.ts` |
+| Tekst na Discordzie dłuższy niż 2000 znaków | Natychmiastowa prośba o skrócenie, bez wołania silnika. | `src/discord/handler.ts` |
 | Prawdziwy SMS pod numerem | Adapter SMS (w prototypie: symulator). Bez bramki operatora. | `src/sms`, [KOSZTY.md](KOSZTY.md) |
 | Ostrzeżenia o znanych operacjach (EUvsDisinfo) w czystym klonie | Migawka nie jest w repozytorium (licencja niepotwierdzona). Bez niej brak tych ostrzeżeń, bez błędu. | `data/known-ops` |
 | Basal na żywym modelu | Pomiar niewykonany: brak uruchomionej maszyny. | [MODELE.md](MODELE.md) |

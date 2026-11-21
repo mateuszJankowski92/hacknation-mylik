@@ -38,6 +38,22 @@ W przeglądarce: strona główna `http://localhost:8787/`, wynik `http://localho
 
 Adapter SMS (w prototypie: symulator) jest w przeglądarce pod `http://localhost:8787/sms`. Prototyp nie ma bramki operatora: SMS nie działa pod prawdziwym numerem, a `POST /sms/webhook` jest tylko punktem, do którego bramka mogłaby kiedyś wysyłać wiadomości (koszt: `src/sms/KOSZT.md`). Odsyłacz w odpowiedzi SMS wskazuje stronę wyniku `/r/<id>` (z `PUBLIC_BASE_URL`, jeśli ustawiony). Godzina w odpowiedziach jest podawana w czasie polskim (Europe/Warsaw).
 
+## Mylik na Discordzie
+
+Trzeci adapter obok WWW i SMS: komenda `/sprawdz tekst:<wiadomość lub adres>` (opcja `publicznie`, domyślnie wynik widzi tylko pytający) i polecenie „Sprawdź z Mylikiem” z menu wiadomości. Działa bez stałego połączenia (webhook `POST /discord/interactions`, podpis Ed25519 sprawdzany kluczem `DISCORD_PUBLIC_KEY`), więc pasuje do hostingu z Passengerem. Odpowiedź jest odroczona (Discord dostaje ją w 3 s), a wynik uzupełnia wiadomość po zakończeniu pracy silnika; ten sam silnik, ten sam rekord i ta sama treść (`shortAnswer` z `src/render`) co w WWW i SMS, z odsyłaczem `/r/<id>` na `PUBLIC_BASE_URL`.
+
+Dodanie Mylika na Discordzie (jednorazowo, w [portalu deweloperów](https://discord.com/developers/applications)):
+
+1. Utwórz aplikację. Na stronie **General Information** skopiuj **Application ID** i **Public Key** do `.env` jako `DISCORD_APPLICATION_ID` i `DISCORD_PUBLIC_KEY`.
+2. Na stronie **Bot** wygeneruj token i wpisz go jako `DISCORD_BOT_TOKEN` (służy tylko do rejestracji komend; serwer go nie czyta).
+3. Na stronie **Installation** włącz **Guild Install** i **User Install** (komendy są zarejestrowane dla obu kontekstów, także dla wiadomości prywatnych).
+4. Wdróż serwer z uzupełnionymi `DISCORD_PUBLIC_KEY` i `DISCORD_APPLICATION_ID` (puste = kanał wyłączony, `POST /discord/interactions` zwraca 503), a w **General Information** wpisz **Interactions Endpoint URL**: `https://<twoja-domena>/discord/interactions`. Discord od razu wyśle PING z podpisem; zapis się powiedzie tylko, gdy serwer odpowie poprawnie.
+5. Zarejestruj komendy globalnie: `node scripts/discord-register.mjs` (idempotentne: jedno zbiorcze `PUT`, można powtarzać; token tylko z środowiska lub `.env`, nigdzie niewypisywany). `--dry-run` wypisuje definicje komend bez sieci.
+
+Uruchomienie lokalne bez Discorda: nic się nie zmienia (puste zmienne `DISCORD_*` wyłączają kanał). Cały adapter jest sprawdzany testami bez sieci: `npx vitest run tests/discord tests/engine/channels.test.ts` (para kluczy Ed25519 powstaje w teście, Discord jest atrapą `fetch`). Ręcznie, bez prawdziwego Discorda, wystarczy test dymny z podpisem z `tests/discord/helpers.ts`; prawdziwa komenda wymaga publicznego adresu HTTPS (np. tunelu do `localhost:8787`) wpisanego jako Interactions Endpoint URL.
+
+Prywatność i bezpieczeństwo: identyfikator użytkownika Discorda nie jest zapisywany ani przekazywany do silnika (do limitu zgłoszeń służy skrót z losową solą, tylko w pamięci procesu); wiadomości nie pingują nikogo (`allowed_mentions` puste, znaczniki `<@...>` usuwane z tekstu); limit zgłoszeń na użytkownika to `RATE_LIMIT_PER_MIN` na minutę; załączniki i obrazki są pomijane.
+
 Pozostałe polecenia: `npm test` (61 plików, ok. 910 testów, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
 ## Wyniki w skrócie
@@ -80,7 +96,7 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `ANTHROPIC_MODEL` | pusty | Model Anthropic; pusty oznacza domyślny `claude-haiku-5-5` (Claude Haiku 5.5, stała w `src/llm/anthropic.ts`). Opcja dokładniejsza i droższa: `claude-sonnet-5-5` (Claude Sonnet 5.5). |
 | `DB_PATH` | `data/mylik.sqlite` | Baza SQLite (korpus, rekordy, log zdarzeń). Ścieżka względna liczona od katalogu projektu. Jedyne miejsce zapisu serwera. |
 | `PORT` | `8787` | Port HTTP (na hostingu z Passengerem nadawany automatycznie). |
-| `RATE_LIMIT_PER_MIN` | `20` | Limit zgłoszeń na minutę na klienta: osobno `POST /api/*` (odpowiedź 429 JSON) i `POST /sms/webhook` (429 tekstem). `GET` bez limitu. |
+| `RATE_LIMIT_PER_MIN` | `20` | Limit zgłoszeń na minutę na klienta: osobno `POST /api/*` (odpowiedź 429 JSON) i `POST /sms/webhook` (429 tekstem); na Discordzie liczony na użytkownika (skrót w pamięci), z odpowiedzią w wiadomości. `GET` bez limitu. |
 | `TRUSTED_PROXY_HOPS` | `0` | Liczba zaufanych proxy przed serwerem (np. `1` za Passengerem/nginx). Przy `0` nagłówek `X-Forwarded-For` jest ignorowany i liczy się adres połączenia. |
 | `RETENTION_DAYS` | `30` | Retencja rekordów i zdarzeń: czyszczenie przy starcie i co godzinę. Ręcznie: `npx tsx src/security/purge-cli.ts [--all]`. |
 | `EVAL_RESULTS_PATH` | `data/eval/results.json` | Wyniki zestawu testowego (profil błędów w rekordzie). Plik opcjonalny. |
@@ -94,6 +110,9 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `URZEDNIK_OSOBA` | brak | Osoba z etykiety przycisku „Oznacz jako przekazane do: …” w widoku urzędnika. |
 | `URZEDNIK_ADRES_POWIADOMIEN` | brak | Adres osoby do powiadomień wskazanej przez administratora. Przygotowane miejsce: e-maili nie wysyłamy. |
 | `CASE_RETENTION_DAYS` | `365` | Po ilu dniach bez nowego zgłoszenia sprawa urzędnika jest usuwana. |
+| `DISCORD_APPLICATION_ID` | brak | Identyfikator aplikacji Discord; gdy ustawiony, interakcje z innym identyfikatorem są odrzucane. Opis: „Mylik na Discordzie”. |
+| `DISCORD_PUBLIC_KEY` | brak | Klucz publiczny aplikacji Discord (64 znaki hex) do sprawdzania podpisu Ed25519. Bez niego `POST /discord/interactions` zwraca 503. |
+| `DISCORD_BOT_TOKEN` | brak | Token bota, wyłącznie dla `scripts/discord-register.mjs` (rejestracja komend); serwer go nie czyta. |
 
 `GET /api/health` zwraca nazwę dostawcy i modelu (bez klucza). Konfiguracja wypisywana przy starcie zawiera tylko informację, czy klucz jest ustawiony.
 
@@ -112,7 +131,7 @@ Uwaga: przy `LLM_PROVIDER=anthropic` bez klucza każde zgłoszenie kończy się 
 - Limit czasu na zgłoszenie: 22 s (`DEFAULT_DEADLINE_MS` w `src/engine/pipeline.ts`). Po nim obywatel dostaje stan „awaria techniczna” (detal `deadline`), nigdy werdykt; rekord nie jest zapisywany.
 - Model nigdy nie podaje URL-i ani metadanych źródeł; widzi tylko identyfikator i treść fragmentu. Metadane wstawia kod z bazy.
 - Brak klucza, limit, wyjątek to zawsze stan techniczny (`kind: "state"`), nigdy werdykt. Wykryte sygnały prompt injection trafiają do rekordu i do logu zdarzeń (tabela `events`, bez treści zgłoszeń).
-- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (adapter SMS, w prototypie: symulator; JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu, bez operatora).
+- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (adapter SMS, w prototypie: symulator; JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu, bez operatora), a także `POST /discord/interactions` (adapter Discord: webhook interakcji z podpisem Ed25519, odpowiedź odroczona i uzupełniona przez webhook interakcji).
 - Pętla informacji: twierdzenia bez wystarczających dowodów trafiają jako sprawy (`src/cases`, deduplikacja, licznik powtórzeń) do widoku urzędnika `/urzednik` (token z `URZEDNIK_TOKEN`, bez tokenu 401, eksport CSV i JSON); `GET /api/records/:id/obieg` mówi interfejsowi, czy pytanie „zapisano”, czy urzędnik oznaczył je jako „przekazano”. Maili nie wysyłamy. [docs/PETLA_INFORMACJI.md](docs/PETLA_INFORMACJI.md).
 - Nagłówki bezpieczeństwa: CSP ograniczone do własnego originu, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`; brak CORS. Log na stdout: jedna linia na żądanie (metoda, ścieżka, status, czas), bez treści zgłoszeń i sekretów.
 
