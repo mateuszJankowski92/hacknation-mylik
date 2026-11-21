@@ -8,14 +8,14 @@ const P = passage('d1#0', TEXT);
 
 describe('validateCitations', () => {
   it('dosłowny cytat przechodzi i jest wycięty z tekstu źródła', () => {
-    const r = validateCitations([{ passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie' }], [P]);
+    const r = validateCitations([{ passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie', injectionSuspected: false }], [P]);
     expect(r.rejected).toEqual([]);
     expect(r.accepted).toHaveLength(1);
     expect(r.accepted[0]!.quote).toBe('przyjęła w środę uchwałę o budowie');
   });
   it('spacje i nowe linie nie psują dopasowania; zwracany jest oryginalny przedział', () => {
     const r = validateCitations(
-      [{ passageId: 'd1#0', stance: 'potwierdza', quote: '  wzdłuż   rzeki. \n Prace ruszą wiosną. ' }],
+      [{ passageId: 'd1#0', stance: 'potwierdza', quote: '  wzdłuż   rzeki. \n Prace ruszą wiosną. ', injectionSuspected: false }],
       [P],
     );
     expect(r.accepted[0]!.quote).toBe('wzdłuż rzeki.\nPrace ruszą wiosną.');
@@ -23,9 +23,9 @@ describe('validateCitations', () => {
   it('zmieniona jedna litera albo diakrytyk odpada', () => {
     const r = validateCitations(
       [
-        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjeła w środę uchwałę o budowie' },
-        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwalę o budowie' },
-        { passageId: 'd1#0', stance: 'potwierdza', quote: 'Przyjęła w środę uchwałę o budowie' },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjeła w środę uchwałę o budowie', injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwalę o budowie', injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: 'Przyjęła w środę uchwałę o budowie', injectionSuspected: false },
       ],
       [P],
     );
@@ -33,16 +33,16 @@ describe('validateCitations', () => {
     expect(r.rejected.map((x) => x.reason)).toEqual(['brak_w_zrodle', 'brak_w_zrodle', 'brak_w_zrodle']);
   });
   it('nieznany passageId odpada', () => {
-    const r = validateCitations([{ passageId: 'inny#9', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie' }], [P]);
+    const r = validateCitations([{ passageId: 'inny#9', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie', injectionSuspected: false }], [P]);
     expect(r.rejected).toEqual([{ passageId: 'inny#9', reason: 'nieznany_fragment' }]);
   });
   it('za krótki, pusty i za długi cytat odpada', () => {
     const long = passage('d2#0', 'a'.repeat(700));
     const r = validateCitations(
       [
-        { passageId: 'd1#0', stance: 'obala', quote: 'Prace ruszą' },
-        { passageId: 'd1#0', stance: 'kontekst', quote: '' },
-        { passageId: 'd2#0', stance: 'obala', quote: 'a'.repeat(601) },
+        { passageId: 'd1#0', stance: 'obala', quote: 'Prace ruszą', injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'kontekst', quote: '', injectionSuspected: false },
+        { passageId: 'd2#0', stance: 'obala', quote: 'a'.repeat(601), injectionSuspected: false },
       ],
       [P, long],
     );
@@ -52,9 +52,9 @@ describe('validateCitations', () => {
     const q = 'uchwałę o budowie nowej ścieżki rowerowej';
     const r = validateCitations(
       [
-        { passageId: 'd1#0', stance: 'bez_zwiazku', quote: '' },
-        { passageId: 'd1#0', stance: 'potwierdza', quote: q },
-        { passageId: 'd1#0', stance: 'potwierdza', quote: q },
+        { passageId: 'd1#0', stance: 'bez_zwiazku', quote: '', injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: q, injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: q, injectionSuspected: false },
       ],
       [P],
     );
@@ -66,8 +66,8 @@ describe('validateCitations', () => {
     const withUrl = passage('d3#0', 'Szczegóły opisano na stronie https://example.org/uchwala w zakładce.');
     const r = validateCitations(
       [
-        { passageId: 'd3#0', stance: 'potwierdza', quote: 'na stronie https://example.org/uchwala' },
-        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie' },
+        { passageId: 'd3#0', stance: 'potwierdza', quote: 'na stronie https://example.org/uchwala', injectionSuspected: false },
+        { passageId: 'd1#0', stance: 'potwierdza', quote: 'przyjęła w środę uchwałę o budowie', injectionSuspected: false },
       ],
       [withUrl, P],
       { flaggedPassageIds: new Set(['d1#0']) },

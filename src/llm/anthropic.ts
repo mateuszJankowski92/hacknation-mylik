@@ -25,6 +25,7 @@ import {
   type ExtractClaimsResult,
   type LlmProvider,
   type LlmUsage,
+  type PassageAssessment,
 } from '../contracts/llm';
 import { estimateCostUsd } from './pricing';
 import {
@@ -154,10 +155,12 @@ export class AnthropicProvider implements LlmProvider {
         if (seen.size !== expected.size) throw new SchemaProblem('brak oceny dla części fragmentów');
       },
     );
-    const assessments = data.assessments.map((a) => ({
+    const assessments: PassageAssessment[] = data.assessments.map((a) => ({
       passageId: a.passageId,
       stance: a.stance,
       quote: a.stance === 'bez_zwiazku' ? '' : a.quote,
+      ...(a.mismatch !== undefined ? { mismatch: a.mismatch } : {}),
+      injectionSuspected: a.injectionSuspected,
     }));
     return { assessments, usage };
   }

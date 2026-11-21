@@ -13,6 +13,7 @@ interface PassageRow {
 	url: string;
 	published_at: string | null;
 	fetched_at: string;
+	valid_until: string | null;
 	source_id: string;
 	publisher: string;
 	domain: string;
@@ -22,7 +23,7 @@ interface PassageRow {
 }
 
 const PASSAGE_SELECT = `
-	SELECT p.id, p.document_id, p.text, d.title, d.url, d.published_at, d.fetched_at,
+	SELECT p.id, p.document_id, p.text, d.title, d.url, d.published_at, d.fetched_at, d.valid_until,
 	       s.id AS source_id, s.publisher, s.domain, s.source_type, s.license`;
 
 function toPassage(row: PassageRow, score?: number): Passage {
@@ -39,6 +40,7 @@ function toPassage(row: PassageRow, score?: number): Passage {
 			url: row.url,
 			publishedAt: row.published_at,
 			fetchedAt: row.fetched_at,
+			validUntil: row.valid_until,
 			sourceType: row.source_type as SourceType,
 			license: row.license,
 		},
@@ -61,6 +63,7 @@ export function createSearcher(db: DatabaseSync): Searcher {
 		JOIN documents d ON d.id = p.document_id
 		JOIN sources s ON s.id = d.source_id
 		WHERE p.id = ?`);
+	const asOfStatement = db.prepare('SELECT MAX(fetched_at) AS value FROM documents');
 	const statsStatement = db.prepare(
 		`SELECT (SELECT COUNT(*) FROM documents) AS documents,
 		        (SELECT COUNT(DISTINCT domain) FROM sources) AS domains,
@@ -71,6 +74,11 @@ export function createSearcher(db: DatabaseSync): Searcher {
 		corpusVersion(): string {
 			const row = versionStatement.get() as { value: string | null } | undefined;
 			return row?.value || 'empty';
+		},
+
+		asOf(): string | null {
+			const row = asOfStatement.get() as { value: string | null } | undefined;
+			return row?.value ?? null;
 		},
 
 		async search(query: string, opts?: SearchOptions): Promise<Passage[]> {

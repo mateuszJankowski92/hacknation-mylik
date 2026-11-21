@@ -17,7 +17,8 @@ export const VerifyRequestSchema = VerifyInputSchema;
 /** POST /api/verify: 200. */
 export const VerifyResponseSchema = VerifyOutcomeSchema;
 
-export const API_ERROR_CODES = ['niepoprawne_wejscie', 'limit_zadan', 'nie_znaleziono'] as const;
+/** `blad_serwera`: odpowiedź 500 (nie jest oceną zgłoszenia). */
+export const API_ERROR_CODES = ['niepoprawne_wejscie', 'limit_zadan', 'nie_znaleziono', 'blad_serwera'] as const;
 export const ApiErrorSchema = z.object({
   error: z.enum(API_ERROR_CODES),
   message: z.string(),
@@ -38,6 +39,8 @@ export type SourcesResponse = z.infer<typeof SourcesResponseSchema>;
 export const HealthResponseSchema = z.object({
   ok: z.literal(true),
   provider: z.string(),
+  /** Identyfikator modelu dostawcy (dla atrapy np. `mock`). */
+  model: z.string(),
   corpusVersion: z.string(),
   documents: z.number().int().nonnegative(),
 });

@@ -155,12 +155,12 @@ export class MockLlmProvider implements LlmProvider {
         }
       }
       if (claimStems.length === 0 || bestRatio < COVERAGE_THRESHOLD || bestHits < minHits) {
-        return { passageId: p.id, stance: 'bez_zwiazku', quote: '' };
+        return { passageId: p.id, stance: 'bez_zwiazku', quote: '', injectionSuspected: false };
       }
       let stance: Stance = 'potwierdza';
       if (hasNegation(best) !== claimNegated) stance = 'obala';
       else if (containsAny(p.text, LIMIT_MARKERS)) stance = 'kontekst';
-      return { passageId: p.id, stance, quote: best };
+      return { passageId: p.id, stance, quote: best, injectionSuspected: false };
     });
 
     const out = { assessments };

@@ -5,7 +5,11 @@ import {
   ExtractedClaimSchema,
   LlmError,
   computeRecordKey,
+  noRefutation,
+  RECORD_SCHEMA_VERSION,
   sha256Hex,
+  SHORT_ANSWER_MAX_CHARS,
+  VERDICT_LABELS_PL,
   type ClaimResult,
   type Engine,
   type EngineDeps as ContractEngineDeps,
@@ -80,6 +84,28 @@ function dedupeNotices(list: Notice[]): Notice[] {
     seen.add(k);
     return true;
   });
+}
+
+/** Stan korpusu na: czas wersji korpusu od wyszukiwarki, a gdy brak lub niepoprawny, czas sprawdzenia. */
+function resolveAsOf(searcher: CoreEngineDeps['searcher'], fallback: string): string {
+  try {
+    const v = searcher.asOf?.();
+    if (v && !Number.isNaN(Date.parse(v)) && /(Z|[+-]\d{2}:\d{2})$/.test(v)) return new Date(v).toISOString();
+  } catch {
+    // brak danych o czasie korpusu: używamy czasu sprawdzenia
+  }
+  return fallback;
+}
+
+/** Prosta krótka odpowiedź z werdyktów (pełną logikę dostarczy późniejsze zadanie). */
+export function buildShortAnswer(results: readonly ClaimResult[], asOf: string): string {
+  const head = `Stan na ${asOf.slice(0, 10)}: `;
+  const body =
+    results.length === 0
+      ? 'brak twierdzeń do oceny.'
+      : results.map((r) => `${VERDICT_LABELS_PL[r.verdict]}: ${r.claim.text}`).join(' | ');
+  const full = head + body;
+  return full.length <= SHORT_ANSWER_MAX_CHARS ? full : `${full.slice(0, SHORT_ANSWER_MAX_CHARS - 1).trimEnd()}…`;
 }
 
 function isPrepared(p: PreparedInput | NeedsClarification): p is PreparedInput {
@@ -177,6 +203,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
           explanationSource: 'szablon',
           evidence: [],
           limitations: [scope],
+          refutation: noRefutation(),
         });
         continue;
       }
@@ -249,6 +276,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       const evidence: EvidenceItem[] = accepted.map((a, i) => ({
         passageId: a.passage.id,
         stance: a.stance,
+        ...(a.mismatch !== undefined ? { mismatch: a.mismatch } : {}),
         quote: a.quote,
         source: a.passage.meta, // metadane z bazy, nigdy od modelu
         archival: ruleEvidence[i]!.archival,
@@ -282,6 +310,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         explanationSource: 'szablon',
         evidence,
         limitations,
+        refutation: noRefutation(),
       };
       if (decision.abstain) {
         abstainCodes.set(claim.id, decision.abstain);
@@ -293,6 +322,8 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
     }
 
     // (8) zapis rekordu
+    const createdAt = new Date(started).toISOString();
+    const asOf = resolveAsOf(searcher, createdAt);
     const record: VerificationRecord = {
       id: recordId,
       inputHash: sha256Hex(prepared.normalizedInput),
@@ -303,7 +334,9 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
       claims: results,
       notices: dedupeNotices(notices),
       injectionSignals: [...injectionSignals].sort(),
-      createdAt: new Date(started).toISOString(),
+      createdAt,
+      asOf,
+      shortAnswer: buildShortAnswer(results, asOf),
       provider: llm.name,
       usage: {
         llmCalls: usage.llmCalls,
@@ -312,7 +345,7 @@ export function createEngineCore(deps: CoreEngineDeps): Engine {
         estimatedCostUsd: usage.estimatedCostUsd,
         latencyMs: Math.max(0, now().getTime() - started),
       },
-      schemaVersion: 1,
+      schemaVersion: RECORD_SCHEMA_VERSION,
     };
     const inserted = store.insertRecord(record);
     for (const r of results)

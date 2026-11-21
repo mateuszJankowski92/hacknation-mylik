@@ -3,6 +3,9 @@ import { z } from 'zod';
 import { ExtractedClaimSchema } from './claim';
 import { SourceMetaSchema } from './source';
 import {
+  MISMATCH_RULE_MESSAGE,
+  MismatchKindSchema,
+  mismatchConsistent,
   StanceSchema,
   StateSchema,
   StrengthLevelSchema,
@@ -19,15 +22,19 @@ export const CHANNELS = ['www', 'sms'] as const;
 export const ChannelSchema = z.enum(CHANNELS);
 export type Channel = z.infer<typeof ChannelSchema>;
 
-export const EvidenceItemSchema = z.object({
-  passageId: z.string().min(1),
-  stance: StanceSchema,
-  /** Dosłowny cytat (podciąg fragmentu), sprawdzony przez kod. */
-  quote: z.string(),
-  /** Metadane wstawione przez kod z bazy, nigdy przez model. */
-  source: SourceMetaSchema,
-  archival: z.boolean(),
-});
+export const EvidenceItemSchema = z
+  .object({
+    passageId: z.string().min(1),
+    stance: StanceSchema,
+    /** Rodzaj rozbieżności; wymagany przy `rozbieznosc_kontekstu`. */
+    mismatch: MismatchKindSchema.optional(),
+    /** Dosłowny cytat (podciąg fragmentu), sprawdzony przez kod. */
+    quote: z.string(),
+    /** Metadane wstawione przez kod z bazy, nigdy przez model. */
+    source: SourceMetaSchema,
+    archival: z.boolean(),
+  })
+  .refine(mismatchConsistent, { message: MISMATCH_RULE_MESSAGE, path: ['mismatch'] });
 export type EvidenceItem = z.infer<typeof EvidenceItemSchema>;
 
 export const StrengthSchema = z.object({
@@ -41,6 +48,29 @@ export const EXPLANATION_SOURCES = ['szablon', 'model'] as const;
 export const ExplanationSourceSchema = z.enum(EXPLANATION_SOURCES);
 export type ExplanationSource = z.infer<typeof ExplanationSourceSchema>;
 
+/** Próba obalenia: czy wykonano wyszukiwanie twierdzenia przeciwnego, jakimi zapytaniami i ile znaleziono. */
+export const RefutationSchema = z.object({
+  performed: z.boolean(),
+  queries: z.array(z.string()),
+  found: z.number().int().nonnegative(),
+});
+export type Refutation = z.infer<typeof RefutationSchema>;
+
+/** Wartość domyślna, gdy próby obalenia nie wykonano. */
+export function noRefutation(): Refutation {
+  return { performed: false, queries: [], found: 0 };
+}
+
+/** Profil błędów systemu dla koszyka podobnych twierdzeń (z ewaluacji): `errors` z `total`. */
+export const ErrorProfileSchema = z
+  .object({
+    bucket: z.string().min(1),
+    errors: z.number().int().nonnegative(),
+    total: z.number().int().nonnegative(),
+  })
+  .refine((v) => v.errors <= v.total, { message: 'errors nie może przekraczać total', path: ['errors'] });
+export type ErrorProfile = z.infer<typeof ErrorProfileSchema>;
+
 export const ClaimResultSchema = z.object({
   claim: ExtractedClaimSchema,
   verdict: VerdictSchema,
@@ -51,6 +81,8 @@ export const ClaimResultSchema = z.object({
   evidence: z.array(EvidenceItemSchema),
   limitations: z.array(z.string()),
   abstainReason: z.string().optional(),
+  refutation: RefutationSchema,
+  errorProfile: ErrorProfileSchema.optional(),
 });
 export type ClaimResult = z.infer<typeof ClaimResultSchema>;
 
@@ -86,6 +118,10 @@ export const RecordUsageSchema = z.object({
 });
 export type RecordUsage = z.infer<typeof RecordUsageSchema>;
 
+/** Wersja kontraktu rekordu. Rekordy w starszej wersji nie są odczytywane (liczone od nowa). */
+export const RECORD_SCHEMA_VERSION = 2;
+export const SHORT_ANSWER_MAX_CHARS = 320;
+
 export const VerificationRecordSchema = z.object({
   /** Klucz rekordu: `computeRecordKey(normalizedInput, corpusVersion)`. */
   id: z.string().regex(/^[0-9a-f]{64}$/),
@@ -99,9 +135,13 @@ export const VerificationRecordSchema = z.object({
   notices: z.array(NoticeSchema).default([]),
   injectionSignals: z.array(z.string()),
   createdAt: z.iso.datetime({ offset: true }),
+  /** Stan korpusu na (ISO datetime): każda odpowiedź jest datowana. */
+  asOf: z.iso.datetime({ offset: true }),
+  /** Krótka odpowiedź (np. SMS), składana przez kod; zawiera datę stanu. */
+  shortAnswer: z.string().min(1).max(SHORT_ANSWER_MAX_CHARS),
   provider: z.string(),
   usage: RecordUsageSchema,
-  schemaVersion: z.literal(1),
+  schemaVersion: z.literal(RECORD_SCHEMA_VERSION),
 });
 export type VerificationRecord = z.infer<typeof VerificationRecordSchema>;
 

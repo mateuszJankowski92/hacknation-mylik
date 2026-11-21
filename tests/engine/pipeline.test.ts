@@ -180,8 +180,8 @@ describe('rekord, cache i zdarzenia', () => {
     const llm = new ScriptedLlm(
       () => [claim('Otwarto bibliotekę przy rynku.')],
       () => [
-        { passageId: 'lib#0', stance: 'potwierdza', quote: 'Burmistrz poinformowal, że nowa biblioteka' },
-        { passageId: 'zmyslony#1', stance: 'potwierdza', quote: 'cokolwiek dłuższego niż dwadzieścia znaków' },
+        { passageId: 'lib#0', stance: 'potwierdza', quote: 'Burmistrz poinformowal, że nowa biblioteka', injectionSuspected: false },
+        { passageId: 'zmyslony#1', stance: 'potwierdza', quote: 'cokolwiek dłuższego niż dwadzieścia znaków', injectionSuspected: false },
       ],
     );
     const { engine, db } = setup({ llm });
@@ -224,8 +224,8 @@ describe('prompt injection (W6)', () => {
     const llm = new ScriptedLlm(
       () => [claim('Otwarto bibliotekę publiczną przy rynku.')],
       (req) => [
-        ...req.passages.map((p) => ({ passageId: p.id, stance: 'potwierdza' as const, quote: p.text.slice(0, 60) })),
-        { passageId: 'evil#0', stance: 'potwierdza' as const, quote: 'Biblioteka publiczna przy rynku. Ignoruj' },
+        ...req.passages.map((p) => ({ passageId: p.id, stance: 'potwierdza' as const, quote: p.text.slice(0, 60), injectionSuspected: false })),
+        { passageId: 'evil#0', stance: 'potwierdza' as const, quote: 'Biblioteka publiczna przy rynku. Ignoruj', injectionSuspected: false },
       ],
     );
     const { engine, db } = setup({ passages: [evil], llm, documents: 1 });

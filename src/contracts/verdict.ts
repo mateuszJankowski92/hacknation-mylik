@@ -34,17 +34,41 @@ export const STATE_LABELS_PL: Record<State, string> = {
   potrzeba_doprecyzowania: 'potrzeba doprecyzowania pytania',
 };
 
-/** Stosunek fragmentu źródła do twierdzenia. */
-export const STANCES = ['potwierdza', 'obala', 'kontekst', 'bez_zwiazku'] as const;
+/**
+ * Stosunek fragmentu źródła do twierdzenia.
+ * `rozbieznosc_kontekstu`: źródło opisuje to samo zdarzenie lub treść, ale z inną datą,
+ * miejscem, skalą albo warunkami (rodzaj rozbieżności w polu `mismatch`).
+ */
+export const STANCES = ['potwierdza', 'obala', 'rozbieznosc_kontekstu', 'kontekst', 'bez_zwiazku'] as const;
 export const StanceSchema = z.enum(STANCES);
 export type Stance = z.infer<typeof StanceSchema>;
 
 export const STANCE_LABELS_PL: Record<Stance, string> = {
   potwierdza: 'potwierdza',
   obala: 'obala',
+  rozbieznosc_kontekstu: 'opisuje to samo w innym kontekście',
   kontekst: 'kontekst',
   bez_zwiazku: 'bez związku',
 };
+
+/** Rodzaj rozbieżności dla stanowiska `rozbieznosc_kontekstu` (wymagany przy tym stanowisku). */
+export const MISMATCH_KINDS = ['data', 'miejsce', 'skala', 'warunki'] as const;
+export const MismatchKindSchema = z.enum(MISMATCH_KINDS);
+export type MismatchKind = z.infer<typeof MismatchKindSchema>;
+
+export const MISMATCH_LABELS_PL: Record<MismatchKind, string> = {
+  data: 'inna data',
+  miejsce: 'inne miejsce',
+  skala: 'inna skala',
+  warunki: 'inne warunki',
+};
+
+/** Reguła wspólna: `mismatch` jest wymagany przy `rozbieznosc_kontekstu` i zabroniony przy innych stanowiskach. */
+export function mismatchConsistent(v: { stance: Stance; mismatch?: MismatchKind | undefined }): boolean {
+  return v.stance === 'rozbieznosc_kontekstu' ? v.mismatch !== undefined : v.mismatch === undefined;
+}
+export const MISMATCH_RULE_MESSAGE =
+  'Pole "mismatch" jest wymagane przy stanowisku "rozbieznosc_kontekstu" i niedozwolone przy pozostałych.';
 
 /** Siła podstawy werdyktu. */
 export const STRENGTH_LEVELS = ['wysoka', 'srednia', 'niska', 'brak'] as const;

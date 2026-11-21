@@ -39,6 +39,7 @@ interface SourceRow {
   url: string;
   published_at: string | null;
   fetched_at: string;
+  valid_until: string | null;
   source_type: string;
   license: string;
 }
@@ -47,7 +48,7 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
   const { engine, db, searcher } = deps;
   const listSources = db.prepare(`
     SELECT d.id AS document_id, s.id AS source_id, d.title, s.publisher, s.domain, d.url,
-           d.published_at, d.fetched_at, s.source_type, s.license
+           d.published_at, d.fetched_at, d.valid_until, s.source_type, s.license
     FROM documents d JOIN sources s ON s.id = d.source_id
     ORDER BY s.id, d.id`);
 
@@ -108,6 +109,7 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
       url: r.url,
       publishedAt: r.published_at,
       fetchedAt: r.fetched_at,
+      validUntil: r.valid_until,
       sourceType: r.source_type as SourceType,
       license: r.license,
     }));
@@ -116,8 +118,7 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
   });
 
   app.get(API_PATHS.health, (c) => {
-    // `model` wykracza poza HealthResponseSchema (kontrakt nie jest .strict(), więc parsowanie przechodzi).
-    const res: HealthResponse & { model: string } = {
+    const res: HealthResponse = {
       ok: true,
       provider: deps.providerName,
       model: deps.modelName,

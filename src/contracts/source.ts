@@ -23,6 +23,8 @@ export const SourceMetaSchema = z.object({
   publishedAt: z.iso.date().nullable(),
   /** Moment pobrania (ISO datetime). */
   fetchedAt: z.iso.datetime({ offset: true }),
+  /** Data, do której treść jest aktualna (ISO, YYYY-MM-DD); null lub brak, gdy nieokreślona. */
+  validUntil: z.iso.date().nullable().optional(),
   sourceType: SourceTypeSchema,
   license: z.string(),
 });

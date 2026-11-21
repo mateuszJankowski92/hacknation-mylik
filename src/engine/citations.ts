@@ -1,5 +1,5 @@
 // BRAMKA CYTATÓW: kod (nie model) decyduje, które oceny modelu stają się dowodami.
-import type { Passage, PassageAssessment, Stance } from '../contracts/index';
+import type { MismatchKind, Passage, PassageAssessment, Stance } from '../contracts/index';
 import { containsUrl, detectInjectionSignals } from './injection';
 
 export const MIN_QUOTE_CHARS = 20;
@@ -18,6 +18,8 @@ export type CitationRejectReason =
 export interface AcceptedEvidence {
   passage: Passage;
   stance: Exclude<Stance, 'bez_zwiazku'>;
+  /** Rodzaj rozbieżności (tylko przy `rozbieznosc_kontekstu`), przekazany od modelu. */
+  mismatch?: MismatchKind;
   /** Cytat wycięty z TEKSTU ŹRÓDŁA (oryginalny przedział), nie napis od modelu. */
   quote: string;
   /** Pozycja fragmentu w wynikach wyszukiwania (0 = najlepszy). */
@@ -155,7 +157,13 @@ export function validateCitations(
       continue;
     }
     seen.add(a.passageId);
-    accepted.push({ passage: entry.passage, stance: a.stance, quote: original, rank: entry.rank });
+    accepted.push({
+      passage: entry.passage,
+      stance: a.stance,
+      ...(a.mismatch !== undefined ? { mismatch: a.mismatch } : {}),
+      quote: original,
+      rank: entry.rank,
+    });
   }
   return { accepted, rejected, irrelevant, duplicates };
 }

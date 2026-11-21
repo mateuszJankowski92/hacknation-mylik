@@ -111,7 +111,7 @@ export function stanceTable(table: Record<string, Stance>, quoteLen = 40): Asses
   return (req) =>
     req.passages.map((p) => {
       const stance = table[p.id] ?? 'bez_zwiazku';
-      return { passageId: p.id, stance, quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, quoteLen) };
+      return { passageId: p.id, stance, quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, quoteLen), injectionSuspected: false };
     });
 }
 

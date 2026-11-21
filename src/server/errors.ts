@@ -22,10 +22,7 @@ export function apiError(
   return c.json({ error, message } satisfies ApiError, status);
 }
 
-/**
- * Błąd serwera (500). Kod `blad_serwera` NIE należy do `API_ERROR_CODES` w kontrakcie
- * (tam brak kodu dla 500); interfejs rozpoznaje 5xx po statusie.
- */
+/** Błąd serwera (500): kod `blad_serwera` z `API_ERROR_CODES`. */
 export function serverError(c: Context): Response {
-  return c.json({ error: 'blad_serwera', message: MESSAGES_PL.server }, 500);
+  return c.json({ error: 'blad_serwera', message: MESSAGES_PL.server } satisfies ApiError, 500);
 }

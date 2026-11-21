@@ -66,7 +66,7 @@ describe('mock: assessPassages', () => {
     const byId = Object.fromEntries(assessments.map((a) => [a.passageId, a]));
     expect(byId['d1#1'].stance).toBe('potwierdza');
     expect(byId['d1#1'].quote).toBe('Rada miasta przyjęła w czwartek nowy budżet szkolny.');
-    expect(byId['d2#1']).toEqual({ passageId: 'd2#1', stance: 'bez_zwiazku', quote: '' });
+    expect(byId['d2#1']).toEqual({ passageId: 'd2#1', stance: 'bez_zwiazku', quote: '', injectionSuspected: false });
     expect(byId['d3#1'].stance).toBe('obala');
     expect(byId['d4#1'].stance).toBe('kontekst');
   });
@@ -232,18 +232,18 @@ describe('anthropic (zamockowane SDK)', () => {
       { id: 'p1', text: 'Ala ma kota.' },
       { id: 'p2', text: 'Inny temat.' },
     ];
-    const bad = JSON.stringify({ assessments: [{ passageId: 'p9', stance: 'potwierdza', quote: 'x' }] });
+    const bad = JSON.stringify({ assessments: [{ passageId: 'p9', stance: 'potwierdza', quote: 'x', injectionSuspected: false }] });
     const good = JSON.stringify({
       assessments: [
-        { passageId: 'p1', stance: 'potwierdza', quote: 'Ala ma kota.' },
-        { passageId: 'p2', stance: 'bez_zwiazku', quote: 'Inny' },
+        { passageId: 'p1', stance: 'potwierdza', quote: 'Ala ma kota.', injectionSuspected: false },
+        { passageId: 'p2', stance: 'bez_zwiazku', quote: 'Inny', injectionSuspected: false },
       ],
     });
     const { p } = provider([message(bad), message(good)]);
     const r = await p.assessPassages({ claim: claim('Ala ma kota.'), passages });
     expect(r.assessments).toEqual([
-      { passageId: 'p1', stance: 'potwierdza', quote: 'Ala ma kota.' },
-      { passageId: 'p2', stance: 'bez_zwiazku', quote: '' },
+      { passageId: 'p1', stance: 'potwierdza', quote: 'Ala ma kota.', injectionSuspected: false },
+      { passageId: 'p2', stance: 'bez_zwiazku', quote: '', injectionSuspected: false },
     ]);
   });
 

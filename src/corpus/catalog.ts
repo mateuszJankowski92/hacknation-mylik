@@ -7,6 +7,8 @@ export const CatalogDocumentSchema = z.object({
 	title: z.string().min(1),
 	url: z.string().min(1),
 	publishedAt: z.iso.date().nullable(),
+	/** Data, do której treść jest aktualna (opcjonalna). */
+	validUntil: z.iso.date().nullable().optional(),
 	file: z.string().min(1),
 });
 

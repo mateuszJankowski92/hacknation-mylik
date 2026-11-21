@@ -35,9 +35,11 @@ function buildRecord(idChar: string, claims: ClaimResult[]): VerificationRecord 
 		notices: [],
 		injectionSignals: [],
 		createdAt: '2026-01-10T10:00:00+01:00',
+		asOf: '2026-01-10T09:30:00+01:00',
+		shortAnswer: `Stan na 2026-01-10: ${claims.map((c) => c.verdict).join(' | ') || 'brak twierdzeń do oceny.'}`,
 		provider: 'mock',
 		usage: { llmCalls: 0, inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, latencyMs: 0 },
-		schemaVersion: 1,
+		schemaVersion: 2,
 	};
 }
 
@@ -50,6 +52,7 @@ function buildClaim(verdict: Verdict, overrides: Partial<ClaimResult> = {}): Cla
 		explanationSource: 'szablon',
 		evidence: [FIXTURE_EVIDENCE],
 		limitations: [],
+		refutation: { performed: false, queries: [], found: 0 },
 		...overrides,
 	};
 }

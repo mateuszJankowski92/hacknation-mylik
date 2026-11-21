@@ -75,7 +75,7 @@ function fakeModel() {
       const table = STANCES[topicOf(req.claim.text)];
       return req.passages.map((p) => {
         const stance = table[p.id] ?? 'bez_zwiazku';
-        return { passageId: p.id, stance, quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, 50) };
+        return { passageId: p.id, stance, quote: stance === 'bez_zwiazku' ? '' : p.text.slice(0, 50), injectionSuspected: false };
       });
     },
   );

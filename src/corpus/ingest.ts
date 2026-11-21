@@ -40,7 +40,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 
 	const versionInput = prepared
 		.flatMap(({ source, documents }) =>
-			documents.map(({ doc, contentSha }) => `${source.id}|${doc.id}|${doc.url}|${doc.title}|${doc.publishedAt ?? ''}|${contentSha}`),
+			documents.map(({ doc, contentSha }) => `${source.id}|${doc.id}|${doc.url}|${doc.title}|${doc.publishedAt ?? ''}|${contentSha}${doc.validUntil ? `|${doc.validUntil}` : ''}`),
 		)
 		.sort()
 		.join('\n');
@@ -50,8 +50,8 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		'INSERT INTO sources (id, publisher, domain, source_type, license, notes) VALUES (?, ?, ?, ?, ?, ?)',
 	);
 	const insertDocument = db.prepare(
-		`INSERT INTO documents (id, source_id, title, url, published_at, fetched_at, corpus_version, content_sha256)
-		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO documents (id, source_id, title, url, published_at, valid_until, fetched_at, corpus_version, content_sha256)
+		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 	);
 	const insertPassage = db.prepare('INSERT INTO passages (id, document_id, ordinal, text) VALUES (?, ?, ?, ?)');
 	const upsertMeta = db.prepare(
@@ -68,7 +68,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		for (const { source, documents: docs } of prepared) {
 			insertSource.run(source.id, source.publisher, source.domain, source.sourceType, source.license, source.notes ?? null);
 			for (const { doc, content, fetchedAt, contentSha } of docs) {
-				insertDocument.run(doc.id, source.id, doc.title, doc.url, doc.publishedAt, fetchedAt, version, contentSha);
+				insertDocument.run(doc.id, source.id, doc.title, doc.url, doc.publishedAt, doc.validUntil ?? null, fetchedAt, version, contentSha);
 				documents += 1;
 				chunkText(content).forEach((text, ordinal) => {
 					insertPassage.run(`${doc.id}#${ordinal}`, doc.id, ordinal, text);

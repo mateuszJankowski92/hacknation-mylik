@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS sources (
@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS documents (
   url TEXT NOT NULL,
   published_at TEXT,
   fetched_at TEXT NOT NULL,
+  -- Data (YYYY-MM-DD), do której treść jest aktualna; NULL = nieokreślona.
+  valid_until TEXT,
   corpus_version TEXT NOT NULL,
   content_sha256 TEXT NOT NULL
 );
@@ -88,7 +90,14 @@ export type EventType =
   | 'cache_hit'
   | (string & {});
 
+function hasColumn(db: DatabaseSync, table: string, column: string): boolean {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
+  return cols.some((c) => c.name === column);
+}
+
 export function migrate(db: DatabaseSync): void {
   db.exec(SCHEMA_SQL);
+  // v1 -> v2: kolumna `documents.valid_until` w istniejących bazach.
+  if (!hasColumn(db, 'documents', 'valid_until')) db.exec('ALTER TABLE documents ADD COLUMN valid_until TEXT');
   db.exec(`PRAGMA user_version = ${SCHEMA_VERSION}`);
 }
