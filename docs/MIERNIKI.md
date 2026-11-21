@@ -228,3 +228,25 @@ Próbka: 20 par z przebiegu v2 zad. 35 (silnik **dd6f303f5e02**, plik data/eval/
 | nie | 0 | - |
 
 Zgodność z sędzią-modelem na tych samych parach: przy 18 parach uznanych przez człowieka sędzia odrzucił 5, czyli na tej próbce sędzia jest surowszy od człowieka. To osobny wiersz: główny miernik poprawności cytowań nadal liczy sędzia-model na całym zestawie.
+
+
+## Próba na pytaniach w stylu mentora, indeks na żywo (22.11.2026, silnik df83667635c9)
+
+18 pytań ułożonych w zad. 42 na weryfikacjach Demagoga z listopada 2026 **innych niż w dokumencie mentora** (fakt prosty 4, kontekst 4, parafraza 3, rozbieżność liczb 3, pytanie odwrotne do tezy 2) oraz 4 pytania bez pokrycia. Oczekiwana odpowiedź ustalona z oceny redakcji, zanim uruchomiono silnik. Indeks Google Fact Check Tools na żywo (klucz właściciela), Claude Haiku 5.5, kopia bazy, korpus cb62b4255ea0. **Mała próba (18 pytań), jeden przebieg; to sygnał, nie pomiar.** Dane: wyniki tylko w katalogu roboczym (wpisy indeksu nie trafiają do repozytorium).
+
+| Miernik | Wynik |
+|---|---|
+| właściwa weryfikacja znaleziona: zapytanie pełnym zdaniem | 1/14 |
+| właściwa weryfikacja znaleziona: krótkie warianty fraz + filtr wydawcy, nasz ranking (po poprawce wariantów) | 13/14 (we wszystkich na 1. miejscu naszego rankingu) |
+| odpowiedź końcowa zgodna z oczekiwaną (pierwsza próba) | 16/18 |
+| odpowiedź końcowa zgodna z oczekiwaną (po poprawkach ogólnych) | **18/18** |
+| błędne „Tak.” albo „Nie.” | 0/18 |
+| mediana czasu zgłoszenia | 5,8 s |
+| zapytania do indeksu na zgłoszenie | 8 (limit) |
+| koszt modelu za całą próbę | ok. /bin/zsh,06 |
+
+Wcześniejsza próba (zad. 40, 14 pytań na tematach Konkret24, indeks wyłączony): 5/14.
+
+Poprawki ogólne po pierwszej próbie (bez reguł pod przypadki): (1) warianty fraz zachowują oznaczenia z cyfrą („F-16”, „CO2”) także bez nazw własnych i dodają początek zdania (podmiot z orzeczeniem); (2) teza z oceny redakcji nie przechodzi przez bramkę wsparcia („czy cytat sam rozstrzyga”), bo nie jest dowodem, tylko kandydatem na tę samą tezę; tożsamość tezy ustala ocena relacji i reguły w kodzie (nazwy, data, tabela ocen); bramka odrzucała poprawną parafrazę; (3) pytanie rozstrzygające rozpoznawane w dowolnym zdaniu zgłoszenia („Słyszałem, że X. Czy to prawda?”); (4) tabela ocen: „przerobione zdjęcie/wideo” -> fałszywe, „brakujący kontekst” -> wprowadzające w błąd; (5) pytanie „czy redakcja to sprawdzała” przy awarii indeksu mówi o błędzie dostępu.
+
+Scenariusz J na żywo: proces z celowo złym kluczem (zmienna środowiskowa procesu, nie .env) dostaje od indeksu HTTP 400 (); gdy zbiór nie rozstrzyga, wynik to stan  z komunikatem o niedostępnym indeksie Google; gdy zbiór rozstrzyga, odpowiedź zostaje z dopiskiem o błędzie dostępu. Nigdy „nie znaleziono”.

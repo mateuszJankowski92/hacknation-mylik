@@ -926,11 +926,17 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         const gate = validateCitations(assessments, sentList, { flaggedPassageIds: modelFlagged, claimText: claim.text });
         let acc = gate.accepted;
         let rejected = gate.rejected.length;
-        if (supportGate) {
-          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u), retry);
+        // Teza z oceny redakcji nie jest dowodem na twierdzenie, tylko kandydatem na „tę samą tezę”:
+        // bramka wsparcia („czy cytat sam rozstrzyga”) jej nie dotyczy. Tożsamość tezy ustala ocena relacji
+        // i reguły doboru w kodzie (nazwy, data, tabela ocen). Uzasadnienie redakcji przechodzi przez bramkę.
+        const isThesis = (a: AcceptedEvidence) => !!a.passage.meta.review && a.passage.meta.review.role !== 'uzasadnienie';
+        const theses = acc.filter(isThesis);
+        if (supportGate && acc.length > theses.length) {
+          const gated = acc.filter((a) => !isThesis(a));
+          const checked = await applySupportGate(supportGate, claim.text, gated, (u) => addUsage(usage, u), retry);
           deadline.check();
-          trace({ type: 'gate', claimId: claim.id, before: evView(acc), after: evView(checked.accepted) });
-          acc = checked.accepted;
+          trace({ type: 'gate', claimId: claim.id, before: evView(gated), after: evView(checked.accepted) });
+          acc = [...checked.accepted, ...theses];
           rejected += checked.stats.dropped;
           if (checked.stats.checked > 0)
             store.logEvent('support_gate', { recordId, channel, detail: { claimId: claim.id, gate: supportGate.name, ...checked.stats } });
@@ -1258,7 +1264,10 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     // (8b') forma odpowiedzi (src/render/answer.ts, szablony): pytanie rozstrzygające dostaje na początku
     // bezpośrednią odpowiedź zgodną z wynikiem; przy braku dowodów opis brakującego dokumentu.
     const mode = answerMode(prepared.kind === 'tekst' ? prepared.maskedInput : '');
-    for (const r of results) annotateAnswer(r, { mode, indexChecked: fcStatuses.has(r.claim.id) && !isFactcheckFailure(fcStatuses.get(r.claim.id)!) });
+    for (const r of results) {
+      const st = fcStatuses.get(r.claim.id);
+      annotateAnswer(r, { mode, indexChecked: st !== undefined && !isFactcheckFailure(st), indexFailed: st !== undefined && isFactcheckFailure(st) });
+    }
 
     // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
     if (renderer) for (const r of results) r.explanation = safeExplanation(renderer, r, asOf);

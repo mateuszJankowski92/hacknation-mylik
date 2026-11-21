@@ -89,7 +89,10 @@ export function phraseVariants(claim: ExtractedClaim, max = 5): string[] {
   const content = tokens.filter((w, i) => w.length >= 5 && !STOP.has(w.toLowerCase()) && !/\d/.test(w) && !isName(w, i));
   const longest = [...content].sort((x, y) => y.length - x.length || content.indexOf(x) - content.indexOf(y)).slice(0, 2);
   if (names.length) add(names);
-  if (names.length && numbers.length) add([names[0]!, numbers[0]!]);
+  // Liczby i oznaczenia z cyfrą (np. "F-16", "CO2", "4400"): z nazwą albo osobno, gdy nazw brak.
+  if (numbers.length) add(names.length ? [names[0]!, numbers[0]!] : numbers);
+  // Początek zdania (podmiot i orzeczenie), gdy pierwszy wyraz może być nazwą (np. marka na początku zdania).
+  if (tokens.length >= 2 && /^\p{Lu}/u.test(tokens[0]!) && tokens[0]!.length >= 3 && !names.includes(tokens[0]!)) add(tokens.slice(0, 2));
   if (longest.length) add(content.filter((w) => longest.includes(w)));
   for (const t of claim.searchTerms ?? []) add(t.split(/\s+/));
   if (names.length && content.length) add([names[0]!, content[0]!]);

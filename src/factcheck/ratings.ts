@@ -10,6 +10,12 @@ export type ReviewLabel = NonNullable<ReviewInfo['label']>;
 export const RATING_TABLE: Readonly<Record<string, ReviewLabel>> = {
   prawda: 'potwierdzone',
   falsz: 'falszywe',
+  // Materiał przerobiony: teza o nim (że jest prawdziwy albo pokazuje to, co mu przypisano) jest fałszywa.
+  'przerobione zdjecie': 'falszywe',
+  'przerobione zdjecia': 'falszywe',
+  'przerobione wideo': 'falszywe',
+  'przerobione nagranie': 'falszywe',
+  'zmanipulowane zdjecie': 'falszywe',
   nieprawda: 'falszywe',
   manipulacja: 'wprowadzajace_w_blad',
   'czesciowa prawda': 'wprowadzajace_w_blad',
@@ -17,6 +23,7 @@ export const RATING_TABLE: Readonly<Record<string, ReviewLabel>> = {
   'czesciowo falsz': 'wprowadzajace_w_blad',
   'czesciowo prawda': 'wprowadzajace_w_blad',
   'brak kontekstu': 'wprowadzajace_w_blad',
+  'brakujacy kontekst': 'wprowadzajace_w_blad',
   'wprowadza w blad': 'wprowadzajace_w_blad',
   'wprowadzajace w blad': 'wprowadzajace_w_blad',
   zmanipulowane: 'wprowadzajace_w_blad',

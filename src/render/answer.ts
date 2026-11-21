@@ -103,6 +103,8 @@ export interface AnnotateOptions {
   mode: AnswerMode;
   /** Czy indeks weryfikacji odpowiedział dla tego twierdzenia (bez awarii). */
   indexChecked: boolean;
+  /** Czy indeks był niedostępny (błąd dostępu, limit, brak klucza, czas) dla tego twierdzenia. */
+  indexFailed?: boolean;
 }
 
 /** Ustawia `directAnswer` i `neededDocument` na wyniku twierdzenia (przed złożeniem zdań). */
@@ -118,6 +120,7 @@ export function annotateAnswer(claim: ClaimResult, opts: AnnotateOptions): void 
     const rev = decisiveReview(claim);
     if (rev) claim.directAnswer = `Tak, ${editorial(rev, true)} to sprawdziła.`;
     else if (reviewEvidence(claim).length) claim.directAnswer = 'Znalazłem ocenę redakcji podobnej tezy, ale nie tej samej.';
+    else if (opts.indexFailed) claim.directAnswer = 'Nie mogę teraz sprawdzić indeksu Google z ocenami redakcji z powodu błędu dostępu.';
     else if (opts.indexChecked) claim.directAnswer = 'Nie znalazłem takiej oceny w indeksie Google z ocenami redakcji.';
     else claim.directAnswer = 'Nie sprawdzałem tego w indeksie Google z ocenami redakcji.';
     return;

@@ -286,6 +286,16 @@ describe('J. awaria indeksu', () => {
     expect(c.limitations).toContain(FACTCHECK_DOWN_LIMITATION);
   });
 
+  it('pytanie „czy redakcja to sprawdzała” przy awarii indeksu, zbiór rozstrzyga: odpowiedź mówi o błędzie dostępu, nie „nie znaleziono”', async () => {
+    const official = passage('urz#0', 'Komunikat urzędu: w Lipnie Testowym seniorzy jeżdżą komunikacją miejską za darmo od 2024 r.', { sourceType: 'urzedowe' });
+    const db = openDb(':memory:');
+    const s = scriptedModel({ 'za darmo': 'W Lipnie Testowym seniorzy jeżdżą komunikacją miejską za darmo.' }, { 'Komunikat urzędu': 'potwierdza' });
+    const engine = createEngineCore({ db, searcher: new FakeSearcher([official]), llm: new ScriptedLlm(s.extract, s.assess), now: fixedNow, prepare: fakePrepare, supportGate: null, ranker: null, renderer: defaultRenderer, factcheck: layerWith(new FailingIndex()) });
+    const c = rec(await engine.verify({ text: 'Czy Demagog sprawdzał, czy w Lipnie Testowym seniorzy jeżdżą za darmo?', channel: 'www' })).claims[0]!;
+    expect(c.directAnswer).toMatch(/^Nie mogę teraz sprawdzić indeksu Google/);
+    expect(c.directAnswer).not.toMatch(/nie znalaz/i);
+  });
+
   it('warstwa wyłączona przełącznikiem: działa jak dotąd (bez stanu technicznego)', async () => {
     const { engine } = engineWith({ factcheck: null });
     const out = await engine.verify({ text: 'Czy Lipno Testowe było jedynym miastem z darmowymi przejazdami dla seniorów?', channel: 'www' });

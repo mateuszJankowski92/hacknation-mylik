@@ -88,10 +88,9 @@ const REVIEW_ONLY = /^\s*czy\s+(?:redakcj\p{L}*\s+)?\p{L}[\p{L}.-]*(?:\s+\p{L}[\
 
 /** Pytanie rozstrzygające (tak/nie): zaczyna się od "czy" albo kończy znakiem zapytania i nie jest pytaniem otwartym. */
 export function isYesNoQuestion(text: string): boolean {
-  const first = text.split('\n').flatMap(sentencesOf).map((s) => s.trim()).find(Boolean) ?? '';
-  if (!first) return false;
-  if (/^\s*(?:a\s+)?czy(?![\p{L}\p{N}])/iu.test(first)) return true;
-  return /\?\s*$/u.test(first) && !OPEN_QUESTION.test(first);
+  // Pytanie rozstrzygające w dowolnym zdaniu zgłoszenia (np. „Słyszałem, że X. Czy to prawda?”).
+  const sentences = text.split('\n').flatMap(sentencesOf).map((s) => s.trim()).filter(Boolean);
+  return sentences.some((s) => /^\s*(?:a\s+)?czy(?![\p{L}\p{N}])/iu.test(s) || (/\?\s*$/u.test(s) && !OPEN_QUESTION.test(s)));
 }
 
 /** Pytanie o to, czy redakcja lub instytucja coś sprawdzała ("Czy X sprawdzał, czy ...?", "Czy X to sprawdzał?"). */
