@@ -90,7 +90,7 @@ Zrobiono dwa przebiegi, razem ok. 0,009 USD.
   (klucz `EUVSDISINFO_TOKEN` w `.env`, 1 żądanie na ok. 1 s, wznowienie od offsetu w `_fetch-state.json`).
 - **Fałszywe alarmy:** przypadki są po angielsku. Krok wyodrębniania twierdzeń podaje `englishTerms`
   (tylko do tego dopasowania). Progi ostrożne (`EN_MATCH_RULES`): min. 3 wspólne słowa, min. 2 „mocne”
-  (nie państwo, nie rok, nie słowo z ponad 3% przypadków), 60% mocnych słów twierdzenia i jedno w tytule.
+  (nie państwo, nie rok, nie słowo z ponad 3% przypadków), 80% mocnych słów twierdzenia, każda mocna nazwa własna i jedno słowo w tytule.
   Lepiej nie pokazać ostrzeżenia niż pokazać nietrafione. Ostrzeżenie pokazuje tytuł w oryginale (bez
   tłumaczenia), datę i odsyłacz, oraz zdanie „To tylko informacja, nie ocena.”
 - **Znane luki:** dopasowanie po słowach nie rozumie sensu (np. zaprzeczenia); progi dobrane na danych

@@ -382,7 +382,9 @@ export const EN_MATCH_RULES = {
 	/** Co najmniej tyle wspólnych słów "mocnych" (nie państwo, nie rok, nie słowo z > 3% przypadków). */
 	minStrong: 2,
 	/** Udział mocnych słów twierdzenia obecnych w przypadku. */
-	minStrongCoverage: 0.6,
+	minStrongCoverage: 0.8,
+	/** Każda mocna nazwa własna z twierdzenia (np. miasto, firma) musi wystąpić w przypadku. */
+	requireAllProperNames: true,
 	/** Słowo częstsze niż ten udział przypadków (przy co najmniej 200 przypadkach) liczy się jako słabe. */
 	commonShare: 0.03,
 };
@@ -397,12 +399,20 @@ function findByEnglishTerms(terms: string[], records: KnownOpRecord[], limit: nu
 	const claimTokens = englishTokens(terms.join(' '));
 	const strong = [...claimTokens].filter((t) => !isWeakEnglish(t, index));
 	if (claimTokens.size < EN_MATCH_RULES.minShared || strong.length < EN_MATCH_RULES.minStrong) return [];
+	const properNames = new Set(
+		terms
+			.flatMap((t) => t.split(/[^\p{L}\p{N}']+/u))
+			.filter((w) => /^\p{Lu}/u.test(w))
+			.map(englishStem)
+			.filter((t) => strong.includes(t)),
+	);
 	const scored: Array<KnownOpMatch & { coverage: number }> = [];
 	index.docs.forEach((doc, i) => {
 		const strongShared = strong.filter((t) => doc.all.has(t));
 		if (strongShared.length < EN_MATCH_RULES.minStrong) return;
 		const coverage = strongShared.length / strong.length;
 		if (coverage < EN_MATCH_RULES.minStrongCoverage) return;
+		if (EN_MATCH_RULES.requireAllProperNames && [...properNames].some((t) => !doc.all.has(t))) return;
 		if (!strongShared.some((t) => doc.title.has(t))) return;
 		const shared = [...claimTokens].filter((t) => doc.all.has(t));
 		if (shared.length < EN_MATCH_RULES.minShared) return;
