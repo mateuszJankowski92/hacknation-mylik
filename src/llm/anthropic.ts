@@ -9,7 +9,7 @@
  * - `temperature` NIE jest wysyłane: Claude Sonnet 5.5 i Claude Haiku 5.5 zwracają 400
  *   dla niedomyślnych parametrów próbkowania. Determinizm zapewnia schemat i prompt.
  * - `output_config.effort: 'low'`: myślenie adaptacyjne zostaje domyślne, niski wysiłek
- *   trzyma opóźnienie i koszt nisko.
+ *   trzyma opóźnienie i koszt nisko. Wybór kandydatów i ocena fragmentów idą bez myślenia (`lightThinking`); bramka wsparcia zostaje z myśleniem adaptacyjnym.
  * - Timeout 25 s na wywołanie, `maxRetries: 0` w SDK; jedyne ponowienie to jedno
  *   ponowienie po niezgodności ze schematem. Błędy przejściowe (429, timeout, 5xx)
  *   zgłaszamy jako `LlmError` z `retryable`, decyzję podejmuje silnik.
@@ -29,7 +29,9 @@ import {
   type LlmUsage,
   type PassageAssessment,
 } from '../contracts/llm';
+import type { PassageRanker, RankRequest, RankResult } from '../engine/ranker';
 import type { SupportCheckRequest, SupportCheckResult, SupportGate } from '../engine/supportGate';
+import { idsFromOutput, RankOutputSchema } from './ranker';
 import { estimateCostUsd } from './pricing';
 import { SupportGateOutputSchema, verdictsFromOutput } from './supportGate';
 import {
@@ -39,7 +41,9 @@ import {
   buildAssessUserMessage,
   buildExtractUserMessage,
   buildSchemaRetryNote,
+  buildRankUserMessage,
   buildSupportUserMessage,
+  RANK_SYSTEM_PROMPT,
   SUPPORT_GATE_SYSTEM_PROMPT,
 } from './prompts';
 
@@ -99,6 +103,18 @@ export function mapAnthropicError(err: unknown): LlmError {
   return new LlmError('provider_error', 'Nieoczekiwany błąd wywołania modelu.', { retryable: false, cause: err });
 }
 
+/**
+ * Wybór kandydatów i ocena fragmentów bez myślenia: krótszy czas odpowiedzi (pomiar zad. 25: ogon oceny
+ * do 11 s z myśleniem). Bramka wsparcia, ostatnia kontrola dowodu, zostaje z myśleniem adaptacyjnym.
+ * Claude Haiku 5.5: `disabled` (dozwolone przy wysiłku `high` i niższym); Claude Sonnet 5.5: `between_tools`
+ * (tam `disabled` zwraca 400). Inne modele: domyślne myślenie adaptacyjne (brak pola).
+ */
+export function lightThinking(model: string): Anthropic.ThinkingConfigParam | undefined {
+  if (model.startsWith('claude-haiku-5-5')) return { type: 'disabled' };
+  if (model.startsWith('claude-sonnet-5-5')) return { type: 'between_tools' };
+  return undefined;
+}
+
 function issuesSummary(error: z.ZodError): string {
   return error.issues
     .slice(0, 5)
@@ -106,7 +122,7 @@ function issuesSummary(error: z.ZodError): string {
     .join('; ');
 }
 
-export class AnthropicProvider implements LlmProvider, SupportGate {
+export class AnthropicProvider implements LlmProvider, SupportGate, PassageRanker {
   readonly name = 'anthropic';
   readonly model: string;
   private readonly apiKey?: string;
@@ -160,6 +176,7 @@ export class AnthropicProvider implements LlmProvider, SupportGate {
         }
         if (seen.size !== expected.size) throw new SchemaProblem('brak oceny dla części fragmentów');
       },
+      { light: true },
     );
     const assessments: PassageAssessment[] = data.assessments.map((a) => ({
       passageId: a.passageId,
@@ -169,6 +186,17 @@ export class AnthropicProvider implements LlmProvider, SupportGate {
       injectionSuspected: a.injectionSuspected,
     }));
     return { assessments, usage };
+  }
+
+  /** Wybór kandydatów: identyfikatory fragmentów w kolejności przydatności (tylko znane, bez powtórzeń). */
+  async rankPassages(req: RankRequest): Promise<RankResult> {
+    if (req.passages.length === 0) return { ids: [] };
+    const known = new Set(req.passages.map((p) => p.id));
+    const { data, usage } = await this.callStructured(RANK_SYSTEM_PROMPT, buildRankUserMessage(req), RankOutputSchema, () => {}, {
+      light: true,
+    });
+    const flagged = [...new Set(data.injectionSuspected.map((id) => id.trim()).filter((id) => known.has(id)))];
+    return { ids: idsFromOutput(data, known, req.limit), ...(flagged.length ? { injectionSuspected: flagged } : {}), usage };
   }
 
   /** Bramka wsparcia: osobne wywołanie z samym twierdzeniem i samymi cytatami (bez fragmentów i źródeł). */
@@ -200,7 +228,9 @@ export class AnthropicProvider implements LlmProvider, SupportGate {
     userMessage: string,
     schema: z.ZodType<T>,
     check: (out: T) => void,
+    opts: { light?: boolean } = {},
   ): Promise<{ data: T; usage: LlmUsage }> {
+    const thinking = opts.light ? lightThinking(this.model) : undefined;
     const client = this.getClient();
     const format = zodOutputFormat(schema as never);
     const usage: LlmUsage = { model: this.model, inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0, latencyMs: 0 };
@@ -216,6 +246,7 @@ export class AnthropicProvider implements LlmProvider, SupportGate {
           max_tokens: MAX_TOKENS,
           system,
           messages: [{ role: 'user', content }],
+          ...(thinking ? { thinking } : {}),
           output_config: { effort: 'low', format: { type: 'json_schema', schema: format.schema } },
         });
       } catch (err) {

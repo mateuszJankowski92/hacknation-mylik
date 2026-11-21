@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NeedsClarification, PreparedInput } from '../contracts';
-import { maskPii, prepareInput } from './index';
+import { isUnavailableInput, maskPii, prepareInput, type InputRejection } from './index';
 
 function makePesel(prefix: string): string {
 	const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
@@ -279,6 +279,17 @@ describe('prepareInput: URL', () => {
 		];
 		for (const value of bad) {
 			expect(asClarification(url(value)).needsClarification).toBe(true);
+		}
+	});
+
+	it('adres lokalny lub wewnętrzny jest jasny, ale niedostępny (nie do doprecyzowania)', () => {
+		for (const value of ['http://127.0.0.1:9000/panel', 'http://localhost', 'http://[::1]/', 'http://wiki.internal/']) {
+			const r = asClarification(url(value)) as InputRejection;
+			expect(r.unavailable).toBe(true);
+			expect(isUnavailableInput(r)).toBe(true);
+		}
+		for (const value of ['to nie jest adres', 'http://user:pass@example.pl', 'javascript:alert(1)']) {
+			expect(isUnavailableInput(asClarification(url(value)))).toBe(false);
 		}
 	});
 

@@ -110,6 +110,35 @@ export function matchesThesis(claimText: string, thesis: Pick<Thesis, 'keywords'
   });
 }
 
+/** Słowo kluczowe pasuje jako odmiana (końcówka do 4 znaków), nie jako początek innego słowa ("euro" a "europejskiej"). */
+const INFLECTION_TAIL = 4;
+
+/**
+ * Siła dopasowania twierdzenia do tezy: 0, gdy nie pasuje; inaczej suma po słowach kluczowych
+ * (2 = słowo lub jego odmiana, 1 = tylko początek dłuższego słowa).
+ */
+export function thesisMatchScore(claimText: string, thesis: Pick<Thesis, 'keywords'>): number {
+  if (!matchesThesis(claimText, thesis)) return 0;
+  const words = claimText.toLocaleLowerCase('pl').match(/[\p{L}\p{N}]+/gu) ?? [];
+  let score = 0;
+  for (const k of thesis.keywords) {
+    const key = k.toLocaleLowerCase('pl');
+    score += words.some((w) => w.startsWith(key) && w.length - key.length <= INFLECTION_TAIL) ? 2 : 1;
+  }
+  return score;
+}
+
+/** Twierdzenie najlepiej pasujące do tezy (przy remisie pierwsze); brak = teza niewyodrębniona. */
+export function bestThesisMatch<T>(items: readonly T[], text: (t: T) => string, thesis: Pick<Thesis, 'keywords'>): T | undefined {
+  let best: T | undefined;
+  let bestScore = 0;
+  for (const it of items) {
+    const s = thesisMatchScore(text(it), thesis);
+    if (s > bestScore) [best, bestScore] = [it, s];
+  }
+  return best;
+}
+
 export function loadCases(path = DEFAULT_CASES_PATH): CasesFile {
   return parseCases(JSON.parse(readFileSync(path, 'utf8')));
 }

@@ -90,13 +90,13 @@ const ev = (id: string, text: string, stance: 'potwierdza' | 'obala' | 'kontekst
 });
 
 describe('applySupportGate', () => {
-  it('niewspierający odpada, relacja bramki zastępuje ocenę, kontekst nie jest sprawdzany', async () => {
+  it('niewspierający odpada, inny kierunek bramki zastępuje ocenę, kontekst nie jest sprawdzany', async () => {
     const gate = new FakeGate((_c, q) =>
       q.startsWith('Tło') ? { relation: 'nie_rozstrzyga', reason: 'tło' } : { relation: 'obala', reason: 'wyklucza' },
     );
     const items = [
       ev('a#0', 'Tło sprawy jest takie.', 'potwierdza'),
-      ev('b#0', 'Usługa jest całkowicie darmowa.', 'rozbieznosc_kontekstu'),
+      ev('b#0', 'Usługa jest całkowicie darmowa.', 'potwierdza'),
       ev('c#0', 'Ogólne informacje o usłudze.', 'kontekst'),
     ];
     const out = await applySupportGate(gate, 'Usługa kosztuje dużo.', items, () => {});
@@ -106,7 +106,23 @@ describe('applySupportGate', () => {
     ]);
     expect(out.accepted[0]!.mismatch).toBeUndefined();
     expect(out.stats).toMatchObject({ checked: 2, dropped: 1, changed: 1, kept: 0 });
-    expect(gate.calls[0]!.quotes).toEqual(['Tło sprawy jest takie.', 'Usługa jest całkowicie darmowa.']);
+    // Każdy cytat osobnym wywołaniem (sam w sobie), bez cytatów kontekstu.
+    expect(gate.calls.map((c) => c.quotes)).toEqual([['Tło sprawy jest takie.'], ['Usługa jest całkowicie darmowa.']]);
+  });
+  it('ten sam kierunek ("przeciw"): zostaje stanowisko z oceny (sedno czy szczegół ocenia się z całym fragmentem)', async () => {
+    const gate = new FakeGate((_c, q) =>
+      q.includes('100') ? { relation: 'obala', reason: 'inna liczba' } : { relation: 'rozbieznosc_kontekstu', mismatch: 'data', reason: 'inna data' },
+    );
+    const items = [
+      ev('a#0', 'Na miejsce wysłano 100 strażaków.', 'rozbieznosc_kontekstu'),
+      ev('b#0', 'Zdarzenia nie było, to wymysł.', 'obala'),
+    ];
+    const out = await applySupportGate(gate, 'Wysłano 900 strażaków.', items, () => {});
+    expect(out.accepted.map((a) => [a.passage.id, a.stance, a.mismatch])).toEqual([
+      ['a#0', 'rozbieznosc_kontekstu', 'skala'],
+      ['b#0', 'obala', undefined],
+    ]);
+    expect(out.stats).toMatchObject({ checked: 2, kept: 2, changed: 0 });
   });
   it('ponowienie z poprzednim zdaniem ratuje cytat bez nazwanego podmiotu', async () => {
     const text = 'Most na rzece Wiśle otwarto w piątek. Oddany do ruchu obiekt ma 300 m.';

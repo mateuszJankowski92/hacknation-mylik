@@ -26,6 +26,10 @@ import {
   createPageFetcher,
   incidentMatcherFromRecords,
   isSupportGate,
+  type EngineTraceEvent,
+  isPassageRanker,
+  type RankRequest,
+  type RankResult,
   type IncidentMatcher,
   type PageFetcher,
   type SupportCheckRequest,
@@ -33,7 +37,7 @@ import {
 } from '../engine/index';
 import { ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT } from '../llm/prompts';
 import { createSmsApp } from '../sms/index';
-import { caseInputText, DEFAULT_INCIDENTS_FIXTURE, matchesThesis, type EvalCase, type Fault } from './cases';
+import { bestThesisMatch, caseInputText, DEFAULT_INCIDENTS_FIXTURE, type EvalCase, type Fault } from './cases';
 import type { CitationJudge, JudgeItem } from './judge';
 import type { CaseOutcome, ClaimOutcome } from './metrics';
 
@@ -57,7 +61,14 @@ export class UsageMeter implements LlmProvider {
   inputTokens = 0;
   outputTokens = 0;
   costUsd = 0;
-  constructor(private readonly inner: LlmProvider) {}
+  constructor(private readonly inner: LlmProvider) {
+    if (isPassageRanker(inner))
+      this.rankPassages = async (req) => {
+        const r = await inner.rankPassages(req);
+        this.add(r.usage);
+        return r;
+      };
+  }
   get name() {
     return this.inner.name;
   }
@@ -82,6 +93,8 @@ export class UsageMeter implements LlmProvider {
     this.add(r.usage);
     return r;
   }
+  /** Przepuszcza wybór kandydatów dostawcy (tylko gdy dostawca go ma; inaczej silnik zostaje przy wyszukiwaniu). */
+  rankPassages?: (req: RankRequest) => Promise<RankResult>;
   /** Przepuszcza bramkę wsparcia dostawcy (silnik używa jej, gdy dostawca ją ma). */
   async checkSupport(req: SupportCheckRequest): Promise<SupportCheckResult> {
     if (!isSupportGate(this.inner)) throw new Error('dostawca bez bramki wsparcia');
@@ -229,6 +242,10 @@ export interface RunOptions {
   fallbackFetcher?: PageFetcher;
   concurrency?: number;
   onCase?: (o: CaseOutcome) => void;
+  /** Bez wywołania wybierającego kandydatów (porównanie A/B; kolejność z wyszukiwania). */
+  noRank?: boolean;
+  /** Śledzenie etapów silnika (diagnostyka, src/eval/diagnose.ts). */
+  trace?: (caseId: string, e: EngineTraceEvent) => void;
 }
 
 const LEAK_SNIPPETS = [ASSESS_SYSTEM_PROMPT.slice(0, 60), EXTRACT_SYSTEM_PROMPT.slice(0, 60)];
@@ -273,7 +290,8 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
     llm: meter,
     fetchPage,
     incidents: opts.incidents ?? null,
-    options: { errorProfile: null },
+    ...(opts.noRank ? { ranker: null } : {}),
+    options: { errorProfile: null, ...(opts.trace ? { trace: (e: EngineTraceEvent) => opts.trace!(c.id, e) } : {}) },
   });
 
   const input = 'text' in c.input ? { text: c.input.text, channel: 'www' as const } : { url: c.input.url, channel: 'www' as const };
@@ -322,7 +340,8 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
         };
       }),
     }));
-    const main = mainClaim(r.claims, caseInputText(c));
+    // Wejście URL: główne twierdzenie porównujemy z treścią strony, nie z samym adresem.
+    const main = mainClaim(r.claims, 'url' in c.input && c.page ? c.page.text : caseInputText(c));
     if (main) {
       out.predictedVerdict = main.verdict;
       out.strength = main.strength.level;
@@ -333,7 +352,7 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
   if (c.expected?.claims) {
     const found = outcome.kind === 'record' ? outcome.record.claims : [];
     out.items = c.expected.claims.map((t) => {
-      const m = found.find((cr) => matchesThesis(cr.claim.text, t));
+      const m = bestThesisMatch(found, (cr) => cr.claim.text, t);
       const predicted = outcome.kind === 'state' ? outcome.state : (m?.verdict ?? 'brak_tezy');
       return { about: t.about, expected: t.verdict, predicted, ...(m ? { strength: m.strength.level } : {}), correct: predicted === t.verdict };
     });

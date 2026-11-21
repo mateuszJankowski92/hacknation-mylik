@@ -24,7 +24,7 @@ import {
   type VerifyInput,
   type VerifyOutcome,
 } from '../contracts/index';
-import { maskPii } from '../input/index';
+import { isUnavailableInput, maskPii } from '../input/index';
 import { cleanText } from '../input/normalize';
 import { hasKeyNumbers, validateCitations, withPreviousSentence, type AcceptedEvidence } from './citations';
 import { isSupportGate, normalizeVerdicts, type SupportGate } from './supportGate';
@@ -64,6 +64,7 @@ import {
   type RuleEvidence,
 } from './rules';
 import { createStore, type EngineStore } from './store';
+import { forQueries, fuseRankings, isPassageRanker, orderByRanking, type PassageRanker } from './ranker';
 
 export { buildShortAnswer };
 
@@ -71,6 +72,18 @@ export const MAX_CLAIMS = 5;
 export const MAX_PASSAGES_PER_CLAIM = 8;
 /** Dodatkowe (nowe) fragmenty z przebiegu "przeciw", oceniane razem z fragmentami "za". */
 export const MAX_COUNTER_PASSAGES = 4;
+/** Wyników na jedno zapytanie (pula przed wyborem kandydatów). */
+export const SEARCH_LIMIT = 20;
+/** Pula "za" po scaleniu zapytań i pula nowych fragmentów "przeciw". */
+export const FOR_POOL = 20;
+export const COUNTER_POOL = 10;
+/** Kandydaci do oceny po wyborze przez model porządkujący (najwyżej / najmniej, dopełnienie z wyszukiwania). */
+export const MAX_ASSESS = 10;
+export const MIN_ASSESS = 6;
+/** Najwięcej fragmentów w jednym wywołaniu oceny (porcje oceniane równolegle). */
+export const ASSESS_CHUNK = 6;
+/** Limit czasu na jedno zgłoszenie; po nim stan techniczny, nigdy werdykt. */
+export const DEFAULT_DEADLINE_MS = 22_000;
 /** Słowa dodawane do zapytania "przeciw", gdy model nie podał `counterTerms`. */
 export const DEFAULT_COUNTER_MARKERS = ['nieprawda', 'zaprzecza', 'dementuje', 'sprostowanie', 'nieprawdziwe'];
 
@@ -86,7 +99,28 @@ export interface EngineOptions {
   errorProfilePath?: string;
   /** Gotowa tabela profilu błędów (pierwszeństwo przed ścieżką; testy). */
   errorProfile?: ErrorProfileTable | null;
+  /**
+   * Śledzenie etapów (diagnostyka ewaluacji: src/eval/diagnose.ts). Wołane synchronicznie; wyjątek
+   * z callbacku jest ignorowany i nie zmienia wyniku. Produkcja go nie ustawia.
+   */
+  trace?: (event: EngineTraceEvent) => void;
+  /** Limit czasu na zgłoszenie w ms (domyślnie DEFAULT_DEADLINE_MS); po nim stan `awaria_techniczna`. */
+  deadlineMs?: number;
 }
+
+/** Zdarzenie śledzenia etapów potoku (tylko identyfikatory i stanowiska; bez metadanych źródeł). */
+export type EngineTraceEvent =
+  | { type: 'search'; claimId: string; role: 'za' | 'przeciw'; query: string; passageIds: string[]; documentIds: string[] }
+  | { type: 'candidates'; claimId: string; passageIds: string[]; documentIds: string[] }
+  | { type: 'rank'; claimId: string; pool: number; chosen: number }
+  | { type: 'assess'; claimId: string; items: { passageId: string; documentId: string; stance: string }[] }
+  | {
+      type: 'gate';
+      claimId: string;
+      before: { passageId: string; documentId: string; stance: string }[];
+      after: { passageId: string; documentId: string; stance: string }[];
+    }
+  | { type: 'verdict'; claimId: string; claimText: string; kind: string; verdict: string; abstain?: string };
 
 export interface EngineExtraDeps {
   prepare?: PrepareFn;
@@ -102,6 +136,11 @@ export interface EngineExtraDeps {
    * jeśli sam ją implementuje (`checkSupport`); `null` = wyłączona.
    */
   supportGate?: SupportGate | null;
+  /**
+   * Wybór kandydatów do oceny (tanie wywołanie modelu nad szerszą pulą). Brak = dostawca modelu,
+   * jeśli sam go implementuje (`rankPassages`); `null` = kolejność z wyszukiwania.
+   */
+  ranker?: PassageRanker | null;
 }
 
 export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
@@ -162,6 +201,50 @@ function isPrepared(p: PreparedInput | NeedsClarification): p is PreparedInput {
   return !(p as NeedsClarification).needsClarification;
 }
 
+/** Dzieli listę na najmniejszą liczbę porcji o rozmiarze najwyżej `size`, możliwie równych. */
+export function splitEven<T>(list: readonly T[], size: number): T[][] {
+  if (list.length === 0) return [];
+  const parts = Math.ceil(list.length / Math.max(1, size));
+  const per = Math.ceil(list.length / parts);
+  const out: T[][] = [];
+  for (let i = 0; i < list.length; i += per) out.push(list.slice(i, i + per));
+  return out;
+}
+
+/** Przekroczenie limitu czasu zgłoszenia (wewnętrzne; kończy się stanem technicznym). */
+export class DeadlineExceeded extends Error {
+  constructor() {
+    super('deadline');
+    this.name = 'DeadlineExceeded';
+  }
+}
+
+interface Deadline {
+  /** Rzuca DeadlineExceeded po przekroczeniu limitu (między etapami potoku). */
+  check(): void;
+  /** Rozstrzyga się stanem technicznym, gdy limit minie. */
+  expired: Promise<VerifyOutcome>;
+  clear(): void;
+}
+
+function createDeadline(ms: number): Deadline {
+  const at = Date.now() + ms;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const expired = new Promise<VerifyOutcome>((resolve) => {
+    timer = setTimeout(() => resolve(stateOutcome('awaria_techniczna', MESSAGES.tooSlow, 'deadline')), ms);
+    (timer as { unref?: () => void }).unref?.();
+  });
+  return {
+    check() {
+      if (Date.now() >= at) throw new DeadlineExceeded();
+    },
+    expired,
+    clear() {
+      if (timer) clearTimeout(timer);
+    },
+  };
+}
+
 function uniqueById(list: readonly Passage[]): Passage[] {
   const seen = new Set<string>();
   return list.filter((p) => (seen.has(p.id) ? false : (seen.add(p.id), true)));
@@ -184,10 +267,35 @@ export interface SupportGateStats {
   rescued: number;
 }
 
+/** Kierunek stanowiska: "za" (potwierdza) albo "przeciw" (obala, rozbieżność kontekstu). */
+function direction(stance: string): 'za' | 'przeciw' | null {
+  return stance === 'potwierdza' ? 'za' : stance === 'obala' || stance === 'rozbieznosc_kontekstu' ? 'przeciw' : null;
+}
+
+/** Każdy cytat osobnym wywołaniem bramki (cytat oceniany sam w sobie), wywołania równolegle. */
+async function checkEach(
+  gate: SupportGate,
+  claimText: string,
+  quotes: readonly string[],
+  onUsage: (u: LlmUsage | undefined) => void,
+): Promise<ReturnType<typeof normalizeVerdicts>> {
+  return Promise.all(
+    quotes.map(async (q) => {
+      const r = await gate.checkSupport({ claim: claimText, quotes: [q] });
+      onUsage(r.usage);
+      return normalizeVerdicts(r, 1)[0]!;
+    }),
+  );
+}
+
 /**
  * Bramka wsparcia: każdy cytat rozstrzygający (potwierdza, obala, rozbieżność) idzie do bramki SAM,
- * tylko z twierdzeniem. Cytat, który sam nie rozstrzyga, dostaje jedną szansę z poprzedzającym zdaniem
- * tego samego fragmentu (ciągły wycinek źródła); potem odpada. Relacja bramki zastępuje relację oceny.
+ * tylko z twierdzeniem (osobne wywołania, równolegle). Cytat, który sam nie rozstrzyga, dostaje jedną
+ * szansę z poprzedzającym zdaniem tego samego fragmentu (ciągły wycinek źródła, sprawdzany równolegle
+ * z samym cytatem); potem odpada.
+ * Bramka rozstrzyga, CZY cytat przesądza i W KTÓRĄ STRONĘ ("za" albo "przeciw"). Gdy kierunek zgadza się
+ * z oceną, zostaje stanowisko z oceny: rozróżnienie "obala" i "rozbieżność kontekstu" (sedno czy szczegół)
+ * wymaga całego fragmentu, a bramka z założenia widzi tylko cytat. Przy innym kierunku wygrywa bramka.
  * Dowody `kontekst` przechodzą bez zmian (nie wpływają na werdykt rozstrzygający).
  */
 export async function applySupportGate(
@@ -200,29 +308,27 @@ export async function applySupportGate(
   const items = accepted.filter((a) => DECISIVE.has(a.stance));
   if (items.length === 0) return { accepted, stats };
   stats.checked = items.length;
-  const first = await gate.checkSupport({ claim: claimText, quotes: items.map((a) => a.quote) });
-  onUsage(first.usage);
-  const verdicts = normalizeVerdicts(first, items.length);
-
-  const retry: { index: number; quote: string }[] = [];
-  verdicts.forEach((v, i) => {
-    if (v.relation !== 'nie_rozstrzyga') return;
-    const ext = withPreviousSentence(items[i]!.passage.text, items[i]!.quote);
-    if (ext && !containsUrl(ext) && detectInjectionSignals(ext).length === 0) retry.push({ index: i, quote: ext });
+  // Wariant z poprzedzającym zdaniem sprawdzamy od razu, równolegle (bez drugiej rundy czekania);
+  // używamy go tylko, gdy sam cytat nie rozstrzyga.
+  const extended = items.map((a) => {
+    const ext = withPreviousSentence(a.passage.text, a.quote);
+    return ext && !containsUrl(ext) && detectInjectionSignals(ext).length === 0 ? ext : null;
   });
+  const extIdx = extended.flatMap((e, i) => (e ? [i] : []));
+  const [verdicts, extVerdicts] = await Promise.all([
+    checkEach(gate, claimText, items.map((a) => a.quote), onUsage),
+    checkEach(gate, claimText, extIdx.map((i) => extended[i]!), onUsage),
+  ]);
   const quotes = items.map((a) => a.quote);
-  if (retry.length > 0) {
-    stats.retried = retry.length;
-    const second = await gate.checkSupport({ claim: claimText, quotes: retry.map((r) => r.quote) });
-    onUsage(second.usage);
-    normalizeVerdicts(second, retry.length).forEach((v, j) => {
-      if (v.relation === 'nie_rozstrzyga') return;
-      const { index, quote } = retry[j]!;
-      verdicts[index] = v;
-      quotes[index] = quote;
-      stats.rescued++;
-    });
-  }
+  extIdx.forEach((index, j) => {
+    if (verdicts[index]!.relation !== 'nie_rozstrzyga') return;
+    stats.retried++;
+    const v = extVerdicts[j]!;
+    if (v.relation === 'nie_rozstrzyga') return;
+    verdicts[index] = v;
+    quotes[index] = extended[index]!;
+    stats.rescued++;
+  });
 
   const out = new Map<AcceptedEvidence, AcceptedEvidence | null>();
   items.forEach((a, i) => {
@@ -233,9 +339,10 @@ export async function applySupportGate(
       stats.dropped++;
       return;
     }
-    const stance = v.relation;
+    const sameDirection = direction(v.relation) === direction(a.stance);
+    const stance = sameDirection ? a.stance : v.relation;
     const mismatch: MismatchKind | undefined =
-      stance === 'rozbieznosc_kontekstu' ? (v.mismatch ?? a.mismatch ?? 'warunki') : undefined;
+      stance === 'rozbieznosc_kontekstu' ? ((sameDirection ? a.mismatch : v.mismatch) ?? v.mismatch ?? a.mismatch ?? 'warunki') : undefined;
     if (stance === a.stance) stats.kept++;
     else stats.changed++;
     const { mismatch: _old, ...rest } = a;
@@ -270,8 +377,21 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         : null;
   const { searcher, llm, prepare } = deps;
   const renderer = deps.renderer;
+  const traceFn = deps.options?.trace;
+  const trace = (e: EngineTraceEvent) => {
+    if (!traceFn) return;
+    try {
+      traceFn(e);
+    } catch {
+      // diagnostyka nie wpływa na wynik
+    }
+  };
+  const evView = (list: readonly AcceptedEvidence[]) =>
+    list.map((a) => ({ passageId: a.passage.id, documentId: a.passage.documentId, stance: a.stance as string }));
   const supportGate: SupportGate | null =
     deps.supportGate !== undefined ? deps.supportGate : isSupportGate(llm) ? llm : null;
+  const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
+  const deadlineMs = deps.options?.deadlineMs ?? DEFAULT_DEADLINE_MS;
 
   async function search(query: string, limit: number): Promise<Passage[]> {
     try {
@@ -282,7 +402,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     }
   }
 
-  async function run(input: VerifyInput, progress: ProgressEmitter): Promise<VerifyOutcome> {
+  async function run(input: VerifyInput, progress: ProgressEmitter, deadline: Deadline): Promise<VerifyOutcome> {
     const channel = input.channel;
     const started = now().getTime();
     store.logEvent('verify_start', { channel, detail: { inputKind: input.url !== undefined ? 'url' : 'tekst' } });
@@ -299,7 +419,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
 
     // (1) przygotowanie wejścia
     const prepared = prepare(input);
-    if (!isPrepared(prepared)) return toState(stateOutcome('potrzeba_doprecyzowania', prepared.message));
+    if (!isPrepared(prepared)) {
+      // Adres lokalny lub wewnętrzny: wejście jasne, ale niedostępne (jak blokada pobierania), nie doprecyzowanie.
+      if (isUnavailableInput(prepared)) {
+        store.logEvent('url_fetch_failed', { channel, detail: { reason: 'adres_prywatny', stage: 'wejscie' } });
+        return toState(stateOutcome('brak_mozliwosci_sprawdzenia', MESSAGES.urlBlocked, 'url:adres_prywatny'));
+      }
+      return toState(stateOutcome('potrzeba_doprecyzowania', prepared.message));
+    }
 
     let corpusVersion: string;
     let documents: number;
@@ -388,6 +515,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     if (!stripped.text.trim()) return toState(nothingToCheck(), recordId);
 
     const extracted = await llm.extractClaims({ text: stripped.text });
+    deadline.check();
     addUsage(usage, extracted.usage);
     const rawClaims = Array.isArray(extracted.claims) ? extracted.claims : [];
     const claims: ExtractedClaim[] = [];
@@ -423,17 +551,24 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
 
     const createdAt = new Date(started).toISOString();
     const asOf = resolveAsOf(searcher, createdAt);
-    const results: ClaimResult[] = [];
     const abstainCodes = new Map<string, string>();
     const nowDate = now();
     const scope = scopeLimitation(corpusVersion, documents);
     const baseLimitations = isUrl ? [scope, PAGE_IS_DATA_LIMITATION] : [scope];
 
-    for (const [claimIndex, claim] of checkable.entries()) {
+    /** Ostrzeżenia i sygnały jednego twierdzenia; scalane po kolei twierdzeń (wynik deterministyczny). */
+    interface ClaimSide {
+      notices: Notice[];
+      signals: string[];
+      injectionEvents: number;
+    }
+
+    async function checkClaim(claim: ExtractedClaim, claimIndex: number, side: ClaimSide): Promise<ClaimResult> {
       if (claim.kind === 'opinia' || claim.kind === 'prognoza') {
         const decision = decideVerdict(claim.kind, []);
         const strength = computeStrength(decision);
-        results.push({
+        trace({ type: 'verdict', claimId: claim.id, claimText: claim.text, kind: claim.kind, verdict: decision.verdict });
+        return {
           claim,
           verdict: decision.verdict,
           strength,
@@ -442,66 +577,133 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           evidence: [],
           limitations: [...baseLimitations],
           refutation: noRefutation(),
-        });
-        continue;
+        };
       }
 
-      // (4) wyszukiwanie "za" i "przeciw" (kod)
-      const forPassages = uniqueById(await search(searchQuery(claim), MAX_PASSAGES_PER_CLAIM)).slice(0, MAX_PASSAGES_PER_CLAIM);
-      progress.forPassages(claimIndex, forPassages.length);
+      // (4) wyszukiwanie "za" (kilka zapytań, scalenie rang) i "przeciw" (kod), równolegle
+      const fQueries = forQueries(claim);
       const cQuery = counterQuery(claim);
-      progress.counterSearchStart(claimIndex);
-      const counterFound = uniqueById(await search(cQuery, MAX_PASSAGES_PER_CLAIM));
+      const [forLists, counterRaw] = await Promise.all([
+        Promise.all(fQueries.map((q) => search(q, SEARCH_LIMIT))),
+        search(cQuery, SEARCH_LIMIT),
+      ]);
+      deadline.check();
+      const forPool = fuseRankings(forLists.map(uniqueById)).slice(0, FOR_POOL);
+      const counterFound = uniqueById(counterRaw);
       const counterIds = new Set(counterFound.map((p) => p.id));
-      const forIds = new Set(forPassages.map((p) => p.id));
-      const counterNew = counterFound.filter((p) => !forIds.has(p.id)).slice(0, MAX_COUNTER_PASSAGES);
-      progress.counterSearchDone(claimIndex, counterNew.length);
-      const passages = [...forPassages, ...counterNew];
+      const forIds = new Set(forPool.map((p) => p.id));
+      const counterPool = counterFound.filter((p) => !forIds.has(p.id)).slice(0, COUNTER_POOL);
+      trace({ type: 'search', claimId: claim.id, role: 'za', query: fQueries[0]!, passageIds: forPool.map((p) => p.id), documentIds: forPool.map((p) => p.documentId) });
+      trace({ type: 'search', claimId: claim.id, role: 'przeciw', query: cQuery, passageIds: counterFound.map((p) => p.id), documentIds: counterFound.map((p) => p.documentId) });
 
-      // Injection: fragmenty z sygnałem nie trafiają do modelu i nie mogą być dowodem.
+      // Injection: fragmenty z sygnałem nie trafiają do żadnego modelu i nie mogą być dowodem.
       const flagged = new Set<string>();
-      for (const p of passages) {
+      for (const p of [...forPool, ...counterPool]) {
         const sig = detectInjectionSignals(p.text);
         if (sig.length) {
           flagged.add(p.id);
-          for (const s of sig) injectionSignals.add(`fragment:${p.id}:${s}`);
-          notices.push({ type: 'ograniczenie_techniczne', text: INJECTION_NOTICE, passageId: p.id });
+          for (const s of sig) side.signals.push(`fragment:${p.id}:${s}`);
+          side.notices.push({ type: 'ograniczenie_techniczne', text: INJECTION_NOTICE, passageId: p.id });
           store.logEvent('injection_signal', {
             recordId,
             channel,
             detail: { where: 'fragment', passageId: p.id, claimId: claim.id, signals: sig },
           });
-          injectionEvents++;
+          side.injectionEvents++;
         }
       }
-      const sent = passages.filter((p) => !flagged.has(p.id));
-      const sentIds = new Set(sent.map((p) => p.id));
+      const forEligible = forPool.filter((p) => !flagged.has(p.id));
+      const counterEligible = counterPool.filter((p) => !flagged.has(p.id));
 
-      // (5) ocena stanowisk (model) i (6) bramka cytatów (kod)
+      // Wybór kandydatów: bez modelu porządkującego (albo przy jego błędzie) kolejność z wyszukiwania.
+      let forSel = forEligible.slice(0, MAX_PASSAGES_PER_CLAIM);
+      let counterSel = counterEligible.slice(0, MAX_COUNTER_PASSAGES);
+      const union = [...forEligible, ...counterEligible];
+      const rankFlagged = new Set<string>();
+      if (ranker && union.length > MAX_ASSESS) {
+        try {
+          const ranked = await ranker.rankPassages({
+            claim: claim.text,
+            passages: union.map((p) => ({ id: p.id, text: p.text })),
+            limit: MAX_ASSESS,
+          });
+          addUsage(usage, ranked.usage);
+          // Fragment z poleceniami wskazany przez model porządkujący: jak zgłoszony przez model oceny.
+          const unionIds = new Set(union.map((p) => p.id));
+          for (const id of Array.isArray(ranked.injectionSuspected) ? ranked.injectionSuspected : [])
+            if (unionIds.has(id) && !rankFlagged.has(id)) {
+              rankFlagged.add(id);
+              side.signals.push(`fragment:${id}:zgloszone_przez_model`);
+              side.notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: id });
+              store.logEvent('injection_signal', {
+                recordId,
+                channel,
+                detail: { where: 'fragment', passageId: id, claimId: claim.id, signals: ['zgloszone_przez_model'], stage: 'wybor' },
+              });
+              side.injectionEvents++;
+            }
+          const chosen = orderByRanking(
+            union.filter((p) => !rankFlagged.has(p.id)),
+            Array.isArray(ranked.ids) ? ranked.ids : [],
+            MIN_ASSESS,
+            MAX_ASSESS,
+          );
+          const counterOnly = new Set(counterEligible.map((p) => p.id));
+          forSel = chosen.filter((p) => !counterOnly.has(p.id));
+          counterSel = chosen.filter((p) => counterOnly.has(p.id));
+          trace({ type: 'rank', claimId: claim.id, pool: union.length, chosen: chosen.length });
+        } catch (e) {
+          // Porządkowanie to tylko optymalizacja: przy błędzie zostaje kolejność z wyszukiwania.
+          store.logEvent('rank_failed', { recordId, channel, detail: { claimId: claim.id, code: technicalDetail(e) } });
+        }
+        deadline.check();
+      }
+      progress.forPassages(claimIndex, forSel.length);
+      progress.counterSearchStart(claimIndex);
+      progress.counterSearchDone(claimIndex, counterSel.length);
+      const sent = [...forSel, ...counterSel];
+      const sentIds = new Set(sent.map((p) => p.id));
+      const considered = sent.length + flagged.size;
+      trace({ type: 'candidates', claimId: claim.id, passageIds: sent.map((p) => p.id), documentIds: sent.map((p) => p.documentId) });
+
+      // (5) ocena stanowisk (model, porcje "za" i "przeciw" równolegle) i (6) bramka cytatów (kod)
       let accepted: AcceptedEvidence[] = [];
       let rejectedCount = 0;
       const modelFlagged = new Set<string>();
       if (sent.length > 0) {
-        const assessed = await llm.assessPassages({ claim, passages: sent.map((p) => ({ id: p.id, text: p.text })) });
-        addUsage(usage, assessed.usage);
-        const assessments = Array.isArray(assessed.assessments) ? assessed.assessments : [];
+        const groups = [...splitEven(forSel, ASSESS_CHUNK), ...splitEven(counterSel, ASSESS_CHUNK)];
+        const assessedAll = await Promise.all(
+          groups.map((g) => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) })),
+        );
+        deadline.check();
+        const assessments = assessedAll.flatMap((a) => {
+          addUsage(usage, a.usage);
+          return Array.isArray(a.assessments) ? a.assessments : [];
+        });
+        trace({
+          type: 'assess',
+          claimId: claim.id,
+          items: assessments.map((a) => ({ passageId: a.passageId, documentId: sent.find((p) => p.id === a.passageId)?.documentId ?? '', stance: a.stance })),
+        });
         for (const a of assessments)
           if (a?.injectionSuspected === true && sentIds.has(a.passageId) && !modelFlagged.has(a.passageId)) {
             modelFlagged.add(a.passageId);
-            injectionSignals.add(`fragment:${a.passageId}:zgloszone_przez_model`);
-            notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
+            side.signals.push(`fragment:${a.passageId}:zgloszone_przez_model`);
+            side.notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
             store.logEvent('injection_signal', {
               recordId,
               channel,
               detail: { where: 'fragment', passageId: a.passageId, claimId: claim.id, signals: ['zgloszone_przez_model'] },
             });
-            injectionEvents++;
+            side.injectionEvents++;
           }
         const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged, claimText: claim.text });
         accepted = gate.accepted;
         rejectedCount = gate.rejected.length;
         if (supportGate) {
           const checked = await applySupportGate(supportGate, claim.text, accepted, (u) => addUsage(usage, u));
+          deadline.check();
+          trace({ type: 'gate', claimId: claim.id, before: evView(accepted), after: evView(checked.accepted) });
           accepted = checked.accepted;
           rejectedCount += checked.stats.dropped;
           if (checked.stats.checked > 0)
@@ -540,6 +742,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         rank: a.rank,
       }));
       const decision = decideVerdict(claim.kind, ruleEvidence, { refutationPerformed: refutation.performed });
+      trace({ type: 'verdict', claimId: claim.id, claimText: claim.text, kind: claim.kind, verdict: decision.verdict, ...(decision.abstain ? { abstain: decision.abstain } : {}) });
       const strength = computeStrength(decision);
       const evidence: EvidenceItem[] = accepted.map((a, i) => ({
         passageId: a.passage.id,
@@ -556,17 +759,17 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       if (ruleEvidence.some((e) => e.archival)) {
         limitations.push(archivalLimitation(archivalMonths));
         for (const e of ruleEvidence)
-          if (e.archival) notices.push({ type: 'material_archiwalny', text: archivalNotice(archivalMonths), passageId: e.passageId });
+          if (e.archival) side.notices.push({ type: 'material_archiwalny', text: archivalNotice(archivalMonths), passageId: e.passageId });
       }
       if (ruleEvidence.some((e) => e.expired)) {
         limitations.push(EXPIRED_LIMITATION);
         for (const e of ruleEvidence)
           if (e.expired && e.source.validUntil)
-            notices.push({ type: 'material_archiwalny', text: expiredNotice(e.source.validUntil), passageId: e.passageId });
+            side.notices.push({ type: 'material_archiwalny', text: expiredNotice(e.source.validUntil), passageId: e.passageId });
       }
       if (decision.aligned.some((e) => e.source.sourceType !== 'prawo' && !e.source.publishedAt))
         limitations.push(UNDATED_LIMITATION);
-      const flaggedHere = passages.filter((p) => flagged.has(p.id) || modelFlagged.has(p.id)).length;
+      const flaggedHere = flagged.size + rankFlagged.size + modelFlagged.size;
       if (flaggedHere > 0) limitations.push(injectionLimitation(flaggedHere));
 
       const mismatchKinds = accepted
@@ -596,11 +799,21 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       if (profile) result.errorProfile = profile;
       if (decision.abstain) {
         abstainCodes.set(claim.id, decision.abstain);
-        result.abstainReason = abstainReasonText(decision.abstain, passages.length, rejectedCount);
+        result.abstainReason = abstainReasonText(decision.abstain, considered, rejectedCount);
         // W5: flaga eskalacji (samo powiadomienie moderatora to późniejsze zadanie).
         limitations.push(ESCALATION_LIMITATION);
       }
-      results.push(result);
+      return result;
+    }
+
+    // Twierdzenia są niezależne: sprawdzamy je równolegle, wynik i ostrzeżenia w kolejności twierdzeń.
+    const sides: ClaimSide[] = checkable.map(() => ({ notices: [], signals: [], injectionEvents: 0 }));
+    const results: ClaimResult[] = await Promise.all(checkable.map((claim, i) => checkClaim(claim, i, sides[i]!)));
+    deadline.check();
+    for (const side of sides) {
+      notices.push(...side.notices);
+      for (const s of side.signals) injectionSignals.add(s);
+      injectionEvents += side.injectionEvents;
     }
 
     // Profil błędów także dla nie_podlega_weryfikacji (siła `brak`), jeśli plik go zawiera.
@@ -658,6 +871,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       schemaVersion: RECORD_SCHEMA_VERSION,
     };
     if (renderer) record.shortAnswer = safeShortAnswer(renderer, record);
+    // Po limicie czasu nic nie zapisujemy: obywatel dostał już stan techniczny.
+    deadline.check();
     const inserted = store.insertRecord(record);
     for (const r of results)
       if (r.verdict === 'brak_wystarczajacych_dowodow')
@@ -693,11 +908,29 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     return { kind: 'record', record, cached: false };
   }
 
+  function logDeadline(channel: VerifyInput['channel']): void {
+    try {
+      store.logEvent('state', { channel, detail: { state: 'awaria_techniczna', detail: 'deadline', limitMs: deadlineMs } });
+    } catch {
+      // log niedostępny: nadal stan techniczny
+    }
+  }
+
   return {
     async verify(input, opts) {
+      const deadline = createDeadline(deadlineMs);
       try {
-        return await run(input, createProgressEmitter(opts?.onProgress));
+        const running = run(input, createProgressEmitter(opts?.onProgress), deadline);
+        // Po przekroczeniu limitu potok przerywa się przy najbliższym etapie; jego błąd nie może wyciec.
+        running.catch(() => {});
+        const outcome = await Promise.race([running, deadline.expired]);
+        if (outcome.kind === 'state' && outcome.detail === 'deadline') logDeadline(input.channel);
+        return outcome;
       } catch (err) {
+        if (err instanceof DeadlineExceeded) {
+          logDeadline(input.channel);
+          return stateOutcome('awaria_techniczna', MESSAGES.tooSlow, 'deadline');
+        }
         // Zero ścieżek, w których wyjątek lub brak klucza kończy się werdyktem.
         const outcome = errorToOutcome(err);
         try {
@@ -712,6 +945,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           // log niedostępny: nadal zwracamy stan, nie werdykt
         }
         return outcome;
+      } finally {
+        deadline.clear();
       }
     },
     getRecord(id) {

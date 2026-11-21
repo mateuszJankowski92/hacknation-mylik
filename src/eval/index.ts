@@ -20,12 +20,17 @@ import {
   type RunReport,
 } from './report';
 import { judgeCitations, loadCorpus, loadIncidentFixture, runCases, type CorpusHandle } from './runner';
+import { diagnoseCase, summarizeDiagnosis, type DiagnosisSummary, type ItemDiagnosis } from './diagnose';
+import { readFileSync } from 'node:fs';
+import type { EngineTraceEvent } from '../engine/index';
+import type { Metrics } from './metrics';
 
 export * from './cases';
 export * from './judge';
 export * from './metrics';
 export * from './report';
 export * from './runner';
+export * from './diagnose';
 
 export interface EvalOptions {
   rootDir?: string;
@@ -52,6 +57,8 @@ export interface EvalOptions {
    */
   corpusRoot?: string;
   llm?: LlmProvider;
+  /** Bez wywołania wybierającego kandydatów (porównanie A/B). */
+  noRank?: boolean;
   judge?: CitationJudge;
   log?: (line: string) => void;
 }
@@ -84,6 +91,7 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
     corpusForSms: () => loadCorpus(corpusRoot),
     incidents: loadIncidentFixture(rootDir),
     concurrency: opts.concurrency ?? (opts.provider === 'mock' ? 1 : 3),
+    ...(opts.noRank ? { noRank: true } : {}),
     onCase: (o) =>
       log(
         `  ${o.id} ${o.supported ? (o.correct ? 'OK ' : 'ŹLE') : 'POM'} oczekiwane=${o.expectedVerdict ?? o.expectedState ?? '-'} wynik=${o.predictedVerdict ?? o.predictedState ?? '-'} ${(o.latencyMs / 1000).toFixed(1)}s $${o.costUsd.toFixed(4)}`,
@@ -121,4 +129,73 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
     writeFileSync(reviewPath.replace(/\.json$/, '') + '.md', reviewSampleMarkdown(sample));
   }
   return { run, file, outcomes };
+}
+
+export interface DiagnosisResult {
+  model: string;
+  part: EvalPart;
+  summary: DiagnosisSummary;
+  items: ItemDiagnosis[];
+  /** Zdarzenia śledzenia per przypadek (identyfikatory i stanowiska). */
+  traces: Record<string, EngineTraceEvent[]>;
+  /** Mierniki przebiegu diagnostycznego (bez sędziego cytatów). */
+  metrics: Metrics;
+  outcomes: CaseOutcome[];
+}
+
+/**
+ * Przebieg diagnostyczny: te same przypadki przez prawdziwy silnik ze śledzeniem etapów, bez sędziego
+ * i bez zapisu results.json. Wynik to wyłącznie liczby zbiorcze i stanowiska per przypadek.
+ */
+export async function runDiagnosis(opts: Omit<EvalOptions, 'judge' | 'writeReview' | 'resultsPath' | 'reviewPath'>): Promise<DiagnosisResult> {
+  const rootDir = opts.rootDir ?? process.cwd();
+  const log = opts.log ?? (() => {});
+  const part: EvalPart = opts.part ?? 'kontrolny';
+  const casesPath = resolve(rootDir, opts.casesPath ?? (part === 'kontrolny' ? DEFAULT_CONTROL_CASES_PATH : DEFAULT_CASES_PATH));
+  const all = loadCases(casesPath).cases;
+  const cases: EvalCase[] = opts.only?.length ? all.filter((c) => opts.only!.includes(c.id)) : all;
+  // Pole informacyjne `evidence[].passage` (fragment wskazany jako dowód) nie należy do schematu przypadku.
+  const goldPassages = new Map<string, string[]>();
+  try {
+    const raw = JSON.parse(readFileSync(casesPath, 'utf8')) as { cases?: { id?: string; evidence?: { passage?: unknown }[] }[] };
+    for (const c of raw.cases ?? [])
+      if (c.id && Array.isArray(c.evidence))
+        goldPassages.set(c.id, c.evidence.map((e) => e?.passage).filter((p): p is string => typeof p === 'string'));
+  } catch {
+    // brak pola: diagnoza tylko na poziomie dokumentów
+  }
+  const corpusRoot = resolve(rootDir, opts.corpusRoot ?? '.');
+  const corpus = opts.corpus ?? loadCorpus(corpusRoot);
+  const model = opts.provider === 'mock' ? 'mock' : opts.model?.trim() || DEFAULT_ANTHROPIC_MODEL;
+  const llm: LlmProvider =
+    opts.llm ?? (opts.provider === 'mock' ? new MockLlmProvider() : new AnthropicProvider({ apiKey: opts.apiKey, model }));
+  const traces = new Map<string, EngineTraceEvent[]>();
+  log(`Diagnostyka ${model} (zestaw ${part}): ${cases.length} przypadków, korpus ${corpus.version}`);
+  const outcomes = await runCases(cases, {
+    llm,
+    corpus,
+    corpusForSms: () => loadCorpus(corpusRoot),
+    incidents: loadIncidentFixture(rootDir),
+    concurrency: opts.concurrency ?? (opts.provider === 'mock' ? 1 : 3),
+    ...(opts.noRank ? { noRank: true } : {}),
+    trace: (id, e) => {
+      const list = traces.get(id) ?? [];
+      // Czas odbioru zdarzenia (ms od epoki): pozwala policzyć czas etapów.
+      list.push({ ...e, atMs: Date.now() } as unknown as EngineTraceEvent);
+      traces.set(id, list);
+    },
+    onCase: (o) => log(`  ${o.id} ${o.correct ? 'OK ' : 'ŹLE'} ${(o.latencyMs / 1000).toFixed(1)}s $${o.costUsd.toFixed(4)}`),
+  });
+  const diag: ItemDiagnosis[] = [];
+  for (const [i, c] of cases.entries())
+    diag.push(...(await diagnoseCase(c, outcomes[i]!, traces.get(c.id) ?? [], corpus.searcher, goldPassages.get(c.id) ?? [])));
+  return {
+    model,
+    part,
+    summary: summarizeDiagnosis(diag),
+    items: diag,
+    traces: Object.fromEntries(traces),
+    metrics: computeMetrics(outcomes, { name: 'brak (diagnostyka)', costUsd: 0 }),
+    outcomes,
+  };
 }

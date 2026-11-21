@@ -1,13 +1,23 @@
 // npm run eval [-- --mock] [--model <id>] [--compare] [--part strojeniowy|kontrolny|oba] [--only A01,B02]
 //   [--concurrency N] [--out <plik>] [--review <plik>] [--corpus-root <katalog>]
+//   [--no-rank] [--diagnose --diag-out <plik>]  (przebieg diagnostyczny etapów, bez sędziego i bez zapisu results.json)
 // Części: strojeniowy (data/eval/cases.json) i kontrolny (data/eval/control/cases.json, pomijany, gdy pliku brak).
 // Zestawu kontrolnego nie używa się do zmian w silniku ani promptach; profil omylności pochodzi tylko z niego.
 // Liczy mierniki z sekcji 6 wytycznych i zapisuje data/eval/results.json (z niego profil błędów czyta silnik).
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig } from '../src/config';
 import { DEFAULT_ANTHROPIC_MODEL } from '../src/llm/index';
-import { DEFAULT_CONTROL_CASES_PATH, metricsTable, runEval, type EvalPart, type ResultsFile, type RunReport } from '../src/eval/index';
+import {
+  DEFAULT_CONTROL_CASES_PATH,
+  diagnosisTable,
+  metricsTable,
+  runDiagnosis,
+  runEval,
+  type EvalPart,
+  type ResultsFile,
+  type RunReport,
+} from '../src/eval/index';
 
 /** Pełne porównanie modeli (identyfikatory z tabeli modeli skilla claude-api, stan 2026-11-03). */
 const COMPARE_MODELS = ['claude-haiku-5-5', 'claude-sonnet-5-5', 'claude-opus-5-5'] as const;
@@ -54,6 +64,32 @@ async function main(): Promise<void> {
   if (partArg === 'oba' && !hasControl) console.log(`Brak ${DEFAULT_CONTROL_CASES_PATH}: tylko zestaw strojeniowy.`);
   const parts: EvalPart[] =
     partArg === 'oba' ? (hasControl ? ['strojeniowy', 'kontrolny'] : ['strojeniowy']) : [partArg as EvalPart];
+  if (flag('--diagnose')) {
+    for (const model of models)
+      for (const part of parts) {
+        const d = await runDiagnosis({
+          part,
+          rootDir,
+          provider,
+          model,
+          apiKey: cfg.anthropicApiKey,
+          ...(arg('--corpus-root') ? { corpusRoot: arg('--corpus-root') } : {}),
+          ...(only ? { only } : {}),
+          ...(concurrency ? { concurrency } : {}),
+          ...(flag('--no-rank') ? { noRank: true } : {}),
+          log: (l) => console.log(l),
+        });
+        const m = d.metrics;
+        console.log(`\nDiagnostyka ${model} (${part}):`);
+        console.log(diagnosisTable(d.summary));
+        console.log(
+          `macro-F1 ${m.macroF1.value?.toFixed(3)}, dokładność ${m.accuracy.value?.toFixed(3)}, fałszywe wstrzymania ${m.falseAbstention.num}/${m.falseAbstention.den}, mediana ${((m.latencyMs.median ?? 0) / 1000).toFixed(1)} s, max ${((m.latencyMs.max ?? 0) / 1000).toFixed(1)} s, koszt silnika $${m.cost.engineUsd.toFixed(4)}`,
+        );
+        const out = arg('--diag-out');
+        if (out) writeFileSync(out.replace(/\.json$/, '') + `.${model}.${part}.json`, JSON.stringify(d, null, 2));
+      }
+    return;
+  }
   const runs: RunReport[] = [];
   let file: ResultsFile | undefined;
   for (const model of models)
@@ -71,6 +107,7 @@ async function main(): Promise<void> {
       ...(flag('--compare') ? { writeReview: model === defaultModel } : {}),
       ...(only ? { only } : {}),
       ...(concurrency ? { concurrency } : {}),
+      ...(flag('--no-rank') ? { noRank: true } : {}),
       log: (l) => console.log(l),
     });
     runs.push(res.run);

@@ -6,8 +6,18 @@ import { createPageFetcher } from './fetch/index';
 import { createEngineCore, type EngineDeps } from './pipeline';
 import { defaultRenderer } from './render';
 
-export type { EngineDeps, EngineExtraDeps, EngineOptions, PrepareFn } from './pipeline';
-export { createEngineCore, counterQuery, MAX_CLAIMS, MAX_COUNTER_PASSAGES, MAX_PASSAGES_PER_CLAIM, searchQuery } from './pipeline';
+export type { EngineDeps, EngineExtraDeps, EngineOptions, EngineTraceEvent, PrepareFn } from './pipeline';
+export {
+  createEngineCore,
+  counterQuery,
+  DEFAULT_DEADLINE_MS,
+  MAX_ASSESS,
+  MAX_CLAIMS,
+  MAX_COUNTER_PASSAGES,
+  MAX_PASSAGES_PER_CLAIM,
+  searchQuery,
+  splitEven,
+} from './pipeline';
 export { decideVerdict, computeStrength, isArchival, isExpired } from './rules';
 export { validateCitations } from './citations';
 export { applySupportGate, type SupportGateStats } from './pipeline';
@@ -21,6 +31,15 @@ export {
   type SupportRelation,
 } from './supportGate';
 export { detectInjectionSignals, stripInjectedSegments } from './injection';
+export {
+  forQueries,
+  fuseRankings,
+  isPassageRanker,
+  orderByRanking,
+  type PassageRanker,
+  type RankRequest,
+  type RankResult,
+} from './ranker';
 export { createPageFetcher, type PageFetcher, type PageFetchResult, type Resolver, type Transport } from './fetch/index';
 export { incidentMatcherFromRecords, loadIncidentMatcher, type IncidentMatcher } from './incidents';
 export {

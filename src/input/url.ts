@@ -2,7 +2,7 @@ import { maskPii } from './pii';
 
 export type UrlResult =
 	| { ok: true; normalizedInput: string; maskedInput: string; host: string; masks: { type: string; count: number }[] }
-	| { ok: false; message: string };
+	| { ok: false; message: string; unavailable?: true };
 
 const MAX_URL_LENGTH = 2048;
 const TRACKING_PARAMS = new Set(['fbclid', 'gclid', 'mc_cid', 'mc_eid', 'igshid']);
@@ -66,7 +66,8 @@ export function normalizeUrl(rawInput: string): UrlResult {
 	}
 	const host = parsed.hostname.toLowerCase().replace(/\.$/, '');
 	if (host === '') return { ok: false, message: INVALID_URL_MESSAGE };
-	if (isForbiddenHost(host)) return { ok: false, message: PRIVATE_URL_MESSAGE };
+	// Adres poprawny, ale lokalny lub wewnętrzny: nie ma czego doprecyzować, nie możemy go sprawdzić.
+	if (isForbiddenHost(host)) return { ok: false, message: PRIVATE_URL_MESSAGE, unavailable: true };
 
 	const counts = new Map<string, number>();
 	const kept: [string, string][] = [];

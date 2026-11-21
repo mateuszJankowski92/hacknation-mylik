@@ -9,8 +9,19 @@ const MIN_TEXT_LENGTH = 10;
 const MAX_TEXT_LENGTH = 2000;
 const MIN_LETTERS = 3;
 
-function clarify(message: string): NeedsClarification {
-	return { needsClarification: true, message };
+/**
+ * Odrzucenie wejścia. `unavailable`: wejście jest jasne i poprawne, ale nie możemy go sprawdzić
+ * (adres lokalny lub wewnętrzny); silnik zwraca wtedy stan "brak możliwości sprawdzenia",
+ * a nie "potrzeba doprecyzowania". Dodatkowe pole nie zmienia kontraktu NeedsClarification.
+ */
+export type InputRejection = NeedsClarification & { unavailable?: true };
+
+function clarify(message: string, unavailable = false): InputRejection {
+	return unavailable ? { needsClarification: true, message, unavailable: true } : { needsClarification: true, message };
+}
+
+export function isUnavailableInput(x: NeedsClarification): boolean {
+	return (x as InputRejection).unavailable === true;
 }
 
 function prepareText(text: string): PreparedInput | NeedsClarification {
@@ -33,7 +44,7 @@ function prepareText(text: string): PreparedInput | NeedsClarification {
 
 function prepareUrl(rawUrl: string): PreparedInput | NeedsClarification {
 	const result = normalizeUrl(rawUrl);
-	if (!result.ok) return clarify(result.message);
+	if (!result.ok) return clarify(result.message, result.unavailable === true);
 	return {
 		kind: 'url',
 		normalizedInput: result.normalizedInput,

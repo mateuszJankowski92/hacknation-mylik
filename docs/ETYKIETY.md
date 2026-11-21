@@ -29,7 +29,7 @@ Tylko do zrozumienia definicji. Nie wpisujemy ich do promptów, reguł silnika a
 ## Jak to działa w silniku
 
 - Model ocenia każdy fragment źródła: `potwierdza`, `obala` (źródło przeczy sednu), `rozbieznosc_kontekstu` (sedno się zgadza, zmieniony szczegół; rodzaj: `skala`, `data`, `miejsce`, `warunki`), `kontekst` albo `bez_zwiazku` (src/llm/prompts.ts).
-- Bramka wsparcia (src/engine/supportGate.ts) sprawdza osobno każdy cytat rozstrzygający według tych samych pojęć; cytat, który sam nie rozstrzyga, odpada.
+- Bramka wsparcia (src/engine/supportGate.ts) sprawdza osobno każdy cytat rozstrzygający według tych samych pojęć; cytat, który sam nie rozstrzyga, odpada. Bramka ustala, czy cytat przesądza i w którą stronę ("za" albo "przeciw"); gdy kierunek zgadza się z oceną, zostaje stanowisko z oceny, bo granica "obala" / "rozbieżność kontekstu" (sedno czy szczegół) wymaga całego fragmentu, a bramka widzi tylko cytat (zad. 25, diagnoza: bramka zamieniała rozbieżność na "obala").
 - Kod (src/engine/rules.ts) zamienia stanowiska na werdykt: `obala` -> fałszywe, `rozbieznosc_kontekstu` -> wprowadzające w błąd, `potwierdza` -> potwierdzone, sprzeczne dowody rozstrzygające -> brak wystarczających dowodów.
 - Rodzaj źródła wpływa tylko na siłę podstawy, nigdy na etykietę.
 

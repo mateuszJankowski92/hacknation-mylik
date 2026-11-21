@@ -132,6 +132,7 @@ export const INJECTION_NOTICE = 'W tym tekście ze źródła są polecenia dla m
 export const INPUT_INJECTION_NOTICE = 'W wiadomości są też polecenia dla mnie. Nie wykonuję ich. Sprawdzam tylko informacje.';
 
 export const MESSAGES = {
+  tooSlow: 'Sprawdzanie trwało za długo i je przerwaliśmy. To nie jest ocena zgłoszenia. Spróbuj ponownie za chwilę.',
   technical:
     'Nie udało się teraz wykonać sprawdzenia z przyczyn technicznych. To nie jest ocena zgłoszenia. Spróbuj ponownie później.',
   emptyCorpus:
