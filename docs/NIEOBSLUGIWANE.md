@@ -13,6 +13,7 @@ Stan na 21.11.2026. Ujawniamy to jury i obywatelom wprost. W każdym z tych przy
 | Posty z serwisów społecznościowych | Zwykle wymagają logowania albo JavaScriptu, więc kończą się jak wyżej. Tekst posta trzeba wkleić. | jw. |
 | Język inny niż polski | Nie wspieramy i nie mierzyliśmy. Korpus i odpowiedzi są po polsku. Tekst w innym języku może zostać przetworzony, ale bez gwarancji jakości. | `src/llm/prompts.ts` |
 | Tekst dłuższy niż 2000 znaków (SMS: 480) | Prośba o skrócenie (`potrzeba_doprecyzowania`). | `src/input/index.ts`, `src/sms/webhook.ts` |
+| Pytanie otwarte bez tezy („kto…?”, „ile…?”, „gdzie…?”) | Nie jest sprawdzeniem: prośba o zdanie do sprawdzenia z przykładem (`potrzeba_doprecyzowania`). Pytanie tak/nie („Czy…?”, „Czy to prawda, że…?”) i wstęp „podobno”, „słyszałem, że” są obsługiwane: sprawdzamy tezę z pytania. | `src/input/question.ts` |
 | Więcej niż 5 twierdzeń w jednym tekście | Sprawdzamy najwyżej 5 najważniejszych. | `MAX_CLAIMS` w `src/engine/pipeline.ts` |
 | Same polecenia dla systemu, bez informacji | Prośba o opisanie zdarzenia; bez rekordu (znana luka, [RYZYKA.md](RYZYKA.md)). | `src/engine/injection.ts` |
 | Zdarzenia nowsze niż migawka źródeł | Zwykle „brak wystarczających dowodów”. Druga warstwa źródeł mogłaby pomóc, ale jest domyślnie wyłączona. | [ZRODLA.md](ZRODLA.md) |
