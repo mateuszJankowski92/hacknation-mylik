@@ -24,6 +24,15 @@ export const ASSET_DIRECTORY: Record<ArtOwner, string> = {
 	pogodynka: 'pogodynka',
 	bibliotekarka: 'bibliotekarka',
 	sport: 'sport',
+	pilkarz: 'sport_pilkarz',
+	konduktor: 'konduktor',
+	listonosz: 'listonosz',
+	slusarz: 'slusarz',
+	naukowiec: 'naukowiec',
+	lesnik: 'lesnik',
+	nauczyciel: 'nauczyciel',
+	kucharz: 'kucharz',
+	kasjer: 'kasjer',
 };
 
 const START_STATE: Record<'postac' | 'praca', string> = {

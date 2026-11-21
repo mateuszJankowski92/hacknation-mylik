@@ -60,6 +60,10 @@ Serwer opakowuje silnik (`src/cases`). Po otrzymaniu rekordu z co najmniej jedny
 
 Model nie widzi adresów ani metadanych źródeł, tylko identyfikator i treść fragmentu. Etykieta nigdy nie zależy od domeny, autora ani rodzaju źródła. Rodzaj źródła wpływa tylko na siłę podstawy.
 
+## Wygląd wyniku: rola na żywo
+
+Rola postaci (12 ról, w tym komentator i piłkarz) i flaga "temat poważny" nie należą do silnika: wybiera je kod w `src/roles` po słowach z jednego pliku (`src/roles/live-words.ts`), zapisuje przy rekordzie (tabela `record_roles`) i dokłada do odpowiedzi API jako pole `appearance` (`withLiveRole` w `src/roles/track.ts`). Rola nigdy nie zmienia werdyktu, siły podstawy ani treści. Opis i zasady: [ROLE_NA_ZYWO.md](ROLE_NA_ZYWO.md).
+
 ## Stany techniczne
 
 Brak klucza, limit API, błąd, przekroczony czas (22 s, `DEFAULT_DEADLINE_MS`), strona niedostępna: zawsze stan (`awaria_techniczna`, `brak_mozliwosci_sprawdzenia`, `potrzeba_doprecyzowania`), nigdy etykieta.

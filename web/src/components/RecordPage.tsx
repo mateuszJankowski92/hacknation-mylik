@@ -6,7 +6,8 @@ import { addToHistory } from '../history';
 import { isRecordId, navigate, PENDING_CONTENT_KEY, readPendingContent, recordUrlPath } from '../route';
 import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
 import { WaitingSteps } from '../visuals/WaitingSteps';
-import { currentRole } from '../roles/resolve';
+import { predictedRole, recordRoleOf } from '../roles/appearance';
+import { currentForcedRole, currentRole } from '../roles/resolve';
 import { recallRecord, rememberRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
 import { Link } from './Link';
@@ -71,13 +72,13 @@ export function RecordPage({ id }: { id: string }) {
 				addToHistory(outcome.record);
 				rememberRecord(outcome.record);
 				if (outcome.record.id !== id) {
-					resolve(currentRole(outcome.record.role), outcome.record.id);
+					resolve(currentRole(recordRoleOf(outcome.record)), outcome.record.id);
 					navigate(recordUrlPath(outcome.record.id), { replace: true });
 					return;
 				}
 			}
 			clearPending(id);
-			resolve(outcome.kind === 'record' ? currentRole(outcome.record.role) : null, outcome.kind === 'record' ? outcome.record.id : null);
+			resolve(outcome.kind === 'record' ? currentRole(recordRoleOf(outcome.record)) : null, outcome.kind === 'record' ? outcome.record.id : null);
 			setState((current) =>
 				current.status === 'waiting'
 					? { status: 'ready', outcome, progress: current.progress, etaSeconds: current.etaSeconds }
@@ -86,7 +87,7 @@ export function RecordPage({ id }: { id: string }) {
 		}
 
 		if (pending) {
-			begin(currentRole(), { keep: true });
+			begin(currentForcedRole() ?? predictedRole(pending), { keep: true });
 			setState({ status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS });
 			const onProgress = (event: VerifyProgressEvent) => {
 				if (controller.signal.aborted) return;
@@ -138,6 +139,7 @@ export function RecordPage({ id }: { id: string }) {
 			)}
 			{state.status === 'waiting' && (
 				<WaitingSteps
+					role={stage.waitingRole}
 					progress={'progress' in state ? (state.progress ?? INITIAL_PROGRESS) : INITIAL_PROGRESS}
 					etaSeconds={'etaSeconds' in state ? (state.etaSeconds ?? DEFAULT_ETA_SECONDS) : DEFAULT_ETA_SECONDS}
 				/>

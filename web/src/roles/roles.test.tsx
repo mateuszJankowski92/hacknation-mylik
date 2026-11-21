@@ -20,6 +20,7 @@ import {
 	usesGesture,
 } from './config';
 import { imageUrlFor } from './manifest';
+import { predictedRole, recordRoleOf } from './appearance';
 import { resolveRole } from './resolve';
 import { ResultImage } from './ResultImage';
 import { plain } from '../typography';
@@ -65,10 +66,50 @@ describe('tabela obrazów wyniku', () => {
 		expect(resultImageFor('pogodynka', 'falszywe')?.caption).toBe('Źródła mówią co innego.');
 	});
 
-	it('bibliotekarka i sport mają jawny brak obrazu wyniku', () => {
-		for (const role of ['bibliotekarka', 'sport'] as const) {
+	it('wszystkie role poza pogodynkiem mają jawny brak obrazu wyniku', () => {
+		for (const role of ROLES) {
+			if (role === 'pogodynka') continue;
 			for (const key of RESULT_KEYS) expect(resultImageFor(role, key)).toBeNull();
 		}
+	});
+});
+
+describe('wszystkie role na żywo', () => {
+	it('rekord zwraca rolę z appearance, a bez niej starą rolę rekordu', () => {
+		const record = firstRecord();
+		const withAppearance = { ...record, role: 'bibliotekarka', appearance: { role: 'pilkarz', serious: false } } as VerificationRecord;
+		expect(resolveRole({ recordRole: recordRoleOf(withAppearance) })).toBe('pilkarz');
+		const legacy = { ...record, role: 'sport' } as VerificationRecord;
+		expect(resolveRole({ recordRole: recordRoleOf(legacy) })).toBe('sport');
+		const unknown = { ...record, appearance: { role: 'nieznana', serious: false } } as unknown as VerificationRecord;
+		expect(resolveRole({ recordRole: recordRoleOf(unknown) })).toBe(DEFAULT_ROLE);
+	});
+
+	it('każda rola ma nazwę, temat i notatkę o dopasowanym widoku', () => {
+		for (const role of ROLES) {
+			expect(ROLE_SPECS[role].name.length).toBeGreaterThan(2);
+			expect(topicNote(role) === null).toBe(role === DEFAULT_ROLE);
+		}
+		expect(ROLE_SPECS.pilkarz.name).toBe('Piłkarz');
+		expect(ROLE_SPECS.sport.name).toBe('Komentator sportowy');
+	});
+
+	it('przewidywanie roli sceny czekania: lekka rola tylko przy neutralnym temacie, inaczej pogodynek', () => {
+		expect(predictedRole('Bramkarz obronił rzut karny w dogrywce.')).toBe('pilkarz');
+		expect(predictedRole('Klub ogłosił transfer nowego zawodnika.')).toBe('sport');
+		expect(predictedRole('Inflacja podniosła ceny w sklepach.')).toBe('kasjer');
+		expect(predictedRole('Piłkarz zginął w wypadku po meczu.')).toBe(DEFAULT_ROLE);
+		expect(predictedRole('https://example.org/artykul')).toBe(DEFAULT_ROLE);
+	});
+
+	it('wynik roli bez słownika pokazuje gest, a poważny temat tej roli też', () => {
+		for (const role of ROLES) {
+			if (role === 'pogodynka') continue;
+			expect(usesGesture(role, 'potwierdzone', false)).toBe(true);
+			expect(usesGesture(role, 'falszywe', true)).toBe(true);
+		}
+		expect(usesGesture('pogodynka', 'potwierdzone', false)).toBe(false);
+		expect(usesGesture('pogodynka', 'potwierdzone', true)).toBe(true);
 	});
 });
 
@@ -205,5 +246,6 @@ describe('język ról', () => {
 	it('notatka o temacie istnieje tylko dla ról innych niż domyślna', () => {
 		expect(topicNote('pogodynka')).toBeNull();
 		expect(topicNote('sport')).toBe('Widok dopasowany do tematu: sport i rozrywka.');
+		expect(topicNote('pilkarz')).toBe('Widok dopasowany do tematu: piłka nożna.');
 	});
 });

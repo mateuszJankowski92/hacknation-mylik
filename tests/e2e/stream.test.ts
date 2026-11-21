@@ -140,7 +140,9 @@ describe('POST /api/verify/stream', () => {
     if (again.kind !== 'record') return;
     expect(again.record).toEqual(s.outcome.record);
     const byId = await (await b.app.request(`/api/records/${s.outcome.record.id}`)).json();
-    expect(byId).toEqual(s.outcome.record);
+    const { appearance, ...byIdRecord } = byId as Record<string, unknown>;
+    expect(appearance).toMatchObject({ serious: expect.any(Boolean) });
+    expect(byIdRecord).toEqual(s.outcome.record);
   });
 
   it('spójność z POST /api/verify na osobnym serwerze (zamrożony zegar)', async () => {

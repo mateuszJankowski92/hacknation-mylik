@@ -6,11 +6,11 @@ Postacie z papieru, obrazy wyniku i krótkie klipy w interfejsie WWW to materia�
 
 | Rodzaj | Model | Identyfikator | Liczba plików w repozytorium |
 |---|---|---|---|
-| Obrazy postaci i obrazy wyniku | Seedream 5.5 Edit | `bytedance/seedream/v5.5/edit` | 12 |
-| Sceny: otwierająca, czekania i wyniku | Seedance 2.5, obraz do wideo, 720p, bez dźwięku | `bytedance/seedance-2.5/image-to-video` | 25 |
+| Obrazy postaci i obrazy wyniku | Seedream 5.5 Edit | `bytedance/seedream/v5.5/edit` | 46 |
+| Sceny: otwierająca, czekania i wyniku | Seedance 2.5, obraz do wideo, 720p, bez dźwięku | `bytedance/seedance-2.5/image-to-video` | 41 |
 | Wersje lekkie (WebP, H.264) | ffmpeg 6.0 z pakietu `ffmpeg-static`, bez modeli | brak | wszystkie |
 
-Wszystkie postacie są rodzaju męskiego: pogodynek w niebieskiej koszuli, bibliotekarz w szałwiowym kardiganie, komentator sportowy w słuchawkach, piłkarz i postać startowa w bursztynowym szaliku. Dla każdej roli powstał jeden obraz wzorcowy (master), a pozostałe obrazy i pierwsze klatki klipów są jego edycją, więc strój i kolory są te same. Klipy powstały z klatki startowej (obrazu Seedream), więc postać jest ta sama w obrazie i w klipie. Dla każdego pliku manifest podaje model, identyfikator, nazwę źródłowego wariantu i czas wygenerowania.
+Wszystkie postacie są rodzaju męskiego: pogodynek w niebieskiej koszuli, bibliotekarz w szałwiowym kardiganie, komentator sportowy w słuchawkach, piłkarz w grafitowym stroju bez numerów i barw klubowych, postać startowa w bursztynowym szaliku, a do tego naukowiec, konduktor, listonosz, strażnik zamków, leśnik, nauczyciel, kucharz i kasjer. Dla każdej roli powstał jeden obraz wzorcowy (master), a pozostałe obrazy i pierwsze klatki klipów są jego edycją, więc strój i kolory są te same. Klipy powstały z klatki startowej (obrazu Seedream), więc postać jest ta sama w obrazie i w klipie. Dla każdego pliku manifest podaje model, identyfikator, nazwę źródłowego wariantu i czas wygenerowania.
 
 Cała runda 4 (poza repozytorium, w paczce roboczej): 120 obrazów (124 wywołania, 0,042 USD za obraz) i 43 klipy, 391 s (0,473 USD za sekundę w 720p; stawka 480p to 0,2205 USD za sekundę, nieużyta), razem ok. 190 USD wg cennika fal.ai. Pełny opis wejścia, liczb i kosztów jest w `POCHODZENIE.md` paczki roboczej.
 
@@ -18,11 +18,11 @@ Wszystkie pliki mają białe tło (#FFFFFF), bez przezroczystości, a klipy nie 
 
 ## Skąd lista plików
 
-Źródłem jest `web/src/roles/manifest.json` (kopia paczki z katalogu roboczego galerii, tylko role użyte w interfejsie). Czytają z niego konfiguracja ról (`web/src/roles/manifest.ts`) i sceny (`web/src/scenes/config.ts`): ścieżki, teksty alternatywne, długości scen i rodzaj pliku nie są wpisane w kodzie. Pliki leżą w `web/public/postacie/<katalog>/`. Do repozytorium trafiły tylko lekkie wersje: obrazy `.webp` (720 x 900 px), klipy `.mp4` (576 x 720 px) i plakaty `.webp`. Pełnych obrazów PNG i archiwum prób nie ma.
+Źródłem jest `web/src/roles/manifest.json` (kopia paczki z katalogu roboczego galerii, wszystkie 12 ról na żywo). Czytają z niego konfiguracja ról (`web/src/roles/manifest.ts`) i sceny (`web/src/scenes/config.ts`): ścieżki, teksty alternatywne, długości scen i rodzaj pliku nie są wpisane w kodzie. Pliki leżą w `web/public/postacie/<katalog>/`. Do repozytorium trafiły tylko lekkie wersje: obrazy `.webp` (720 x 900 px), klipy `.mp4` (576 x 720 px) i plakaty `.webp`. Pełnych obrazów PNG i archiwum prób nie ma.
 
 Scena otwierająca (`start/scena__otwarcie_v5.mp4`, 8,4 s) jest domyślną sceną hero strony głównej: wiadomość przylatuje do postaci, postać rozkłada mapę i trzyma ją w rękach. To wariant v5 (Seedance 2.5, 13 s), przycięty ffmpeg-iem do 8,4 s, czyli przed momentem, w którym postać przypina znacznik; poprzedni klip (v1) miał błąd: pinezka była przypinana z zewnątrz mapy. Warianty v2 i v3 też odrzucono (pinezka na krawędzi, druga mapa na podłodze). Sceny ról grają dopiero po wpisaniu wiadomości (czekanie i wynik).
 
-Katalog `sport_pilkarz` jest w paczce, ale nieużywany. Zamiana roli sportowej z komentatora na piłkarza to zmiana jednej wartości: `ASSET_DIRECTORY.sport` w `web/src/roles/manifest.ts` (z `'sport'` na `'sport_pilkarz'`).
+Obie role sportowe są na żywo: komentator (katalog `sport`) i piłkarz (rola `pilkarz`, katalog `sport_pilkarz`). Mapowanie roli na katalog to `ASSET_DIRECTORY` w `web/src/roles/manifest.ts`; wybór roli opisuje `docs/ROLE_NA_ZYWO.md`.
 
 ## Jak podmienić ilustracje
 

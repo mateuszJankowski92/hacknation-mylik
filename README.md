@@ -141,6 +141,7 @@ tests/           testy (vitest), w tym e2e serwera i test dymny tests/e2e/smoke.
 | Temat | Plik |
 |---|---|
 | Architektura i przepływ danych (F5) | [docs/ARCHITEKTURA.md](docs/ARCHITEKTURA.md) |
+| Role postaci na żywo (wygląd wyniku, 12 ról) | [docs/ROLE_NA_ZYWO.md](docs/ROLE_NA_ZYWO.md) |
 | Modele i dostawcy (F5, T13) | [docs/MODELE.md](docs/MODELE.md), [docs/ZALEZNOSCI.md](docs/ZALEZNOSCI.md) |
 | Źródła, licencje, kwalifikacja i aktualizacja (F6) | [docs/ZRODLA.md](docs/ZRODLA.md), licencje przy każdym źródle w `data/sources.json` |
 | Etykiety i ich definicje | [docs/ETYKIETY.md](docs/ETYKIETY.md) |

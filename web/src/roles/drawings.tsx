@@ -43,7 +43,9 @@ function Sun({ cx = 80, cy = 80, r = 26 }: { cx?: number; cy?: number; r?: numbe
 	);
 }
 
-const CHARACTERS: Record<ArtOwner, Record<'postac' | 'praca', ReactNode>> = {
+type DrawnOwner = 'start' | 'pogodynka' | 'bibliotekarka' | 'sport';
+
+const CHARACTERS: Record<DrawnOwner, Record<'postac' | 'praca', ReactNode>> = {
 	start: {
 		postac: (
 			<>
@@ -187,8 +189,12 @@ function Static() {
 	);
 }
 
+function charactersFor(owner: ArtOwner): Record<'postac' | 'praca', ReactNode> {
+	return CHARACTERS[owner as DrawnOwner] ?? CHARACTERS.pogodynka;
+}
+
 export function drawingFor(owner: ArtOwner, name: ArtName): ReactNode {
-	if (name === 'postac' || name === 'praca') return CHARACTERS[owner][name];
-	if (name === 'wskazuje') return CHARACTERS[owner].praca;
+	if (name === 'postac' || name === 'praca') return charactersFor(owner)[name];
+	if (name === 'wskazuje') return charactersFor(owner).praca;
 	return RESULTS[name];
 }

@@ -13,6 +13,8 @@ import { MAX_INCIDENT_NOTICES, loadIncidentMatcher, type IncidentHit, type Incid
 import { createEngine } from '../engine/index';
 import { createLlmProvider } from '../llm/index';
 import { createProductionLiveLayer, type LiveLayer } from '../live/index';
+import { createRoleStore } from '../roles/store';
+import { withLiveRole } from '../roles/track';
 import { startRetention, type RetentionScheduler } from '../security/index';
 import { CLERK_MIN_TOKEN_LENGTH } from './clerk';
 import { createApp } from './app';
@@ -174,7 +176,7 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
   const logEvent = eventLogger('www');
 
   const cases = createCaseStore(db);
-  const engine = withCaseTracking(coreEngine, cases, logEvent);
+  const engine = withLiveRole(withCaseTracking(coreEngine, cases, logEvent), createRoleStore(db), logEvent);
   const clerkToken =
     config.clerkToken && config.clerkToken.length >= CLERK_MIN_TOKEN_LENGTH ? config.clerkToken : undefined;
   if (config.clerkToken && !clerkToken)

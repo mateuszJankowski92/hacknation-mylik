@@ -104,6 +104,15 @@ CREATE TABLE IF NOT EXISTS case_records (
   PRIMARY KEY (case_id, record_id)
 );
 CREATE INDEX IF NOT EXISTS case_records_record_idx ON case_records(record_id);
+
+-- Rola wyglądu rekordu (zad. 13b, D): zapisana raz, ten sam /r/<id> zawsze ma tę samą rolę. Poza rekordem silnika.
+CREATE TABLE IF NOT EXISTS record_roles (
+  record_id TEXT PRIMARY KEY,
+  role TEXT NOT NULL,
+  serious INTEGER NOT NULL DEFAULT 0,
+  reasons TEXT NOT NULL DEFAULT '[]',
+  decided_at TEXT NOT NULL
+);
 `;
 
 /** Typy zdarzeń w logu (rozszerzalne). */

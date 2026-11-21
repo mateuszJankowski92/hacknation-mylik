@@ -11,6 +11,42 @@
 	--role-accent: #1d7a46;
 }
 
+[data-role='pilkarz'] {
+	--role-accent: #3f4a54;
+}
+
+[data-role='konduktor'] {
+	--role-accent: #2c4d8f;
+}
+
+[data-role='listonosz'] {
+	--role-accent: #8f5b00;
+}
+
+[data-role='slusarz'] {
+	--role-accent: #55606b;
+}
+
+[data-role='naukowiec'] {
+	--role-accent: #0d6e6e;
+}
+
+[data-role='lesnik'] {
+	--role-accent: #2e6b2e;
+}
+
+[data-role='nauczyciel'] {
+	--role-accent: #a24f00;
+}
+
+[data-role='kucharz'] {
+	--role-accent: #9a3a1a;
+}
+
+[data-role='kasjer'] {
+	--role-accent: #7a6200;
+}
+
 .art {
 	display: block;
 	height: 100%;

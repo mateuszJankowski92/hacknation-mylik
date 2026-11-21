@@ -84,10 +84,26 @@ describe('manifest ilustracji', () => {
 		expect(imageUrlFor('start', 'praca')).toBe('/postacie/start/praca__slucha.webp');
 	});
 
-	it('podmiana roli sportowej na piłkarza to zmiana jednej wartości, a katalog piłkarza jest w paczce', () => {
+	it('obie role sportowe mają własne katalogi: komentator w sport, piłkarz w sport_pilkarz', () => {
 		expect(ASSET_DIRECTORY.sport).toBe('sport');
+		expect(ASSET_DIRECTORY.pilkarz).toBe('sport_pilkarz');
 		expect(entriesFor('sport_pilkarz', 'scena_czekania').length).toBeGreaterThan(0);
 		expect(entriesFor('sport_pilkarz', 'obraz_praca')).toHaveLength(1);
+		expect(imageUrlFor('pilkarz', 'praca')).toBe('/postacie/sport_pilkarz/praca__praca.webp');
+	});
+
+	it('każda rola na żywo ma obraz pracy i co najmniej jedną scenę czekania z plikami w web/public', () => {
+		expect(ROLES).toHaveLength(12);
+		for (const role of ROLES) {
+			const directory = ASSET_DIRECTORY[role];
+			expect(imageUrlFor(role, 'praca'), role).toBe(`/postacie/${directory}/praca__praca.webp`);
+			const scenes = entriesFor(directory, 'scena_czekania');
+			expect(scenes.length, role).toBeGreaterThanOrEqual(1);
+			for (const scene of scenes) {
+				expect(existsSync(publicFile(scene.plik)), scene.plik).toBe(true);
+				expect(existsSync(publicFile(scene.plakat!)), scene.plakat!).toBe(true);
+			}
+		}
 	});
 
 	it('każda rola ma sceny czekania z pliku, plakatu, długości i opisu z manifestu', () => {

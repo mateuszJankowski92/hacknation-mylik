@@ -7,17 +7,27 @@ export interface PurgeResult {
 
 const DAY_MS = 86_400_000;
 
+function purgeOrphanRoles(db: DatabaseSync): void {
+	try {
+		db.prepare('DELETE FROM record_roles WHERE record_id NOT IN (SELECT id FROM records)').run();
+	} catch {
+		return;
+	}
+}
+
 export function purgeOlderThan(db: DatabaseSync, maxAgeDays: number, now: Date = new Date()): PurgeResult {
 	if (!Number.isFinite(maxAgeDays) || maxAgeDays < 0) throw new RangeError('maxAgeDays musi być liczbą nieujemną');
 	const cutoff = new Date(now.getTime() - maxAgeDays * DAY_MS).toISOString();
 	const records = db.prepare('DELETE FROM records WHERE created_at < ?').run(cutoff);
 	const events = db.prepare('DELETE FROM events WHERE ts < ?').run(cutoff);
+	purgeOrphanRoles(db);
 	return { records: Number(records.changes), events: Number(events.changes) };
 }
 
 export function purgeAllSessionData(db: DatabaseSync): PurgeResult {
 	const records = db.prepare('DELETE FROM records').run();
 	const events = db.prepare('DELETE FROM events').run();
+	purgeOrphanRoles(db);
 	return { records: Number(records.changes), events: Number(events.changes) };
 }
 

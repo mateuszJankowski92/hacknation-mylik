@@ -79,4 +79,15 @@ describe('kontrast kolorów (WCAG AA, min. 4,5:1)', () => {
 			expect(contrastRatio(tokens.focus, tokens.bg)).toBeGreaterThanOrEqual(3);
 		}
 	});
+
+	it('akcent każdej roli ma kontrast co najmniej 4,5:1 na białym tle', () => {
+		const roles = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'roles/roles.css'), 'utf8');
+		const accents = new Map<string, string>();
+		for (const match of roles.matchAll(/\[data-role='([a-z]+)'\]\s*\{\s*--role-accent:\s*(#[0-9a-fA-F]{6});/g)) accents.set(match[1], match[2]);
+		accents.set('pogodynka', roles.match(/:root\s*\{\s*--role-accent:\s*(#[0-9a-fA-F]{6});/)![1]);
+		expect([...accents.keys()].sort()).toEqual(
+			['bibliotekarka', 'kasjer', 'konduktor', 'kucharz', 'lesnik', 'listonosz', 'nauczyciel', 'naukowiec', 'pilkarz', 'pogodynka', 'slusarz', 'sport'],
+		);
+		for (const [role, accent] of accents) expect(contrastRatio(accent, '#ffffff'), role).toBeGreaterThanOrEqual(4.5);
+	});
 });

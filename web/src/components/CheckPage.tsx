@@ -9,6 +9,7 @@ import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
+import { predictedRole, recordRoleOf } from '../roles/appearance';
 import { currentForcedRole, currentRole } from '../roles/resolve';
 import { rememberRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
@@ -94,7 +95,7 @@ export function CheckPage() {
 		const controller = new AbortController();
 		controllerRef.current = controller;
 		dispatch({ type: 'start' });
-		stage.begin(currentForcedRole() ?? undefined);
+		stage.begin(currentForcedRole() ?? predictedRole(content));
 		try {
 			const recordId = await fetchRecordKey(content, controller.signal);
 			if (controllerRef.current !== controller) return;
@@ -111,7 +112,7 @@ export function CheckPage() {
 			if (controllerRef.current !== controller) return;
 			fromCheckRef.current = true;
 			if (outcome.kind === 'record') rememberRecord(outcome.record);
-			stage.resolve(outcome.kind === 'record' ? currentRole(outcome.record.role) : null, outcome.kind === 'record' ? outcome.record.id : null);
+			stage.resolve(outcome.kind === 'record' ? currentRole(recordRoleOf(outcome.record)) : null, outcome.kind === 'record' ? outcome.record.id : null);
 			dispatch({ type: 'done', outcome });
 		} catch (error) {
 			if (controllerRef.current !== controller) return;
@@ -126,7 +127,7 @@ export function CheckPage() {
 
 	const heroArt =
 		(state.status === 'loading' || state.status === 'done') && waiting ? (
-			<WaitingSteps layout="hero" progress={state.progress} etaSeconds={state.etaSeconds} />
+			<WaitingSteps layout="hero" role={stage.waitingRole} progress={state.progress} etaSeconds={state.etaSeconds} />
 		) : state.status === 'idle' || state.status === 'error' ? undefined : null;
 
 	return (

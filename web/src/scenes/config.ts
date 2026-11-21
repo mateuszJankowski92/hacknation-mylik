@@ -1,4 +1,4 @@
-import type { Role } from '../roles/config';
+import { ROLES, ROLE_SPECS, type Role } from '../roles/config';
 import { assetUrl, entriesFor, ASSET_DIRECTORY, type ManifestEntry } from '../roles/manifest';
 
 export interface SceneSpec {
@@ -23,7 +23,7 @@ export function sceneFilePath(role: Role, name: string, extension: 'mp4' | 'webm
 	return `${SCENE_BASE_PATH}/${role}/sceny/${name}.${extension}`;
 }
 
-const PLACEHOLDER_ALTS: Record<Role, string[]> = {
+const PLACEHOLDER_ALTS: Partial<Record<Role, string[]>> = {
 	pogodynka: [
 		'Pogodynek przesuwa palec po mapie i sprawdza, co mówią źródła.',
 		'Pogodynek przegląda kartki z notatkami przy mapie.',
@@ -44,7 +44,8 @@ const PLACEHOLDER_ALTS: Record<Role, string[]> = {
 const PLACEHOLDER_DURATIONS = [6, 7, 8];
 
 function placeholderScenes(role: Role): SceneSpec[] {
-	return PLACEHOLDER_ALTS[role].map((alt, index) => ({
+	const alts = PLACEHOLDER_ALTS[role] ?? [`${ROLE_SPECS[role].name} sprawdza źródła.`];
+	return alts.map((alt, index) => ({
 		id: `${role}-${index + 1}`,
 		file: null,
 		poster: null,
@@ -69,11 +70,7 @@ function manifestScenes(role: Role): SceneSpec[] {
 	return scenes.length > 0 ? scenes : placeholderScenes(role);
 }
 
-export const SCENES: Record<Role, SceneSpec[]> = {
-	pogodynka: manifestScenes('pogodynka'),
-	bibliotekarka: manifestScenes('bibliotekarka'),
-	sport: manifestScenes('sport'),
-};
+export const SCENES = Object.fromEntries(ROLES.map((role) => [role, manifestScenes(role)])) as Record<Role, SceneSpec[]>;
 
 export function pickScene(role: Role, random: () => number = Math.random): SceneSpec {
 	const variants = SCENES[role];

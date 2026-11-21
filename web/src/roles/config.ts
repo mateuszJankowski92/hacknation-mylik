@@ -1,7 +1,8 @@
 import type { State, Verdict } from '../../../src/contracts/verdict';
 import { STATES, VERDICTS } from '../../../src/contracts/verdict';
+import { LIVE_ROLES } from '../../../src/roles/live-words';
 
-export const ROLES = ['pogodynka', 'bibliotekarka', 'sport'] as const;
+export const ROLES = LIVE_ROLES;
 export type Role = (typeof ROLES)[number];
 export const DEFAULT_ROLE: Role = 'pogodynka';
 
@@ -75,6 +76,87 @@ export const ROLE_SPECS: Record<Role, RoleSpec> = {
 		character: {
 			postac: 'Komentator sportowy mówi do mikrofonu.',
 			praca: 'Komentator sportowy przegląda wyniki meczów.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	pilkarz: {
+		name: 'Piłkarz',
+		topic: 'piłka nożna',
+		character: {
+			postac: 'Piłkarz w grafitowym stroju stoi z piłką pod pachą.',
+			praca: 'Piłkarz żongluje piłką i sprawdza wyniki.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	konduktor: {
+		name: 'Konduktor',
+		topic: 'kolej i transport',
+		character: {
+			postac: 'Konduktor stoi na peronie z zegarkiem.',
+			praca: 'Konduktor sprawdza rozkład jazdy.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	listonosz: {
+		name: 'Listonosz',
+		topic: 'poczta i przesyłki',
+		character: {
+			postac: 'Listonosz niesie torbę z listami.',
+			praca: 'Listonosz sortuje przesyłki przy skrzynce.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	slusarz: {
+		name: 'Strażnik zamków',
+		topic: 'bezpieczeństwo i hasła',
+		character: {
+			postac: 'Strażnik zamków trzyma duży klucz.',
+			praca: 'Strażnik zamków sprawdza zamek.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	naukowiec: {
+		name: 'Naukowiec',
+		topic: 'nauka i badania',
+		character: {
+			postac: 'Naukowiec w fartuchu trzyma kolbę.',
+			praca: 'Naukowiec zagląda do mikroskopu.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	lesnik: {
+		name: 'Leśnik',
+		topic: 'las i przyroda',
+		character: {
+			postac: 'Leśnik stoi pod drzewem.',
+			praca: 'Leśnik ogląda liść i grzyba.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	nauczyciel: {
+		name: 'Nauczyciel',
+		topic: 'szkoła i edukacja',
+		character: {
+			postac: 'Nauczyciel trzyma książkę.',
+			praca: 'Nauczyciel pisze na tablicy.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	kucharz: {
+		name: 'Kucharz',
+		topic: 'jedzenie i gotowanie',
+		character: {
+			postac: 'Kucharz w czapce trzyma pokrywkę.',
+			praca: 'Kucharz próbuje zupy.',
+		},
+		results: NO_RESULT_IMAGES,
+	},
+	kasjer: {
+		name: 'Kasjer',
+		topic: 'ceny i pieniądze',
+		character: {
+			postac: 'Kasjer stoi przy kasie.',
+			praca: 'Kasjer liczy pieniądze.',
 		},
 		results: NO_RESULT_IMAGES,
 	},

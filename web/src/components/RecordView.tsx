@@ -9,7 +9,7 @@ import { VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict'
 import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
-import { recordSerious } from '../roles/appearance';
+import { recordRoleOf, recordSerious } from '../roles/appearance';
 import { currentRole } from '../roles/resolve';
 import { nb } from '../typography';
 import { StageSlot } from '../stage/StageSlot';
@@ -83,7 +83,7 @@ export function summarizeVerdicts(verdicts: Verdict[]): string {
 
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const single = record.claims.length === 1;
-	const role = currentRole((record as { role?: unknown }).role);
+	const role = currentRole(recordRoleOf(record));
 	const note = topicNote(role);
 	const serious = recordSerious(record);
 
