@@ -54,7 +54,7 @@ Odświeżenie z internetu (opcjonalne, zmienia wersję korpusu): `npm run corpus
 ## Jak odtworzyć wyniki testów
 
 - `npm test`: testy jednostkowe i e2e, bez sieci i bez klucza.
-- `npm run eval -- --mock`: zestaw testowy na atrapie modelu (deterministyczny, bez kosztu, bez sieci). Mierzy przepływ, nie jakość oceny.
+- `npm run eval -- --mock`: zestaw testowy na atrapie modelu (deterministyczny, bez kosztu, bez sieci). Mierzy przepływ, nie jakość oceny. Przebieg zapisuje `data/eval/results.json`; żeby zachować nasze wyniki z żywego modelu, przywróć plik poleceniem `git checkout data/eval/results.json`.
 - Przebieg na żywym modelu (`npm run eval`, opcje w nagłówku `scripts/eval.ts`) wymaga `ANTHROPIC_API_KEY` i kosztuje (liczone za tokeny). Wyniki naszych przebiegów są zapisane w `data/eval/` (`results.json`, `results_live.json`) wraz z kosztem; dla jury wystarczy je przejrzeć.
 
 ## Konfiguracja `.env`
