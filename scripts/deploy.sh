@@ -110,8 +110,8 @@ rsync "${RSYNC_FLAGS[@]}" "$STAGE/app/" "${SSH_TARGET}:${REMOTE_DIR}/" | { [ "$D
 
 log ".env (prawa 600, bez wypisywania)"
 if [ "$DRY_RUN" = 0 ]; then
-  rsync -a --chmod=F600 .env "${SSH_TARGET}:${REMOTE_DIR}/.env"
-  ssh_run "chmod 600 ${REMOTE_DIR}/.env && stat -f '%Sp' ${REMOTE_DIR}/.env"
+  # Strumień przez stdin ssh (umask 077: plik od początku 600), podmiana atomowa; treść nie trafia na ekran.
+  ssh_run "umask 077 && cat > ${REMOTE_DIR}/.env.new && chmod 600 ${REMOTE_DIR}/.env.new && mv -f ${REMOTE_DIR}/.env.new ${REMOTE_DIR}/.env && stat -f '%Sp' ${REMOTE_DIR}/.env" < .env
 fi
 
 HAS_DB="$(ssh_run "test -s ${REMOTE_DIR}/data/mylik.sqlite && echo tak || echo nie")"
@@ -121,7 +121,8 @@ if [ "$HAS_DB" = nie ] || [ "$REPLACE_DB" = 1 ]; then
     echo "(na sucho) wysłałbym migawkę bazy do ${REMOTE_DIR}/data/mylik.sqlite"
   else
     ssh_run "mkdir -p ${REMOTE_DIR}/data/backups"
-    rsync -a --chmod=F600 "$STAGE/db/mylik.sqlite" "${SSH_TARGET}:${REMOTE_DIR}/data/mylik.sqlite.new"
+    chmod 600 "$STAGE/db/mylik.sqlite"
+    rsync -az "$STAGE/db/mylik.sqlite" "${SSH_TARGET}:${REMOTE_DIR}/data/mylik.sqlite.new"
     # Kopia starej bazy, podmiana atomowa; stare -wal/-shm należą do starej bazy, więc znikają.
     ssh_run "cd ${REMOTE_DIR}/data && if [ -s mylik.sqlite ]; then cp -p mylik.sqlite backups/mylik-\$(date +%Y%m%d-%H%M%S).sqlite; fi && mv -f mylik.sqlite.new mylik.sqlite && rm -f mylik.sqlite-wal mylik.sqlite-shm"
   fi
