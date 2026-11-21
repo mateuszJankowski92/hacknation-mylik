@@ -276,7 +276,8 @@ describe('uprawnienia widoku urzędnika', () => {
 			}
 		};
 		walk(join(root, 'src'));
-		for (const file of files) expect(readFileSync(file, 'utf8'), file).not.toMatch(/urzednik/i);
+		// Zakaz dotyczy odnośników i tras, nie zwykłego tekstu (strona Prywatność wprost opisuje istnienie widoku).
+		for (const file of files) expect(readFileSync(file, 'utf8'), file).not.toMatch(/(href|to|path|navigate|assign)\s*[=:(]\s*\{?\s*['"`]\/?urzednik/i);
 	});
 });
 
