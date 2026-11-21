@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "description": "MYLIK: prototyp weryfikacji doniesień (PRAWDOWID)",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "scripts": {
     "dev": "tsx watch src/main.ts",
     "dev:web": "vite",

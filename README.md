@@ -170,3 +170,7 @@ tests/           testy (vitest), w tym e2e serwera i test dymny tests/e2e/smoke.
 | Pętla informacji: sprawy i widok urzędnika (scenariusz H) | [docs/PETLA_INFORMACJI.md](docs/PETLA_INFORMACJI.md) |
 | Czego Mylik nie obsługuje | [docs/NIEOBSLUGIWANE.md](docs/NIEOBSLUGIWANE.md) |
 | Pochodzenie ilustracji (modele generatywne, prawa, podmiana) | [docs/POCHODZENIE_ILUSTRACJI.md](docs/POCHODZENIE_ILUSTRACJI.md) |
+
+## Licencja
+
+Kod jest udostępniony na licencji MIT (plik [LICENSE](LICENSE)). Dane źródłowe w `data/raw/` pochodzą od wskazanych wydawców i podlegają ich warunkom (lista i licencje: [docs/ZRODLA.md](docs/ZRODLA.md)). Ilustracje i klipy postaci zostały wygenerowane modelami przez fal.ai, a ich status prawny opisuje [docs/POCHODZENIE_ILUSTRACJI.md](docs/POCHODZENIE_ILUSTRACJI.md). Migawka EUvsDisinfo nie jest częścią repozytorium.
