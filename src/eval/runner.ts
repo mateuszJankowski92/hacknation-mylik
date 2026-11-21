@@ -37,7 +37,8 @@ import {
   type SupportCheckResult,
 } from '../engine/index';
 import { ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT } from '../llm/prompts';
-import { createSmsApp } from '../sms/index';
+import { createSmsApp, normalizeRecordLinks } from '../sms/index';
+import { foldDiacritics } from '../input/normalize';
 import { bestThesisMatch, caseInputText, DEFAULT_INCIDENTS_FIXTURE, type EvalCase, type Fault } from './cases';
 import type { CitationJudge, JudgeItem } from './judge';
 import type { CaseOutcome, ClaimOutcome } from './metrics';
@@ -201,6 +202,14 @@ export function mainClaim(claims: ClaimResult[], inputText: string): ClaimResult
     if (s > bestScore) [best, bestScore] = [c, s];
   }
   return best;
+}
+
+/**
+ * Zapis tej samej treści, jaki typowo przychodzi z bramki SMS: bez polskich znaków, z podwójnymi
+ * odstępami i innymi cudzysłowami. Przekształcenie ogólne (nie zależy od przypadku).
+ */
+export function smsVariant(text: string): string {
+  return `  ${foldDiacritics(text).replace(/[„”«»]/gu, '"').replace(/ /g, '  ')}  `;
 }
 
 /**
@@ -383,37 +392,47 @@ export async function runCase(c: EvalCase, opts: RunOptions & { smsCorpus?: Corp
     out.attack = { resisted: ignored && out.injectionLogged, ignored, logged: out.injectionLogged, leaked };
   }
 
-  if (c.channels && opts.smsCorpus) {
-    // Ten sam tekst przez adapter SMS, na osobnej bazie (bez wspólnego cache rekordów).
-    const smsMeter = new UsageMeter(opts.llm);
-    const smsEngine = createEngine({
-      db: opts.smsCorpus.db,
-      searcher: opts.smsCorpus.searcher,
-      llm: smsMeter,
-      fetchPage,
-      incidents: opts.incidents ?? null,
-      options: { errorProfile: null },
-    });
-    const app = createSmsApp({ engine: smsEngine });
+  if (c.channels) {
+    // Spójność kanałów jak w produkcji: ten sam silnik i ta sama baza rekordów (src/server/app.ts),
+    // a SMS przychodzi w innym zapisie (bez polskich znaków, inne odstępy i cudzysłowy), jak z bramki SMS.
+    const smsText = smsVariant(caseInputText(c));
+    const app = createSmsApp({ engine });
     const res = await app.request('/sms/webhook', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ text: caseInputText(c) }),
+      body: JSON.stringify({ text: smsText }),
     });
     const reply = await res.text();
-    const smsOutcome = await smsEngine.verify({ text: caseInputText(c), channel: 'sms' });
-    const smsText = smsOutcome.kind === 'record' ? smsOutcome.record.shortAnswer : smsOutcome.message;
+    const smsOutcome = await engine.verify({ text: smsText, channel: 'sms' });
+    const smsAnswer = smsOutcome.kind === 'record' ? normalizeRecordLinks(smsOutcome.record.shortAnswer) : smsOutcome.message;
+    const sameRecord =
+      outcome.kind === 'record' && smsOutcome.kind === 'record' ? outcome.record.id === smsOutcome.record.id : signature(outcome) === signature(smsOutcome);
     out.channel = {
-      consistent: signature(outcome) === signature(smsOutcome),
-      strictConsistent: signature(outcome, true) === signature(smsOutcome, true),
-      smsReplyMatches: reply === smsText,
+      consistent: sameRecord && signature(outcome) === signature(smsOutcome),
+      strictConsistent: sameRecord && signature(outcome, true) === signature(smsOutcome, true),
+      smsReplyMatches: reply === smsAnswer,
       www: signature(outcome),
       sms: signature(smsOutcome),
     };
-    out.costUsd += smsMeter.costUsd;
-    out.llmCalls += smsMeter.calls;
-    out.inputTokens += smsMeter.inputTokens;
-    out.outputTokens += smsMeter.outputTokens;
+    if (opts.smsCorpus) {
+      // Powtarzalność bez pamięci rekordów (osobna baza): drugie, niezależne liczenie tym samym modelem.
+      // Mierzy niedeterminizm modelu, nie spójność kanałów.
+      const repMeter = new UsageMeter(opts.llm);
+      const repEngine = createEngine({
+        db: opts.smsCorpus.db,
+        searcher: opts.smsCorpus.searcher,
+        llm: repMeter,
+        fetchPage,
+        incidents: opts.incidents ?? null,
+        options: { errorProfile: null },
+      });
+      const rep = await repEngine.verify({ text: caseInputText(c), channel: 'sms' });
+      out.repeat = { same: signature(outcome) === signature(rep), first: signature(outcome), second: signature(rep) };
+      out.costUsd += repMeter.costUsd;
+      out.llmCalls += repMeter.calls;
+      out.inputTokens += repMeter.inputTokens;
+      out.outputTokens += repMeter.outputTokens;
+    }
   }
   return out;
 }

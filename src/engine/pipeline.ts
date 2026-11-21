@@ -24,7 +24,7 @@ import {
   type VerifyInput,
   type VerifyOutcome,
 } from '../contracts/index';
-import { isUnavailableInput, maskPii } from '../input/index';
+import { isUnavailableInput, maskPii, questionToStatement } from '../input/index';
 import { cleanText } from '../input/normalize';
 import { hasKeyNumbers, validateCitations, withPreviousSentence, type AcceptedEvidence } from './citations';
 import { isSupportGate, normalizeVerdicts, type SupportGate } from './supportGate';
@@ -427,6 +427,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
   const live: LiveLayer | null = deps.live ?? null;
   const deadlineMs = deps.options?.deadlineMs ?? (live ? LIVE_DEADLINE_MS : DEFAULT_DEADLINE_MS);
+  /** Liczenia w toku po kluczu rekordu (jedno liczenie na tę samą treść naraz, niezależnie od kanału). */
+  const inflight = new Map<string, Promise<VerifyOutcome>>();
   const liveWindowMs = Math.max(60_000, deps.options?.liveCacheWindowMs ?? DEFAULT_LIVE_CACHE_WINDOW_MS);
 
   async function search(query: string, limit: number): Promise<Passage[]> {
@@ -475,7 +477,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     if (!documents) return toState(stateOutcome('brak_mozliwosci_sprawdzenia', MESSAGES.emptyCorpus, 'empty_corpus'));
 
     // Tekst do analizy: dla URL to treść strony (dane, nigdy dowód ani instrukcja).
-    let analysisText = prepared.maskedInput;
+    // Pytanie tak/nie lub "podobno ..." analizujemy jako twierdzenie (src/input/question.ts).
+    let analysisText = prepared.kind === 'tekst' ? questionToStatement(prepared.maskedInput) : prepared.maskedInput;
     let keyInput = prepared.normalizedInput;
     let pageTruncated = false;
     if (prepared.kind === 'url') {
@@ -526,8 +529,29 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       return { kind: 'record', record: cached, cached: true };
     }
 
-    const usage: UsageAcc = { llmCalls: 0, inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 };
-    const injectionSignals = new Set<string>();
+    // To samo zgłoszenie w toku (np. WWW i SMS naraz): czekamy na jedno liczenie i zwracamy jego rekord,
+    // zamiast liczyć drugi raz niedeterministycznym modelem.
+    const pending = inflight.get(recordId);
+    if (pending) {
+      const shared = await pending;
+      if (shared.kind !== 'record') return shared;
+      store.logEvent('cache_hit', { recordId, channel, detail: { inflight: true } });
+      progress.done(recordId, true);
+      return { kind: 'record', record: shared.record, cached: true };
+    }
+    const ready: PreparedInput = prepared;
+    const computing = compute();
+    inflight.set(recordId, computing);
+    computing.then(
+      () => inflight.delete(recordId),
+      () => inflight.delete(recordId),
+    );
+    return computing;
+
+    async function compute(): Promise<VerifyOutcome> {
+    const prepared = ready;
+        const usage: UsageAcc = { llmCalls: 0, inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 };
+        const injectionSignals = new Set<string>();
     const notices: Notice[] = [];
     let injectionEvents = 0;
     const isUrl = prepared.kind === 'url';
@@ -1101,6 +1125,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     });
     progress.done(recordId, false);
     return { kind: 'record', record, cached: false };
+    }
   }
 
   function logDeadline(channel: VerifyInput['channel']): void {

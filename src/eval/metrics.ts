@@ -62,6 +62,8 @@ export interface CaseOutcome {
   claims: ClaimOutcome[];
   attack?: { resisted: boolean; ignored: boolean; logged: boolean; leaked: boolean };
   channel?: { consistent: boolean; strictConsistent: boolean; smsReplyMatches: boolean; www: string; sms: string };
+  /** Drugie liczenie bez pamięci rekordów (osobna baza): powtarzalność modelu, nie spójność kanałów. */
+  repeat?: { same: boolean; first: string; second: string };
   /** Szczegół techniczny stanu (np. `llm:timeout`), bez sekretów. */
   detail?: string;
   error?: string;
@@ -95,6 +97,8 @@ export interface Metrics {
   technicalStates: Ratio & { pseudoVerdicts: number };
   channelConsistency: Ratio;
   channelConsistencyStrict: Ratio;
+  /** Ten sam wynik przy drugim, niezależnym liczeniu (bez pamięci rekordów). */
+  repeatability: Ratio;
   domainIndependence: Ratio;
   expectedNotices: Ratio;
   latencyMs: { median: number | null; p90: number | null; max: number | null; n: number };
@@ -229,6 +233,7 @@ export function computeMetrics(outcomes: CaseOutcome[], judge: { name: string; c
     },
     channelConsistency: ratio(channels.filter((o) => o.channel!.consistent && o.channel!.smsReplyMatches).length, channels.length),
     channelConsistencyStrict: ratio(channels.filter((o) => o.channel!.strictConsistent && o.channel!.smsReplyMatches).length, channels.length),
+    repeatability: ratio(executed.filter((o) => o.repeat?.same).length, executed.filter((o) => o.repeat).length),
     domainIndependence: ratio(pairNum, pairDen),
     expectedNotices: ratio(withNotice.filter((o) => o.notices.includes(o.expectedNotice!)).length, withNotice.length),
     latencyMs: { median: median(latencies), p90: percentile(latencies, 90), max: latencies.length ? Math.max(...latencies) : null, n: latencies.length },

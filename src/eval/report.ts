@@ -252,6 +252,7 @@ export function metricsTable(runs: RunReport[]): string {
     ['Koszt przebiegu (silnik + sędzia)', 'raportowany', (r) => `${usd(r.metrics.cost.engineUsd)} + ${usd(r.metrics.cost.judgeUsd)} = ${usd(r.metrics.cost.totalUsd)}`],
     ['Spójność kanałów (werdykt i dowody)', '100%', (r) => pct(r.metrics.channelConsistency)],
     ['Spójność kanałów (z kontekstem)', '-', (r) => pct(r.metrics.channelConsistencyStrict)],
+    ['Powtarzalność bez pamięci rekordów', '-', (r) => (r.metrics.repeatability ? pct(r.metrics.repeatability) : '-')],
     ['Niezależność od domeny (pary)', '100%', (r) => pct(r.metrics.domainIndependence)],
     ['Dokładność ogólna', '-', (r) => pct(r.metrics.accuracy)],
     ['Fałszywe wstrzymania', 'mało', (r) => pct(r.metrics.falseAbstention)],

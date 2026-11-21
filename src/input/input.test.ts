@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NeedsClarification, PreparedInput } from '../contracts';
-import { isUnavailableInput, maskPii, prepareInput, type InputRejection } from './index';
+import { isUnavailableInput, maskPii, OPEN_QUESTION_MESSAGE, prepareInput, questionToStatement, type InputRejection } from './index';
 
 function makePesel(prefix: string): string {
 	const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
@@ -191,11 +191,12 @@ describe('prepareInput: tekst', () => {
 		expect(asPrepared(prepareInput({ text: base, channel: 'www' })).normalizedInput).toBe(keys[0]);
 	});
 
-	it('rozróżnia zdania o różnej treści i zachowuje diakrytyki', () => {
+	it('rozróżnia zdania o różnej treści; klucz bez polskich znaków (bramki SMS), wyświetlany tekst z nimi', () => {
 		const first = asPrepared(prepareInput({ text: 'Żółć jest gorzka w smaku', channel: 'www' }));
 		const second = asPrepared(prepareInput({ text: 'Żółć jest słodka w smaku', channel: 'www' }));
 		expect(first.normalizedInput).not.toBe(second.normalizedInput);
-		expect(first.normalizedInput).toBe('żółć jest gorzka w smaku');
+		expect(first.normalizedInput).toBe('zolc jest gorzka w smaku');
+		expect(asPrepared(prepareInput({ text: 'Zolc jest gorzka w smaku', channel: 'sms' })).normalizedInput).toBe(first.normalizedInput);
 		expect(first.maskedInput).toBe('Żółć jest gorzka w smaku');
 		expect(first.kind).toBe('tekst');
 	});
@@ -308,3 +309,83 @@ describe('prepareInput: URL', () => {
 		expect(asPrepared(url('example.pl/artykul')).normalizedInput).toBe('https://example.pl/artykul');
 	});
 });
+
+describe('prepareInput: zapis z różnych kanałów', () => {
+	const base = 'Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł.';
+	const variants = [
+		base,
+		'od 1 marca opłata za wywóz śmieci w lipnie wzrośnie do 40 zł',
+		'OD 1 MARCA OPŁATA ZA WYWÓZ ŚMIECI W LIPNIE WZROŚNIE DO 40 ZŁ!',
+		'Od 1 marca oplata za wywoz smieci w Lipnie wzrosnie do 40 zl.',
+		'„Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł.”',
+		'"Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł."',
+		'«Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł»',
+		'Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł...',
+		'Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł…',
+		'Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł?!',
+		'Od\u00a01 marca opłata za wywóz śmieci w Lipnie wzrośnie do\u00a040 zł.',
+		'Od 1 marca opłata za wywóz śmieci\r\nw Lipnie wzrośnie do 40 zł.',
+		'Od １ marca opłata za wywóz śmieci w Lipnie wzrośnie do ４０ zł.',
+		'Czy od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł?',
+		'Czy to prawda, że od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł?',
+		'Słyszałam, że od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł.',
+		'Od 1 marca opłata za wywóz śmieci w Lipnie wzrośnie do 40 zł, prawda?',
+	];
+	it('kilkanaście zapisów tej samej treści daje jeden klucz, niezależnie od kanału', () => {
+		const keys = variants.flatMap((text) =>
+			(['www', 'sms'] as const).map((channel) => asPrepared(prepareInput({ text, channel })).normalizedInput),
+		);
+		expect(new Set(keys).size).toBe(1);
+	});
+	it('myślniki różnego rodzaju dają ten sam klucz', () => {
+		const a = asPrepared(prepareInput({ text: 'Trasa Kraków – Tarnów jest zamknięta w nocy.', channel: 'www' }));
+		const b = asPrepared(prepareInput({ text: 'Trasa Kraków-Tarnów jest zamknięta w nocy', channel: 'sms' }));
+		expect(a.normalizedInput).toBe(b.normalizedInput);
+	});
+	it('inna liczba albo zaprzeczenie daje inny klucz', () => {
+		const k = (text: string) => asPrepared(prepareInput({ text, channel: 'www' })).normalizedInput;
+		expect(k(base)).not.toBe(k(base.replace('40', '50')));
+		expect(k(base)).not.toBe(k(base.replace('wzrośnie', 'nie wzrośnie')));
+	});
+	it('sam adres wklejony jako tekst traktowany jak adres', () => {
+		const r = asPrepared(prepareInput({ text: '  https://example.pl/artykul?utm_source=x ', channel: 'sms' }));
+		expect(r.kind).toBe('url');
+		expect(r.normalizedInput).toBe(asPrepared(prepareInput({ url: 'https://example.pl/artykul', channel: 'www' })).normalizedInput);
+	});
+});
+
+describe('prepareInput: pytania', () => {
+	it('pytanie tak/nie i wstęp relacjonujący przechodzą jako twierdzenie', () => {
+		for (const text of [
+			'Czy Lipno ma nowy most na rzece od 2020 roku?',
+			'Czy naprawdę w Lipnie otwarto nowy most?',
+			'Czy prawdą jest, że w Lipnie otwarto nowy most?',
+			'Podobno w Lipnie otwarto nowy most.',
+			'Ponoć w Lipnie otwarto nowy most',
+			'Słyszałem w radiu, że w Lipnie otwarto nowy most.',
+			'Sąsiad mi powiedział, że w Lipnie otwarto nowy most.',
+			'W Lipnie otwarto nowy most, tak?',
+		]) {
+			const r = prepareInput({ text, channel: 'www' });
+			expect('needsClarification' in r, text).toBe(false);
+		}
+		expect(questionToStatement('Czy Lipno ma nowy most na rzece od 2020 roku?')).toBe('Lipno ma nowy most na rzece od 2020 roku.');
+		expect(questionToStatement('Podobno w Lipnie otwarto nowy most.')).toBe('W Lipnie otwarto nowy most.');
+	});
+	it('zwykłe zdanie i daty zostają bez zmian', () => {
+		for (const t of ['W dniu 21.11.2026 ogłoszono alert.', 'Kolega przysłał mi taki wpis: „Most jest zamknięty”.', 'Cena wynosi 10.5 zł.'])
+			expect(questionToStatement(t)).toBe(t);
+		expect(questionToStatement('W dniu 21.11.2026 ogłoszono alert. Czy to prawda?')).toBe('W dniu 21.11.2026 ogłoszono alert.');
+	});
+	it('pytanie otwarte bez tezy: prośba o zdanie do sprawdzenia z przykładem', () => {
+		for (const text of ['Kto wygrał wczoraj mecz?', 'Ile kosztuje bilet do Lipna?', 'Gdzie jest najbliższy urząd?', 'Dlaczego podnieśli ceny prądu?', 'Czy to prawda?']) {
+			const r = asClarification(prepareInput({ text, channel: 'www' }));
+			expect(r.message, text).toBe(OPEN_QUESTION_MESSAGE);
+		}
+	});
+	it('pytanie otwarte obok tezy nie blokuje sprawdzenia', () => {
+		const r = prepareInput({ text: 'Ile to kosztuje? Podobno opłata wzrośnie do 40 zł.', channel: 'www' });
+		expect('needsClarification' in r).toBe(false);
+	});
+});
+

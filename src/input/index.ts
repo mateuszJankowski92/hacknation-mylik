@@ -2,12 +2,17 @@ import type { NeedsClarification, PreparedInput, VerifyInput } from '../contract
 import { cleanText, countLetters, normalizeForKey } from './normalize';
 import { maskPii } from './pii';
 import { normalizeUrl } from './url';
+import { isOnlyOpenQuestions, OPEN_QUESTION_MESSAGE, questionToStatement } from './question';
+
+export { isOnlyOpenQuestions, OPEN_QUESTION_MESSAGE, questionToStatement };
 
 export { maskPii };
 
 const MIN_TEXT_LENGTH = 10;
 const MAX_TEXT_LENGTH = 2000;
 const MIN_LETTERS = 3;
+/** Całe zgłoszenie to jeden adres (z protokołem albo zaczynający się od www.). */
+const BARE_URL = /^(?:https?:\/\/|www\.)\S+$/iu;
 
 /**
  * Odrzucenie wejścia. `unavailable`: wejście jest jasne i poprawne, ale nie możemy go sprawdzić
@@ -29,14 +34,20 @@ function prepareText(text: string): PreparedInput | NeedsClarification {
 	if (cleaned.length > MAX_TEXT_LENGTH) {
 		return clarify(`Tekst jest za długi (limit to ${MAX_TEXT_LENGTH} znaków). Skróć go do jednego konkretnego doniesienia.`);
 	}
-	const comparable = normalizeForKey(cleaned);
+	// Sam adres strony wklejony jako tekst (np. w SMS-ie): ta sama ścieżka i ten sam klucz co pole adresu.
+	if (BARE_URL.test(cleaned)) return prepareUrl(cleaned);
+	if (isOnlyOpenQuestions(cleaned)) return clarify(OPEN_QUESTION_MESSAGE);
+	// Pytanie tak/nie i "podobno ..." to twierdzenie do sprawdzenia; klucz liczony z twierdzenia,
+	// więc "Czy X?" i "X." dają ten sam rekord.
+	const statement = questionToStatement(cleaned);
+	const comparable = normalizeForKey(statement);
 	if (comparable.length < MIN_TEXT_LENGTH || countLetters(comparable) < MIN_LETTERS) {
-		return clarify('Napisz proszę pełne zdanie, co dokładnie chcesz sprawdzić.');
+		return clarify(statement !== cleaned ? OPEN_QUESTION_MESSAGE : 'Napisz proszę pełne zdanie, co dokładnie chcesz sprawdzić.');
 	}
 	const masked = maskPii(cleaned);
 	return {
 		kind: 'tekst',
-		normalizedInput: normalizeForKey(masked.text),
+		normalizedInput: normalizeForKey(maskPii(statement).text),
 		maskedInput: masked.text,
 		masks: masked.masks,
 	};
