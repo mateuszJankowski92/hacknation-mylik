@@ -1,0 +1,27 @@
+[
+  {
+    "publisher": "Komenda Główna Policji - Centralne Biuro Zwalczania Cyberprzestępczości (cbzc.policja.pl)",
+    "reason": "Serwer przedstawia certyfikat TLS niezgodny z nazwą domeny (ERR_TLS_CERT_ALTNAME_INVALID); nie wyłączamy weryfikacji certyfikatu. Komunikaty o oszustwach publikuje też policja.pl i serwisy wojewódzkie, które są w katalogu.",
+    "checkedAt": "2026-11-21"
+  },
+  {
+    "publisher": "Komisja Nadzoru Finansowego (www.knf.gov.pl, ostrzeżenia publiczne i komunikaty)",
+    "reason": "Serwer zrywa połączenie dla klienta automatycznego (ECONNRESET); nie obchodzimy blokady. Do ponowienia, gdy dostęp się zmieni.",
+    "checkedAt": "2026-11-21"
+  },
+  {
+    "publisher": "CSIRT KNF (csirt.knf.gov.pl)",
+    "reason": "Serwer zamyka połączenie (UND_ERR_SOCKET); nie obchodzimy blokady. Ostrzeżenia o oszustwach internetowych pokrywa CERT Polska i NASK.",
+    "checkedAt": "2026-11-21"
+  },
+  {
+    "publisher": "Wojewódzkie stacje sanitarno-epidemiologiczne (gov.pl/web/wsse-*)",
+    "reason": "Adresy nie istnieją pod przewidywaną nazwą (przekierowanie na stronę główną). Zamiast tego: powiatowe stacje w 8 dużych miastach oraz Główny Inspektorat Sanitarny.",
+    "checkedAt": "2026-11-21"
+  },
+  {
+    "publisher": "Mapy i panele danych (np. mapy zagrożeń, panele statystyk)",
+    "reason": "Brak tekstu do cytowania; nieobsługiwane.",
+    "checkedAt": "2026-11-21"
+  }
+]

@@ -10,6 +10,8 @@ const MIN_DELAY_MS = 1100;
 const MAX_BYTES = 1024 * 1024;
 const MAX_LISTING_BYTES = 2 * 1024 * 1024;
 const TIMEOUT_MS = 20000;
+const RETRY_ATTEMPTS = 2;
+const RETRY_PAUSE_MS = 4000;
 const MIN_TEXT_CHARS = 300;
 const META_FILE = 'data/raw/_meta.json';
 const SKIPPED_FILE = 'data/raw/_skipped.json';
@@ -96,10 +98,16 @@ async function getHtml(rawUrl: string, limit: number): Promise<Outcome<{ body: s
 	const rules = await loadRules(url);
 	if (!isAllowedByRobots(rules, url)) return { ok: false, reason: 'robots.txt zabrania' };
 	let response: Response;
-	try {
-		response = await politeFetch(rawUrl, rules.crawlDelayMs);
-	} catch (error) {
-		return { ok: false, reason: `błąd sieci: ${error instanceof Error ? error.message : 'nieznany'}` };
+	let attempt = 0;
+	for (;;) {
+		try {
+			response = await politeFetch(rawUrl, rules.crawlDelayMs);
+			break;
+		} catch (error) {
+			attempt += 1;
+			if (attempt > RETRY_ATTEMPTS) return { ok: false, reason: `błąd sieci: ${error instanceof Error ? error.message : 'nieznany'}` };
+			await new Promise((done) => setTimeout(done, RETRY_PAUSE_MS * attempt));
+		}
 	}
 	if (!response.ok) return { ok: false, reason: `HTTP ${response.status}` };
 	const finalUrl = new URL(response.url || rawUrl);
