@@ -14,6 +14,8 @@ export interface ManifestEntry {
 	petla?: boolean;
 	alt: string;
 	tlo: string;
+	ocena?: number | null;
+	bez_oceny_wlasciciela?: boolean;
 }
 
 export const MANIFEST_BACKGROUND: string = manifestData.tlo;

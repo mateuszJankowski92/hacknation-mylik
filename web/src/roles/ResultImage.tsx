@@ -3,7 +3,7 @@ import { SCENE_TEXTS } from '../scenes/config';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import type { ResultKey, Role } from './config';
 import { GESTURE_CAPTION, resultImageFor, usesGesture } from './config';
-import { assetUrl, resultSceneFor } from './manifest';
+import { assetUrl, imageEntryFor, resultSceneFor } from './manifest';
 import { RoleArt } from './RoleArt';
 import { nb } from '../typography';
 
@@ -94,10 +94,11 @@ export function ResultImage({ role, resultKey, serious = false }: ResultImagePro
 	}, []);
 
 	if (!spec) return null;
+	const artName = gesture ? 'wskazuje' : imageEntryFor(role, resultKey) ? resultKey : 'praca';
 	return (
 		<figure className={`result-image result-image--${gesture ? 'gest' : resultKey}`} data-gesture={gesture ? 'true' : undefined}>
 			<div className="result-image__stage stage">
-				<RoleArt owner={role} name={gesture ? 'wskazuje' : resultKey} alt={spec.caption} className="result-image__art" />
+				<RoleArt owner={role} name={artName} alt={spec.caption} className="result-image__art" />
 				{mounted && entry && (
 					<ResultClip
 						key={playId}

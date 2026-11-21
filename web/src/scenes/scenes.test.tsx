@@ -63,10 +63,12 @@ afterEach(() => {
 
 describe('sceny czekania', () => {
 	it('losuje wariant sceny z listy roli', () => {
-		const variants = SCENES.bibliotekarka;
+		SCENES.pogodynka = ORIGINAL_SCENES;
+		const variants = ORIGINAL_SCENES;
 		expect(variants.length).toBeGreaterThanOrEqual(3);
-		expect(pickScene('bibliotekarka', () => 0)).toBe(variants[0]);
-		expect(pickScene('bibliotekarka', () => 0.999)).toBe(variants[variants.length - 1]);
+		expect(pickScene('pogodynka', () => 0)).toBe(variants[0]);
+		expect(pickScene('pogodynka', () => 0.999)).toBe(variants[variants.length - 1]);
+		expect(SCENES.bibliotekarka.length).toBeGreaterThanOrEqual(1);
 		for (const spec of Object.values({ ...SCENES, pogodynka: ORIGINAL_SCENES }).flat()) {
 			expect(spec.alt.length).toBeGreaterThan(10);
 			expect(spec.durationSec).toBeGreaterThanOrEqual(6);

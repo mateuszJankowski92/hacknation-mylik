@@ -189,11 +189,12 @@ describe('scena przy pracy w hero', () => {
 		for (const entry of heroEntries()) expect(['scena_otwierajaca', 'scena_czekania']).toContain(entry.rodzaj);
 	});
 
-	it('domyślna scena hero to scena otwierająca z manifestu, a sceny ról w niej nie grają', () => {
-		expect(HERO_SCENES.map((item) => item.id)).toEqual(['start-otwarcie']);
-		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__otwarcie_v5.mp4');
-		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__otwarcie_v5__plakat.webp');
-		expect(HERO_SCENES[0]?.loop).toBe(false);
+	it('domyślna scena hero to klip startowy "rozglada" z oceną 9 bez błędu pinezki, a sceny ról w niej nie grają', () => {
+		expect(entriesFor('start', 'scena_otwierajaca')).toHaveLength(0);
+		expect(HERO_SCENES.map((item) => item.id)).toEqual(['start-rozglada']);
+		expect(HERO_SCENES[0]?.file).toBe('/postacie/start/scena__rozglada.mp4');
+		expect(HERO_SCENES[0]?.poster).toBe('/postacie/start/scena__rozglada__plakat.webp');
+		expect(HERO_SCENES[0]?.loop).toBe(true);
 		for (const item of HERO_SCENES) expect(item.file).toMatch(/^\/postacie\/start\//);
 	});
 
