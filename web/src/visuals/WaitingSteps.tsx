@@ -33,6 +33,7 @@ export interface WaitingStepsProps {
 	elapsedSeconds?: number;
 	role?: Role;
 	playback?: ScenePlayback;
+	layout?: 'page' | 'hero';
 }
 
 export function WaitingSteps({
@@ -41,13 +42,14 @@ export function WaitingSteps({
 	elapsedSeconds,
 	role = currentRole(),
 	playback,
+	layout = 'page',
 }: WaitingStepsProps) {
 	const clock = useElapsedSeconds();
 	const elapsed = elapsedSeconds ?? clock;
 	const overtime = elapsed > etaSeconds;
 
 	return (
-		<section className="waiting-steps" aria-label="Postęp sprawdzania" data-role={role}>
+		<section className={`waiting-steps waiting-steps--${layout}`} aria-label="Postęp sprawdzania" data-role={role}>
 			<div className="waiting-steps__scene">
 				{playback?.scene && playback.enabled ? (
 					<SceneStage key={playback.scene.id} scene={playback.scene} role={role} progress={progress} onEnd={playback.end} />

@@ -120,14 +120,16 @@ export function CheckPage() {
 		controllerRef.current?.abort();
 	}
 
+	const heroArt =
+		(state.status === 'loading' || state.status === 'done') && waiting ? (
+			<WaitingSteps layout="hero" progress={state.progress} etaSeconds={state.etaSeconds} playback={playback} />
+		) : state.status === 'idle' || state.status === 'error' ? undefined : null;
+
 	return (
 		<>
-			<Hero role={currentForcedRole() ?? undefined}>
+			<Hero role={currentForcedRole() ?? undefined} art={heroArt}>
 				<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
 			</Hero>
-			{(state.status === 'loading' || state.status === 'done') && waiting && (
-				<WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} playback={playback} />
-			)}
 			<div
 				className="result"
 				ref={resultRef}
