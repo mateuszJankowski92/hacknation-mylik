@@ -37,18 +37,20 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 			<label htmlFor="content" className="check-form__label">
 				Wklej informację lub link
 			</label>
-			<textarea
-				id="content"
-				name="content"
-				rows={3}
-				value={content}
-				onChange={(event) => setContent(event.target.value)}
-				onKeyDown={handleKeyDown}
-				aria-keyshortcuts="Control+Enter Meta+Enter"
-				aria-describedby="content-counter content-error"
-				aria-invalid={tooLong}
-				autoComplete="off"
-			/>
+			<div className="check-form__field">
+				<textarea
+					id="content"
+					name="content"
+					rows={3}
+					value={content}
+					onChange={(event) => setContent(event.target.value)}
+					onKeyDown={handleKeyDown}
+					aria-keyshortcuts="Control+Enter Meta+Enter"
+					aria-describedby="content-counter content-error"
+					aria-invalid={tooLong}
+					autoComplete="off"
+				/>
+			</div>
 			<p id="content-counter" className={tooLong ? 'check-form__counter check-form__counter--over' : 'check-form__counter'}>
 				{showCounter && nb(`Znaków: ${content.length} z ${MAX_INPUT_LENGTH}`)}
 			</p>

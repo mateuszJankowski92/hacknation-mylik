@@ -16,8 +16,8 @@
 	gap: var(--space-1) var(--space-2);
 	margin: 0 0 var(--space-1);
 	padding: 4px var(--space-2);
-	border-width: 2px;
-	border-radius: var(--space-1);
+	border-width: var(--outline);
+	border-radius: var(--radius-paper);
 }
 
 .record-claim .verdict__label {
@@ -53,15 +53,43 @@
 	color: var(--link);
 	font: inherit;
 	text-decoration: underline;
+	text-decoration-thickness: var(--outline);
+	text-decoration-color: var(--sea-mid);
 	text-underline-offset: 0.2em;
 	cursor: pointer;
 }
 
+.record-claim__evidence-link button:hover {
+	background: var(--sea-tint);
+	text-decoration-color: currentColor;
+}
+
 .record-claim__primary {
+	position: relative;
 	margin: var(--space-6) 0 var(--section-gap);
 	padding: var(--space-4) var(--space-3);
-	border-radius: var(--space-1);
-	background: var(--surface);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	box-shadow: var(--shadow-paper);
+}
+
+.record-claim__primary::after {
+	content: '';
+	position: absolute;
+	top: calc(var(--outline) * -1);
+	right: calc(var(--outline) * -1);
+	width: var(--fold-size);
+	height: var(--fold-size);
+	border-left: var(--outline) solid var(--graphite);
+	border-bottom: var(--outline) solid var(--graphite);
+	background: linear-gradient(
+		225deg,
+		var(--bg) 0 calc(50% - var(--outline) / 2),
+		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
+	);
+	pointer-events: none;
 }
 
 .record-claim__primary .record-evidence__quote {
@@ -145,16 +173,8 @@
 	font-size: 1rem;
 }
 
-.record-claim__group--za h5 {
-	color: var(--ok-fg);
-}
-
-.record-claim__group--przeciw h5 {
-	color: var(--danger-fg);
-}
-
-.record-claim__group--kontekst h5 {
-	color: var(--warn-fg);
+.record-claim__group h5 {
+	color: var(--text);
 }
 
 .record-evidence-list {
@@ -166,16 +186,16 @@
 .record-evidence {
 	margin: var(--space-2) 0;
 	padding-top: var(--space-2);
-	border-top: 1px solid var(--border);
+	border-top: var(--outline) dashed var(--paper-fold);
 }
 
 .record-evidence__archival {
 	margin: 0 0 var(--space-1);
 	padding: var(--space-1) var(--space-2);
-	border: 2px dashed var(--warn-fg);
+	border: var(--outline) dashed var(--warn-fg);
 	background: var(--warn-bg);
 	color: var(--warn-fg);
-	border-radius: var(--space-1);
+	border-radius: var(--radius-paper);
 }
 
 .record-evidence__mismatch {
@@ -186,7 +206,7 @@
 .record-evidence__quote {
 	margin: var(--space-1) 0;
 	padding: 0 var(--space-2);
-	border-left: 4px solid var(--primary);
+	border-left: 4px solid var(--sea-mid);
 }
 
 .record-evidence__quote p {
@@ -227,10 +247,10 @@
 
 .record-claim--abstain .verdict__label {
 	padding: 2px var(--space-2);
-	border: 2px solid var(--info-fg);
-	border-radius: var(--space-1);
-	background: var(--info-bg);
-	color: var(--info-fg);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--neutral-bg);
+	color: var(--neutral-fg);
 }
 
 .record-claim--abstain .verdict .verdict__note,
@@ -270,7 +290,7 @@
 .record-claim__limits {
 	margin: var(--space-4) 0 0;
 	padding-left: var(--space-2);
-	border-left: 4px solid var(--warn-fg);
+	border-left: 4px solid var(--coral-mid);
 }
 
 .record-claim__limits ul {
@@ -283,8 +303,9 @@
 	width: 100%;
 	height: auto;
 	max-width: 600px;
-	border: 1px solid var(--border);
-	border-radius: var(--space-1);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	box-shadow: var(--shadow-paper);
 	background: #ffffff;
 }
 
@@ -324,8 +345,11 @@
 .case-notice {
 	margin: var(--space-3) 0;
 	padding: var(--space-2) var(--space-3);
-	border: 2px solid var(--border, currentColor);
-	border-radius: var(--space-1);
+	border: var(--outline) solid var(--graphite);
+	border-left: 8px solid var(--sea-mid);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	box-shadow: var(--shadow-paper);
 	font-size: 1.1rem;
 	color: var(--text);
 }

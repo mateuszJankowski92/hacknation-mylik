@@ -30,24 +30,36 @@ export function contrastRatio(foreground: string, background: string): number {
 const PAIRS: Array<[string, string]> = [
 	['text', 'bg'],
 	['text', 'surface'],
+	['text', 'paper-shade'],
+	['text', 'sea-tint'],
+	['text', 'coral-tint'],
 	['muted', 'bg'],
 	['muted', 'surface'],
+	['muted', 'paper-shade'],
 	['link', 'bg'],
 	['link', 'surface'],
+	['link', 'sea-tint'],
+	['sea', 'bg'],
+	['sea', 'surface'],
+	['coral', 'bg'],
+	['coral', 'surface'],
 	['on-primary', 'primary'],
 	['primary', 'bg'],
+	['primary', 'surface'],
 	['on-accent', 'accent'],
 	['on-accent', 'accent-hover'],
+	['on-accent', 'accent-active'],
+	['on-accent', 'accent-edge'],
 	['on-accent-disabled', 'accent-disabled'],
-	['ok-fg', 'ok-bg'],
 	['danger-fg', 'danger-bg'],
 	['danger-fg', 'bg'],
 	['danger-fg', 'surface'],
 	['warn-fg', 'warn-bg'],
-	['info-fg', 'info-bg'],
 	['neutral-fg', 'neutral-bg'],
 	['state-fg', 'state-bg'],
 	['state-fg', 'bg'],
+	['graphite', 'bg'],
+	['graphite', 'surface'],
 ];
 
 describe('kontrast kolorów (WCAG AA, min. 4,5:1)', () => {
@@ -77,6 +89,29 @@ describe('kontrast kolorów (WCAG AA, min. 4,5:1)', () => {
 		for (const tokens of Object.values(themes)) {
 			expect(contrastRatio(tokens.border, tokens.bg)).toBeGreaterThanOrEqual(3);
 			expect(contrastRatio(tokens.focus, tokens.bg)).toBeGreaterThanOrEqual(3);
+			expect(contrastRatio(tokens.graphite, tokens.bg)).toBeGreaterThanOrEqual(3);
+			expect(contrastRatio(tokens.accent, tokens.bg)).toBeGreaterThanOrEqual(1.8);
+		}
+	});
+
+	it('paleta papieru: kontur grafitowy, pomarańcz apaszki jako kolor działań, morski i koralowy jako akcenty', () => {
+		const tokens = themes.jasny;
+		expect(tokens.bg.toLowerCase()).toBe('#ffffff');
+		expect(css).toMatch(/--outline:\s*1\.5px/);
+		for (const name of ['paper', 'paper-shade', 'paper-fold', 'graphite', 'accent', 'sea', 'sea-tint', 'coral', 'coral-tint']) expect(tokens[name], name).toBeTruthy();
+		const [r, g, b] = [1, 3, 5].map((index) => parseInt(tokens.accent.slice(index, index + 2), 16));
+		expect(r).toBeGreaterThan(g);
+		expect(g).toBeGreaterThan(b);
+		expect(r).toBeGreaterThan(220);
+		expect(b).toBeLessThan(110);
+	});
+
+	it('nie ma zieleni ani czerwieni jako sygnału werdyktu', () => {
+		expect(css).not.toMatch(/--ok-(fg|bg)/);
+		expect(css).not.toMatch(/\.verdict--(ok|danger|warn|info)\b/);
+		for (const file of ['components/record.css', 'visuals/visuals.css', 'roles/roles.css']) {
+			const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), file), 'utf8');
+			expect(source, file).not.toMatch(/var\(--ok-|var\(--info-|\.verdict--(ok|danger|warn|info)\b/);
 		}
 	});
 
