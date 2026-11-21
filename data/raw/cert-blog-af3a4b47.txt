@@ -1,0 +1,7 @@
+Pobierz raport (PDF, 5.6MB) Pobierz raport (PDF, 5.6MB)
+
+To był pierwszy cyberatak na sektor energetyczny w Polsce, którego cel był wyłącznie destrukcyjny. Okazał się też dużo bardziej złożony niż pierwotnie sądzono - obejmował jeszcze jedno, nieopisywane wcześniej publicznie zdarzenie, które również miało miejsce w grudniu 2025 roku. Analiza tego, co stało się w drugiej zaatakowanej wówczas elektrociepłowni, jest zawarta w publikowanym właśnie raporcie. Trwające ponad trzy miesiące śledztwo zaowocowało odkryciem nieobserwowanego dotychczas wektora ataku w postaci prywatnego APN. Podczas trwającej właśnie największej globalnej konferencji z obszaru cyberbezpieczeństwa, DEF CON w Las Vegas, o szczegółach incydentu opowiada Marcin Dudek - kierownik CERT Polska.
+
+29 grudnia 2025 roku doszło do skoordynowanych ataków na polską infrastrukturę energetyczną, m.in. na 30 farm wiatrowych i fotowoltaicznych oraz dużą elektrociepłownię. Opisaliśmy te ataki szczegółowo w naszym pierwotnym raporcie . Równolegle miał jednak miejsce jeszcze jeden incydent – w mniejszej elektrociepłowni dostarczającej ciepło dla 50 tys. mieszkańców.
+
+W wyniku opisywanego w raporcie ataku doszło do zatrzymania turbiny parowej oraz stacji uzdatniania wody do celów technicznych, co doprowadziło do przerwania kogeneracji czyli procesu, który polega na skojarzonej produkcji energii elektrycznej i cieplnej.

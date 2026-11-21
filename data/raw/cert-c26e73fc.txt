@@ -1,0 +1,21 @@
+🔔 Wystartował program bug bounty NASK!
+
+Zapraszamy do wzięcia udziału w szukaniu podatności w publicznych systemach.
+
+Od dziś na platformie hack.cert.pl dostępne jest pięć konkursów obejmujących portal GOV.PL , komunikator mSzyfr oraz serwisy gminy Władysławowo, CERT Polska i NASK. Znalezienie podatności wiąże się z nagrodą w wysokości do 20 tys. złotych, a łącznie w puli znajduje się aż milion.
+
+Odpowiedzi na najbardziej popularne pytania dostępne są pod adresem https://hack.cert.pl/faq
+
+Powodzenia!
+
+Tytułowa grafika programu bug bounty
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

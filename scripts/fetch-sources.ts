@@ -1,40 +1,47 @@
 import { mkdirSync, readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
-import { loadCatalog } from '../src/corpus/catalog';
+import { loadCatalog, type CatalogDocument, type CatalogSource } from '../src/corpus/catalog';
+import { cleanTitle, documentIdFor, excerptText, extractLinks, isAllowedByRobots, pageUrl, parseRobots, type RobotsRules } from '../src/corpus/crawl';
 import { FETCHED_FILE } from '../src/corpus/ingest';
-import { extractPublishedDate, extractTitle, htmlToText } from '../src/corpus/html';
+import { extractHeading, extractPublishedDate, extractTitle, extractValidUntil, htmlToText } from '../src/corpus/html';
 
-const USER_AGENT = 'MYLIK-hackathon-corpus-fetcher/0.1 (HackNation 2026 prototype; closed corpus of public sources)';
+const USER_AGENT = 'MYLIK-hackathon-corpus-fetcher/0.2 (HackNation 2026 prototype; closed corpus of public sources)';
 const MIN_DELAY_MS = 1100;
 const MAX_BYTES = 1024 * 1024;
+const MAX_LISTING_BYTES = 2 * 1024 * 1024;
 const TIMEOUT_MS = 20000;
 const MIN_TEXT_CHARS = 300;
 const META_FILE = 'data/raw/_meta.json';
+const SKIPPED_FILE = 'data/raw/_skipped.json';
 
 interface PageMeta {
 	title: string | null;
 	publishedAt: string | null;
 }
 
-interface RobotsRules {
-	disallow: string[];
-	allow: string[];
-	crawlDelayMs: number;
+interface FetchedPage {
+	text: string;
+	meta: PageMeta;
+	validUntil: string | null;
 }
 
-const robotsCache = new Map<string, RobotsRules>();
-const lastRequestByOrigin = new Map<string, number>();
+const robotsCache = new Map<string, Promise<RobotsRules>>();
+const nextSlotByOrigin = new Map<string, number>();
 
 function readArg(name: string, fallback: string): string {
 	const index = process.argv.indexOf(name);
 	return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-async function politeFetch(url: string, delayMs = MIN_DELAY_MS): Promise<Response> {
-	const origin = new URL(url).origin;
-	const wait = (lastRequestByOrigin.get(origin) ?? 0) + Math.max(delayMs, MIN_DELAY_MS) - Date.now();
+async function reserveSlot(origin: string, delayMs: number): Promise<void> {
+	const slot = Math.max(Date.now(), nextSlotByOrigin.get(origin) ?? 0);
+	nextSlotByOrigin.set(origin, slot + Math.max(delayMs, MIN_DELAY_MS));
+	const wait = slot - Date.now();
 	if (wait > 0) await new Promise((done) => setTimeout(done, wait));
-	lastRequestByOrigin.set(origin, Date.now());
+}
+
+async function politeFetch(url: string, delayMs = MIN_DELAY_MS): Promise<Response> {
+	await reserveSlot(new URL(url).origin, delayMs);
 	return fetch(url, {
 		headers: { 'User-Agent': USER_AGENT, Accept: 'text/html,text/plain;q=0.9', 'Accept-Language': 'pl,en;q=0.5' },
 		redirect: 'follow',
@@ -42,56 +49,22 @@ async function politeFetch(url: string, delayMs = MIN_DELAY_MS): Promise<Respons
 	});
 }
 
-function parseRobots(body: string): RobotsRules {
-	const rules: RobotsRules = { disallow: [], allow: [], crawlDelayMs: 0 };
-	let applies = false;
-	let sawAgent = false;
-	for (const rawLine of body.split(/\r?\n/)) {
-		const line = rawLine.replace(/#.*/, '').trim();
-		const separator = line.indexOf(':');
-		if (separator < 0) continue;
-		const field = line.slice(0, separator).trim().toLowerCase();
-		const value = line.slice(separator + 1).trim();
-		if (field === 'user-agent') {
-			if (!sawAgent) applies = false;
-			sawAgent = true;
-			if (value === '*') applies = true;
-			continue;
-		}
-		sawAgent = false;
-		if (!applies || !value) continue;
-		if (field === 'crawl-delay') rules.crawlDelayMs = Math.min(30000, Number(value) * 1000 || 0);
-		if (field === 'disallow') rules.disallow.push(value);
-		if (field === 'allow') rules.allow.push(value);
+function loadRules(url: URL): Promise<RobotsRules> {
+	let pending = robotsCache.get(url.origin);
+	if (!pending) {
+		pending = (async () => {
+			try {
+				const response = await politeFetch(`${url.origin}/robots.txt`);
+				if (response.status === 404) return { disallow: [], allow: [], crawlDelayMs: 0 };
+				if (!response.ok) return { disallow: ['/'], allow: [], crawlDelayMs: 0 };
+				return parseRobots((await response.text()).slice(0, 200000));
+			} catch {
+				return { disallow: ['/'], allow: [], crawlDelayMs: 0 };
+			}
+		})();
+		robotsCache.set(url.origin, pending);
 	}
-	return rules;
-}
-
-function patternMatches(pattern: string, path: string): boolean {
-	const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-	const anchored = escaped.endsWith('\\$') ? `${escaped.slice(0, -2)}$` : escaped;
-	return new RegExp(`^${anchored}`).test(path);
-}
-
-async function loadRules(url: URL): Promise<RobotsRules> {
-	let rules = robotsCache.get(url.origin);
-	if (!rules) {
-		rules = { disallow: [], allow: [], crawlDelayMs: 0 };
-		try {
-			const response = await politeFetch(`${url.origin}/robots.txt`);
-			if (response.ok) rules = parseRobots((await response.text()).slice(0, 200000));
-		} catch {
-			rules = { disallow: [], allow: [], crawlDelayMs: 0 };
-		}
-		robotsCache.set(url.origin, rules);
-	}
-	return rules;
-}
-
-function isAllowed(rules: RobotsRules, url: URL): boolean {
-	const path = url.pathname + url.search;
-	const longest = (patterns: string[]) => Math.max(0, ...patterns.filter((pattern) => patternMatches(pattern, path)).map((pattern) => pattern.length));
-	return longest(rules.allow) >= longest(rules.disallow);
+	return pending;
 }
 
 async function readLimited(response: Response): Promise<string | null> {
@@ -102,52 +75,154 @@ async function readLimited(response: Response): Promise<string | null> {
 	return buffer.toString('utf8');
 }
 
+async function readLimitedText(response: Response, limit: number): Promise<string | null> {
+	const declared = Number(response.headers.get('content-length') ?? 0);
+	if (declared > limit) return null;
+	const buffer = Buffer.from(await response.arrayBuffer());
+	if (buffer.length > limit) return null;
+	return buffer.toString('utf8');
+}
+
+type Outcome<T> = { ok: true; value: T } | { ok: false; reason: string };
+
+async function getHtml(rawUrl: string, limit: number): Promise<Outcome<{ body: string; contentType: string }>> {
+	let url: URL;
+	try {
+		url = new URL(rawUrl);
+	} catch {
+		return { ok: false, reason: 'nieprawidłowy adres' };
+	}
+	if (url.protocol !== 'https:') return { ok: false, reason: 'dozwolony tylko https' };
+	const rules = await loadRules(url);
+	if (!isAllowedByRobots(rules, url)) return { ok: false, reason: 'robots.txt zabrania' };
+	let response: Response;
+	try {
+		response = await politeFetch(rawUrl, rules.crawlDelayMs);
+	} catch (error) {
+		return { ok: false, reason: `błąd sieci: ${error instanceof Error ? error.message : 'nieznany'}` };
+	}
+	if (!response.ok) return { ok: false, reason: `HTTP ${response.status}` };
+	const finalUrl = new URL(response.url || rawUrl);
+	if (finalUrl.hostname !== url.hostname) return { ok: false, reason: `przekierowanie na inną domenę (${finalUrl.hostname})` };
+	let body: string | null;
+	try {
+		body = await readLimitedText(response, limit);
+	} catch (error) {
+		return { ok: false, reason: `błąd odczytu: ${error instanceof Error ? error.message : 'nieznany'}` };
+	}
+	if (body === null) return { ok: false, reason: 'dokument większy niż limit' };
+	return { ok: true, value: { body, contentType: response.headers.get('content-type') ?? '' } };
+}
+
+async function fetchPage(rawUrl: string, excerptChars: number | undefined): Promise<Outcome<FetchedPage>> {
+	const result = await getHtml(rawUrl, MAX_BYTES);
+	if (!result.ok) return result;
+	const { body, contentType } = result.value;
+	const isHtml = contentType.includes('html');
+	const fullText = isHtml ? htmlToText(body) : body;
+	if (fullText.length < MIN_TEXT_CHARS) return { ok: false, reason: 'zbyt mało tekstu (strona dynamiczna lub zablokowana)' };
+	const text = excerptChars ? excerptText(fullText, excerptChars) : fullText;
+	const publishedAt = isHtml ? extractPublishedDate(body) : null;
+	const heading = isHtml ? extractHeading(body) : null;
+	const rawTitle = isHtml ? extractTitle(body) : null;
+	return {
+		ok: true,
+		value: {
+			text,
+			meta: { title: (rawTitle ? cleanTitle(rawTitle) : null) || heading, publishedAt },
+			validUntil: extractValidUntil(fullText, publishedAt),
+		},
+	};
+}
+
+async function discoverDocuments(source: CatalogSource, skipped: string[]): Promise<CatalogDocument[]> {
+	const discovery = source.discovery;
+	if (!discovery) return [];
+	const known = new Set(source.documents.map((doc) => doc.url));
+	const found: string[] = [];
+	for (const seed of discovery.seeds) {
+		for (let page = 1; page <= (seed.pages ?? 1); page += 1) {
+			const listingUrl = pageUrl(seed.url, page);
+			const listing = await getHtml(listingUrl, MAX_LISTING_BYTES);
+			if (!listing.ok) {
+				skipped.push(`${source.id} lista ${listingUrl}: ${listing.reason}`);
+				break;
+			}
+			const links = extractLinks(listing.value.body, seed.link, listingUrl);
+			if (links.length === 0) break;
+			for (const link of links) if (!known.has(link) && !found.includes(link)) found.push(link);
+		}
+	}
+	return found.slice(0, discovery.maxNew).map((url) => ({
+		id: documentIdFor(source.id, url),
+		title: url,
+		url,
+		publishedAt: null,
+		file: `data/raw/${documentIdFor(source.id, url)}.txt`,
+	}));
+}
+
+async function processSource(
+	source: CatalogSource,
+	rootDir: string,
+	fetched: Record<string, string>,
+	meta: Record<string, PageMeta>,
+	skipped: string[],
+): Promise<{ saved: number }> {
+	const existingIds = new Set(source.documents.map((doc) => doc.id));
+	const fresh = await discoverDocuments(source, skipped);
+	const kept: CatalogDocument[] = [];
+	let saved = 0;
+	for (const doc of [...source.documents, ...fresh]) {
+		const isNew = !existingIds.has(doc.id);
+		const filePath = resolve(rootDir, doc.file);
+		const result = await fetchPage(doc.url, source.discovery?.excerptChars);
+		if (!result.ok) {
+			skipped.push(`${doc.id} (${doc.url}): ${result.reason}`);
+			if (!isNew && existsSync(filePath)) kept.push(doc);
+			continue;
+		}
+		const { text, meta: pageMeta, validUntil } = result.value;
+		mkdirSync(dirname(filePath), { recursive: true });
+		writeFileSync(filePath, `${text}\n`);
+		fetched[doc.id] = new Date().toISOString();
+		meta[doc.id] = pageMeta;
+		if (/-[0-9a-f]{8}$/.test(doc.id) && pageMeta.title) doc.title = pageMeta.title;
+		doc.publishedAt = pageMeta.publishedAt ?? doc.publishedAt;
+		doc.validUntil = validUntil ?? doc.validUntil ?? null;
+		kept.push(doc);
+		saved += 1;
+	}
+	source.documents = kept;
+	return { saved };
+}
+
 async function main(): Promise<void> {
+	const startedAt = Date.now();
 	const rootDir = process.cwd();
-	const catalog = loadCatalog(resolve(rootDir, readArg('--catalog', 'data/sources.json')));
+	const catalogPath = resolve(rootDir, readArg('--catalog', 'data/sources.json'));
+	const onlyArg = readArg('--only', '');
+	const only = onlyArg ? new Set(onlyArg.split(',')) : null;
+	const catalog = loadCatalog(catalogPath);
 	const fetchedPath = resolve(rootDir, FETCHED_FILE);
 	const fetched: Record<string, string> = existsSync(fetchedPath) ? JSON.parse(readFileSync(fetchedPath, 'utf8')) : {};
 	const metaPath = resolve(rootDir, META_FILE);
 	const meta: Record<string, PageMeta> = existsSync(metaPath) ? JSON.parse(readFileSync(metaPath, 'utf8')) : {};
 	const skipped: string[] = [];
-	let saved = 0;
 
-	for (const source of catalog.sources) {
-		for (const doc of source.documents) {
-			const reason = await fetchOne(doc.url, resolve(rootDir, doc.file), doc.id, fetched, meta);
-			if (reason) skipped.push(`${doc.id} (${doc.url}): ${reason}`);
-			else saved += 1;
-		}
-	}
+	const results = await Promise.all(
+		catalog.sources.map((source) => (only && !only.has(source.id) ? Promise.resolve({ saved: 0 }) : processSource(source, rootDir, fetched, meta, skipped))),
+	);
+	const saved = results.reduce((sum, result) => sum + result.saved, 0);
 
 	mkdirSync(dirname(fetchedPath), { recursive: true });
 	writeFileSync(fetchedPath, `${JSON.stringify(fetched, null, 2)}\n`);
 	writeFileSync(metaPath, `${JSON.stringify(meta, null, 2)}\n`);
-	console.log(`saved=${saved} skipped=${skipped.length}`);
+	writeFileSync(resolve(rootDir, SKIPPED_FILE), `${JSON.stringify(skipped, null, 2)}\n`);
+	writeFileSync(catalogPath, `${JSON.stringify(catalog, null, 2)}\n`);
+	const total = catalog.sources.reduce((sum, source) => sum + source.documents.length, 0);
+	console.log(`saved=${saved} skipped=${skipped.length} documents=${total} seconds=${Math.round((Date.now() - startedAt) / 1000)}`);
 	for (const line of skipped) console.log(`POMINIĘTO ${line}`);
-}
-
-async function fetchOne(rawUrl: string, filePath: string, id: string, fetched: Record<string, string>, meta: Record<string, PageMeta>): Promise<string | null> {
-	const url = new URL(rawUrl);
-	const rules = await loadRules(url);
-	if (!isAllowed(rules, url)) return 'robots.txt zabrania';
-	let response: Response;
-	try {
-		response = await politeFetch(rawUrl, rules.crawlDelayMs);
-	} catch (error) {
-		return `błąd sieci: ${error instanceof Error ? error.message : 'nieznany'}`;
-	}
-	if (!response.ok) return `HTTP ${response.status}`;
-	const body = await readLimited(response);
-	if (body === null) return 'dokument większy niż 1 MB';
-	const contentType = response.headers.get('content-type') ?? '';
-	const text = contentType.includes('html') ? htmlToText(body) : body;
-	if (text.length < MIN_TEXT_CHARS) return 'zbyt mało tekstu (strona dynamiczna lub zablokowana)';
-	mkdirSync(dirname(filePath), { recursive: true });
-	writeFileSync(filePath, `${text}\n`);
-	fetched[id] = new Date().toISOString();
-	if (contentType.includes('html')) meta[id] = { title: extractTitle(body), publishedAt: extractPublishedDate(body) };
-	return null;
 }
 
 main().catch((error) => {

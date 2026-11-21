@@ -1,0 +1,29 @@
+⚠️ Komunikat dla klientów biznesowych? Zachowaj ostrożność
+
+Obserwujemy nowe schematy próby wyłudzenia danych logowania do bankowości elektronicznej.
+
+📧 Cyberprzestępcy rozsyłają wiadomości podszywające się pod komunikację kierowaną do klientów biznesowych. W zależności od wariantu kampanii, e-mail może dotyczyć np. nowych zasad autoryzacji przelewów lub zmian w obsłudze rachunków walutowych.
+
+🔗 Wiadomości zawierają odnośniki prowadzące do strony, której celem jest pozyskanie danych logowania do bankowości internetowej.
+
+🔐 Wprowadzone informacje mogą zostać przejęte przez cyberprzestępców i wykorzystane do uzyskania dostępu do konta bankowego.
+
+Przypominamy:
+
+• Korzystaj z bankowości elektroniczej samodzielnie wyszukując oficjalną stronę banku lub korzystając z aplikacji mobilnej.
+
+• Zachowaj ostrożność wobec wiadomości wywołujących presję czasu lub grożących ograniczeniem dostępu do konta.
+
+🛡️ Cyberprzestępcy modyfikują treści rozsyłanych wiadomości. Niezależnie od pretekstu, celem pozostaje przejęcie danych logowania do bankowości elektronicznej.
+
+📣 Jeśli otrzymasz podobną wiadomość zgłoś ją do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel 📲
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd złośliwej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska

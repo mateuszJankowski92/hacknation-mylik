@@ -1,0 +1,27 @@
+📩 „Ostatnie przypomnienie” zanim konto zostanie zablokowane. Chroń dane logowania do banku!
+
+Obserwujemy kampanię phishingową wymierzoną w klientów Alior Banku.
+
+📧 W przesłanej wiadomości oszuści powołując się na regulacje prawne informują o konieczności pilnego potwierdzenia danych. Sugerują, że brak reakcji może skutkować koniecznością wizyty w placówce.
+
+👉 Przycisk prowadzi do strony phishingowej, której celem jest pozyskanie danych logowania do bankowości internetowej.
+
+🔎 Jak rozpoznać próbę wyłudzenia?
+
+Sprawdź adres nadawcy i domenę strony, a informacje o ewentualnej blokadzie zweryfikuj bezpośrednio w banku. Skorzystaj z oficjalnej aplikacji lub danych kontaktowych podanych na samodzielnie wyszukanej stronie internetowej.
+
+🛡️ Podejrzane strony i e-maile można zgłosić do CERT Polska na stronie incydent.cert.pl lub przez usługę „Bezpiecznie w sieci” w aplikacji mObywatel. Podejrzane SMS-y można przesłać na numer 8080.
+
+Wygląd złośliwej strony internetowej
+
+Treść wysłanej przez oszustów wiadomości e-mail
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

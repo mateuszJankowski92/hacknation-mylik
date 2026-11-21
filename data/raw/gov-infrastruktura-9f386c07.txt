@@ -1,0 +1,13 @@
+Wykorzystanie kamer na przejazdach kolejowo-drogowych w systemie CANARD
+
+15.10.2026
+
+Wiceminister infrastruktury Stanisław Bukowiec uczestniczył w roboczym spotkaniu zespołu PKP Polskich Linii Kolejowych i Centrum Automatycznego Nadzoru nad Ruchem Drogowym (CANARD), podczas którego omówiono możliwości likwidacji przeszkód technologicznych w wykorzystaniu kamer kolejowych do automatycznego wykrywania wykroczeń na przejazdach kolejowo-drogowych.
+
+Podczas briefingu zapowiedziano kontynuację prac nad wykorzystaniem istniejącej infrastruktury kamer PKP PLK w systemie CANARD do automatycznego wykrywania przypadków wjazdu pojazdów na przejazd kolejowo-drogowy przy włączonym czerwonym świetle. Obecnie kamery PKP PLK służą do nadzoru nad przejazdami, ale nie rejestrują automatycznie naruszeń przepisów ruchu drogowego.
+
+Zespół ekspertów PKP PLK i CANARD przeanalizuje m.in. jakość obrazu i kąty widzenia kamer w różnych warunkach oświetleniowych i atmosferycznych, ich kompatybilność techniczną z systemem CANARD, w tym możliwość przesyłania, przechowywania i archiwizowania nagrań, a także możliwość integracji obrazu z oprogramowaniem służącym do analizy zdarzeń.
+
+Zgodnie z założeniami pilotażu zarejestrowany materiał musi umożliwiać jednoznaczną identyfikację pojazdu i kierującego oraz odtworzenie przebiegu zdarzenia, tak aby mógł zostać wykorzystany w postępowaniach prowadzonych wobec kierowców naruszających przepisy.
+
+Obok wykorzystania kamer PKP PLK w systemie CANARD, które pozwoli skuteczniej wykrywać niebezpieczne zachowania na przejazdach kolejowo-drogowych, istotnym krokiem w kierunku poprawy bezpieczeństwa są także zmiany przepisów. Ustawa uchwalona ostatnio przez Parlament przewiduje m.in. zatrzymanie prawa jazdy na 3 miesiące za najgroźniejsze wykroczenia, takie jak wjazd na przejazd na czerwonym świetle czy omijanie opuszczonych zapór. Celem obu działań jest ograniczenie niebezpiecznych zachowań oraz ochrona życia i zdrowia uczestników ruchu drogowego i kolejowego.

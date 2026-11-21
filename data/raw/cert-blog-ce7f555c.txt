@@ -1,0 +1,7 @@
+14 września 2026 roku trafiliśmy na dwie reklamy na Facebooku, które ostrzegały polskich użytkowników, że ich aplikacja do obsługi plików PDF straciła ważność. Obie prowadziły jednak do Messenger Pro w Google Play, czyli niezwiązanego z plikami PDF komunikatora. Po instalacji aplikacja uruchamiała czterowarstwowy łańcuch prowadzący do modułu realizującego toll fraud.
+
+Dalsza analiza ujawniła znacznie większą operację. Zabezpieczyliśmy 1235 reklam Meta wyświetlanych pod 74 zidentyfikowanymi nazwami profili. Z tej grupy 852 reklamy, publikowane pod 60 nazwami, promowały 17 aplikacji z Google Play powiązanych wspólnym kodem lub infrastrukturą.
+
+Potwierdzone aplikacje maskowały się zarówno jako komunikatory, jak i narzędzia użytkowe. Reguły wyboru kraju mogły kierować polskie urządzenia do różnych wariantów kodu. Dla polskiego kodu kraju sieci komórkowej (MCC) 260 aplikacja Messenger Pro wybierała domyślny payload realizujący toll fraud. W przypadku później przeanalizowanej aplikacji Phone Cleaner Master reguły zawierały natomiast wartość PL260 , która kierowała polskie urządzenia do gałęzi z payloadem AqMu .
+
+Głównym punktem odniesienia w analizie technicznej jest Messenger Pro . Aplikacja rzeczywiście działała jako komunikator, mogła więc wiarygodnie prosić o ustawienie jej jako domyślnej aplikacji do obsługi wiadomości SMS. Jednocześnie bazowy plik APK odtwarzał zaszyfrowany plik DEX.

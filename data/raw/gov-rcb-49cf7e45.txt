@@ -1,0 +1,47 @@
+Rusza VIII Seminarium Cyberbezpieczeństwa. Od regulacji do odporności
+
+16.11.2026
+
+Dziś (16 listopada) w Kancelarii Prezesa Rady Ministrów w Warszawie rozpoczyna się VIII Seminarium Cyberbezpieczeństwa pod hasłem „Cyberbezpieczeństwo w praktyce. Od regulacji do odporności”. Dwudniowe wydarzenie poświęcone jest aktualnym zagrożeniom w cyberprzestrzeni, bezpieczeństwu infrastruktury krytycznej oraz praktycznym wyzwaniom związanym z wdrażaniem przepisów o krajowym systemie cyberbezpieczeństwa. W seminarium weźmie udział około 300 przedstawicieli administracji publicznej i operatorów infrastruktury krytycznej.
+
+Seminarium organizowane przez Rządowe Centrum Bezpieczeństwa odbędzie się w dniach 16-17 listopada w Sali Kolumnowej im. Anny Walentynowicz w Kancelarii Prezesa Rady Ministrów. Wydarzenie stanowi przestrzeń do wymiany doświadczeń, prezentacji dobrych praktyk oraz dyskusji o rozwiązaniach wzmacniających cyberbezpieczeństwo i odporność państwa.
+
+W spotkaniu uczestniczyć będą eksperci odpowiedzialni za bezpieczeństwo systemów informatycznych (IT) i technologii operacyjnych (OT), w tym przedstawiciele podmiotów kluczowych, ważnych oraz operatorów infrastruktury krytycznej.
+
+Pierwszy dzień - cyberbezpieczeństwo w praktyce
+
+Seminarium otworzy dyrektor Rządowego Centrum Bezpieczeństwa Zbigniew Muszyński.
+
+Pierwszy dzień wydarzenia zostanie poświęcony warsztatom „Zobaczyć niewidoczne - jak technologie NDR domykają martwe pola narzędzi Security”.
+
+Uczestnicy, podzieleni na 12 grup roboczych, będą pracować na praktycznych scenariuszach cyberataków. Poznają możliwości technologii NDR (Network Detection and Response) w wykrywaniu zagrożeń, których identyfikacja może być utrudniona przy wykorzystaniu tradycyjnych narzędzi bezpieczeństwa.
+
+Program obejmuje m.in. analizę ograniczeń systemów EDR, Firewall i SIEM, rozpoznawanie zagrożeń w sieciach komputerowych oraz scenariusze ataków na środowiska Active Directory. Osobna część warsztatów będzie dotyczyć wykorzystania sztucznej inteligencji w działaniach cyberprzestępczych.
+
+Praktyczna formuła zajęć pozwoli uczestnikom nie tylko poszerzyć wiedzę, ale również przeanalizować rzeczywiste mechanizmy ataków i sposoby ich wykrywania.
+
+Drugi dzień - regulacje, zagrożenia i doświadczenia ekspertów
+
+17 listopada odbędzie się część konferencyjna seminarium. W jej uroczystym otwarciu zaplanowano udział wicepremiera, ministra cyfryzacji i pełnomocnika rządu ds. cyberbezpieczeństwa Krzysztofa Gawkowskiego oraz dyrektora RCB Zbigniewa Muszyńskiego.
+
+W programie przewidziano wystąpienia przedstawicieli Ministerstwa Cyfryzacji, Agencji Bezpieczeństwa Wewnętrznego oraz NASK - Państwowego Instytutu Badawczego.
+
+Eksperci przedstawią najważniejsze zagadnienia dotyczące nowelizacji ustawy o krajowym systemie cyberbezpieczeństwa (KSC 2.0), aktualnego krajobrazu cyberzagrożeń oraz zasad zgłaszania incydentów w systemie S46.
+
+Dwie debaty o wyzwaniach cyberbezpieczeństwa
+
+Ważnym elementem drugiego dnia seminarium będą dwie debaty eksperckie.
+
+Pierwsza, zatytułowana „Najczęstsze błędy przy wdrażaniu ustawy o KSC”, zostanie poświęcona praktycznym trudnościom związanym z dostosowaniem organizacji do nowych wymagań prawnych.
+
+Druga debata - „Zagrożenia technologiczne podczas wdrażania ustawy o KSC” - skoncentruje się na wyzwaniach technicznych, z którymi mierzą się podmioty odpowiedzialne za bezpieczeństwo systemów i infrastruktury.
+
+Dyskusje umożliwią wymianę doświadczeń między administracją publiczną, ekspertami i operatorami infrastruktury krytycznej, a także omówienie rozwiązań, które mogą pomóc w skuteczniejszym przeciwdziałaniu cyberzagrożeniom.
+
+Współpraca na rzecz odporności
+
+VIII Seminarium Cyberbezpieczeństwa wpisuje się w działania przewidziane w Strategii Cyberbezpieczeństwa Rzeczypospolitej Polskiej na lata 2025-2029.
+
+Wydarzenie ma na celu wzmacnianie współpracy między podmiotami odpowiedzialnymi za cyberbezpieczeństwo, rozwijanie kompetencji specjalistów oraz upowszechnianie praktycznych rozwiązań służących ochronie infrastruktury krytycznej.
+
+W obliczu rosnącej liczby i złożoności cyberzagrożeń szczególnego znaczenia nabiera nie tylko wdrażanie odpowiednich regulacji, ale przede wszystkim zdolność organizacji do wykrywania incydentów, reagowania na nie i zachowania ciągłości działania.

@@ -1,0 +1,13 @@
+Kolejne ułatwienia w rejestracji pojazdów
+
+10.11.2026
+
+Rada Ministrów przyjęła przedłożony przez Ministra Infrastruktury projekt ustawy o zmianie ustawy o systemach homologacji pojazdów oraz ich wyposażenia oraz ustawy - Prawo o ruchu drogowym.
+
+Celem nowelizacji jest stworzenie krajowej infrastruktury umożliwiającej wymianę danych w ramach elektronicznych świadectw zgodności (eCoC) wystawianych przez producentów dla nowych pojazdów kategorii M (samochody osobowe, autobusy i samochody specjalne), N (samochody ciężarowe, ciągniki samochodowe, samochody specjalne) i O (przyczepy/naczepy) - na potrzeby ich rejestracji.
+
+MI we współpracy z MC zaproponowało utworzenie krajowego punktu dostępu, funkcjonującego przy Centralnej Ewidencji Pojazdów (CEP), który będzie służył do wymiany danych dotyczących eCoC między Polską, a pozostałymi państwami członkowskimi UE za pośrednictwem transeuropejskiej sieci wymiany danych EUCARIS.
+
+Nowelizacja przewiduje, że organy rejestrujące będą wykorzystywały dokumenty dostępne w CEP, bez konieczności przedkładania przez obywatela papierowych świadectw zgodności. Rozwiązanie to ograniczy obieg dokumentów papierowych oraz usprawni proces rejestracji pojazdów, ułatwi też funkcjonowanie producentom pojazdów oraz pozwoli władzy homologacyjnej na wyrywkowe kontrolowanie prawidłowości eCOC.
+
+Nowe przepisy wejdą w życie po upływie 14 dni od dnia ogłoszenia w Dzienniku Ustaw, z tym, że niektóre rozwiązania będą stosowane po okresach dostosowawczych wynoszących odpowiednio 8 i 12 miesięcy, co wynika z konieczności przygotowania rozwiązań teleinformatycznych w CEP. Takim rozwiązaniem będzie na przykład możliwość składania drogą elektroniczną również oświadczeń o krajowych danych wymaganych do rejestracji pojazdu.

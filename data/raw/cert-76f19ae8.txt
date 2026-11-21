@@ -1,0 +1,17 @@
+Przejęte klucze Updraft Central Cloud wykorzystywane do ataków na strony WordPress
+
+Zespół CERT Polska informuje o incydencie bezpieczeństwa w usłudze UpdraftCentral.
+
+Wyciekły klucze dostępu wykorzystywane do zdalnego zarządzania stronami WordPress z zainstalowaną wtyczką UpdraftPlus. Przejęte klucze są wykorzystywane do przeprowadzania ataków , które polegają na nieautoryzowanej instalacji szkodliwych pluginów oraz tworzeniu kont użytkowników.
+
+Rekomendujemy niezwłoczną aktualizację wtyczki do wersji 1.26.13 (wersja bezpłatna) lub 2.26.13 (Premium), która unieważnia ujawnione klucze. Samo usunięcie strony z panelu UpdraftCentral nie jest wystarczające.
+
+Zalecamy weryfikację systemów pod kątem śladów ataku:
+
+nieznane konta użytkowników (np. nazwa Site Tools , loginy typu media.ops12 , page_ops41 , content.desk38 , adresy e-mail w domenie example.com lub konta edytora z uprawnieniem manage_options ),
+
+zainstalowane nieznane wtyczki - zalecamy weryfikację z poziomu systemu plików, ponieważ część wtyczek może nie być widoczna w panelu administratora (mu-plugins). Można do tego celu wykorzystać poniższą komendę: grep -rl "Small maintenance toolkit: keeps option storage tidy\." /var/www/*/wp-content/plugins/
+
+zapytania z adresów 43.250.53.42 lub 2a09:bac5:4e21:2e3c::49b:9 ,
+
+wpisy w logach UpdraftPlus zawierające frazę Command received: plugin.upload_plugin oraz zapytania w logach serwera WWW, w których User-Agent zawiera frazę class-udrpc.php ,

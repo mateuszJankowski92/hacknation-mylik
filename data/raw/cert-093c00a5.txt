@@ -1,0 +1,27 @@
+„Akta dochodzenia karnego”? To może być próba oszustwa!
+
+🔎 Cyberprzestępcy rozsyłają e-maile podszywające się pod Policję i Europol.
+
+W wiadomościach informują o rzekomym postępowaniu karnym prowadzonym przeciwko odbiorcy, dołączają sfabrykowane dokumenty oraz stosują specjalistyczne słownictwo mające uwiarygodnić przekaz.
+
+🎯 Celem oszustów jest wywołanie poczucia zagrożenia oraz skłonienie odbiorcy do nawiązania kontaktu. W kolejnych etapach mogą próbować wyłudzić dane osobowe, pieniądze lub nakłonić do instalacji złośliwego oprogramowania umożliwiającego zdalny dostęp do komputera ofiary.
+
+🛡️ Jak ograniczyć ryzyko?
+
+🔹 Nie działaj pod wpływem presji. Zachowaj ostrożność wobec wiadomości zawierających informacje o zarzutach karnych, nakazach aresztowania lub rzekomym udziale w postępowaniach.
+
+🔹 Sprawdź adres nadawcy. Wiadomości wysyłane z domen, które nie są powiązane z daną instytucją, powinny wzbudzić Twoją czujność.
+
+🔹 Nie otwieraj załączników ani nie stosuj się do instrukcji zawartych w wiadomościach, których autentyczność budzi wątpliwości.
+
+🔹 Zanim zareagujesz, skontaktuj się bezpośrednio z instytucją, która rzekomo wysłała wiadomość, korzystając z oficjalnych danych kontaktowych.
+
+📢 Podejrzane wiadomości e-mail zgłaszaj do CERT Polska. Dzięki temu możemy szybciej identyfikować i blokować nowe kampanie oszustw.
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Treść dokumentu w załączniku
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.

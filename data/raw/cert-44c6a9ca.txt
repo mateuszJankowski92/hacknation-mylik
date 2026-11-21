@@ -1,0 +1,21 @@
+Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu - php2shell
+
+Zespół CERT Polska ostrzega przed dwiema krytycznymi podatnościami w oprogramowaniu PHP, oznaczonymi identyfikatorami CVE-2026-109618 oraz CVE-2026-109619.
+
+Luki pozwalają atakującemu na zdalne wykonanie dowolnych poleceń systemowych poprzez błędy w mechanizmie zarządzania pamięcią.
+
+Podatne są wszystkie wersje PHP od 5.4 w górę. Przypominamy, że język programowania PHP jest wykorzystywany również przez wiele rodzajów popularnego oprogramowania, np. WordPress, Joomla czy WooCommerce. Oznacza to, że systemy wykorzystujące to oprogramowanie również są podatne.
+
+Jedyną skuteczną metodą ochrony przed wykorzystaniem podatności jest instalacja poprawnionej wersji PHP. Do tego czasu, aby zminimalizować ryzyko padnięcia ofiarą skutecznego ataku w pierwszej fali masowych prób wykorzystania podatności należy ustawić następujące wartości parametrów PHP w php.ini:
+
+memory_limit na -1, jeżeli pozwalają na to zasoby, a w przeciwnym wypadku 128M lub więcej,
+
+post_max_size : 8M lub mniej,
+
+max_input_vars : 1000 lub mniej,
+
+session.upload_progress.enabled na Off.
+
+Podkreślamy, że ustawienie tych opcji nie wyklucza możliwości wykorzystania podatności. W pełni zabezpiecza jedynie aktualizacja PHP do bezpiecznej wersji.
+
+Oficjalne rekomendacje autorów PHP można znaleźć na stronie: https://www.php.net/archive/2026.php#2026-10-21-5 .

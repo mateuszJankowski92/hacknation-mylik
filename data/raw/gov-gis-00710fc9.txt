@@ -1,0 +1,49 @@
+Komunikat nr 6 z dnia 03.11.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA)
+
+03.11.2026
+
+W ramach międzynarodowego nadzoru epidemiologicznego 17.05.2026 r. GIS pozyskał informacje o ognisku choroby Ebola wywołanej wirusem Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) i Ugandzie. W dniu 28.07.2026 r. Minister Zdrowia Ugandy ogłosił zakończenie epidemii w tym kraju. Natomiast w DRK sytuacja pozostaje dynamiczna, a liczba przypadków codziennie wzrasta. Odnotowywane są też w Europie sporadyczne przypadki importowane m.in. wśród pracowników medycznych.
+
+Bieżąca sytuacja epidemiologiczna w DRK
+
+Do chwili obecnej (stan na 1.11.2026 r.) w DRK zaraportowano 10 467 przypadków potwierdzanych, w tym 5103 przypadków śmiertelnych. Odsetek kontaktów objętych nadzorem wynosi obecnie 86,6%.
+
+Najwięcej przypadków potwierdzonych - 7412 oraz śmiertelnych - 3483 wciąż jest zgłaszanych z prowincji Ituri, którą uznaje się za epicentrum ogniska, gdzie zachorowania stwierdzane są w 28 strefach zdrowia (Health Zones). Zachorowania zidentyfikowano także w 7 innych prowincjach: Kiwu Północe (obejmujące 17 stref zdrowia), Kiwu Południowe (1 strefa zdrowia), Górne Uele (7 stref zdrowia), Dolne Uele (4 strefy zdrowia), Tshopo (7 stref zdrowia), jak też Ubangi Południowe (1 strefa zdrowia) i Ubangi Północne (1 strefa zdrowia). Dane liczbowe są na bieżąco weryfikowane i ujednolicane w miarę uzyskiwania wyników przeprowadzonych badań laboratoryjnych.
+
+Poniżej przedstawiono krzywą epidemiologiczną potwierdzonych przypadków gorączki krwotocznej Ebola (szczep Bundibugyo). Wykres przedstawia dzienną liczbę zachorowań według daty wystąpienia pierwszych objawów (symptom onset).
+
+Wykres. 1 Dzienna liczba zachorowań BVD
+
+Źródło: Institut National de Recherche Biomédicale (INRB), Epidemic Intelligence Dashboard (2026)
+
+Sytuacja epidemiologiczna w pozostałych krajach, przypadki importowane i ocena ryzyka
+
+29.09.2026 r. pozyskano informację o kolejnym importowanym przypadku zakażenia wirusem Bundibugyo w Europie (Holandia) dotyczącym lekarza udzielającego w DRK opieki pacjentom zakażonym wirusem Ebola [1] . To czwarty przypadek importowany do Europy związany z obecną epidemią w DRK. Wszystkie te przypadki dotyczyły działalności medycznej lub humanitarnej w dotkniętych epidemią regionach i zostały ewakuowane medycznie zgodnie z procedurami.
+
+Wcześniej 24 czerwca 2026 r. Ministerstwo Zdrowia Francji poinformowało również o potwierdzeniu pierwszego przypadku choroby Ebola u lekarza, który powrócił z misji humanitarnej w jednym z regionów Demokratycznej Republiki Konga (DRK) objętych trwającą epidemią.
+
+Przypadki importowane wśród personelu medycznego lub misji humanitarnych zaangażowanych w działania na obszarach dotkniętych epidemią nie są niczym zaskakującym i nie zmieniają oceny ryzyka Europejskiego Centrum ds. Zapobiegania i Kontroli Chorób (ECDC), które dla populacji ogólnej wciąż oceniane jest jako bardzo niskie. Podobnie jako niskie ocenia ryzyko Światowa Organizacja Zdrowia (WHO).
+
+06.10.2026 r. władze Kenii potwierdziły pierwszy importowany przypadek BVD, u osoby podróżującej przez DRK, która zmarła po powrocie do kraju. Według stanu na 26.10.2026 r. w Kenii odnotowano łącznie 9 przypadków zakażenia wirusem Ebola, w tym 2 zgony. Osiem kolejnych przypadków, zgłoszonych w okresie 14-20 października, dotyczyło osób z otoczenia pierwszego chorego (czterech członków rodziny lub krewnych) oraz pracowników ochrony zdrowia (czterech osób). Ostatni potwierdzony przypadek w tym ognisku odnotowano 20 października. Do 26 października 20 osób z kontaktu zakończyło 21-dniowy okres obserwacji, natomiast 98 pozostawało nadal pod nadzorem epidemiologicznym. Łącznie zidentyfikowano 135 kontaktów z osobami zakażonymi.
+
+Ponadto 20.10.2026 r. w Nigerii potwierdzono jeden przypadek zakażenia BVD u kobiety, która podróżowała z Ugandy do Nigerii. Objawy choroby wystąpiły u niej 7 października (po powrocie do Nigerii), a 11 października zgłosiła się po pomoc medyczną w Abudży. W dniu 26 października pacjentkę ewakuowano medycznie do Szwajcarii, gdzie jest leczona w Szpitalu Uniwersyteckim w Genewie. Jej mąż, uznany za osobę z bliskiego kontaktu, został objęty izolacją w Szpitalu Uniwersyteckim w Zurychu. Według danych z 29.10.2026 r. zidentyfikowano 62 osoby z kontaktu, które pozostają pod nadzorem epidemiologicznym. Trwa dochodzenie epidemiologiczne mające na celu ustalenie źródła zakażenia oraz odtworzenie historii podróży pacjentki.
+
+W Ugandzie 27 sierpnia 2026 r. Światowa Organizacja Zdrowia (WHO) oficjalnie ogłosiła zakończenie epidemii choroby Ebola wywołanej wirusem Bundibugyo, po upływie 42 kolejnych dni bez stwierdzenia nowych przypadków zakażenia. W trakcie epidemii odnotowano łącznie 20 potwierdzonych przypadków zachorowań, w tym 2 zgony. Pomimo zakończenia ogniska Uganda utrzymuje wzmożony nadzór epidemiologiczny, szczególnie na obszarach przygranicznych z Demokratyczną Republiką Konga.
+
+Niezmienione pozostaje stanowisko ECDC i WHO w kontekście niezamykania granic. Cały czas zaleca się wdrożenie kontroli wyjazdowej na międzynarodowych lotniskach, w portach morskich i na głównych przejściach granicznych na terenach dotkniętych epidemią. Nie jest natomiast wskazywane takie samo podejście do kontroli wjazdowych u osób powracających z obszarów dotkniętych ogniskiem, jeżeli kontrola przy wyjeździe została przeprowadzona prawidłowo, lecz podróżni powinni być zaznajomieni z aktualnymi wytycznymi.
+
+Główny Inspektor Sanitarny na bieżąco monitoruje sytuację epidemiologiczną, kierując się przy tym wytycznymi organizacji międzynarodowych (WHO, ECDC).
+
+Informacje o aktualnej sytuacji epidemiologicznej można znaleźć na stronie:
+
+ECDC: https://www.ecdc.europa.eu/en/public-health-events/2026-eip-00026/2026-10-30 ,
+
+WHO: https://www.who.int/emergencies/alert-and-response ,
+
+Africa CDC: https://khub.africacdc.org/records/resource/bundibugyo-virus-disease-outbreak-situational-report-september-29-2026
+
+Ministerstwo Zdrowia DRK https://sante.gouv.cd/epidemie/ebola-bundibugyo
+
+DRC Ebola Bundibugyo - Epidemic Intelligence Dashboard https://inrb-umie.github.io/BDBV2026-Epidemic_Dashboard/trends.html
+
+[1] Więcej: https://www.ecdc.europa.eu/en/news-events/risk-general-population-remains-very-low-following-fourth-imported-ebola-case- europe

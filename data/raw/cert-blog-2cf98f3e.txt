@@ -1,0 +1,7 @@
+Pobierz poradnik (PDF, 0.6MB)
+
+Cyber Resilience Act (CRA), czyli rozporządzenie Parlamentu Europejskiego i Rady (UE) 2024/2847, wprowadza jednolite w całej Unii Europejskiej wymagania dotyczące cyberbezpieczeństwa produktów z elementami cyfrowymi. Celem regulacji jest zwiększenie poziomu bezpieczeństwa produktów dostępnych na rynku UE oraz zapewnienie skutecznego reagowania na podatności i incydenty bezpieczeństwa. W praktyce przekłada się to na lepszą ochronę użytkowników – zarówno indywidualnych, jak i organizacji – przed zagrożeniami wynikającymi z podatności w oprogramowaniu i urządzeniach.
+
+Na podstawie przepisów ustawy o krajowym systemie cyberbezpieczeństwa (Dz. U. 2026 poz. 20 z późn. zm.) CERT Polska, wykonując zadania CSIRT NASK, pełni funkcję koordynatora na potrzeby skoordynowanego ujawniania podatności. W związku z tym zespół realizuje zadania związane ze zgłoszeniami wynikającymi z przepisów Cyber Resilience Act.
+
+CRA ma zastosowanie do produktów z elementami cyfrowymi wprowadzanych na rynek Unii Europejskiej. Zgodnie z definicją, „produkt z elementami cyfrowymi” oznacza oprogramowanie komputerowe lub sprzęt komputerowy oraz powiązane z nimi rozwiązania w zakresie zdalnego przetwarzania danych, w tym komponenty oprogramowania lub sprzętu, które są oddzielnie wprowadzane do obrotu.

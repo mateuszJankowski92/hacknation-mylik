@@ -1,0 +1,27 @@
+Fałszywy SMS o zwrocie paczki – to może być próba wyłudzenia danych
+
+📢 Obserwujemy kolejną kampanię wymierzoną w wizerunek firmy InPost. Oszuści wysyłają fałszywe SMS-y z informacją, że rzekoma paczka zbyt długo czekała w paczkomacie, a jej zwrot został uruchomiony.
+
+📩 Wiadomość sugeruje, że można jeszcze zatrzymać zwrot. W tym celu odbiorca powinien niezwłocznie przejść na stronę wskazaną w wiadomości i uzupełnić dane potrzebne do ponownego doręczenia, w tym informacje dotyczące karty płatniczej. Dane trafiają do oszustów.
+
+🔎 Jak chronić swoje dane?
+
+🔹 Status przesyłki sprawdzaj w oficjalnej aplikacji lub serwisie
+
+🔹 Weryfikuj adres strony i zwracaj uwagę na prośby o dane karty płatniczej
+
+🔹 Zamiast korzystać z linku w SMS-ie, samodzielnie wyszukaj stronę przewoźnika
+
+Podejrzane SMS-y przesyłaj na numer 8080. Twoje zgłoszenie pomaga chronić Ciebie i innych!
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

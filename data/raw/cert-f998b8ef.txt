@@ -1,0 +1,29 @@
+🚨 Uwaga na fałszywe SMS-y o mandatach! Oszuści podszywają się pod Policję
+
+CERT Polska ostrzega przed kolejną kampanią SMS-ową, w której oszuści podszywają się pod jednostki Policji, m.in. Wydziały Ruchu Drogowego i Komendy Wojewódzkie Policji.
+
+Odbiorcy są informowani o rzekomym wykroczeniu drogowym i konieczności pilnego uregulowania mandatu.
+
+🔗 Link zamieszczony w wiadomości przekierowuje na fałszywą stronę internetową, imitującą rządowy serwis w domenie gov.pl . Znajdujące się na stronie formularze wymagają podania danych prawa jazdy i karty płatniczej, które trafiają bezpośrednio do oszustów.
+
+⚠️ Jak nie dać się oszukać?
+
+🔹 Zwracaj uwagę na adres strony internetowej – nawet jeśli wygląda wiarygodnie, może prowadzić do fałszywego serwisu.
+
+🔹 Nie działaj pod presją czasu. Pilne wezwania do zapłaty i groźby dodatkowych konsekwencji to częsty sposób wywierania presji na odbiorcach.
+
+🔹 W razie wątpliwości weryfikuj otrzymane informacje bezpośrednio w oficjalnych kanałach komunikacji Policji lub innej właściwej instytucji.
+
+📲 Podejrzane wiadomości zgłaszaj do CERT Polska. Przekaż SMS na darmowy numer 8080.
+
+Treść fałszywej wiadomości SMS
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

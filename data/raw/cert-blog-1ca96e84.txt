@@ -1,0 +1,11 @@
+Wstęp
+
+3 września 2026 r. MikroTik opublikował niemal równocześnie poprawki dla kilku utrzymywanych gałęzi RouterOS: 7.25beta3, 7.24.2, 7.23.4 oraz 6.49.21. Producent określił wydanie jako ważną aktualizację bezpieczeństwa, ale tymczasowo nie ujawnił szczegółów podatności, aby dać administratorom czas na aktualizację urządzeń. Zalecił jednak możliwie szybką instalację poprawionej wersji.
+
+Część poprawek dotyczyła podatności odnalezionych przez Sławomira Rozbickiego z zespołu CERT Polska, zgłoszonych producentowi w ramach skoordynowanego ujawniania podatności (ang. coordinated vulnerability disclosure , CVD). Ich publikację planowaliśmy zsynchronizować z wydaniem aktualizacji, jednak nowe wersje ukazały się wcześniej, niż oczekiwaliśmy. Producent zdecydował się ponadto na wykorzystanie powiadomień push w aplikacji MikroTik, aby podkreślić konieczność podniesienia wersji.
+
+Pilny charakter komunikatu i brak konkretnych informacji o zagrożeniach wywołały falę spekulacji na oficjalnym forum MikroTika. Jednocześnie użytkownicy publikowali w komentarzach logi ze swoich urządzeń, które wskazywały, że ataki mogły rozpocząć się jeszcze przed udostępnieniem poprawek.
+
+Identyfikacja CVE-2026-86060
+
+Wraz z udostępnieniem nowych wersji RouterOS rozpoczęliśmy analizę różnicową, aby sprawdzić, czy nowe wersje usuwały zgłoszone przez nas podatności. W pakietach znaleźliśmy również zmiany w mechanizmach, których nie dotyczyły nasze zgłoszenia.

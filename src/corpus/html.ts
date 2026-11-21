@@ -67,10 +67,53 @@ export function extractPublishedDate(html: string): string | null {
 		/"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})/,
 		/<meta[^>]+property="article:published_time"[^>]+content="(\d{4}-\d{2}-\d{2})/i,
 		/<meta[^>]+content="(\d{4}-\d{2}-\d{2})[^"]*"[^>]+property="article:published_time"/i,
+		/<time\b[^>]+datetime="(\d{4}-\d{2}-\d{2})/i,
 	];
 	for (const pattern of patterns) {
 		const match = html.match(pattern);
 		if (match) return match[1];
 	}
+	const polish = html.match(/class="[^"]*(?:event-date|article-date|data-publikacji|publish-date)[^"]*"[^>]*>\s*(?:<[^>]+>\s*)*(\d{1,2})\.(\d{1,2})\.(\d{4})/i);
+	if (polish) return toIsoDate(Number(polish[3]), Number(polish[2]), Number(polish[1]));
+	const labelled = html.match(/Data publikacji:?\s*(?:<[^>]+>\s*)*(\d{1,2})\.(\d{1,2})\.(\d{4})/i);
+	if (labelled) return toIsoDate(Number(labelled[3]), Number(labelled[2]), Number(labelled[1]));
+	const dashed = html.match(/>\s*(\d{2})-(\d{2})-(20\d{2})\s*</);
+	if (dashed) return toIsoDate(Number(dashed[3]), Number(dashed[2]), Number(dashed[1]));
+	const spelled = html.match(/>\s*(\d{1,2})\s+(stycznia|lutego|marca|kwietnia|maja|czerwca|lipca|sierpnia|września|października|listopada|grudnia)\s+(20\d{2})\s*</i);
+	if (spelled) return toIsoDate(Number(spelled[3]), MONTHS_PL[spelled[2].toLowerCase()], Number(spelled[1]));
 	return null;
+}
+
+export function toIsoDate(year: number, month: number, day: number): string | null {
+	const date = new Date(Date.UTC(year, month - 1, day));
+	if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return null;
+	return date.toISOString().slice(0, 10);
+}
+
+const MONTHS_PL: Record<string, number> = {
+	stycznia: 1, lutego: 2, marca: 3, kwietnia: 4, maja: 5, czerwca: 6,
+	lipca: 7, sierpnia: 8, września: 9, października: 10, listopada: 11, grudnia: 12,
+};
+
+const VALIDITY_CUE = /(?:obowiązuj\w*|ważn\w*|aktualn\w*|do odwołania|w dniach|czasowo|zawiesz\w*|przywróc\w*)[^.\n]{0,80}?\bdo\s+(?:dnia\s+)?(\d{1,2})(?:\.(\d{1,2})\.(\d{4})|\s+([a-ząćęłńóśźż]+)\s+(\d{4}))/gi;
+
+export function extractValidUntil(text: string, publishedAt: string | null): string | null {
+	let latest: string | null = null;
+	for (const match of text.matchAll(VALIDITY_CUE)) {
+		const day = Number(match[1]);
+		const month = match[2] ? Number(match[2]) : MONTHS_PL[(match[4] ?? '').toLowerCase()];
+		const year = Number(match[3] ?? match[5]);
+		if (!month) continue;
+		const iso = toIsoDate(year, month, day);
+		if (!iso || (publishedAt && iso < publishedAt)) continue;
+		if (!latest || iso > latest) latest = iso;
+	}
+	return latest;
+}
+
+export function extractHeading(html: string): string | null {
+	const match = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+	if (!match) return null;
+	const text = decodeEntities(match[1].replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+	return text.length >= 3 ? text : null;
 }

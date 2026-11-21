@@ -1,0 +1,27 @@
+Wiadomość o zwrocie podatku? Uważaj na kradzież danych!
+
+🔎 Obserwujemy powrót kampanii phishingowej wykorzystującej wizerunek serwisu podatki.gov.pl. Oszuści piszą o rzekomym zwrocie podatku i zachęcają do kliknięcia w link prowadzący do fałszywej strony.
+
+🎯 Celem cyberprzestępców jest wyłudzenie danych osobowyych, w tym imienia, nazwiska i numeru PESEL, a także numerów telefonu i rachunku bankowego.
+
+💰 Następnie ofiara jest kierowana do kolejnego formularza, który służy do kradzieży danych uwierzytelniających do bankowości elektronicznej.
+
+🤔 Nie daj się oszukać! Zachowaj ostrożność wobec niespodziewanych wiadomości informujących o zwrocie podatku lub konieczności potwierdzenia danych w celu otrzymania środków.
+
+💬 W przypadku najmniejszych wątpliwości samodzielnie wejdź na stronę podatki.gov.pl lub skontaktuj się ze swoim urzędem skarbowym.
+
+💡 Wzbudzanie emocji i poczucia pilności to ulubiona metoda cyberprzestępców, żeby uśpić naszą czujność. Zachowaj spokój i zweryfikuj prawdziwość wiadomości, zanim podasz swoje dane!
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

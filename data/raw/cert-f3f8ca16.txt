@@ -1,0 +1,29 @@
+Krytyczna podatność w środowisku Java umożliwiająca zdalne wykonanie kodu - java4shell
+
+Zespół CERT Polska ostrzega przed krytyczną podatnością w środowisku uruchomieniowym Java (JVM), oznaczoną identyfikatorem CVE-2026-114938 i nazwaną przez jej znalazców java4shell.
+
+Luka pozwala nieuwierzytelnionemu atakującemu na zdalne wykonanie kodu w kontekście aplikacji działającej na podatnej wersji JVM poprzez błędy w obsłudze dekodowania base64. Podatność jest oceniona na 9.2 w skali CVSS 4.
+
+Podatne są środowiska OpenJDK w wersjach:
+
+w linii Java 17 do 17.0.21.0.3
+
+w linii Java 21 do 21.0.13.0.3
+
+w linii Java 25 do 25.0.5.0.3
+
+w linii Java 27 do 27.0.1.0.3
+
+Podatność również dotyczy środowisk zbudowanych na OpenJDK (w tym GraalVM).
+
+Podatność występuje wyłącznie na serwerach z procesorami x86-64 obsługującymi rozszerzenia AVX-512 VBMI i AVX-512 BW, czyli Intel Xeon Ice Lake i nowsze oraz AMD Zen 4 i nowsze.
+
+Standardowe wydania Java 8 i Java 11 nie zawierają podatnego kodu. Wyjątkiem jest Oracle Java SE 8 Enterprise Performance Pack ( 8u511b33-perf ), który Oracle wskazał jako podatny.
+
+Obecność wymaganych rozszerzeń procesora można sprawdzić na Linuksie poleceniem:
+
+grep -m1 '^flags' /proc/cpuinfo | tr ' ' '\n' | grep -E '^(avx512f|avx512bw|avx512vbmi|bmi2)$'
+
+Wynik musi zawierać wszystkie cztery wartości.
+
+Podatny kod może być osiągalny przed uwierzytelnieniem.

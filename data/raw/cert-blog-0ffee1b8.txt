@@ -1,0 +1,7 @@
+Zespół CERT Polska zidentyfikował oraz koordynował ujawnienie sześciu podatności w MikroTik RouterOS. Jeśli urządzenie wspiera zdalny dostęp przy użyciu protokołu SSH, to wykorzystanie dwóch z tych podatności umożliwia przejęcie pełnej kontroli nad urządzeniem bez uwierzytelniania . Nadaliśmy tej kombinacji podatności nazwę MikroTrick w celu ułatwienia jej identyfikacji.
+
+W ostatnich dniach obserwujemy ataki na RouterOS dostępne z internetu. Uzyskaliśmy potwierdzenie, że atakujący wykorzystują tę kombinację podatności do przejęcia pełnej kontroli nad urządzeniami, których usługa SSH jest dostępna z publicznych sieci. Potwierdzono również, że wydane poprawki uniemożliwiają przeprowadzanie obserwowanych ataków. Zalecamy pilne wykonanie aktualizacji.
+
+Opisane przez nas podatności obejmują serwer i klienta SSH, usługę bandwidth-test, obsługę certyfikatów X.509 oraz interfejs WebFig. MikroTik udostępnił poprawki w wydaniach 7.25beta3, 7.24.2, 7.23.4 oraz 6.49.21, o czym informuje w swoim biuletynie bezpieczeństwa . Wraz z tą aktualizacją MikroTik po raz pierwszy w historii wysłał powiadomienie push na telefony użytkowników, którzy mieli zainstalowaną aplikację MikroTik. Administratorzy powinni zaktualizować urządzenia możliwie szybko, a następnie sprawdzić konfigurację pod kątem nieznanych użytkowników, skryptów, zadań harmonogramu, serwerów proxy i tuneli.
+
+Zidentyfikowane podatności

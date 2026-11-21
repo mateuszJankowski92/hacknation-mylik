@@ -1,0 +1,23 @@
+📦 Uważaj na fałszywe wiadomości o przesyłkach!
+
+CERT Polska obserwuje kampanię SMS wykorzystującą wizerunek firmy InPost. Oszuści rozsyłają wiadomości informujące o rzekomych problemach z doręczeniem paczki.
+
+🚚 W komunikatach pojawiają się informacje o brakujących danych adresowych, konieczności potwierdzenia szczegółów przesyłki lub ustalenia nowego terminu dostawy. Wiadomości zawierają odnośniki do stron podszywających się pod serwis przewoźnika. Oszuści próbują w ten sposób wyłudzić dane osobowe oraz informacje o kartach płatniczych.
+
+🔎 Weryfikuj informacje dotyczące przesyłek. Status paczki sprawdzaj w oficjalnej aplikacji przewoźnika lub samodzielnie wyszukaj jego stronę internetową w przeglądarce.
+
+📩 Podejrzane wiadomości SMS zgłaszaj do CERT Polska na darmowy numer 8080.
+
+Treść fałszywej wiadomości SMS
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

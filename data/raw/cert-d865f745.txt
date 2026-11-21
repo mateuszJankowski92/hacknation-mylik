@@ -1,0 +1,29 @@
+Krytyczne podatności w produktach Fortinet
+
+Zespół CERT Polska informuje o opublikowaniu przez firmę Fortinet pakietu aktualizacji bezpieczeństwa, usuwającego m.in. krytyczne podatności.
+
+Poprawki dotyczą następujących produktów:
+
+FortiOS,
+
+FortiManager,
+
+FortiAnalyzer,
+
+FortiMail,
+
+FortiAuthenticator.
+
+Zalecamy niezwłoczną instalację aktualizacji, w pierwszej kolejności na urządzeniach dostępnych z Internetu. Instancje FortiSASE są aktualizowane automatycznie, natomiast w przypadku FortiManager Cloud może być wymagana ręczna aktualizacja.
+
+Jeśli natychmiastowa aktualizacja nie jest możliwa, do czasu instalacji poprawek zalecamy ograniczenie ryzyka poprzez:
+
+ograniczenie dostępu do interfejsów administracyjnych (HTTPS, SSH) wyłącznie do zaufanych adresów IP, a najlepiej zupełne ich wyłączenie na interfejsach zewnętrznych,
+
+upewnienie się, że panel administracyjny FortiManager nie jest dostępny z Internetu,
+
+wymuszenie MFA dla wszystkich kont administracyjnych.
+
+Stosowanie powyższych dobrych praktyk ogranicza ryzyko i podnosi ogólny poziom bezpieczeństwa systemów, jednak nie zastępuje ono konieczności niezwłocznej aktualizacji oprogramowania.
+
+Listy wersji produktów dotkniętych podatnościami oraz łatek je naprawiających znajdują się na stronie producenta: https://www.fortinet.com/blog/ciso-collective/fortinet-releases-security-hardening-release-for-multiple-products .

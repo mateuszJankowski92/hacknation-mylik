@@ -1,0 +1,29 @@
+Podatności w systemie Synology DSM wykorzystywane w atakach ransomware
+
+Zespół CERT Polska informuje o podatnościach w systemie Synology DiskStation Manager (DSM), które są wykorzystywane w atakach ransomware na urządzenia NAS Synology.
+
+Synology ostrzega przed atakami wymierzonymi w urządzenia działające pod kontrolą nieaktualnych wersji DSM. Według komunikatu producenta atakujący wykorzystują podatność CVE-2024-10441 (naprawioną w grudniu 2024 roku), która wynika z niewłaściwego kodowania w wybranych wtyczkach systemowych i umożliwia nieuwierzytelnionemu atakującemu zdalne wykonanie kodu. Celem ataków jest zaszyfrowanie danych oraz wymuszenie okupu za ich przywrócenie.
+
+W ostatnim czasie ujawnione zostały także dwie nowe krytyczne podatności systemu DSM:
+
+CVE-2026-13639 - wynikająca z błędów w logice logowania,
+
+CVE-2026-13684 - wynikająca z niewłaściwego kodowania w komponencie Simple Common Gateway Interface (SCGI).
+
+Obie podatności pozwalają nieuwierzytelnionym atakującym na zdalny odczyt lub zapis dowolnych plików oraz przeprowadzenie ataków typu denial-of-service.
+
+Rekomendujemy niezwłoczną aktualizację systemu DSM do jednej z poniższych wersji lub nowszej:
+
+7.1.1-42962-7
+
+7.2-64570-4
+
+7.2.1-69057-12
+
+7.2.2-72806-9
+
+7.3.2-86009-4
+
+7.4-90075
+
+Użytkownicy BSM powinni zaktualizować system do wersji 1.1-65374 lub nowszej. Synology zaleca ponadto włączenie automatycznych aktualizacji, aby system był na bieżąco uaktualniany.

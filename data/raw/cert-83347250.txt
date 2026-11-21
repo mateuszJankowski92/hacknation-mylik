@@ -1,0 +1,9 @@
+Utrata poufności kluczy urzędu certyfikacji eMudhra (emSign)
+
+Zespół CERT Polska informuje o utracie poufności kluczy prywatnych urzędu certyfikacji eMudhra (emSign).
+
+Klucze te służyły do wystawiania certyfikatów TLS oraz certyfikatów do podpisywania oprogramowania. Błąd w procesie generowania kluczy umożliwił ich odtworzenie na podstawie publicznie dostępnych certyfikatów.
+
+Atakujący mogą wykorzystać te klucze do wystawiania fałszywych certyfikatów dla dowolnych domen. W połączeniu z przechwyceniem lub przekierowaniem ruchu sieciowego pozwala to na kradzież i modyfikację danych, jeśli aplikacja zaakceptuje taki certyfikat. Atakujący mogą również podpisywać złośliwe oprogramowanie, co może pozwolić na obejście reguł blokujących programy bez zaufanego podpisu. Zagrożenie dotyczy także organizacji, które nie korzystają z usług eMudhra, ale których oprogramowanie ufa tym urzędom.
+
+Certyfikaty zostały unieważnione, a dostawcy głównych przeglądarek wdrożyli w swoich produktach blokady certyfikatów objętych incydentem. Bezpieczeństwo pozostałego oprogramowania zależy natomiast od sposobu przechowywania i aktualizacji magazynów zaufanych certyfikatów oraz weryfikacji statusu unieważnienia. Nadal zagrożone mogą być m.in. kontenery Docker, środowiska aplikacyjne, systemy wbudowane oraz komputery działające offline z nieaktualnymi magazynami zaufanych certyfikatów.

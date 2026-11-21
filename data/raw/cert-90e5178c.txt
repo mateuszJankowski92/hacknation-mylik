@@ -1,0 +1,21 @@
+Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu
+
+Zespół CERT Polska ostrzega przed dwiema krytycznymi podatnościami w oprogramowaniu PHP, które pozwalają na zdalne wykonanie kodu.
+
+Są one oznaczone identyfikatorami CVE-2026-109618 oraz CVE-2026-109619 . Podatne są wszystkie wersje PHP od 5.0 w górę. Przypominamy, że język programowania PHP jest wykorzystywany również przez popularne oprogramowanie, np. WordPress, Joomla czy PHPMyAdmin. Oznacza to, że systemy wykorzystujące to oprogramowanie również są podatne i bezwzględnie muszą zostać zaktualizowane po publikacji nowej wersji PHP.
+
+Rekomendowanym działaniem jest aktualizacja oprogramowania – poprawiona wersja PHP ma zostać wydana dzisiaj (tj. 21 października 2026) około godz. 16:00 czasu polskiego . Do tego czasu zalecamy:
+
+zinwentaryzowanie wszystkich usług korzystających z PHP oraz przygotowanie do natychmiastowego wdrożenia poprawki zaraz po jej udostępnieniu,
+
+tymczasowe wyłączenie usług wykorzystujących PHP dostępnych z Internetu, o ile nie zakłóci to działalności organizacji.
+
+W przypadku wykrycia śladów wykorzystania podatności prosimy o niezwłoczny kontakt z zespołem CERT Polska za pomocą formularza dostępnego na stronie incydent.cert.pl .
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

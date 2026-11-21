@@ -1,0 +1,43 @@
+Krytyczne podatności w serwerze nginx umożliwiające zdalne wykonanie kodu - nginx2root
+
+Zespół CERT Polska ostrzega przed pięcioma krytycznymi podatnościami w serwerze nginx, nazwanymi przez ich znalazców nginx2root.
+
+Najpoważniejsza z nich, CVE-2026-123007 , pozwala nieuwierzytelnionemu atakującemu na zdalne wykonanie poleceń na serwerze z włączonym protokołem HTTP/2 i w domyślnej konfiguracji - z uprawnieniami procesu workera nginx.
+
+Podatne są wszystkie oficjalne wydania nginx od 1.9.5 do 1.31.8 włącznie. Wykorzystanie podatności może nie pozostawiać śladów w logach.
+
+Poprawka dla wszystkich pięciu luk znalazła się w wydaniach 1.30.7 i 1.31.9.
+
+Podatności stanowią niezależne ścieżki ataku, różniące się wymaganą konfiguracją serwera:
+
+CVE-2026-123007
+
+Podatna konfiguracja: HTTP/2
+
+Pierwsza wersja podatna: 1.9.5
+
+CVE-2026-123634
+
+Podatna konfiguracja: jednoczesne użycie resolver , proxy_pass , mirror i mirror_request_body off
+
+Pierwsza wersja podatna: 1.13.4
+
+CVE-2026-123633
+
+Podatna konfiguracja: HTTP/2 + proxy do serwera upstream
+
+Pierwsza wersja podatna: 1.19.7
+
+CVE-2026-121810
+
+Podatna konfiguracja: HTTP/3 + proxy do serwera upstream
+
+Pierwsza wersja podatna: 1.25.0
+
+CVE-2026-113425
+
+Podatna konfiguracja: proxy poczty z proxy on i auth_http
+
+Pierwsza wersja podatna: 0.5.15
+
+W przypadku nginx z dystrybucji Linux sam numer wersji ( nginx -v ) może nie odzwierciedlać stanu instalacji - dystrybucje często aplikują poprawki do starszych wersji bez zmiany numeru (tzw.

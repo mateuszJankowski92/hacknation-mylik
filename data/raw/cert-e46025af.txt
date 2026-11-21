@@ -1,0 +1,27 @@
+🚨 Aktualizacja danych klienta? To może być próba wyłudzenia
+
+Otrzymujemy liczne zgłoszenia dotyczące kampanii, w której cyberprzestępcy podszywają się pod PKO Bank Polski.
+
+📧 W wiadomościach e-mail oszuści informują o rzekomej konieczności aktualizacji danych klienta oraz potwierdzenia tożsamości. Odbiorca jest ostrzegany, że brak działania może skutkować ograniczeniem dostępu do wybranych funkcji konta.
+
+🔗 Wiadomość zawiera odnośnik prowadzący do strony podszywającej się pod serwis iPKO. Wprowadzone tam informacje mogą zostać wykorzystane do przejęcia dostępu do konta bankowego lub kolejnych prób wyłudzenia danych.
+
+🔎 Jak się chronić?
+
+• Korzystaj z bankowości internetowej samodzielnie wyszukując oficjalną stronę banku lub korzystając z aplikacji mobilnej.
+
+• Zachowaj ostrożność wobec wiadomości wywołujących presję czasu lub grożących ograniczeniem dostępu do konta.
+
+📣 Jeśli otrzymasz podobną wiadomość zgłoś ją do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel 📲
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd złośliwej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

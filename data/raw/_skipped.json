@@ -1,0 +1,14 @@
+[
+  "eu-podroze (https://european-union.europa.eu/live-work-study/travelling-eu_pl): HTTP 429",
+  "policja-5e104251 (https://policja.pl/pol/aktualnosci/284017,Gala-finalowa-ogolnopolskiego-konkursu-plastyczno-filmowego-Letni-PrzeWodnik.html): błąd sieci: fetch failed",
+  "policja-mazowiecka-514c975a (https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141418,Ukrywal-sie-za-piecem-kaflowym-by-uniknac-wiezienia-41-latek-w-rekach-lipskich-k.html): błąd sieci: fetch failed",
+  "policja-a3e1eb84 (https://policja.pl/pol/aktualnosci/284003,Spowodowal-wypadek-nastepnie-uciekl-z-miejsca-zdarzenia-Kryminalni-zatrzymali-sp.html): błąd sieci: fetch failed",
+  "policja-4b536cb5 (https://policja.pl/pol/aktualnosci/283991,Dzieki-czujnosci-sasiadow-i-wspolnym-dzialaniom-sluzb-uratowane-zostalo-zycie-90.html): błąd sieci: fetch failed",
+  "policja-2fb528e3 (https://policja.pl/pol/aktualnosci/283987,23-latek-pobil-ojca-i-grozil-rodzinie-oraz-policjantom-podczas-transmisji-w-Inte.html): błąd sieci: fetch failed",
+  "policja-6c19c091 (https://policja.pl/pol/aktualnosci/283984,Podszyl-sie-pod-syna-i-wyludzil-pieniadze-Tozsamosc-21-latka-ustalona-przez-poli.html): błąd sieci: fetch failed",
+  "policja-7a102342 (https://policja.pl/pol/aktualnosci/283980,Obchody-Swieta-Policji-i-Strazy-Granicznej-Estonii.html): błąd sieci: fetch failed",
+  "policja-4242dadd (https://policja.pl/pol/aktualnosci/283973,Odpowie-za-wywolanie-falszywego-alarmu-o-zagrozeniu.html): błąd sieci: fetch failed",
+  "gov-rcb-0ad28fa2 (https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania2): zbyt mało tekstu (strona dynamiczna lub zablokowana)",
+  "gov-rcb-99539812 (https://www.gov.pl/web/rcb/alert-rcb---niezdatna-woda-2110): zbyt mało tekstu (strona dynamiczna lub zablokowana)",
+  "msz-f3852ec6 (https://www.gov.pl/web/dyplomacja/oswiadczenie-ministrow-po-nieformalnym-spotkaniu-rady-panstw-morza-baltyckiego-i-ukrainy): zbyt mało tekstu (strona dynamiczna lub zablokowana)"
+]

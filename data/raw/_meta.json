@@ -1,30 +1,30 @@
 {
   "msz-001": {
-    "title": "Jakiej pomocy może udzielić konsul? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Jakiej pomocy może udzielić konsul?",
     "publishedAt": null
   },
   "msz-003": {
-    "title": "11. Jak konsul może mi pomóc, jeśli pilnie potrzebuję paszport? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Jak konsul może mi pomóc, jeśli pilnie potrzebuję paszport?",
     "publishedAt": null
   },
   "msz-004": {
-    "title": "3. Jak odebrać paszport u konsula? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Jak odebrać paszport u konsula?",
     "publishedAt": null
   },
   "msz-005": {
-    "title": "10. Czy przysługuje mi zniżka na paszport? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Czy przysługuje mi zniżka na paszport?",
     "publishedAt": null
   },
   "msz-006": {
-    "title": "9. Jak powinno wyglądać zdjęcie do paszportu? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Jak powinno wyglądać zdjęcie do paszportu?",
     "publishedAt": null
   },
   "msz-007": {
-    "title": "Wizy - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Wizy",
     "publishedAt": null
   },
   "msz-008": {
-    "title": "Paszporty - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Paszporty",
     "publishedAt": null
   },
   "msz-009": {
@@ -32,19 +32,19 @@
     "publishedAt": null
   },
   "msz-010": {
-    "title": "Twój paszport za granicą. Pytania i odpowiedzi - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Twój paszport za granicą. Pytania i odpowiedzi",
     "publishedAt": null
   },
   "msz-011": {
-    "title": "Checklista wyjazdowa MSZ - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Checklista wyjazdowa MSZ",
     "publishedAt": null
   },
   "msz-012": {
-    "title": "Centrum Informacji Konsularnej - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Centrum Informacji Konsularnej",
     "publishedAt": null
   },
   "msz-013": {
-    "title": "Obszary polityki zagranicznej - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Obszary polityki zagranicznej",
     "publishedAt": null
   },
   "msz-014": {
@@ -52,11 +52,11 @@
     "publishedAt": null
   },
   "msz-015": {
-    "title": "Podstawowe informacje - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Podstawowe informacje",
     "publishedAt": null
   },
   "msz-017": {
-    "title": "1. Jak zarejestrować się na wizytę paszportową u konsula? - Ministerstwo Spraw Zagranicznych - Portal Gov.pl",
+    "title": "Jak zarejestrować się na wizytę paszportową u konsula?",
     "publishedAt": null
   },
   "msz-018": {
@@ -64,7 +64,7 @@
     "publishedAt": null
   },
   "dzu-2015-1274": {
-    "title": null,
+    "title": "Ustawa z dnia 25 czerwca 2015 r. Prawo konsularne 1) Niniejsza ustawa w zakresie swojej regulacji wdraża dyrektywę 2004/38/WE z dnia 29 kwietnia 2004 r. w sprawie prawa obywateli Unii i członków ich rodzin do swobodnego przemieszczania się i pobytu na terytorium Państw Członkowskich, zmieniającą rozporządzenie (EWG) nr 1612/68 i uchylającą dyrektywy 64/221/EWG, 68/360/EWG, 72/194/EWG, 73/148/EWG, 75/34/EWG, 75/35/EWG, 90/364/EWG, 90/365/EWG i 93/96/EWG (Dz. Urz. UE L 158 z 30.04.2004, str. 77) oraz dyrektywę Rady (UE) 2015/637 z dnia 20 kwietnia 2015 r. w sprawie środków koordynacji i współpracy mających ułatwić ochronę konsularną niereprezentowanych obywateli Unii w państwach trzecich oraz uchylającej decyzję 95/553/WE (Dz. Urz. UE L 106 z 24.04.2015, str. 1).",
     "publishedAt": null
   },
   "eu-polska": {
@@ -72,7 +72,7 @@
     "publishedAt": "2024-12-11"
   },
   "eu-podroze": {
-    "title": "Podróże w UE, Twoje prawa | Unia Europejska",
+    "title": "Podróże po UE",
     "publishedAt": "2025-06-26"
   },
   "eeas-fimi": {
@@ -86,5 +86,1581 @@
   "youreurope-wjazd": {
     "title": "Dokumenty potrzebne do podróżowania po Europie - Your Europe",
     "publishedAt": null
+  },
+  "cert-blog-d3416031": {
+    "title": "CERT Polska uruchamia program bug bounty dla administracji publicznej",
+    "publishedAt": null
+  },
+  "fakenews-pl-8fff4a69": {
+    "title": "Dezorientacja klimatyczna. Polki i Polacy wobec dezinformacji klimatycznej i energetycznej w internecie. Raport",
+    "publishedAt": "2026-10-19"
+  },
+  "fakenews-pl-257f8cfe": {
+    "title": "Ruszyła rekrutacja do Akademii Liderów Odporności Informacyjnej w Obszarze Klimatu",
+    "publishedAt": "2026-11-17"
+  },
+  "konkret24-096fa9cb": {
+    "title": "Ukraina \"szykuje 14-letnie dzieci na front\"? Co widać na nagraniu",
+    "publishedAt": "2026-11-20"
+  },
+  "cert-blog-1244f8f5": {
+    "title": "Komunikacja kryzysowa w cyberbezpieczeństwie",
+    "publishedAt": null
+  },
+  "cert-7afd6677": {
+    "title": "⚠️ Fałszywe informacje o zwrocie za energię elektryczną – moje.cert.pl",
+    "publishedAt": "2026-11-19"
+  },
+  "fakenews-pl-c28859a4": {
+    "title": "Zadanie publiczne w ramach programu „Budowanie wiedzy w zakresie przeciwdziałania dezinformacji” Ministerstwa Cyfryzacji",
+    "publishedAt": "2026-07-21"
+  },
+  "cert-blog-ce7f555c": {
+    "title": "Fałszywe reklamy i złośliwe aplikacje - analiza operacji toll fraud",
+    "publishedAt": "2026-08-24"
+  },
+  "cert-blog-1ca96e84": {
+    "title": "MikroTrick: analiza techniczna, proces ujawnienia i zastosowanie agentów LLM",
+    "publishedAt": null
+  },
+  "cert-0a84f621": {
+    "title": "Krytyczne podatności w serwerze nginx umożliwiające zdalne wykonanie kodu - nginx2root – moje.cert.pl",
+    "publishedAt": "2026-11-18"
+  },
+  "fakenews-pl-5a92bd33": {
+    "title": "Zadanie „Klimat Prawdy” w ramach programu „Kompas Młodego Obywatela” Ministerstwa Edukacji Narodowej",
+    "publishedAt": "2026-07-16"
+  },
+  "konkret24-6ce8ef2f": {
+    "title": "\"Planują coś wielkiego\"? Co robią \"barykady pod Kapitolem",
+    "publishedAt": "2026-11-20"
+  },
+  "fakenews-pl-0726d3f8": {
+    "title": "Migracja - wybór czy konieczność?",
+    "publishedAt": "2025-11-21"
+  },
+  "cert-blog-0ffee1b8": {
+    "title": "Krytyczne podatności w MikroTik RouterOS są aktywnie wykorzystywane. Zalecana pilna aktualizacja",
+    "publishedAt": null
+  },
+  "cert-f3f8ca16": {
+    "title": "Krytyczna podatność w środowisku Java umożliwiająca zdalne wykonanie kodu - java4shell – moje.cert.pl",
+    "publishedAt": "2026-11-17"
+  },
+  "konkret24-3878ab8a": {
+    "title": "\"Xi Jinping odmówił podania ręki Putinowi\". Serio?",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-96d17139": {
+    "title": "Operacja TOR. Rok wspólnej służby na rzecz bezpieczeństwa kolei",
+    "publishedAt": "2026-11-21"
+  },
+  "cert-blog-11b6bc63": {
+    "title": "Nowości od CERT Polska - premiera wiedza.cert.pl i nowa funkcja w moje.cert.pl",
+    "publishedAt": null
+  },
+  "fakenews-pl-38835d03": {
+    "title": "Migracja a przestępczość - przyglądamy się danym",
+    "publishedAt": "2025-11-20"
+  },
+  "cert-093c00a5": {
+    "title": "„Akta dochodzenia karnego”? To może być próba oszustwa! – moje.cert.pl",
+    "publishedAt": "2026-11-17"
+  },
+  "konkret24-d27a4d0c": {
+    "title": "Niemieccy tajniacy policyjni będą działać \"w głębi państwa polskiego\"? Skąd wziął się ten przekaz",
+    "publishedAt": "2026-11-19"
+  },
+  "cert-blog-af3a4b47": {
+    "title": "Uzupełnienie raportu z incydentu w sektorze energii w grudniu 2025 roku",
+    "publishedAt": null
+  },
+  "policja-d5de488c": {
+    "title": "Pamiętamy!",
+    "publishedAt": "2026-11-21"
+  },
+  "cert-29b24d95": {
+    "title": "🚨 Fałszywe alerty od dostawców hostingu – moje.cert.pl",
+    "publishedAt": "2026-11-17"
+  },
+  "konkret24-eafd1455": {
+    "title": "\"Most Krymski ledwo stoi\"? Nagranie tego nie dowodzi",
+    "publishedAt": "2026-11-19"
+  },
+  "cert-blog-7352f874": {
+    "title": "Kampania phishingowa grupy UNC1151/Ghostwriter na pocztę Gmail",
+    "publishedAt": null
+  },
+  "policja-d6c26fa7": {
+    "title": "Doskonalenie współpracy sztabowej i wymiana doświadczeń – ogólnopolska odprawa Policji w Żyrardowie",
+    "publishedAt": "2026-11-20"
+  },
+  "cert-e24173ef": {
+    "title": "Raport miesięczny za październik 2026 – moje.cert.pl",
+    "publishedAt": "2026-11-13"
+  },
+  "cert-blog-4bef7fd1": {
+    "title": "Zaufanie liczone w tysiącach – moje.cert.pl",
+    "publishedAt": null
+  },
+  "cert-f998b8ef": {
+    "title": "🚨 Uwaga na fałszywe SMS-y o mandatach! Oszuści podszywają się pod Policję – moje.cert.pl",
+    "publishedAt": "2026-11-12"
+  },
+  "policja-41009c3a": {
+    "title": "Pracownica banku wyłudziła pożyczki na łączną kwotę 170 tys. zł - wykorzystała dane swoich klientów",
+    "publishedAt": "2026-11-20"
+  },
+  "konkret24-5c0bdb54": {
+    "title": "Kanał prezydenta bez komentarzy. \"Utrwalona praktyka\" i nowy problem",
+    "publishedAt": "2026-11-18"
+  },
+  "fakenews-pl-08b714e3": {
+    "title": "Ekonomiczny bilans migracji - czy migranci przyjeżdżają tylko po zasiłki?",
+    "publishedAt": "2025-11-19"
+  },
+  "cert-1e160c22": {
+    "title": "📦 Uważaj na fałszywe wiadomości o przesyłkach! – moje.cert.pl",
+    "publishedAt": "2026-11-09"
+  },
+  "fakenews-pl-78ef2996": {
+    "title": "Rzeczywista skala migracji - fakty i liczby",
+    "publishedAt": "2025-11-18"
+  },
+  "cert-blog-2cf98f3e": {
+    "title": "CRA – nowe obowiązki dla producentów oprogramowania i korzyści dla użytkowników",
+    "publishedAt": null
+  },
+  "konkret24-c3433856": {
+    "title": "\"Ponad 800 doradców\" prezydenta? Policzyliśmy",
+    "publishedAt": "2026-11-17"
+  },
+  "policja-f050b239": {
+    "title": "21 listopada sprawdź bezpłatnie światła w samochodzie",
+    "publishedAt": "2026-11-20"
+  },
+  "fakenews-pl-ee5adf36": {
+    "title": "Czym jest edukacja globalna? Globalne wyzwania i odpowiedzialność",
+    "publishedAt": "2025-11-17"
+  },
+  "cert-8440912c": {
+    "title": "🎵 Oszuści wykorzystują wizerunek Spotify do wyłudzania danych – moje.cert.pl",
+    "publishedAt": "2026-11-05"
+  },
+  "policja-ff5b1fd2": {
+    "title": "Pamiętamy!",
+    "publishedAt": "2026-11-20"
+  },
+  "cert-37bd6f23": {
+    "title": "Dopłata do przesyłki? Zachowaj ostrożność! – moje.cert.pl",
+    "publishedAt": "2026-11-03"
+  },
+  "fakenews-pl-d74cb11c": {
+    "title": "Zaproszenie na webinar w temacie dezinformacji migracyjnej",
+    "publishedAt": "2025-11-12"
+  },
+  "policja-7d608d91": {
+    "title": "Finał ogólnopolskiej kampanii „Dzieciństwo bez przemocy”",
+    "publishedAt": "2026-11-19"
+  },
+  "konkret24-1d105139": {
+    "title": "\"Pierwsze oficjalne zdjęcie\" Mostu Krymskiego po ataku? Sprawdzamy",
+    "publishedAt": "2026-11-17"
+  },
+  "cert-bc6ce6af": {
+    "title": "Podatności w systemie Synology DSM wykorzystywane w atakach ransomware – moje.cert.pl",
+    "publishedAt": "2026-11-03"
+  },
+  "policja-44e34e1b": {
+    "title": "Niewyraźna mowa i przerwane połączenie. Czujność dyżurnego oraz reakcja dzielnicowych pozwoliły udzielić pomocy na czas",
+    "publishedAt": "2026-11-19"
+  },
+  "konkret24-553d8007": {
+    "title": "Fogiel wypomina Nitrasowi \"opiłowanie katolików\". To powracająca manipulacja",
+    "publishedAt": "2026-11-17"
+  },
+  "cert-c26e73fc": {
+    "title": "🔔 Wystartował program bug bounty NASK! – moje.cert.pl",
+    "publishedAt": "2026-11-03"
+  },
+  "cert-41c99494": {
+    "title": "Wiadomość o zwrocie podatku? Uważaj na kradzież danych! – moje.cert.pl",
+    "publishedAt": "2026-11-02"
+  },
+  "konkret24-cf19f4a7": {
+    "title": "\"To zbrodnia wojenna\"? Wątpliwości wokół nagrania z \"egzekucji\"",
+    "publishedAt": "2026-11-16"
+  },
+  "konkret24-943355a8": {
+    "title": "Likwidacja kopalni \"Bolesław Śmiały\". \"Tak wygląda Polska Tuska\"? Kto decydował",
+    "publishedAt": "2026-11-16"
+  },
+  "cert-02efbbf8": {
+    "title": "Fałszywy SMS o zwrocie paczki – to może być próba wyłudzenia danych – moje.cert.pl",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-kgpsp-effbff2c": {
+    "title": "Polscy strażacy wicemistrzami świata w Futsalu!",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-8b2d799e": {
+    "title": "Bankowcy dla CyberEdukacji: Fałszywa zbiórka charytatywna. Oszuści wykorzystują ludzką dobroć, by wyłudzać pieniądze",
+    "publishedAt": "2026-11-19"
+  },
+  "cert-76f19ae8": {
+    "title": "Przejęte klucze Updraft Central Cloud wykorzystywane do ataków na strony WordPress – moje.cert.pl",
+    "publishedAt": "2026-10-27"
+  },
+  "konkret24-a81c2e79": {
+    "title": "Szanse na to, że zostanie się zabitym przez minę lądową dostarczoną przez niedźwiedzia, są niewielkie, ale nigdy nie wyn",
+    "publishedAt": "2026-11-15"
+  },
+  "cert-ecd7ccfd": {
+    "title": "🔐 Oszuści wciąż rozsyłają wiadomości podszywające się pod bank, ale wykorzystują nowy motyw – moje.cert.pl",
+    "publishedAt": "2026-10-26"
+  },
+  "cert-86791b50": {
+    "title": "⚠️ Komunikat dla klientów biznesowych? Zachowaj ostrożność – moje.cert.pl",
+    "publishedAt": "2026-10-25"
+  },
+  "policja-63d76cc6": {
+    "title": "Nielegalny handel podrobionymi urządzeniami diagnostycznymi. Straty sięgają niemal 1 milion złotych",
+    "publishedAt": "2026-11-19"
+  },
+  "konkret24-f6d6ddd5": {
+    "title": "\"Bokserzy spuścili łomot rekruterom Zełenskiego\"? Co to za nagranie",
+    "publishedAt": "2026-11-13"
+  },
+  "cert-fd8f11c8": {
+    "title": "🕯️ Znicze w atrakcyjnych cenach? Uważaj na fałszywe sklepy! – moje.cert.pl",
+    "publishedAt": "2026-10-24"
+  },
+  "konkret24-81f720c7": {
+    "title": "Klimczak o kolei: \"45 procent więcej pasażerów niż za rządów PiS\". Co mówią dane",
+    "publishedAt": "2026-11-13"
+  },
+  "cert-e46025af": {
+    "title": "🚨 Aktualizacja danych klienta? To może być próba wyłudzenia – moje.cert.pl",
+    "publishedAt": "2026-10-22"
+  },
+  "cert-83347250": {
+    "title": "Utrata poufności kluczy urzędu certyfikacji eMudhra (emSign) – moje.cert.pl",
+    "publishedAt": "2026-10-22"
+  },
+  "konkret24-8badf4e6": {
+    "title": "\"Milion Polaków\" na Marszu Niepodległości? Nie na tym zdjęciu",
+    "publishedAt": "2026-11-12"
+  },
+  "policja-5e104251": {
+    "title": "Gala finałowa ogólnopolskiego konkursu plastyczno-filmowego „Letni PrzeWodnik” - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "cert-d865f745": {
+    "title": "Krytyczne podatności w produktach Fortinet – moje.cert.pl",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-infrastruktura-702dee1a": {
+    "title": "Rozwój prognozowania pogody i monitorowania atmosfery - rozmowy wiceministra Koperskiego z szefem ECMWF",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-7ac6ff44": {
+    "title": "Napadł na mężczyznę i okradł go z oszczędności. 42-letni recydywista zatrzymany już godzinę po ataku na seniora",
+    "publishedAt": "2026-11-17"
+  },
+  "cert-a98c660d": {
+    "title": "Krytyczne podatności w oprogramowaniu GitLab umożliwiające zdalne wykonanie kodu – moje.cert.pl",
+    "publishedAt": "2026-10-22"
+  },
+  "cert-44c6a9ca": {
+    "title": "Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu - php2shell – moje.cert.pl",
+    "publishedAt": "2026-10-21"
+  },
+  "konkret24-d07d0ab0": {
+    "title": "\"Policjanci pod TK dostają 3000 zł za dobę\"? Coś się nie zgadza",
+    "publishedAt": "2026-11-12"
+  },
+  "gov-kgpsp-a112269f": {
+    "title": "Narada służbowa dotycząca realizacji zadań ochrony ludności i obrony cywilnej",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-a3e1eb84": {
+    "title": "Spowodował wypadek, następnie uciekł z miejsca zdarzenia. Kryminalni zatrzymali sprawcę - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "gov-mswia-cba7d677": {
+    "title": "Czasowe i terytorialne zawieszenie prawa do azylu przy granicy polsko-białoruskiej przedłużone o następne 60 dni",
+    "publishedAt": "2026-11-16"
+  },
+  "cert-90e5178c": {
+    "title": "Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu – moje.cert.pl",
+    "publishedAt": "2026-10-21"
+  },
+  "policja-f5a71007": {
+    "title": "Pisał w Internecie, że kontaktował się ze sprawcą zamachu w Krakowie i wie o planowanych atakach terrorystycznych w Polsce. Został zatrzymany przez gdańskich kryminalnych",
+    "publishedAt": "2026-11-17"
+  },
+  "cert-7a6403a5": {
+    "title": "Krytyczna podatność w Collabora Online dla Nextcloud aktywnie wykorzystywana w atakach – moje.cert.pl",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-mon-683272ab": {
+    "title": "KOALICJA 26.2. Szef MON obserwował pierwsze ćwiczenie sił Koalicji Chętnych",
+    "publishedAt": "2026-11-20"
+  },
+  "cert-0c7b5c97": {
+    "title": "🚨Uwaga na fałszywe wiadomości SMS podszywające się pod Główny Inspektorat Transportu Drogowego! – moje.cert.pl",
+    "publishedAt": "2026-10-19"
+  },
+  "policja-4b536cb5": {
+    "title": "Dzięki czujności sąsiadów i wspólnym działaniom służb uratowane zostało życie 90-latka - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "konkret24-89b13f30": {
+    "title": "\"Ludzi w Krakowie zastrzelił wielbiciel Ukrainy\"? Rosyjska dezinformacja w akcji",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-infrastruktura-390e6f6d": {
+    "title": "Eksperci o przyszłości ochrony przeciwpowodziowej Żuław",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-rcb-660541b0": {
+    "title": "Alert RCB - trening systemów alarmowania (21.11)",
+    "publishedAt": "2026-11-21"
+  },
+  "policja-2fb528e3": {
+    "title": "23-latek pobił ojca i groził rodzinie oraz policjantom podczas transmisji w Internecie - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "cert-f1cb6853": {
+    "title": "🚨 Uwaga na e-maile z „nagraniem” uszkodzonego produktu! – moje.cert.pl",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-kgpsp-3c633b93": {
+    "title": "Uroczysta zbiórka z okazji Narodowego Święta Niepodległości w KW PSP w Poznaniu",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-6c19c091": {
+    "title": "Podszył się pod syna i wyłudził pieniądze. Tożsamość 21-latka ustalona przez policjantów z Garwolina - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "cert-57367af6": {
+    "title": "📦 Uważaj na wiadomości o nieudanym doręczeniu przesyłki! – moje.cert.pl",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-mswia-d3f307a5": {
+    "title": "Polska przystąpi do systemu ETIAS, odprawa ze służbami po zamachu w Krakowie i bezpieczny przebieg Marszu Niepodległości. Podsumowanie drugiego tygodnia listopada w MSWiA",
+    "publishedAt": "2026-11-16"
+  },
+  "cert-67de8b2a": {
+    "title": "🚨 Cyberprzestępcy podszywają się pod KAS i straszą błędami w JPK_VAT! – moje.cert.pl",
+    "publishedAt": "2026-10-15"
+  },
+  "policja-7a102342": {
+    "title": "Obchody Święta Policji i Straży Granicznej Estonii - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "gov-mon-8ff368dc": {
+    "title": "Wicepremier W. Kosiniak-Kamysz o naruszeniu polskiej przestrzeni powietrznej",
+    "publishedAt": "2026-11-20"
+  },
+  "konkret24-3e873a64": {
+    "title": "W spódnicy, szpilkach, z torebką? Kolejna próba dyskredytacji brytyjskiego ministra",
+    "publishedAt": "2026-11-10"
+  },
+  "cert-c8bef852": {
+    "title": "📩 „Ostatnie przypomnienie” zanim konto zostanie zablokowane. Chroń dane logowania do banku! – moje.cert.pl",
+    "publishedAt": "2026-10-13"
+  },
+  "policja-4242dadd": {
+    "title": "Odpowie za wywołanie fałszywego alarmu o zagrożeniu - Aktualności Policja.pl",
+    "publishedAt": null
+  },
+  "gov-infrastruktura-0d2d3648": {
+    "title": "Światowy Dzień Pamięci Ofiar Wypadków Drogowych - działamy na rzecz poprawy bezpieczeństwa na drogach",
+    "publishedAt": "2026-11-15"
+  },
+  "policja-42767feb": {
+    "title": "Przed zamknięciem schował się w toalecie na stacji paliw, a jak został sam ukradł 47 tys. zł",
+    "publishedAt": "2026-11-17"
+  },
+  "gov-rcb-3913666e": {
+    "title": "Alert RCB - atak z powietrza (20.11)",
+    "publishedAt": "2026-11-20"
+  },
+  "gov-kgpsp-e6442be0": {
+    "title": "Komendant Główny PSP ogłasza nabór do Korpusu Służby Cywilnej",
+    "publishedAt": "2026-11-19"
+  },
+  "gov-mswia-88a09570": {
+    "title": "Projekt ustawy o udziale Rzeczypospolitej Polskiej w europejskim systemie informacji o podróży oraz zezwoleń na podróż (ETIAS)",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-mon-509af268": {
+    "title": "Polska włącza się w proces tworzenia Międzynarodowego Centrum Sztucznej Inteligencji na rzecz Obronności",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-1b36498f": {
+    "title": "CHRONIMY TYCH, KTÓRZY CHRONIĄ INNYCH. MILIONOWE INWESTYCJE W OCHRONĘ POLICJANTÓW",
+    "publishedAt": "2026-11-17"
+  },
+  "konkret24-9929a2ba": {
+    "title": "Zmniejszenie pojemności baków do 15 litrów to \"normalka w UE\"? Czyj to pomysł",
+    "publishedAt": "2026-11-10"
+  },
+  "policja-862e4ac2": {
+    "title": "Pięciu zatrzymanych w sprawie podpalenia lokalu w Nowym Targu. Policjanci zabezpieczyli również narkotyki i amunicję",
+    "publishedAt": "2026-11-16"
+  },
+  "policja-32ccfffa": {
+    "title": "Pięciu zatrzymanych w sprawie podpalenia lokalu w Nowym Targu. Policjanci zabezpieczyli również narkotyki i amunicję",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-infrastruktura-479ab4ae": {
+    "title": "Obwodnica Morawicy i Woli Morawickiej oddana do ruchu",
+    "publishedAt": "2026-11-13"
+  },
+  "gov-rcb-a46369ac": {
+    "title": "Alert RCB - trening systemów alarmowania (20.11)",
+    "publishedAt": "2026-11-20"
+  },
+  "gov-kgpsp-dc531948": {
+    "title": "Nabór w ramach przeniesienia służbowego do Biura Logistyki KG PSP",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-d6b7e14a": {
+    "title": "Policjantka zapobiegła tragedii. 34-latek z nożem podejrzany o planowanie zabójstwa",
+    "publishedAt": "2026-11-16"
+  },
+  "policja-ca093f2e": {
+    "title": "Za kierownicą tracił przytomność. Szybka reakcja dzielnicowych pozwoliła udzielić mu pomocy na czas",
+    "publishedAt": "2026-11-16"
+  },
+  "konkret24-199cb092": {
+    "title": "Na filmie jedzie, a naprawdę nie ruszy. Jak rządowy spot \"lukruje rzeczywistość\"",
+    "publishedAt": "2026-10-24"
+  },
+  "policja-d63784e4": {
+    "title": "Dzielnicowi z Błonia zdążyli z pomocą na czas",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-mswia-172dfadf": {
+    "title": "MSWiA: Odprawa ze służbami po tragicznym zamachu w Krakowie",
+    "publishedAt": "2026-11-09"
+  },
+  "gov-mon-e24a211e": {
+    "title": "Rozmowy ministrów obrony Polski i Niemiec",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-a509fd09": {
+    "title": "Policjanci pomogli wychłodzonej 93-latce",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-infrastruktura-bc518a51": {
+    "title": "Nowy Sekretarz Krajowej Rady Bezpieczeństwa Ruchu Drogowego",
+    "publishedAt": "2026-11-12"
+  },
+  "policja-442d7255": {
+    "title": "Dzielnicowy w drodze na służbę zatrzymał sprawcę kradzieży dwóch łańcuszków wartych blisko 200 tys. zł",
+    "publishedAt": "2026-11-16"
+  },
+  "policja-60da8f15": {
+    "title": "Lubelscy „łowcy głów” zatrzymali poszukiwanego niemieckim ENA",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-rcb-66204b1f": {
+    "title": "Alert RCB - trening systemów alarmowania (19.11)",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-81b8e938": {
+    "title": "Groził masowym zabójstwem – 16-letni obywatel Rosji zatrzymany",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-kgpsp-7501a101": {
+    "title": "Jubileusz 75-lecia Szkoły Aspirantów PSP w Poznaniu",
+    "publishedAt": "2026-11-18"
+  },
+  "konkret24-5f84a92a": {
+    "title": "\"Ruszyła maszyna po szynach ospale\". Jak idą rozliczenia PiS trzy lata po wyborach",
+    "publishedAt": "2026-10-15"
+  },
+  "gov-mswia-e3b30ed0": {
+    "title": "Sukcesy polskiej Policji i rozwój ochrony ludności. Szef MSWiA podsumował efekty działań resortu",
+    "publishedAt": "2026-11-06"
+  },
+  "konkret24-a378e7c1": {
+    "title": "Tolkien i Orwell radykalizują? Jak skrajna prawica zawłaszcza ich książki",
+    "publishedAt": "2026-10-10"
+  },
+  "gov-mon-816ee2b1": {
+    "title": "Polska i Grecja zacieśniają współpracę w obszarze satelitarnej obserwacji Ziemi",
+    "publishedAt": "2026-11-19"
+  },
+  "gov-gis-8e005a10": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: stwierdzenie przekroczenia najwyższego dopuszczalnego poziomu ochratoksyny A w mielonej kawie",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-infrastruktura-72aa054c": {
+    "title": "Wielomilionowa inwestycja uporządkuje gospodarkę ściekową w Karkonoszach",
+    "publishedAt": "2026-11-12"
+  },
+  "konkret24-bd08aa11": {
+    "title": "Nocny \"atak z anten 5G\" i rzekome objawy. Co naprawdę wiemy o wpływie sieci na zdrowie?",
+    "publishedAt": "2026-09-24"
+  },
+  "gov-rcb-534c5797": {
+    "title": "Alert RCB - woda niezdatna do spożycia, pow. zgorzelecki (19.11)",
+    "publishedAt": "2026-11-19"
+  },
+  "gov-kgpsp-da53854f": {
+    "title": "Rozwój systemów dronowych w PSP",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-mswia-56209855": {
+    "title": "Coroczna odprawa MSWiA i służb przed Narodowym Świętem Niepodległości",
+    "publishedAt": "2026-11-05"
+  },
+  "konkret24-b48bf862": {
+    "title": "Tysiące noworodków chorują z powodu \"szczepionki od Gatesów\"? W tej historii nic się nie zgadza",
+    "publishedAt": "2026-09-09"
+  },
+  "gov-mon-0ec9c07e": {
+    "title": "Nowa infrastruktura dla artylerzystów w Jarosławiu",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-gis-2a1b4290": {
+    "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: migracja formaldehydu z kubka z melaminy",
+    "publishedAt": "2026-11-18"
+  },
+  "konkret24-6331daff": {
+    "title": "\"Porażające\" dane po szczepieniach na HPV w Danii? Na pewno zmanipulowane",
+    "publishedAt": "2026-08-27"
+  },
+  "gov-infrastruktura-ea9bcb1f": {
+    "title": "Rozmowa ministrów ds. transportu państw Grupy Wyszehradzkiej",
+    "publishedAt": "2026-11-12"
+  },
+  "konkret24-f445fd23": {
+    "title": "Prezydent o \"lex szarlatan\": uczciwy przedsiębiorca i szarlatan w jednej szufladce? Jest inaczej",
+    "publishedAt": "2026-08-21"
+  },
+  "gov-rcb-ce8103c0": {
+    "title": "Alert RCB - woda niezdatna do spożycia, pow. ząbkowicki (19.11)",
+    "publishedAt": "2026-11-19"
+  },
+  "gov-kgpsp-f6f25f62": {
+    "title": "Uroczysta zbiórka z okazji Narodowego Święta Niepodległości w KG PSP",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-mswia-3e97b77a": {
+    "title": "Aplikację Gdzie się ukryć PL możesz już pobrać na telefon",
+    "publishedAt": "2026-11-02"
+  },
+  "konkret24-d6a42449": {
+    "title": "Borelioza, RSV i koronawirus stworzone w laboratorium? \"Bajki\" sekretarza zdrowia USA",
+    "publishedAt": "2026-08-06"
+  },
+  "gov-mon-854701a7": {
+    "title": "Polsko-amerykańskie rozmowy o zabezpieczeniu medycznym wojsk",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-gis-d5352ebe": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: Stwierdzenie obecności pleśni w wodzie mineralnej",
+    "publishedAt": "2026-11-10"
+  },
+  "konkret24-aea40138": {
+    "title": "\"Kobiety do dronów\"? Tak nie wygląda mobilizacja do ukraińskiego wojska",
+    "publishedAt": "2026-09-23"
+  },
+  "gov-infrastruktura-b0051e48": {
+    "title": "Polska bandera wraca po 22 latach. Nowy prom Bursztyn Unity wzmocni polską flotę na Bałtyku",
+    "publishedAt": "2026-11-11"
+  },
+  "gov-rcb-ae8232b6": {
+    "title": "Komunikat (18.11)",
+    "publishedAt": "2026-11-18"
+  },
+  "konkret24-b222e7c9": {
+    "title": "W kajdankach na front? Nie tak wygląda mobilizacja w Ukrainie",
+    "publishedAt": "2026-09-28"
+  },
+  "gov-kgpsp-46badc54": {
+    "title": "Polsko-szwedzkie seminarium eksperckie poświęcone bezpieczeństwu i odporności regionu Morza Bałtyckiego",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-mswia-12761d1f": {
+    "title": "Bezpieczeństwo, odpowiedzialna polityka migracyjna i edukacja. Podsumowanie ostatniego tygodnia października w MSWiA",
+    "publishedAt": "2026-11-02"
+  },
+  "konkret24-e790bed8": {
+    "title": "Mężczyzna z psem \"ma pecha, że bomby spadają tylko tam, gdzie się znajduje\". Tak działa rosyjska dezinformacja",
+    "publishedAt": "2026-10-21"
+  },
+  "gov-mon-cea1351d": {
+    "title": "Polsko-greckie rozmowy o bezpieczeństwie i współpracy obronnej",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-gis-a89ca2b7": {
+    "title": "Aktualizacja ostrzeżenia publicznego dotyczącego żywności z dnia 28.10.2026: Stwierdzenie substancji psychoaktywnej w suplemencie diety",
+    "publishedAt": "2026-11-10"
+  },
+  "konkret24-73e62f52": {
+    "title": "Muzeum Auschwitz \"usuwa informacje o polskich więźniach\"? O co chodzi z tablicami",
+    "publishedAt": "2026-04-28"
+  },
+  "gov-infrastruktura-5de1d36d": {
+    "title": "Ponad 647 mln zł z funduszy europejskich na nowoczesną kolej w województwie śląskim",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-rcb-49cf7e45": {
+    "title": "Rusza VIII Seminarium Cyberbezpieczeństwa. Od regulacji do odporności",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-kgpsp-eb13b779": {
+    "title": "Msza Święta strażaków z okazji Narodowego Święta Niepodległości",
+    "publishedAt": "2026-11-12"
+  },
+  "gov-mswia-56275c0e": {
+    "title": "Polska gospodarzem międzynarodowej konferencji ministerialnej. W Zamku Książ rozmawiano o ochronie ludności i migracjach",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-mon-a98a64a8": {
+    "title": "Gotowość medyczna wzmacnia bezpieczeństwo Polski i całego Sojuszu",
+    "publishedAt": "2026-11-18"
+  },
+  "gov-gis-37205e2c": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: możliwa obecność fragmentów szkła w jednej partii puddingu proteinowego",
+    "publishedAt": "2026-11-09"
+  },
+  "gov-infrastruktura-049e852c": {
+    "title": "Kolejne ułatwienia w rejestracji pojazdów",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-rcb-24dca148": {
+    "title": "Alert RCB - zagrożenie z powietrza (10.11)",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-kgpsp-ca0d9b2f": {
+    "title": "Współpraca polskich i amerykańskich strażaków",
+    "publishedAt": "2026-11-12"
+  },
+  "gov-mswia-221d625a": {
+    "title": "Szef MSWiA Marcin Kierwiński zapowiedział dalszy rozwój GFFF - wyspecjalizowanych strażaków zwalczających pożary lasów w trudno dostępnym terenie.",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-mon-722f19fa": {
+    "title": "Rozmowy o bezpieczeństwie Europy i współpracy z USA w Brukseli",
+    "publishedAt": "2026-11-17"
+  },
+  "gov-gis-12bee9e2": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: stwierdzenie substancji psychoaktywnej w suplemencie diety",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-infrastruktura-6fa273cf": {
+    "title": "Polska bandera bardziej dostępna. Rząd upraszcza rejestrację statków",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-rcb-52b4c4d3": {
+    "title": "Alert RCB - zagrożenie z powietrza (09.11)",
+    "publishedAt": "2026-11-09"
+  },
+  "gov-kgpsp-0553c1c5": {
+    "title": "Strażacy w walce o niepodległość Polski",
+    "publishedAt": "2026-11-11"
+  },
+  "gov-mswia-d8c0cd10": {
+    "title": "Odbudowujemy i dbamy o bezpieczeństwo. Podsumowanie trzeciego tygodnia października w MSWiA",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-mon-de231b6c": {
+    "title": "W Krakowie powstaje siedziba Dowództwa Wojsk Medycznych",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-gis-d07656a9": {
+    "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: Migracja pierwszorzędowych amin aromatycznych z zestawu przyborów kuchennych",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-infrastruktura-d90b163a": {
+    "title": "Obwodnica Kamionnej coraz bliżej",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-rcb-254cabb7": {
+    "title": "Alert RCB - zła jakość powietrza (07.11)",
+    "publishedAt": "2026-11-07"
+  },
+  "gov-kgpsp-df05964c": {
+    "title": "IX Posiedzenie Polsko-Litewskiej grupy roboczej ds. ratownictwa i ochrony ludności w warunkach sytuacji nadzwyczajnych",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-mswia-3888358d": {
+    "title": "Rekordowe 11 mld zł na odbudowę po powodzi. Minister Marcin Kierwiński i wiceminister Magdalena Roguska otworzyli Centrum Kultury i Bibliotekę w Bardzie na Dolnym Śląsku",
+    "publishedAt": "2026-10-24"
+  },
+  "gov-mon-f1ade0be": {
+    "title": "Testy bezzałogowych lądowych systemów uzbrojenia (UGV)",
+    "publishedAt": "2026-11-13"
+  },
+  "gov-gis-9f318198": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii salami",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-infrastruktura-b267c89c": {
+    "title": "Polska kolej nabiera prędkości",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-rcb-006d82ff": {
+    "title": "Alert RCB - neutralizacja niewybuchu (07.11)",
+    "publishedAt": "2026-11-07"
+  },
+  "gov-kgpsp-b29de201": {
+    "title": "Nowe jednostki w krajowym systemie ratowniczo-gaśniczym",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-mswia-72ff1867": {
+    "title": "Karta Rodziny Mundurowej z poparciem komisji sejmowych. Projekt obejmie też strażaków OSP",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-5ef82206": {
+    "title": "Polsko-australijskie rozmowy o współpracy wojskowej i bezpieczeństwie",
+    "publishedAt": "2026-11-13"
+  },
+  "gov-gis-de19525d": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: możliwa obecność fragmentów szkła w jednej partii wody butelkowanej",
+    "publishedAt": "2026-10-13"
+  },
+  "msz-50199a41": {
+    "title": "Oświadczenia MSZ w związku z atrybucją przez Danię rosyjskim służbom specjalnym próby zamachu na obywatela Stanów Zjednoczonych i Ukrainy na terenie Danii",
+    "publishedAt": "2026-11-20"
+  },
+  "gov-infrastruktura-c35325ee": {
+    "title": "Polska gospodarzem spotkania ministerialnego HELCOM na rzecz ochrony Morza Bałtyckiego",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-rcb-bdd92abb": {
+    "title": "Alert RCB - trening systemu alarmowania (06.11)",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-kgpsp-cfe26179": {
+    "title": "Żałoba narodowa",
+    "publishedAt": "2026-11-08"
+  },
+  "gov-mswia-9d3e180a": {
+    "title": "Niemal 10 tys. uczniów klas mundurowych w całej Polsce",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-mon-3fd5b985": {
+    "title": "Narodowe Święto Niepodległości",
+    "publishedAt": "2026-11-11"
+  },
+  "gov-gis-87161dd6": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii serów (różne rodzaje)",
+    "publishedAt": "2026-10-12"
+  },
+  "msz-1531d6aa": {
+    "title": "Dr Elżbieta Mikos-Skuza ponownie wybrana do Międzynarodowej Komisji Humanitarnej do spraw Ustalania Faktów",
+    "publishedAt": "2026-11-20"
+  },
+  "gov-infrastruktura-75bf9ac2": {
+    "title": "Kluczowa inwestycja na Kanale Augustowskim nabiera tempa",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-rcb-11c6a3ed": {
+    "title": "Alert RCB - trening systemu alarmowania (05.11)",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-kgpsp-212ad303": {
+    "title": "Polska delegacja na 65. posiedzeniu Rady FEU w Amsterdamie",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-mswia-487d31db": {
+    "title": "Rozwijamy system ostrzegania i dbamy o bezpieczeństwo. Podsumowanie drugiego tygodnia października w MSWiA",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-mon-d165c24b": {
+    "title": "Wicepremier Kosiniak-Kamysz: Polska jest nie tylko modelowym sojusznikiem USA, ale stała się strategicznym partnerem",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-gis-63c478b6": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii boczku wędzonego",
+    "publishedAt": "2026-10-08"
+  },
+  "msz-e4f3a2c4": {
+    "title": "Wicepremier Radosław Sikorski z wizytą w Budapeszcie",
+    "publishedAt": "2026-11-19"
+  },
+  "gov-infrastruktura-bd3efdb2": {
+    "title": "Przylądek Pomerania coraz bliżej. Ruszył przetarg na budowę części morskiej nowego portu",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-rcb-487496fa": {
+    "title": "Alert RCB - trening systemu alarmowania (04.11)",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-kgpsp-97e64a4e": {
+    "title": "Uroczystość odsłonięcia i poświęcenia tablicy pamiątkowej poświęconej pilotowi śp. kapitanowi Andrzejowi Gawronowi",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-mswia-8f2f9104": {
+    "title": "Krajowy Trening Rodzinny w blisko 2 tys. punktów w całej Polsce. Minister Marcin Kierwiński odwiedził szkoły w Warszawie",
+    "publishedAt": "2026-10-17"
+  },
+  "gov-mon-319bf7fa": {
+    "title": "Polska wzmacnia swoją rolę w przygotowaniu kadr medycznych NATO",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-gis-edbb0805": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Escherichia coli produkującej toksynę Shiga (STEC) w dwóch rodzajach sera z surowego mleka krowiego",
+    "publishedAt": "2026-10-06"
+  },
+  "msz-89f36712": {
+    "title": "Wicepremier Radosław Sikorski na Radzie FAC",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-infrastruktura-49aa5ada": {
+    "title": "Ograniczony hałas i emisja spalin wokół lotnisk - nowelizacja prawa lotniczego przyjęta przez Radę Ministrów",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-rcb-c15663e5": {
+    "title": "Alert RCB - zagrożenie z powietrza (03.11)",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-kgpsp-1bb38b3e": {
+    "title": "Komendant Główny PSP ogłasza nabór do Korpusu Służby Cywilnej",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-mswia-adf2fb7f": {
+    "title": "Szef MSWiA złoży zawiadomienie do prokuratury po atakach na policjantów",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-mon-392706db": {
+    "title": "Uroczysty capstrzyk w przeddzień Narodowego Święta Niepodległości",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-gis-67268b33": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii ćwiartki wędzonej z kurczaka",
+    "publishedAt": "2026-09-29"
+  },
+  "msz-a16501ac": {
+    "title": "Dzień Otwarty w Ministerstwie Spraw Zagranicznych 21 listopada 2026 r.",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-infrastruktura-83e53222": {
+    "title": "Rusza realizacja ostatniego odcinka A2",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-rcb-22d00ceb": {
+    "title": "Alert RCB - trening systemu alarmowania (03.11)",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-kgpsp-4283f92f": {
+    "title": "Zapraszamy do lektury Przeglądu Pożarniczego",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-mswia-3aa15075": {
+    "title": "Państwo działa sprawnie i zdecydowanie - podsumowanie działań MSWiA, Policji i MEN w związku z ostatnimi zdarzeniami w szkołach",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-mon-26df6f2e": {
+    "title": "Transatlantyckie Forum Przemysłu Obronnego w Warszawie",
+    "publishedAt": "2026-11-09"
+  },
+  "gov-gis-d6bc6b6f": {
+    "title": "Aktualizacja ostrzeżenia publicznego dotyczącego żywności z dnia 28.08.2026 r. Możliwa obecność toksyny botulinowej w zielonym pesto",
+    "publishedAt": "2026-09-18"
+  },
+  "msz-4c889003": {
+    "title": "Polsko - austriackie rozmowy o współpracy",
+    "publishedAt": "2026-11-16"
+  },
+  "gov-infrastruktura-31399ca2": {
+    "title": "Otwarto nowy terminal instalacyjny offshore w Porcie Gdańsk",
+    "publishedAt": "2026-10-30"
+  },
+  "gov-rcb-9318b655": {
+    "title": "Alert RCB - zagrożenie z powietrza (03.11)",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-kgpsp-96679889": {
+    "title": "Aplikację Gdzie się ukryć PL możesz już pobrać na telefon",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-mswia-b54c2c2f": {
+    "title": "Ponad 1500 punktów w całej Polsce. Krajowy trening rodzinny na czas kryzysu już w najbliższą sobotę.",
+    "publishedAt": null
+  },
+  "gov-mon-410daa97": {
+    "title": "Nowe wyznaczenia na stanowiska służbowe w Wojsku Polskim",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-gis-a0179940": {
+    "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: wycofanie szklanek ze względu na ryzyko odłączenia się drobnych szklanych elementów",
+    "publishedAt": "2026-09-17"
+  },
+  "msz-51e09305": {
+    "title": "Polsko-tunezyjskie konsultacje w Warszawie",
+    "publishedAt": "2026-11-12"
+  },
+  "gov-infrastruktura-bee74d0b": {
+    "title": "Obwodnica Chełma z rządowym wsparciem",
+    "publishedAt": "2026-10-30"
+  },
+  "gov-rcb-5363a4d9": {
+    "title": "Alert RCB - trening systemu alarmowania (29.10)",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-kgpsp-232aa6f5": {
+    "title": "Pracownik pomocniczy - oferta pracy w Komendzie Głównej PSP",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-mswia-6a8ebc3e": {
+    "title": "Stanowisko w sprawie udzielania pomocy humanitarnej oraz walki z procederem nielegalnej migracji",
+    "publishedAt": null
+  },
+  "gov-mon-b6c390ab": {
+    "title": "Spotkanie wiceministra Zalewskiego z ambasadorem Irlandii w Polsce",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-gis-ef1a2d9a": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: alkaloidy pirolizydynowe w określonej partii herbatki ziołowej z pokrzywy",
+    "publishedAt": "2026-09-10"
+  },
+  "msz-25f61a72": {
+    "title": "Polska dołącza do Wspólnej Jednostki Kontrolnej ONZ",
+    "publishedAt": "2026-11-11"
+  },
+  "gov-infrastruktura-519ab38f": {
+    "title": "Finał akcji informacyjno-edukacyjnej Bezpieczni 60+",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-rcb-e9a6a568": {
+    "title": "Alert RCB - zagrożenie z powietrza (28.10)",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-kgpsp-53e04a89": {
+    "title": "Ślubowanie kadetów XXX Turnusu Studium Dziennego Centralnej Szkoły Państwowej Straży Pożarnej w Częstochowie",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-mswia-7b7f94f1": {
+    "title": "Minister Marcin Kierwiński podpisał list intencyjny ws. systemu ostrzegania ludności cywilnej Cell Broadcast",
+    "publishedAt": "2026-10-14"
+  },
+  "gov-mon-603baf46": {
+    "title": "Spotkanie wiceministra Zalewskiego z Ambasador Królestwa Szwecji w Warszawie",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-gis-f9005f3c": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii sera podpuszczkowego",
+    "publishedAt": "2026-09-09"
+  },
+  "msz-d465ddae": {
+    "title": "Jakub Józef Orliński odznaczony „Bene Merito'' przez szefa dyplomacji Radosława Sikorskiego",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-infrastruktura-cf60e782": {
+    "title": "Sztum zyska obwodnicę",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-rcb-b77fda69": {
+    "title": "Alert RCB - trening systemu alarmowania",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-kgpsp-861514b1": {
+    "title": "Minister Spraw Wewnętrznych i Administracji oraz Komendant Główny PSP podziękowali strażakom modułu GFFF",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-mswia-20116b3e": {
+    "title": "Rozmowy o bezpieczeństwie z Estonią i Finlandią",
+    "publishedAt": "2026-10-13"
+  },
+  "gov-mon-b9a9b175": {
+    "title": "Powstaje fabryka nowoczesnej amunicji rakietowej. To inwestycja w bezpieczeństwo na dekady",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-gis-3d21f103": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: Możliwa obecność fragmentów szkła w jednej partii sosu bolońskiego",
+    "publishedAt": "2026-08-31"
+  },
+  "msz-23df4a5e": {
+    "title": "Umowa między Polską a Stałym Trybunałem Arbitrażowym podpisana",
+    "publishedAt": "2026-11-10"
+  },
+  "gov-infrastruktura-fe1af8d8": {
+    "title": "Poszerzenie A2 Łódź - Warszawa z kompletem umów",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-rcb-78aa3ec1": {
+    "title": "Alert RCB - ostrzeżenie przed silnym wiatrem (24.10)",
+    "publishedAt": "2026-10-25"
+  },
+  "gov-kgpsp-e7ee0651": {
+    "title": "Narada szkoleniowa pionu kontrolno-rozpoznawczego PSP",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-mswia-d59aed87": {
+    "title": "Zatrzymanie sprawców podpalenia stacji Starlink na Mazowszu. Skuteczna akcja MSWiA, Policji i ABW",
+    "publishedAt": "2026-10-12"
+  },
+  "gov-mon-f316693e": {
+    "title": "Kolejne Groty dla Wojska Polskiego",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-gis-1e0008f4": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności Możliwa obecność toksyny botulinowej w jednej partii zielonego pesto",
+    "publishedAt": "2026-08-28"
+  },
+  "msz-be03a9f7": {
+    "title": "Polsko-honduraskie konsultacje polityczne",
+    "publishedAt": "2026-11-09"
+  },
+  "gov-infrastruktura-7294eead": {
+    "title": "W Łodzi o przyszłości europejskiej sieci transportowej",
+    "publishedAt": "2026-10-25"
+  },
+  "gov-rcb-7ba71f6f": {
+    "title": "Alert RCB - ostrzeżenie przed silnym wiatrem (25.10)",
+    "publishedAt": "2026-10-25"
+  },
+  "gov-kgpsp-7f2241db": {
+    "title": "Odprawa rzeczników prasowych i koordynatorów prewencji społecznej PSP",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-mswia-fefe8170": {
+    "title": "Dbamy o bezpieczeństwo najmłodszych. Podsumowanie pierwszego tygodnia października w MSWiA",
+    "publishedAt": "2026-10-12"
+  },
+  "gov-mon-3197e3c1": {
+    "title": "Sojusznicy wzmacniają przygotowania do pokoju w Ukrainie dużymi ćwiczeniami w Polsce",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-1673f6dd": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii serdelków wieprzowych",
+    "publishedAt": "2026-08-28"
+  },
+  "msz-2c8b09fd": {
+    "title": "Polska i Grecja o priorytetach UE",
+    "publishedAt": "2026-11-07"
+  },
+  "gov-infrastruktura-b7c93e88": {
+    "title": "S19 Krynice - Białystok Zachód oddana do ruchu",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-rcb-bc55da5e": {
+    "title": "Alert RCB - trening systemu alarmowania (23.10)",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-kgpsp-36950759": {
+    "title": "Delegacja Państwowej Straży Pożarnej i Ochotniczych Straży Pożarnych uczciła pamięć zmarłych strażaków",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-mswia-092086fe": {
+    "title": "Ponad 24 tys. policjantów zaangażowanych w zapewnienie bezpieczeństwa w szkołach. Zatrzymano 19 osób.",
+    "publishedAt": "2026-10-09"
+  },
+  "gov-mon-34e8522a": {
+    "title": "Oficjalna wizyta delegacji wojskowej służby zdrowia Republiki Azerbejdżanu w Polsce",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-cab5f05c": {
+    "title": "Ostrzeżenie publiczne: dotyczące żywności Wykrycie obecności bakterii Bacillus cereus w jednej partii puddingu proteinowego",
+    "publishedAt": "2026-08-21"
+  },
+  "msz-e0d3b546": {
+    "title": "Nieformalne spotkanie szefów dyplomacji Rady Państw Morza Bałtyckiego, UE i Ukrainy",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-infrastruktura-e72db21a": {
+    "title": "Zabytkowy dworzec w Ciechocinku przejdzie metamorfozę",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-rcb-03c638ee": {
+    "title": "Alert RCB - zagrożenie z powietrza (23.10)",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-kgpsp-41562f88": {
+    "title": "Nabór w ramach przeniesienia służbowego do Biura Logistyki KG PSP",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-mswia-0e16e86c": {
+    "title": "Dzieci i rodzice przećwiczą zachowanie w sytuacjach kryzysowych podczas Krajowego Treningu Rodzinnego",
+    "publishedAt": "2026-10-08"
+  },
+  "gov-mon-489eb137": {
+    "title": "Polsko-amerykańskie rozmowy o współpracy obronnej i obecności wojsk USA w Polsce",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-gis-6f6359e4": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii sera podpuszczkowego",
+    "publishedAt": "2026-08-19"
+  },
+  "msz-936fe164": {
+    "title": "Spotkanie szefów dyplomacji Polski i Ukrainy",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-infrastruktura-7651ed6a": {
+    "title": "Minister infrastruktury na EFNI: chcemy budować kolej dla przyszłych pokoleń",
+    "publishedAt": "2026-10-15"
+  },
+  "gov-kgpsp-3dbe803d": {
+    "title": "Polsko-czeska współpraca strażaków - wspólne działania na rzecz bezpieczeństwa transgranicznego",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-mswia-64831190": {
+    "title": "Ponad 102 mld zł na ochronę ludności. Rząd przyjął Program Ochrony Ludności i Obrony Cywilnej na lata 2027-2031",
+    "publishedAt": "2026-10-06"
+  },
+  "gov-mon-7e4b2541": {
+    "title": "Systemy bezzałogowe to priorytet w procesie modernizacji Wojska Polskiego",
+    "publishedAt": "2026-10-30"
+  },
+  "gov-gis-e63f370c": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: Wykrycie obecności cereulidyny w jednej partii mleka początkowego",
+    "publishedAt": "2026-08-17"
+  },
+  "gov-infrastruktura-9f386c07": {
+    "title": "Wykorzystanie kamer na przejazdach kolejowo-drogowych w systemie CANARD",
+    "publishedAt": "2026-10-15"
+  },
+  "gov-rcb-0cab8ace": {
+    "title": "Alert RCB - zagrożenie z powietrza (21.10)",
+    "publishedAt": "2026-10-21"
+  },
+  "gov-kgpsp-c2a1b255": {
+    "title": "Sukcesy polskich strażaków w Las Vegas",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-mswia-b6f6cb1f": {
+    "title": "Polsko-litewska współpraca na rzecz ochrony ludności i granic",
+    "publishedAt": "2026-10-05"
+  },
+  "gov-mon-e688cafc": {
+    "title": "Od innowacji do zdolności wojska. VI Forum Innowacyjności Sił Zbrojnych",
+    "publishedAt": "2026-10-30"
+  },
+  "gov-gis-55b5f3ad": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii wieprzowiny w galarecie",
+    "publishedAt": "2026-08-17"
+  },
+  "msz-f3e20a63": {
+    "title": "Wicepremier Radosław Sikorski na konferencji w Sejmie poświęconej ochronie niematerialnego dziedzictwa kulturowego",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-infrastruktura-abdc476e": {
+    "title": "Regularne godziny kursowania i więcej połączeń do największych miast w kraju. PKP Intercity zaprezentowały rozkład jazdy 2026/2027",
+    "publishedAt": "2026-10-12"
+  },
+  "gov-kgpsp-7793c97f": {
+    "title": "Ogólnopolskie Zawody Strażaków w Biegu na Orientację",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-mswia-caec0803": {
+    "title": "Bezpieczeństwo i edukacja. Podsumowanie przełomu września i października w MSWiA",
+    "publishedAt": "2026-10-05"
+  },
+  "gov-mon-36b7bc6e": {
+    "title": "Komunikat MON",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-gis-844bbfe0": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: zmiany organoleptyczne w napoju herbacianym",
+    "publishedAt": "2026-08-07"
+  },
+  "msz-300d5b41": {
+    "title": "Wicepremier Radosław Sikorski wziął udział w spotkaniu ministrów spraw zagranicznych G20 w Atlancie",
+    "publishedAt": "2026-10-31"
+  },
+  "gov-infrastruktura-bfd24d2c": {
+    "title": "Wspieramy działania na rzecz ochrony przeciwpowodziowej na Dolnym Śląsku",
+    "publishedAt": "2026-10-12"
+  },
+  "gov-rcb-1562ac4e": {
+    "title": "Alert RCB - zagrożenie z powietrza (21.10)",
+    "publishedAt": "2026-10-21"
+  },
+  "gov-mswia-20c8d315": {
+    "title": "Aplikacja do ostrzegania ludności wkrótce przejdzie testy. Minister Marcin Kierwiński odwiedził Gdańsk",
+    "publishedAt": "2026-10-03"
+  },
+  "gov-mon-e11d3e7a": {
+    "title": "Komunikat MON",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-gis-84c78dc4": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii metki brunszwickiej",
+    "publishedAt": "2026-07-24"
+  },
+  "msz-438e1da7": {
+    "title": "Szefowa Służby Zagranicznej o wzmacnianiu odporności Europy podczas debaty w Kopenhadze",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-rcb-f6b3f8c2": {
+    "title": "Alert RCB - ćwiczenia w powiecie kamiennogórskim (20.10)",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-gis-1a6e36f8": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii metki łososiowej",
+    "publishedAt": "2026-07-24"
+  },
+  "msz-d9e90695": {
+    "title": "Wicepremier, minister spraw zagranicznych Radosław Sikorski na konferencji „Sprawcze państwo. Jak skutecznie realizować inwestycje strategiczne dla rozwoju Polski”",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-gis-557f3285": {
+    "title": "Aktualizacja ostrzeżenia publicznego z dnia 03.07.2026 dotyczącego żywności: stwierdzenie niezadeklarowanej obecności składnika alergennego - glutenu w partiach bigosu z mięsem i kiełbasą",
+    "publishedAt": "2026-07-21"
+  },
+  "msz-4b60ca15": {
+    "title": "Polsko-tureckie konsultacje konsularne",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-gis-b6164bce": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii szynki wieprzowej w plastrach gotowanej 100 g.",
+    "publishedAt": "2026-07-21"
+  },
+  "msz-5f6ca7cc": {
+    "title": "Laureaci Polskiej Nagrody im. Sérgio Vieira de Mello 2026",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-gis-ec014fcf": {
+    "title": "Ostrzeżenie publiczne dotyczące żywności: niewłaściwa informacja dotycząca alergenu - brak wyróżnienia obecności siarczynów na etykiecie produktu",
+    "publishedAt": "2026-07-20"
+  },
+  "msz-836dc569": {
+    "title": "Polska i Wietnam podnoszą relacje dwustronne do rangi partnerstwa strategicznego",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-gis-f6a695c6": {
+    "title": "Konferencja „Profilaktyka - wzory duńskie” z udziałem Głównego Inspektora Sanitarnego",
+    "publishedAt": "2026-11-19"
+  },
+  "msz-01b29920": {
+    "title": "Wiceministrowie ds. Europejskich Trójkąta Weimarskiego w Giżycku",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-gis-2655c8d7": {
+    "title": "Instytut Ogrodnictwa",
+    "publishedAt": "2026-11-18"
+  },
+  "msz-3e59e795": {
+    "title": "Oświadczenie MSZ ws. ataku terrorystycznego w Jordanii",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-gis-83c6417d": {
+    "title": "Lekooporność drobnoustrojów: Dbaj o swoje dzieci - stosuj antybiotyki rozważnie",
+    "publishedAt": "2026-11-18"
+  },
+  "msz-bc994162": {
+    "title": "Szczyt Procesu Berlińskiego w Czarnogórze",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-gis-a56d7e25": {
+    "title": "Rzuć palenie. Zrób pierwszy krok dla siebie",
+    "publishedAt": "2026-11-18"
+  },
+  "msz-25c56521": {
+    "title": "Spotkanie wiceministrów Polski i Litwy",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-gis-ffd49a7d": {
+    "title": "Finał konkursu „Zroluj zdrowie - siła wyborów” już za nami!",
+    "publishedAt": "2026-11-17"
+  },
+  "msz-5da7e807": {
+    "title": "Konsultacje polsko-cypryjskie",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-gis-14792023": {
+    "title": "Środki do dezynfekcji w sektorze żywności i pasz - wyniki kontroli",
+    "publishedAt": "2026-11-16"
+  },
+  "msz-7dd1d22a": {
+    "title": "Komunikat MSZ w sprawie incydentu w Taybeh",
+    "publishedAt": "2026-10-18"
+  },
+  "gov-gis-90db9843": {
+    "title": "Globalne wyzwania zdrowotne tematem spotkania z udziałem GIS i WHO",
+    "publishedAt": "2026-11-12"
+  },
+  "msz-2edd2ae0": {
+    "title": "Polsko-czeskie konsultacje w Pradze",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-gis-a36b662f": {
+    "title": "Wyrazy współczucia dla rodzin i bliskich ofiar tragedii w Krakowie",
+    "publishedAt": "2026-11-08"
+  },
+  "msz-efe8db83": {
+    "title": "Konsultacje polsko-francuskie",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-gis-87d2f3eb": {
+    "title": "Europejski Dzień Radonu - niewidoczny gaz, realne zagrożenie!",
+    "publishedAt": "2026-11-06"
+  },
+  "gov-gis-f4441f62": {
+    "title": "Nowa dyrektor Biura WHO w Polsce z wizytą w GIS",
+    "publishedAt": "2026-11-04"
+  },
+  "policja-mazowiecka-1adc5e31": {
+    "title": "Z sądowym zakazem uciekał przed policjantami - został zatrzymany po pościgu przez policjantów z Kadzidła",
+    "publishedAt": "2026-11-21"
+  },
+  "policja-mazowiecka-e9e5b874": {
+    "title": "Policjant z Mławy na podium w kraju! Podkom. Krzysztof Grędziński drugim najlepszym dyżurnym w Polsce",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-e5f4d2c7": {
+    "title": "Kradzież drewna w gminie Zatory. 50-latek wpadł po śladach w lesie",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-fe5e8860": {
+    "title": "Kierowca z 3 promilami w drodze po alkohol spowodował kolizję",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-925769a0": {
+    "title": "Nietrzeźwy kierowca potrącił psa na przejściu dla pieszych w Żyrardowie",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-bf19c587": {
+    "title": "Płoccy policjanci zatrzymali kolejnych 7 osób poszukiwanych",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-5fb6d4e3": {
+    "title": "Tymczasowy areszt za wywołanie pożaru w Pułtusku. Ponad 20 osób ewakuowanych z zadymionego bloku",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-0eb39db3": {
+    "title": "35 tysięcy złotych straciła 83-latka. Oszustka podawała się za jej córkę",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-77d65263": {
+    "title": "Kino, pasja i profilaktyka - warsztaty filmowe radomskiej grupy PaT",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-c3a93ad5": {
+    "title": "Jedna kontrola, seria naruszeń. 31-latek z mandatami i sprawą w sądzie",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-0c8cb398": {
+    "title": "Ponad 230 gramów narkotyków w mieszkaniu 34-latka. Płońscy kryminalni zatrzymali dwóch mężczyzn",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-8aa21c5b": {
+    "title": "Bezpłatna kontrola świateł w samochodzie: Najbliższa okazja już w sobotę, 21 listopada",
+    "publishedAt": "2026-11-20"
+  },
+  "policja-mazowiecka-b92af317": {
+    "title": "Mazowiecka Policja na czerwono. Razem przeciwko przemocy wobec dzieci",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-mazowiecka-dd220607": {
+    "title": "Miłość, która kosztowała blisko 9 tysięcy złotych. Uwierzyła w historię lekarza ONZ i straciła pieniądze",
+    "publishedAt": "2026-11-19"
+  },
+  "policja-mazowiecka-fa022a38": {
+    "title": "Młodzież i seniorzy z Sokołowa Podlaskiego o bezpieczeństwie w cyberprzestrzeni",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-mazowiecka-da3e2b7c": {
+    "title": "„Samochód widmo” w rowie. Cztery osoby z promilami. Policjanci ustalili, kto kierował BMW",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-mazowiecka-64918473": {
+    "title": "„Odbierak” namierzony przez płockich policjantów. 18-latek tymczasowo aresztowany",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-mazowiecka-02bf4177": {
+    "title": "Nocna kontrola drogowa. Brak uprawnień i mefedron w kieszeni 20-latka",
+    "publishedAt": "2026-11-18"
+  },
+  "policja-mazowiecka-7870baed": {
+    "title": "Poszukiwany 32-latek zatrzymany przez płońskich kryminalnych. Ukrywał się w stolicy",
+    "publishedAt": "2026-11-12"
+  },
+  "policja-75cb6648": {
+    "title": "Nowe przepisy dla większego bezpieczeństwa na przejazdach kolejowych",
+    "publishedAt": "2026-11-14"
+  },
+  "policja-892795c2": {
+    "title": "Krakowscy policjanci zatrzymali mężczyznę, który oddał strzały w ich kierunku",
+    "publishedAt": "2026-11-13"
+  },
+  "policja-f559bc9b": {
+    "title": "Kolejne sportowe sukcesy bydgoskiego policjanta",
+    "publishedAt": "2026-11-13"
+  },
+  "policja-6b53898f": {
+    "title": "Groził sąsiadce pozbawieniem życia, miał przy sobie maczetę. 62-latek usłyszał zarzuty",
+    "publishedAt": "2026-11-13"
+  },
+  "policja-f4530c7b": {
+    "title": "Poszukiwany 12 listami gończymi w rękach policjantów",
+    "publishedAt": "2026-11-13"
+  },
+  "gov-kgpsp-fcd90a6f": {
+    "title": "Rodzina i strażacy pożegnali śp. kpt. Wojciecha Garbacza",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-kgpsp-a35cd1ee": {
+    "title": "Rodzina i strażacy pożegnali śp. st. asp. Bartłomieja Pieroga",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-238cd50e": {
+    "title": "Edukacja z wojskiem. Inauguracja VI edycji projektu z udziałem wicepremiera Władysława Kosiniaka-Kamysza i minister Barbary Nowackiej",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-kgpsp-5d1b6d20": {
+    "title": "Ślubowanie kadetów w Szkole Aspirantów PSP w Poznaniu",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-792ede9a": {
+    "title": "Bezpieczeństwo państwa zaczyna się od odpornego społeczeństwa!",
+    "publishedAt": "2026-10-28"
+  },
+  "gov-kgpsp-b1183e20": {
+    "title": "posiedzenie Grupy Sterującej Obszaru Tematycznego „Bezpieczeństwo Cywilne” (PA SECURE)",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-928ef89a": {
+    "title": "Strategiczne partnerstwo Polski i Wielkiej Brytanii. Podpisano trzyletni Plan Współpracy Obronnej",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-kgpsp-fc98f1d2": {
+    "title": "Nowe zasady kwalifikacji na studia podyplomowe SPK 2026/2027",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-0a6933bd": {
+    "title": "W Polsce powstanie centrum obsługi pocisków rakietowych PAC-3",
+    "publishedAt": "2026-10-27"
+  },
+  "gov-kgpsp-7875d502": {
+    "title": "Odprawa szkoleniowa radców prawnych Państwowej Straży Pożarnej",
+    "publishedAt": "2026-10-21"
+  },
+  "gov-mon-17aef92b": {
+    "title": "Przywrócona pamięć o architekcie zwycięstwa 1920 roku. Pomnik gen. broni Tadeusza Jordan-Rozwadowskiego odsłonięty przed Sztabem Generalnym Wojska Polskiego",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-kgpsp-da6112d4": {
+    "title": "Nabór w ramach przeniesienia służbowego do Biura Kadr KG PSP",
+    "publishedAt": "2026-10-21"
+  },
+  "gov-mon-de161c95": {
+    "title": "Porozumienie o współpracy pomiędzy MON a Naczelną Izbą Lekarską oraz Wojskową Izbą Lekarską na rzecz Legionu Medycznego",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-kgpsp-85ae6d5b": {
+    "title": "Akt erekcyjny pod budowę nowej JRG PSP w Kostrzynie nad Odrą",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-mon-49a8dc91": {
+    "title": "Europejska Grupa 5 Ministrów Obrony (E5) o dalszym wzmacnianiu NATO",
+    "publishedAt": "2026-10-26"
+  },
+  "gov-kgpsp-becf71f6": {
+    "title": "Wspólnie budujemy gotowość do działań - szkolenie USAR MOLDOVA w Polsce",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-mon-d734bfb5": {
+    "title": "Polsko-amerykańska współpraca na rzecz wzmacniania gotowości medycznej",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-kgpsp-c5e4b311": {
+    "title": "Informacja dotycząca pogrzebów strażaków PSP, którzy zginęli podczas działań ratowniczych w Nisku 16 października 2026 r.",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-mon-05fac30c": {
+    "title": "MON i Narodowy Instytut Onkologii rozpoczynają współpracę. Wspólne działania na rzecz bezpieczeństwa i zdrowia pacjentów",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-7dbc4ca5": {
+    "title": "Współpraca polsko - amerykańska na rzecz bezpieczeństwa",
+    "publishedAt": "2026-10-22"
+  },
+  "gov-mon-d463c6ae": {
+    "title": "Wiceminister Wziątek otworzył konferencję Global Defence Aviation 2026",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-mon-803eb58e": {
+    "title": "Komunikat MON",
+    "publishedAt": "2026-10-19"
+  },
+  "gov-gis-ef9a0c7b": {
+    "title": "Zdrowe i bezpieczne miejsce pracy. Rusza kampania „Zdrowa praca, zdrowa głowa”",
+    "publishedAt": "2026-11-05"
+  },
+  "gov-gis-f0bae972": {
+    "title": "Konferencja Polskiego Punktu Koordynacyjnego EFSA oraz organizacji kompetentnych z art. 36",
+    "publishedAt": "2026-11-04"
+  },
+  "gov-gis-d990f172": {
+    "title": "Komunikat Głównego Inspektora Sanitarnego w sprawie potencjalnych zagrożeń związanych z atakami na infrastrukturę łańcucha chłodniczego w przemyśle spożywczym",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-00710fc9": {
+    "title": "Komunikat nr 6 z dnia 03.11.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA)",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-23c4dca8": {
+    "title": "GIS o Programie Szczepień Ochronnych na 2027 r., szczepieniach HPV, sytuacji epidemiologicznej i koncepcji One Health",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-1fc70a94": {
+    "title": "Komunikat nr 2 Głównego Inspektora Sanitarnego ws. bezpłatnych szczepień przeciw wirusowi brodawczaka ludzkiego (HPV) u osób dorosłych w wieku 19-26 lat - przekazanie dodatkowych dawek szczepionki 2-walentnej",
+    "publishedAt": "2026-11-03"
+  },
+  "gov-gis-c2ad1d8d": {
+    "title": "Movember. Zadbaj o zdrowie. Co warto wiedzieć o raku prostaty i jąder?",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-gis-72f974c0": {
+    "title": "Program Szczepień Ochronnych na 2027 rok",
+    "publishedAt": "2026-11-02"
+  },
+  "gov-gis-0c977b3e": {
+    "title": "W Głównym Inspektoracie Sanitarnym powołano Interdyscyplinarny Zespół do spraw problematyki „Jedno Zdrowie” („One Health”)",
+    "publishedAt": "2026-10-29"
+  },
+  "gov-gis-2e603047": {
+    "title": "Komunikat Głównego Inspektora Sanitarnego dot. pierwszego wykrycia wirusa Shamonda u człowieka na terenie Francji",
+    "publishedAt": "2026-10-23"
+  },
+  "gov-gis-57e4fc42": {
+    "title": "Środki na owady i kleszcze - wyniki kontroli",
+    "publishedAt": "2026-10-20"
+  },
+  "gov-gis-13a23c94": {
+    "title": "Światowy Dzień Żywności. Innowacje, odpowiedzialność i wspólna troska o przyszłość",
+    "publishedAt": "2026-10-16"
+  },
+  "gov-gis-21c555e4": {
+    "title": "Profilaktyka raka piersi. Co każda kobieta powinna wiedzieć?",
+    "publishedAt": "2026-10-15"
+  },
+  "gov-gis-5b7c5ef8": {
+    "title": "Prostsza współpraca szkół, przedszkoli i innych podmiotów z Państwową Inspekcją Sanitarną - promocja zdrowia w SEPIS",
+    "publishedAt": "2026-10-14"
+  },
+  "gov-gis-e87a8e7e": {
+    "title": "Szkoła przyjazna zdrowiu. Jak sanepid wspiera placówki edukacyjne",
+    "publishedAt": "2026-10-14"
+  },
+  "gov-gis-c8bfb72f": {
+    "title": "Kontrole zorganizowanego wypoczynku wakacyjnego w 2026 r. - podsumowanie",
+    "publishedAt": "2026-10-14"
+  },
+  "gov-gis-7205eb42": {
+    "title": "Komunikat nr 2 dotyczący doniesień o śmiertelnym przypadku zapalenia płuc na terenie Federacji Rosyjskiej",
+    "publishedAt": "2026-10-09"
+  },
+  "gov-gis-99853041": {
+    "title": "Komunikat nr 5 z dnia 05.10.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA DANYCH)",
+    "publishedAt": "2026-10-08"
+  },
+  "gov-gis-7f4740b5": {
+    "title": "Wystartował projekt, który wzmocni zdrowie publiczne na poziomach: regionalnym i lokalnym",
+    "publishedAt": "2026-10-07"
+  },
+  "gov-gis-5983d6b2": {
+    "title": "Informacja dotycząca doniesień o możliwych przypadkach zachorowań na dżumę u ludzi na terenie Federacji Rosyjskiej",
+    "publishedAt": "2026-10-05"
   }
 }

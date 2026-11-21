@@ -1,0 +1,29 @@
+🚨 Fałszywe alerty od dostawców hostingu
+
+📧 Cyberprzestępcy prowadzą kolejną kampanię phishingową, podszywając się pod dostawców usług hostingowych.
+
+W rozsyłanych wiadomościach e-mail informują o rzekomym problemie z usługą i zapowiadają zawieszenie działania stron internetowych.
+
+🔐 Link zamieszczony w wiadomości przekierowuje do fałszywej strony logowania, która służy do przechwytywania danych uwierzytelniających. Następnie użytkownik proszony jest o podanie danych karty płatniczej. W ten sposób przestępcy mogą uzyskać dostęp zarówno do konta użytkownika, jak i jego pieniędzy. Zgromadzone dane mogą zostać wykorzystane również w kolejnych oszustwach.
+
+🔎 Jak rozpoznać próbę oszustwa?
+
+🔹 Zweryfikuj uważnie adres nadawcy oraz adres docelowy odnośnika. Zwróć uwagę na nietypowe domeny i różnice w adresie URL.
+
+🔹 Zachowaj ostrożność wobec wiadomości, które wywierają presję czasu i natychmiastowego działania.
+
+🔹 Wszelkie informacje o zawieszeniu lub ograniczeniu usług weryfikuj bezpośrednio w oficjalnym panelu klienta, wpisując adres serwisu samodzielnie w przeglądarce.
+
+📨 Podejrzane wiadomości i strony internetowe zgłaszaj do CERT Polska za pośrednictwem incydent.cert.pl lub aplikacji mObywatel, korzystając z usługi „Bezpiecznie w sieci”.
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

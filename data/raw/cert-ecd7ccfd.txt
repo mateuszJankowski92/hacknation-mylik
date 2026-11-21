@@ -1,0 +1,19 @@
+🔐 Oszuści wciąż rozsyłają wiadomości podszywające się pod bank, ale wykorzystują nowy motyw
+
+Otrzymujemy kolejne, liczne zgłoszenia dotyczące cyberprzestępców podszywających się pod komunikację bankową skierowaną do klientów biznesowych.
+
+📧 W najnowszym wariancie wiadomości oszuści piszą o rzekomej konieczności aktualizacji dokumentacji firmy. Nadawca powołuje się na obowiązki regulacyjne oraz zachęca do niezwłocznego zalogowania się do bankowości elektronicznej w celu potwierdzenia danych przedsiębiorstwa.
+
+🔗 W treści e-maila znajduje się odnośnik prowadzący do strony podszywającej się pod serwis bankowości internetowej. Celem przestępców jest przejęcie danych logowania użytkownika.
+
+⚠️ To kolejna odsłona obserwowanej kampanii. W ostatnich dniach oszuści wykorzystywali tematy związane z rachunkami walutowymi, nowymi zasadami autoryzacji przelewów czy aktualizacją danych klienta osobistego. Zmienia się treść wiadomości, ale cel pozostaje ten sam.
+
+🔎 Przypominamy jak się chronić:
+
+• Korzystaj z bankowości elektronicznej samodzielnie wyszukując oficjalną stronę banku lub korzystając z aplikacji mobilnej.
+
+• Zachowaj ostrożność wobec wiadomości wywołujących presję czasu lub grożących ograniczeniem dostępu do konta.
+
+📣 Jeśli otrzymasz podobną wiadomość zgłoś ją do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel 📲
+
+Wygląd złośliwej strony internetowej

@@ -12,6 +12,28 @@ export const CatalogDocumentSchema = z.object({
 	file: z.string().min(1),
 });
 
+export const DiscoverySeedSchema = z.object({
+	url: z.url(),
+	/** Wyrażenie regularne; grupa 1 to adres odnośnika (względny lub bezwzględny) do dokumentu. */
+	link: z.string().min(1),
+	/** Liczba stron listy (parametr ?page=N); domyślnie 1. */
+	pages: z.number().int().min(1).max(10).optional(),
+});
+
+export const DiscoverySchema = z.object({
+	seeds: z.array(DiscoverySeedSchema).min(1),
+	/** Maksymalna liczba nowych dokumentów dołączanych do źródła w jednym przebiegu. */
+	maxNew: z.number().int().min(1).max(500),
+	/** Gdy ustawione, zapisujemy tylko początek tekstu (licencja nie pozwala na pełny tekst). */
+	excerptChars: z.number().int().min(200).max(5000).optional(),
+});
+
+export const PolicySchema = z.object({
+	qualification: z.string().min(1),
+	update: z.string().min(1),
+	exclusion: z.string().min(1),
+});
+
 export const CatalogSourceSchema = z.object({
 	id: z.string().min(1),
 	publisher: z.string().min(1),
@@ -19,6 +41,8 @@ export const CatalogSourceSchema = z.object({
 	sourceType: SourceTypeSchema,
 	license: z.string().min(1),
 	notes: z.string().optional(),
+	policy: PolicySchema.optional(),
+	discovery: DiscoverySchema.optional(),
 	documents: z.array(CatalogDocumentSchema),
 });
 
@@ -27,6 +51,8 @@ export const CatalogSchema = z.object({
 	sources: z.array(CatalogSourceSchema),
 });
 
+export type Discovery = z.infer<typeof DiscoverySchema>;
+export type Policy = z.infer<typeof PolicySchema>;
 export type Catalog = z.infer<typeof CatalogSchema>;
 export type CatalogSource = z.infer<typeof CatalogSourceSchema>;
 export type CatalogDocument = z.infer<typeof CatalogDocumentSchema>;

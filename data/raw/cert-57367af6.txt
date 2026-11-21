@@ -1,0 +1,29 @@
+📦 Uważaj na wiadomości o nieudanym doręczeniu przesyłki!
+
+Obserwujemy kolejną odsłonę kampanii phishingowej podszywającej się pod firmy kurierskie.
+
+📩 Oszuści rozsyłają wiadomości informujące o rzekomo nieudanej próbie doręczenia paczki. W treści znajduje się link, który ma umożliwić umówienie nowego terminu dostawy.
+
+🔗 Prowadzi on do złośliwej strony internetowej przygotowanej przez cyberprzestępców. Oszuści proszą o wybranie nowego terminu dostawy i dopłatę za ponowne doręczenie.
+
+💳 Celem ataku jest wyłudzenie danych karty płatniczej, które mogą zostać wykorzystane do nieautoryzowanych transakcji lub kolejnych prób oszustwa.
+
+🔎 Jak uniknąć zagrożenia?
+
+• Zwracaj uwagę na adres strony internetowej przed podaniem jakichkolwiek danych.
+
+• Status przesyłki sprawdzaj bezpośrednio na samodzielnie wyszukanej stronie firmy kurierskiej lub w oficjalnej aplikacji przewoźnika.
+
+📱 Podejrzane wiadomości i strony internetowe zgłoś do CERT Polska. Możesz to zrobić za pomocą formularza na stronie incydent.cert.pl lub w usłudze „Bezpiecznie w sieci” w aplikacji mObywatel. Dzięki temu pomagasz chronić także innych użytkowników sieci.
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd złośliwej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

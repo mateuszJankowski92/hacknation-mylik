@@ -1,0 +1,25 @@
+🚨 Cyberprzestępcy podszywają się pod KAS i straszą błędami w JPK_VAT!
+
+Obserwujemy kolejną kampanię phishingową, w której cyberprzestępcy podszywają się pod Krajową Administrację Skarbową.
+
+📧 Oszuści informują o rzekomych rozbieżnościach wykrytych podczas automatycznej weryfikacji pliku JPK_VAT.
+
+🔗 W treści e-maila znajduje się odnośnik, który prowadzi na stronę podszywającą się pod panel logowania do poczty elektronicznej.
+
+⚠️ Zachowaj ostrożność wobec wiadomości dotyczących spraw podatkowych wymagających natychmiastowej reakcji. Sprawdź poprawność adresu nadawcy i zwróć uwagę na adres strony, do której kieruje link zawarty w treści. W razie wątpliwości zweryfikuj informację bezpośrednio w swoim urzędzie skarbowym.
+
+📣 Jeśli otrzymasz podobną wiadomość zgłoś ją do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel 📲
+
+Treść wiadomości e-mail wysłanej przez oszustów
+
+Wygląd złośliwej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

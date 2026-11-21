@@ -1,0 +1,37 @@
+Komunikat nr 5 z dnia 05.10.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA DANYCH)
+
+08.10.2026
+
+W ramach międzynarodowego nadzoru epidemiologicznego 17.05.2026 r. GIS pozyskał informacje o ognisku choroby Ebola wywołanej wirusem Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) i Ugandzie. W dniu 28.07.2026 r. Minister Zdrowia Ugandy ogłosił zakończenie epidemii w tym kraju. Natomiast w DRK sytuacja pozostaje dynamiczna, a liczba przypadków codziennie wzrasta. Odnotowywane są też w Europie sporadyczne przypadki importowane wśród pracowników medycznych.
+
+Bieżąca sytuacja epidemiologiczna w DRK
+
+Do chwili obecnej (stan na 06.10.2026 r.) w DRK zaraportowano 8603 przypadki potwierdzone, w tym 4148 przypadków śmiertelnych, zaś 896 osób jest hospitalizowanych w warunkach izolacji. Odsetek kontaktów objętych nadzorem wynosi obecnie 79,7%.
+
+Najwięcej przypadków potwierdzonych - 6450 (75%) oraz śmiertelnych - 2968 (72% wszystkich) wciąż jest zgłaszanych z prowincji Ituri, którą uznaje się za epicentrum ogniska, gdzie zachorowania stwierdzane są w 28 strefach zdrowia (Health Zones). Zachorowania zidentyfikowano także w 6 innych prowincjach: Kiwu Północe (obejmujące 17 stref zdrowia), Kiwu Południowe (1 strefa zdrowia), Górne Uele (7 stref zdrowia), Dolne Uele (3 strefy zdrowia), Tshopo (7 stref zdrowia), jak też od niedawna Ubangi Południowe (1 strefa zdrowia). Dane liczbowe są na bieżąco weryfikowane i ujednolicane w miarę uzyskiwania wyników przeprowadzonych badań laboratoryjnych.
+
+Sytuacja epidemiologiczna w pozostałych krajach, przypadki importowane i ocena ryzyka
+
+Aktualnie obserwowane ognisko obejmuje swoim zasięgiem już tylko obszary DRK (7 prowincji).
+
+29.09.2026 r. pozyskano informację o kolejnym importowanym przypadku zakażenia wirusem Bundibugyo w Europie (Holandia), dotyczącym lekarza udzielającego w DRK opieki pacjentom zakażonym wirusem Ebola [1] . To czwarty przypadek importowany do Europy związany z obecną epidemią w DRK. Wszystkie te przypadki dotyczyły działalności medycznej lub humanitarnej w dotkniętych epidemią regionach i zostały ewakuowane medycznie zgodnie z procedurami.
+
+Przypadki importowane wśród personelu medycznego lub misji humanitarnych zaangażowanych w działania na obszarach dotkniętych epidemią nie są niczym zaskakującym i nie zmieniają oceny ryzyka Europejskiego Centrum ds. Zapobiegania i Kontroli Chorób (ECDC), które dla populacji ogólnej wciąż oceniane jest jako bardzo niskie. Podobnie jako niskie ocenia ryzyko Światowa Organizacja Zdrowia (WHO).
+
+06.10.2026 r. władze Kenii potwierdziły pierwszy importowany przypadek BVD, u osoby podróżującej przez DRK, która zmarła po powrocie do kraju. Według przekazanych informacji [2] zidentyfikowano i poddano kwarantannie osoby z otoczenia osoby chorej, w tym członków rodziny oraz pracowników ochrony zdrowia.
+
+Niezmienione pozostaje jednak stanowisko ECDC i WHO w kontekście niezamykania granic. Cały czas zaleca się wdrożenie kontroli wyjazdowej na międzynarodowych lotniskach, w portach morskich i na głównych przejściach granicznych na terenach dotkniętych epidemią. Nie jest natomiast wskazywane takie samo podejście do kontroli wjazdowych u osób powracających z obszarów dotkniętych ogniskiem, jeżeli kontrola przy wyjeździe została przeprowadzona prawidłowo, lecz podróżni powinni być zaznajomieni z aktualnymi wytycznymi.
+
+Główny Inspektor Sanitarny na bieżąco monitoruje sytuacje epidemiologiczną, kierując się przy tym wytycznymi organizacji międzynarodowych (WHO, ECDC).
+
+Informacje o aktualnej sytuacji epidemiologicznej
+
+ECDC: https://www.ecdc.europa.eu/en/ebola-outbreak-democratic-republic-congo-and-uganda ,
+
+WHO: https://www.who.int/emergencies/alert-and-response ,
+
+Africa CDC: https://khub.africacdc.org/records/resource/bundibugyo-virus-disease-outbreak-situational-report-september-29-2026
+
+[1] Więcej: https://www.ecdc.europa.eu/en/news-events/risk-general-population-remains-very-low-following-fourth-imported-ebola-case-europe
+
+[2] https://www.youtube.com/watch?v=yXeZXVWZ9EQ

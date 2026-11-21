@@ -1,0 +1,13 @@
+Krytyczna podatność w Collabora Online dla Nextcloud aktywnie wykorzystywana w atakach
+
+Zespół CERT Polska informuje o krytycznej podatności w aplikacji Collabora Online - Built-in CODE Server (richdocumentscode) dla Nextcloud.
+
+Podatność, oznaczona jako CVE-2026-110447, umożliwia nieuwierzytelnionemu atakującemu zdalne wykonanie dowolnych poleceń systemowych z uprawnieniami konta serwera WWW. Do wykorzystania podatności dochodzi wyłącznie w sytuacji, gdy lokalny serwer dokumentów CODE tymczasowo nie działa - między innymi po restarcie, aktualizacji lub awarii. Podatność jest aktywnie wykorzystywana do przeprowadzania ataków ransomware i przejmowania kontroli nad serwerami.
+
+Podatność dotyczy wyłącznie aplikacji Collabora Online - Built-in CODE Server w wersjach przed 26.4.303. Problem nie dotyczy samodzielnych serwerów Collabora Online bądź instancji korzystających wyłącznie z aplikacji Nextcloud Office (richdocuments) z zewnętrznym serwerem Collabora.
+
+Rekomendujemy aktualizację aplikacji do wersji 26.4.303 lub nowszej. Należy pamiętać, że wyłączenie aplikacji w Nextcloud nie usuwa podatności. W przypadku Nextcloud 29 i starszych, dla których nie można zainstalować wersji 26.4.303 richdocuments, sugerujemy aktualizację Nextcloud lub usunięcie aplikacji, jeżeli nie jest aktywnie wykorzystywana.
+
+Zalecamy także weryfikację:
+
+obecności plików shx*.php w katalogu apps/richdocumentscode ,

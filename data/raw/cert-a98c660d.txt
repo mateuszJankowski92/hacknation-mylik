@@ -1,0 +1,27 @@
+Krytyczne podatności w oprogramowaniu GitLab umożliwiające zdalne wykonanie kodu
+
+Zespół CERT Polska informuje o krytycznych podatnościach w oprogramowaniu GitLab, które umożliwiają m.in. zdalne wykonanie kodu na serwerze przez nieuwierzytelnionego atakującego.
+
+Podatne wersje GitLab CE oraz GitLab EE:
+
+19.5.X przed 19.5.1,
+
+19.4.X przed 19.4.3,
+
+19.3.X przed 19.3.6,
+
+19.2.X przed 19.2.9,
+
+19.1.X przed 19.1.9,
+
+19.0.X przed 19.0.10,
+
+18.11.X przed 18.11.13
+
+Rekomendujemy niezwłoczną instalację zaktualizowanych wersji oprogramowania.
+
+Szczegółowe informacje oraz lista poprawek znajdują się w komunikacie producenta:
+
+https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-5-1-released/
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

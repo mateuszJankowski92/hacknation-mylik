@@ -1,0 +1,23 @@
+🎵 Oszuści wykorzystują wizerunek Spotify do wyłudzania danych
+
+CERT Polska obserwuje kampanię phishingową wykorzystującą wizerunek Spotify. Oszuści wysyłają wiadomości e-mail z informacją, że bank odrzucił opłatę za Spotify Premium.
+
+Nadawca zachęca do aktualizacji danych karty, argumentując, że pozwoli to uniknąć przerwy w dostępie do usługi.
+
+🔗 Przesłany link kieruje do fałszywego serwisu, którego zadaniem jest pozyskanie danych logowania i danych płatniczych.
+
+💡 Pamiętaj! W przypadku podejrzanych wiadomości, szczególnie tych nakłaniających do szybkiej płatności lub aktualizacji danych, zawsze warto samodzielnie sprawdzić status subskrypcji w oficjalnej aplikacji oraz zweryfikować pełny adres e-mail nadawcy.
+
+Treść fałszywej wiadomości e-mail
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

@@ -1,0 +1,9 @@
+Pobierz poradnik (PDF, 564KB)
+
+Cisza po incydencie cyberbezpieczeństwa jest równie groźna jak sam atak. Gdy brakuje rzetelnych informacji, szybko pojawiają się plotki, domysły i dezinformacja. Dlatego skuteczna komunikacja kryzysowa nie jest dodatkiem do reagowania na incydent, ale jednym z jego kluczowych elementów. Przygotowaliśmy praktyczny zbiór najważniejszych informacji, które pomogą zapanować nad chaosem i poinformować co się stało w rzetelny i profesjonalny sposób.
+
+Incydent cyberbezpieczeństwa może spotkać każdą organizację. W takiej sytuacji liczy się nie tylko szybka reakcja techniczna, ale również sprawna i odpowiedzialna komunikacja. To właśnie sposób informowania klientów, pracowników, partnerów biznesowych i mediów często decyduje o tym, czy kryzys uda się opanować bez długotrwałych konsekwencji wizerunkowych. Dlatego w CERT Polska przygotowaliśmy onepager dotyczący komunikacji kryzysowej po incydencie cyberbezpieczeństwa. To praktyczne kompendium najważniejszych zasad, które pomagają zaplanować i prowadzić komunikację w sytuacjach kryzysowych. Materiał powstał na podstawie doświadczeń zdobytych podczas obsługi tysięcy incydentów oraz aktualnych wymogów prawnych.
+
+Dlaczego komunikacja jest tak ważna?
+
+W przypadku incydentu cyberbezpieczeństwa brak informacji lub zbyt późna reakcja komunikacyjna mogą prowadzić do dezinformacji i utraty zaufania.

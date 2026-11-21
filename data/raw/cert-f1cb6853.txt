@@ -1,0 +1,15 @@
+🚨 Uwaga na e-maile z „nagraniem” uszkodzonego produktu!
+
+Obserwujemy kampanię dystrybucji złośliwego oprogramowania, w której cyberprzestępcy podszywają się pod klientów zgłaszających problemy z zamówionym towarem.
+
+📧 Wiadomość e-mail wygląda jak zgłoszenie reklamacyjne od klienta. Nadawca twierdzi, że rzekomo otrzymany towar jest uszkodzony, a link umieszczony w treści ma prowadzić do zdjęć i nagrań dokumentujących problem.
+
+👾 Z analizy wykonanej przez CERT Polska wynika, że przekazywane w załączniku oprogramowanie należy do rodziny malware "Purerat".
+
+⚠️ Podobne ataki obserwowano wcześniej np. w Japonii, gdzie wykorzystywano wiadomości phishingowe i fałszywe strony do rozpowszechniania złośliwego oprogramowania służącego m. in. do pozyskiwania zdalnego dostępu do systemów i kradzieży danych. Więcej ➡️ https://blog-en.itochuci.co.jp/entry/2026/09/25/090000
+
+🥷 Nie daj się oszukać! Zwracaj uwagę na rozszerzenia załączników – formaty takie jak .rar, .zip, .exe czy .js mogą sugerować, że zawartość załącznika jest inna niż zapewnia treść maila.
+
+🧾 Przed pobraniem załączników zweryfikuj autentyczność zgłoszenia, np. sprawdź czy numer zamówienia jest poprawny, albo czy adres e-mail nadawcy występuje w bazie klientów.
+
+👉 Jeśli otrzymasz podobną wiadomość, nie otwieraj załącznika i zgłoś tę sytuację do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel.

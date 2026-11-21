@@ -7,12 +7,28 @@
       "domain": "gov.pl",
       "sourceType": "urzedowe",
       "license": "Informacja publiczna organu władzy publicznej (gov.pl), materiały informacyjne MSZ; wykorzystanie w prototypie z podaniem wydawcy, adresu i daty pobrania (art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych - urzędowe materiały informacyjne i cytat). Retencja: tylko tekst, bez obrazów i załączników, przechowywany w zamkniętym korpusie prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/dyplomacja/aktualnosci",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
       "documents": [
         {
           "id": "msz-001",
           "title": "Jakiej pomocy może udzielić konsul?",
           "url": "https://www.gov.pl/web/dyplomacja/jakiej-pomocy-moze-udzielic-konsul",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-001.txt"
         },
         {
@@ -20,6 +36,7 @@
           "title": "Jak konsul może mi pomóc, jeśli pilnie potrzebuję paszport?",
           "url": "https://www.gov.pl/web/dyplomacja/jak-konsul-moze-mi-pomoc-jesli-pilnie-potrzebuje-paszport",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-003.txt"
         },
         {
@@ -27,6 +44,7 @@
           "title": "Jak odebrać paszport u konsula?",
           "url": "https://www.gov.pl/web/dyplomacja/jak-odebrac-paszport-u-konsula",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-004.txt"
         },
         {
@@ -34,6 +52,7 @@
           "title": "Czy przysługuje mi zniżka na paszport?",
           "url": "https://www.gov.pl/web/dyplomacja/czy-przysluguje-mi-znizka-na-paszport",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-005.txt"
         },
         {
@@ -41,6 +60,7 @@
           "title": "Jak powinno wyglądać zdjęcie do paszportu?",
           "url": "https://www.gov.pl/web/dyplomacja/jak-powinno-wygladac-zdjecie-do-paszportu",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-006.txt"
         },
         {
@@ -48,6 +68,7 @@
           "title": "Wizy",
           "url": "https://www.gov.pl/web/dyplomacja/wizy",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-007.txt"
         },
         {
@@ -55,6 +76,7 @@
           "title": "Paszporty",
           "url": "https://www.gov.pl/web/dyplomacja/paszporty",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-008.txt"
         },
         {
@@ -62,6 +84,7 @@
           "title": "Twój paszport za granicą. Pytania i odpowiedzi",
           "url": "https://www.gov.pl/web/dyplomacja/twoj-paszport-za-granica-pytania-i-odpowiedzi",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-010.txt"
         },
         {
@@ -69,6 +92,7 @@
           "title": "Checklista wyjazdowa MSZ",
           "url": "https://www.gov.pl/web/dyplomacja/checklista-wyjazdowa-msz",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-011.txt"
         },
         {
@@ -76,6 +100,7 @@
           "title": "Centrum Informacji Konsularnej",
           "url": "https://www.gov.pl/web/dyplomacja/centrum-informacji-konsularnej",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-012.txt"
         },
         {
@@ -83,6 +108,7 @@
           "title": "Obszary polityki zagranicznej",
           "url": "https://www.gov.pl/web/dyplomacja/obszary-polityki-zagranicznej",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-013.txt"
         },
         {
@@ -90,6 +116,7 @@
           "title": "Podstawowe informacje",
           "url": "https://www.gov.pl/web/dyplomacja/podstawowe-informacje",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-015.txt"
         },
         {
@@ -97,7 +124,240 @@
           "title": "Jak zarejestrować się na wizytę paszportową u konsula?",
           "url": "https://www.gov.pl/web/dyplomacja/1-jak-zarejestrowac-sie-na-wizyte-paszportowa-u-konsula",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/msz-017.txt"
+        },
+        {
+          "id": "msz-50199a41",
+          "title": "Oświadczenia MSZ w związku z atrybucją przez Danię rosyjskim służbom specjalnym próby zamachu na obywatela Stanów Zjednoczonych i Ukrainy na terenie Danii",
+          "url": "https://www.gov.pl/web/dyplomacja/oswiadczenia-msz-w-zwiazku-z-atrybucja-przez-danie-rosyjskim-sluzbom-specjalnym-proby-zamachu-na-obywatela-stanow-zjednoczonych-i-ukrainy-na-terenie-danii",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/msz-50199a41.txt"
+        },
+        {
+          "id": "msz-1531d6aa",
+          "title": "Dr Elżbieta Mikos-Skuza ponownie wybrana do Międzynarodowej Komisji Humanitarnej do spraw Ustalania Faktów",
+          "url": "https://www.gov.pl/web/dyplomacja/dr-elzbieta-mikos-skuza-ponownie-wybrana-do-miedzynarodowej-komisji-humanitarnej-do-spraw-ustalania-faktow",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/msz-1531d6aa.txt"
+        },
+        {
+          "id": "msz-e4f3a2c4",
+          "title": "Wicepremier Radosław Sikorski z wizytą w Budapeszcie",
+          "url": "https://www.gov.pl/web/dyplomacja/wicepremier-radoslaw-sikorski-z-wizyta-w-budapeszcie",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/msz-e4f3a2c4.txt"
+        },
+        {
+          "id": "msz-89f36712",
+          "title": "Wicepremier Radosław Sikorski na Radzie FAC",
+          "url": "https://www.gov.pl/web/dyplomacja/wicepremier-radoslaw-sikorski-na-radzie-fac",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/msz-89f36712.txt"
+        },
+        {
+          "id": "msz-a16501ac",
+          "title": "Dzień Otwarty w Ministerstwie Spraw Zagranicznych 21 listopada 2026 r.",
+          "url": "https://www.gov.pl/web/dyplomacja/dzien-otwarty-w-ministerstwie-spraw-zagranicznych-21-listopada-2026-r",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/msz-a16501ac.txt"
+        },
+        {
+          "id": "msz-4c889003",
+          "title": "Polsko - austriackie rozmowy o współpracy",
+          "url": "https://www.gov.pl/web/dyplomacja/polsko--austriackie-rozmowy-o-wspolpracy",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/msz-4c889003.txt"
+        },
+        {
+          "id": "msz-51e09305",
+          "title": "Polsko-tunezyjskie konsultacje w Warszawie",
+          "url": "https://www.gov.pl/web/dyplomacja/polsko-tunezyjskie-konsultacje-w-warszawie",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/msz-51e09305.txt"
+        },
+        {
+          "id": "msz-25f61a72",
+          "title": "Polska dołącza do Wspólnej Jednostki Kontrolnej ONZ",
+          "url": "https://www.gov.pl/web/dyplomacja/polska-dolacza-do-wspolnej-jednostki-kontrolnej-onz",
+          "publishedAt": "2026-11-11",
+          "validUntil": null,
+          "file": "data/raw/msz-25f61a72.txt"
+        },
+        {
+          "id": "msz-d465ddae",
+          "title": "Jakub Józef Orliński odznaczony „Bene Merito'' przez szefa dyplomacji Radosława Sikorskiego",
+          "url": "https://www.gov.pl/web/dyplomacja/jakub-jozef-orlinski-odznaczony-bene-merito-przez-szefa-dyplomacji-radoslawa-sikorskiego",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/msz-d465ddae.txt"
+        },
+        {
+          "id": "msz-23df4a5e",
+          "title": "Umowa między Polską a Stałym Trybunałem Arbitrażowym podpisana",
+          "url": "https://www.gov.pl/web/dyplomacja/umowa-miedzy-polska-a-stalym-trybunalem-arbitrazowym-podpisana",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/msz-23df4a5e.txt"
+        },
+        {
+          "id": "msz-be03a9f7",
+          "title": "Polsko-honduraskie konsultacje polityczne",
+          "url": "https://www.gov.pl/web/dyplomacja/polsko-honduraskie-konsultacje-polityczne",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/msz-be03a9f7.txt"
+        },
+        {
+          "id": "msz-2c8b09fd",
+          "title": "Polska i Grecja o priorytetach UE",
+          "url": "https://www.gov.pl/web/dyplomacja/polska-i-grecja-o-priorytetach-ue",
+          "publishedAt": "2026-11-07",
+          "validUntil": null,
+          "file": "data/raw/msz-2c8b09fd.txt"
+        },
+        {
+          "id": "msz-e0d3b546",
+          "title": "Nieformalne spotkanie szefów dyplomacji Rady Państw Morza Bałtyckiego, UE i Ukrainy",
+          "url": "https://www.gov.pl/web/dyplomacja/nieformalne-spotkanie-szefow-dyplomacji-rady-panstw-morza-baltyckiego-ue-i-ukrainy",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/msz-e0d3b546.txt"
+        },
+        {
+          "id": "msz-936fe164",
+          "title": "Spotkanie szefów dyplomacji Polski i Ukrainy",
+          "url": "https://www.gov.pl/web/dyplomacja/spotkanie-szefow-dyplomacji-polski-i-ukrainy4",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/msz-936fe164.txt"
+        },
+        {
+          "id": "msz-f3e20a63",
+          "title": "Wicepremier Radosław Sikorski na konferencji w Sejmie poświęconej ochronie niematerialnego dziedzictwa kulturowego",
+          "url": "https://www.gov.pl/web/dyplomacja/wicepremier-radoslaw-sikorski-na-konferencji-w-sejmie-poswieconej-ochronie-niematerialnego-dziedzictwa-kulturowego",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/msz-f3e20a63.txt"
+        },
+        {
+          "id": "msz-300d5b41",
+          "title": "Wicepremier Radosław Sikorski wziął udział w spotkaniu ministrów spraw zagranicznych G20 w Atlancie",
+          "url": "https://www.gov.pl/web/dyplomacja/wicepremier-radoslaw-sikorski-wzial-udzial-w-spotkaniu-ministrow-spraw-zagranicznych-g20-w-atlancie",
+          "publishedAt": "2026-10-31",
+          "validUntil": null,
+          "file": "data/raw/msz-300d5b41.txt"
+        },
+        {
+          "id": "msz-438e1da7",
+          "title": "Szefowa Służby Zagranicznej o wzmacnianiu odporności Europy podczas debaty w Kopenhadze",
+          "url": "https://www.gov.pl/web/dyplomacja/szefowa-sluzby-zagranicznej-o-wzmacnianiu-odpornosci-europy-podczas-debaty-w-kopenhadze",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/msz-438e1da7.txt"
+        },
+        {
+          "id": "msz-d9e90695",
+          "title": "Wicepremier, minister spraw zagranicznych Radosław Sikorski na konferencji „Sprawcze państwo. Jak skutecznie realizować inwestycje strategiczne dla rozwoju Polski”",
+          "url": "https://www.gov.pl/web/dyplomacja/wicepremier-minister-spraw-zagranicznych-radoslaw-sikorski-na-konferencji-sprawcze-panstwo-jak-skutecznie-realizowac-inwestycje-strategiczne-dla-rozwoju-polski",
+          "publishedAt": "2026-10-27",
+          "validUntil": null,
+          "file": "data/raw/msz-d9e90695.txt"
+        },
+        {
+          "id": "msz-4b60ca15",
+          "title": "Polsko-tureckie konsultacje konsularne",
+          "url": "https://www.gov.pl/web/dyplomacja/polsko-tureckie-konsultacje-konsularne",
+          "publishedAt": "2026-10-27",
+          "validUntil": null,
+          "file": "data/raw/msz-4b60ca15.txt"
+        },
+        {
+          "id": "msz-5f6ca7cc",
+          "title": "Laureaci Polskiej Nagrody im. Sérgio Vieira de Mello 2026",
+          "url": "https://www.gov.pl/web/dyplomacja/laureaci-polskiej-nagrody-im-srgio-vieira-de-mello-2026",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/msz-5f6ca7cc.txt"
+        },
+        {
+          "id": "msz-836dc569",
+          "title": "Polska i Wietnam podnoszą relacje dwustronne do rangi partnerstwa strategicznego",
+          "url": "https://www.gov.pl/web/dyplomacja/polska-i-wietnam-podnosza-relacje-dwustronne-do-rangi-partnerstwa-strategicznego",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/msz-836dc569.txt"
+        },
+        {
+          "id": "msz-01b29920",
+          "title": "Wiceministrowie ds. Europejskich Trójkąta Weimarskiego w Giżycku",
+          "url": "https://www.gov.pl/web/dyplomacja/wiceministrowie-ds-europejskich-trojkata-weimarskiego-w-gizycku",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/msz-01b29920.txt"
+        },
+        {
+          "id": "msz-3e59e795",
+          "title": "Oświadczenie MSZ ws. ataku terrorystycznego w Jordanii",
+          "url": "https://www.gov.pl/web/dyplomacja/oswiadczenie-msz-ws-ataku-terrorystycznego-w-jordanii",
+          "publishedAt": "2026-10-23",
+          "validUntil": null,
+          "file": "data/raw/msz-3e59e795.txt"
+        },
+        {
+          "id": "msz-bc994162",
+          "title": "Szczyt Procesu Berlińskiego w Czarnogórze",
+          "url": "https://www.gov.pl/web/dyplomacja/szczyt-procesu-berlinskiego-w-czarnogorze",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/msz-bc994162.txt"
+        },
+        {
+          "id": "msz-25c56521",
+          "title": "Spotkanie wiceministrów Polski i Litwy",
+          "url": "https://www.gov.pl/web/dyplomacja/spotkanie-wiceministrow-polski-i-litwy",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/msz-25c56521.txt"
+        },
+        {
+          "id": "msz-5da7e807",
+          "title": "Konsultacje polsko-cypryjskie",
+          "url": "https://www.gov.pl/web/dyplomacja/konsultacje-polsko-cypryjskie",
+          "publishedAt": "2026-10-20",
+          "validUntil": null,
+          "file": "data/raw/msz-5da7e807.txt"
+        },
+        {
+          "id": "msz-7dd1d22a",
+          "title": "Komunikat MSZ w sprawie incydentu w Taybeh",
+          "url": "https://www.gov.pl/web/dyplomacja/komunikat-msz-w-sprawie-incydentu-w-taybeh",
+          "publishedAt": "2026-10-18",
+          "validUntil": null,
+          "file": "data/raw/msz-7dd1d22a.txt"
+        },
+        {
+          "id": "msz-2edd2ae0",
+          "title": "Polsko-czeskie konsultacje w Pradze",
+          "url": "https://www.gov.pl/web/dyplomacja/polsko-czeskie-konsultacje-w-pradze",
+          "publishedAt": "2026-10-16",
+          "validUntil": null,
+          "file": "data/raw/msz-2edd2ae0.txt"
+        },
+        {
+          "id": "msz-efe8db83",
+          "title": "Konsultacje polsko-francuskie",
+          "url": "https://www.gov.pl/web/dyplomacja/konsultacje-polsko-francuskie",
+          "publishedAt": "2026-10-16",
+          "validUntil": null,
+          "file": "data/raw/msz-efe8db83.txt"
         }
       ]
     },
@@ -107,12 +367,18 @@
       "domain": "api.sejm.gov.pl",
       "sourceType": "prawo",
       "license": "Akt normatywny (art. 4 pkt 1 ustawy o prawie autorskim i prawach pokrewnych - brak ochrony prawnoautorskiej). Źródło: Sejmowy interfejs ELI (api.sejm.gov.pl). Uwaga: tekst ogłoszony w Dz.U. 2015 poz. 1274; późniejsze zmiany ustawy mogą nie być w nim uwzględnione (należy sprawdzić tekst jednolity). Retencja: do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
       "documents": [
         {
           "id": "dzu-2015-1274",
           "title": "Ustawa z dnia 25 czerwca 2015 r. Prawo konsularne (Dz.U. 2015 poz. 1274, tekst ogłoszony)",
           "url": "https://api.sejm.gov.pl/eli/acts/DU/2015/1274/text.html",
           "publishedAt": "2015-08-31",
+          "validUntil": null,
           "file": "data/raw/dzu-2015-1274.txt"
         }
       ]
@@ -123,12 +389,18 @@
       "domain": "european-union.europa.eu",
       "sourceType": "urzedowe",
       "license": "Treści UE na europa.eu na licencji CC BY 4.0, o ile nie zaznaczono inaczej (nota prawna https://european-union.europa.eu/legal-notice_en); wymagane podanie źródła i oznaczenie zmian (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
       "documents": [
         {
           "id": "eu-polska",
           "title": "Polska – Informacje o kraju UE",
           "url": "https://european-union.europa.eu/principles-countries-history/eu-countries/poland_pl",
           "publishedAt": "2024-12-11",
+          "validUntil": null,
           "file": "data/raw/eu-polska.txt"
         },
         {
@@ -136,6 +408,7 @@
           "title": "Podróże w UE, Twoje prawa",
           "url": "https://european-union.europa.eu/live-work-study/travelling-eu_pl",
           "publishedAt": "2025-06-26",
+          "validUntil": null,
           "file": "data/raw/eu-podroze.txt"
         }
       ]
@@ -146,12 +419,18 @@
       "domain": "eeas.europa.eu",
       "sourceType": "organizacja",
       "license": "EEAS: ponowne wykorzystanie dozwolone z podaniem źródła (nota prawna EEAS, https://www.eeas.europa.eu/eeas/legal-notice_en, oparta na decyzji Komisji z 12.12.2011 o ponownym wykorzystaniu dokumentów); bez wykorzystania grafik objętych prawami osób trzecich (tylko tekst). Retencja: do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
       "documents": [
         {
           "id": "eeas-fimi",
           "title": "Information Integrity and Countering Foreign Information Manipulation & Interference (FIMI)",
           "url": "https://www.eeas.europa.eu/eeas/tackling-disinformation-foreign-information-manipulation-interference_en",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/eeas-fimi.txt"
         }
       ]
@@ -162,12 +441,18 @@
       "domain": "home-affairs.ec.europa.eu",
       "sourceType": "urzedowe",
       "license": "Treści Komisji Europejskiej na licencji CC BY 4.0, o ile nie zaznaczono inaczej (decyzja Komisji 2011/833/UE o ponownym wykorzystaniu dokumentów; nota prawna europa.eu); wymagane podanie źródła (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
       "documents": [
         {
           "id": "ec-schengen",
           "title": "Schengen, visa, borders",
           "url": "https://home-affairs.ec.europa.eu/policies/schengen_en",
           "publishedAt": "2021-06-04",
+          "validUntil": null,
           "file": "data/raw/ec-schengen.txt"
         }
       ]
@@ -178,13 +463,3236 @@
       "domain": "europa.eu",
       "sourceType": "urzedowe",
       "license": "Portal Twoja Europa, treści UE na licencji CC BY 4.0, o ile nie zaznaczono inaczej (nota prawna https://european-union.europa.eu/legal-notice_en); wymagane podanie źródła (tekst wyodrębniony z HTML, bez obrazów). Retencja: do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
       "documents": [
         {
           "id": "youreurope-wjazd",
           "title": "Dokumenty potrzebne do podróżowania po Europie",
           "url": "https://europa.eu/youreurope/citizens/travel/entry-exit/index_pl.htm",
           "publishedAt": null,
+          "validUntil": null,
           "file": "data/raw/youreurope-wjazd.txt"
+        }
+      ]
+    },
+    {
+      "id": "gov-infrastruktura",
+      "publisher": "Ministerstwo Infrastruktury",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/infrastruktura/aktualnosci",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "gov-infrastruktura-702dee1a",
+          "title": "Rozwój prognozowania pogody i monitorowania atmosfery - rozmowy wiceministra Koperskiego z szefem ECMWF",
+          "url": "https://www.gov.pl/web/infrastruktura/rozwoj-prognozowania-pogody-i-monitorowania-atmosfery--rozmowy-wiceministra-koperskiego-z-szefem-ecmwf",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-702dee1a.txt"
+        },
+        {
+          "id": "gov-infrastruktura-390e6f6d",
+          "title": "Eksperci o przyszłości ochrony przeciwpowodziowej Żuław",
+          "url": "https://www.gov.pl/web/infrastruktura/eksperci-o-przyszlosci-ochrony-przeciwpowodziowej-zulaw",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-390e6f6d.txt"
+        },
+        {
+          "id": "gov-infrastruktura-0d2d3648",
+          "title": "Światowy Dzień Pamięci Ofiar Wypadków Drogowych - działamy na rzecz poprawy bezpieczeństwa na drogach",
+          "url": "https://www.gov.pl/web/infrastruktura/swiatowy-dzien-pamieci-ofiar-wypadkow-drogowych---dzialamy-na-rzecz-poprawy-bezpieczenstwa-na-drogach",
+          "publishedAt": "2026-11-15",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-0d2d3648.txt"
+        },
+        {
+          "id": "gov-infrastruktura-479ab4ae",
+          "title": "Obwodnica Morawicy i Woli Morawickiej oddana do ruchu",
+          "url": "https://www.gov.pl/web/infrastruktura/obwodnica-morawicy-i-woli-morawickiej-oddana-do-ruchu",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-479ab4ae.txt"
+        },
+        {
+          "id": "gov-infrastruktura-bc518a51",
+          "title": "Nowy Sekretarz Krajowej Rady Bezpieczeństwa Ruchu Drogowego",
+          "url": "https://www.gov.pl/web/infrastruktura/nowy-sekretarz-krajowej-rady-bezpieczenstwa-ruchu-drogowego",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-bc518a51.txt"
+        },
+        {
+          "id": "gov-infrastruktura-72aa054c",
+          "title": "Wielomilionowa inwestycja uporządkuje gospodarkę ściekową w Karkonoszach",
+          "url": "https://www.gov.pl/web/infrastruktura/wielomilionowa-inwestycja-uporzadkuje-gospodarke-sciekowa-w-karkonoszach",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-72aa054c.txt"
+        },
+        {
+          "id": "gov-infrastruktura-ea9bcb1f",
+          "title": "Rozmowa ministrów ds. transportu państw Grupy Wyszehradzkiej",
+          "url": "https://www.gov.pl/web/infrastruktura/rozmowa-ministrow-ds-transportu-panstw-grupy-wyszehradzkiej",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-ea9bcb1f.txt"
+        },
+        {
+          "id": "gov-infrastruktura-b0051e48",
+          "title": "Polska bandera wraca po 22 latach. Nowy prom Bursztyn Unity wzmocni polską flotę na Bałtyku",
+          "url": "https://www.gov.pl/web/infrastruktura/polska-bandera-wraca-po-22-latach-nowy-prom-bursztyn-unity-wzmocni-polska-flote-na-baltyku",
+          "publishedAt": "2026-11-11",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-b0051e48.txt"
+        },
+        {
+          "id": "gov-infrastruktura-5de1d36d",
+          "title": "Ponad 647 mln zł z funduszy europejskich na nowoczesną kolej w województwie śląskim",
+          "url": "https://www.gov.pl/web/infrastruktura/ponad-647-mln-zl-z-funduszy-europejskich-na-nowoczesna-kolej-w-wojewodztwie-slaskim",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-5de1d36d.txt"
+        },
+        {
+          "id": "gov-infrastruktura-049e852c",
+          "title": "Kolejne ułatwienia w rejestracji pojazdów",
+          "url": "https://www.gov.pl/web/infrastruktura/kolejne-ulatwienia-w-rejestracji-pojazdow",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-049e852c.txt"
+        },
+        {
+          "id": "gov-infrastruktura-6fa273cf",
+          "title": "Polska bandera bardziej dostępna. Rząd upraszcza rejestrację statków",
+          "url": "https://www.gov.pl/web/infrastruktura/polska-bandera-bardziej-dostepna-rzad-upraszcza-rejestracje-statkow",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-6fa273cf.txt"
+        },
+        {
+          "id": "gov-infrastruktura-d90b163a",
+          "title": "Obwodnica Kamionnej coraz bliżej",
+          "url": "https://www.gov.pl/web/infrastruktura/obwodnica-kamionnej-coraz-blizej",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-d90b163a.txt"
+        },
+        {
+          "id": "gov-infrastruktura-b267c89c",
+          "title": "Polska kolej nabiera prędkości",
+          "url": "https://www.gov.pl/web/infrastruktura/polska-kolej-nabiera-predkosci",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-b267c89c.txt"
+        },
+        {
+          "id": "gov-infrastruktura-c35325ee",
+          "title": "Polska gospodarzem spotkania ministerialnego HELCOM na rzecz ochrony Morza Bałtyckiego",
+          "url": "https://www.gov.pl/web/infrastruktura/polska-gospodarzem-spotkania-ministerialnego-helcom-na-rzecz-ochrony-morza-baltyckiego",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-c35325ee.txt"
+        },
+        {
+          "id": "gov-infrastruktura-75bf9ac2",
+          "title": "Kluczowa inwestycja na Kanale Augustowskim nabiera tempa",
+          "url": "https://www.gov.pl/web/infrastruktura/kluczowa-inwestycja-na-kanale-augustowskim-nabiera-tempa",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-75bf9ac2.txt"
+        },
+        {
+          "id": "gov-infrastruktura-bd3efdb2",
+          "title": "Przylądek Pomerania coraz bliżej. Ruszył przetarg na budowę części morskiej nowego portu",
+          "url": "https://www.gov.pl/web/infrastruktura/przyladek-pomerania-coraz-blizej-ruszyl-przetarg-na-budowe-czesci-morskiej-nowego-portu",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-bd3efdb2.txt"
+        },
+        {
+          "id": "gov-infrastruktura-49aa5ada",
+          "title": "Ograniczony hałas i emisja spalin wokół lotnisk - nowelizacja prawa lotniczego przyjęta przez Radę Ministrów",
+          "url": "https://www.gov.pl/web/infrastruktura/ograniczony-halas-i-emisja-spalin-wokol-lotnisk--nowelizacja-prawa-lotniczego-przyjeta-przez-rade-ministrow",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-49aa5ada.txt"
+        },
+        {
+          "id": "gov-infrastruktura-83e53222",
+          "title": "Rusza realizacja ostatniego odcinka A2",
+          "url": "https://www.gov.pl/web/infrastruktura/rusza-realizacja-ostatniego-odcinka-a2",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-83e53222.txt"
+        },
+        {
+          "id": "gov-infrastruktura-31399ca2",
+          "title": "Otwarto nowy terminal instalacyjny offshore w Porcie Gdańsk",
+          "url": "https://www.gov.pl/web/infrastruktura/otwarto-nowy-terminal-instalacyjny-offshore-w-porcie-gdansk",
+          "publishedAt": "2026-10-30",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-31399ca2.txt"
+        },
+        {
+          "id": "gov-infrastruktura-bee74d0b",
+          "title": "Obwodnica Chełma z rządowym wsparciem",
+          "url": "https://www.gov.pl/web/infrastruktura/obwodnica-chelma-z-rzadowym-wsparciem",
+          "publishedAt": "2026-10-30",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-bee74d0b.txt"
+        },
+        {
+          "id": "gov-infrastruktura-519ab38f",
+          "title": "Finał akcji informacyjno-edukacyjnej Bezpieczni 60+",
+          "url": "https://www.gov.pl/web/infrastruktura/final-akcji-informacyjno-edukacyjnej-bezpieczni-60",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-519ab38f.txt"
+        },
+        {
+          "id": "gov-infrastruktura-cf60e782",
+          "title": "Sztum zyska obwodnicę",
+          "url": "https://www.gov.pl/web/infrastruktura/sztum-zyska-obwodnice",
+          "publishedAt": "2026-10-27",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-cf60e782.txt"
+        },
+        {
+          "id": "gov-infrastruktura-fe1af8d8",
+          "title": "Poszerzenie A2 Łódź - Warszawa z kompletem umów",
+          "url": "https://www.gov.pl/web/infrastruktura/poszerzenie-a2-lodz---warszawa-z-kompletem-umow",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-fe1af8d8.txt"
+        },
+        {
+          "id": "gov-infrastruktura-7294eead",
+          "title": "W Łodzi o przyszłości europejskiej sieci transportowej",
+          "url": "https://www.gov.pl/web/infrastruktura/w-lodzi-o-przyszlosci-europejskiej-sieci-transportowej",
+          "publishedAt": "2026-10-25",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-7294eead.txt"
+        },
+        {
+          "id": "gov-infrastruktura-b7c93e88",
+          "title": "S19 Krynice - Białystok Zachód oddana do ruchu",
+          "url": "https://www.gov.pl/web/infrastruktura/s19-krynice--bialystok-zachod-oddana-do-ruchu",
+          "publishedAt": "2026-10-20",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-b7c93e88.txt"
+        },
+        {
+          "id": "gov-infrastruktura-e72db21a",
+          "title": "Zabytkowy dworzec w Ciechocinku przejdzie metamorfozę",
+          "url": "https://www.gov.pl/web/infrastruktura/zabytkowy-dworzec-w-ciechocinku-przejdzie-metamorfoze",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-e72db21a.txt"
+        },
+        {
+          "id": "gov-infrastruktura-7651ed6a",
+          "title": "Minister infrastruktury na EFNI: chcemy budować kolej dla przyszłych pokoleń",
+          "url": "https://www.gov.pl/web/infrastruktura/minister-infrastruktury-na-efni-chcemy-budowac-kolej-dla-przyszlych-pokolen",
+          "publishedAt": "2026-10-15",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-7651ed6a.txt"
+        },
+        {
+          "id": "gov-infrastruktura-9f386c07",
+          "title": "Wykorzystanie kamer na przejazdach kolejowo-drogowych w systemie CANARD",
+          "url": "https://www.gov.pl/web/infrastruktura/wykorzystanie-kamer-na-przejazdach-kolejowo-drogowych-w-systemie-canard",
+          "publishedAt": "2026-10-15",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-9f386c07.txt"
+        },
+        {
+          "id": "gov-infrastruktura-abdc476e",
+          "title": "Regularne godziny kursowania i więcej połączeń do największych miast w kraju. PKP Intercity zaprezentowały rozkład jazdy 2026/2027",
+          "url": "https://www.gov.pl/web/infrastruktura/regularne-godziny-kursowania-i-wiecej-polaczen-do-najwiekszych-miast-w-kraju-pkp-intercity-zaprezentowaly-rozklad-jazdy-20262027",
+          "publishedAt": "2026-10-12",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-abdc476e.txt"
+        },
+        {
+          "id": "gov-infrastruktura-bfd24d2c",
+          "title": "Wspieramy działania na rzecz ochrony przeciwpowodziowej na Dolnym Śląsku",
+          "url": "https://www.gov.pl/web/infrastruktura/wspieramy-dzialania-na-rzecz-ochrony-przeciwpowodziowej-na-dolnym-slasku",
+          "publishedAt": "2026-10-12",
+          "validUntil": null,
+          "file": "data/raw/gov-infrastruktura-bfd24d2c.txt"
+        }
+      ]
+    },
+    {
+      "id": "gov-kgpsp",
+      "publisher": "Komenda Główna Państwowej Straży Pożarnej",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/kgpsp/aktualnosci",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 2
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "gov-kgpsp-effbff2c",
+          "title": "Polscy strażacy wicemistrzami świata w Futsalu!",
+          "url": "https://www.gov.pl/web/kgpsp/wicemistrzam-swiata",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-effbff2c.txt"
+        },
+        {
+          "id": "gov-kgpsp-a112269f",
+          "title": "Narada służbowa dotycząca realizacji zadań ochrony ludności i obrony cywilnej",
+          "url": "https://www.gov.pl/web/kgpsp/narada-realizacja-zadan-olioc",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-a112269f.txt"
+        },
+        {
+          "id": "gov-kgpsp-3c633b93",
+          "title": "Uroczysta zbiórka z okazji Narodowego Święta Niepodległości w KW PSP w Poznaniu",
+          "url": "https://www.gov.pl/web/kgpsp/uroczysta-zbiorka-z-okazji-narodowego-swieta-niepodleglosci-w-kw-psp-w-poznaniu2",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-3c633b93.txt"
+        },
+        {
+          "id": "gov-kgpsp-e6442be0",
+          "title": "Komendant Główny PSP ogłasza nabór do Korpusu Służby Cywilnej",
+          "url": "https://www.gov.pl/web/kgpsp/komendant-glowny-psp-oglasza-nabor-do-korpusu-sluzby-cywilnej2",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-e6442be0.txt"
+        },
+        {
+          "id": "gov-kgpsp-dc531948",
+          "title": "Nabór w ramach przeniesienia służbowego do Biura Logistyki KG PSP",
+          "url": "https://www.gov.pl/web/kgpsp/nabor-w-ramach-przeniesienia-sluzbowego-do-biura-logistyki",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-dc531948.txt"
+        },
+        {
+          "id": "gov-kgpsp-7501a101",
+          "title": "Jubileusz 75-lecia Szkoły Aspirantów PSP w Poznaniu",
+          "url": "https://www.gov.pl/web/kgpsp/jubileusz-75-lecia-szkoly-aspirantow-psp-w-poznaniu",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-7501a101.txt"
+        },
+        {
+          "id": "gov-kgpsp-da53854f",
+          "title": "Rozwój systemów dronowych w PSP",
+          "url": "https://www.gov.pl/web/kgpsp/rozwoj-systemow-dronowych-w-psp",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-da53854f.txt"
+        },
+        {
+          "id": "gov-kgpsp-f6f25f62",
+          "title": "Uroczysta zbiórka z okazji Narodowego Święta Niepodległości w KG PSP",
+          "url": "https://www.gov.pl/web/kgpsp/uroczysta-zbiorka-z-okazji-narodowego-swieta-niepodleglosci-w-kg-psp",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-f6f25f62.txt"
+        },
+        {
+          "id": "gov-kgpsp-46badc54",
+          "title": "Polsko-szwedzkie seminarium eksperckie poświęcone bezpieczeństwu i odporności regionu Morza Bałtyckiego",
+          "url": "https://www.gov.pl/web/kgpsp/polsko-szwedzkie-seminarium-eksperckie-poswiecone-bezpieczenstwu-i-odpornosci-regionu-morza-baltyckiego",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-46badc54.txt"
+        },
+        {
+          "id": "gov-kgpsp-eb13b779",
+          "title": "Msza Święta strażaków z okazji Narodowego Święta Niepodległości",
+          "url": "https://www.gov.pl/web/kgpsp/msza-swieta-strazakow-z-okazji-narodowego-swieta-niepodleglosci",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-eb13b779.txt"
+        },
+        {
+          "id": "gov-kgpsp-ca0d9b2f",
+          "title": "Współpraca polskich i amerykańskich strażaków",
+          "url": "https://www.gov.pl/web/kgpsp/wspolpraca-polskich-i-amerykanskich-strazakow",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-ca0d9b2f.txt"
+        },
+        {
+          "id": "gov-kgpsp-0553c1c5",
+          "title": "Strażacy w walce o niepodległość Polski",
+          "url": "https://www.gov.pl/web/kgpsp/strazacy-niepodlegla-2022",
+          "publishedAt": "2026-11-11",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-0553c1c5.txt"
+        },
+        {
+          "id": "gov-kgpsp-df05964c",
+          "title": "IX Posiedzenie Polsko-Litewskiej grupy roboczej ds. ratownictwa i ochrony ludności w warunkach sytuacji nadzwyczajnych",
+          "url": "https://www.gov.pl/web/kgpsp/ix-posiedzenie-polsko-litewskie",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-df05964c.txt"
+        },
+        {
+          "id": "gov-kgpsp-b29de201",
+          "title": "Nowe jednostki w krajowym systemie ratowniczo-gaśniczym",
+          "url": "https://www.gov.pl/web/kgpsp/nowe-jednostki-w-krajowym-systemie-ratowniczo-gasniczym",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-b29de201.txt"
+        },
+        {
+          "id": "gov-kgpsp-cfe26179",
+          "title": "Żałoba narodowa",
+          "url": "https://www.gov.pl/web/kgpsp/zaloba-narodowa",
+          "publishedAt": "2026-11-08",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-cfe26179.txt"
+        },
+        {
+          "id": "gov-kgpsp-212ad303",
+          "title": "Polska delegacja na 65. posiedzeniu Rady FEU w Amsterdamie",
+          "url": "https://www.gov.pl/web/kgpsp/65-rada-feu",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-212ad303.txt"
+        },
+        {
+          "id": "gov-kgpsp-97e64a4e",
+          "title": "Uroczystość odsłonięcia i poświęcenia tablicy pamiątkowej poświęconej pilotowi śp. kapitanowi Andrzejowi Gawronowi",
+          "url": "https://www.gov.pl/web/kgpsp/uroczystosc-odsloniecia-i-poswiecenia-tablicy-pamiatkowej-poswieconej-pilotowi-sp-kapitanowi-andrzejowi-gawronowi",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-97e64a4e.txt"
+        },
+        {
+          "id": "gov-kgpsp-1bb38b3e",
+          "title": "Komendant Główny PSP ogłasza nabór do Korpusu Służby Cywilnej",
+          "url": "https://www.gov.pl/web/kgpsp/nabor-finanse-st-specjalista",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-1bb38b3e.txt"
+        },
+        {
+          "id": "gov-kgpsp-4283f92f",
+          "title": "Zapraszamy do lektury Przeglądu Pożarniczego",
+          "url": "https://www.gov.pl/web/kgpsp/pp-10-2026",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-4283f92f.txt"
+        },
+        {
+          "id": "gov-kgpsp-96679889",
+          "title": "Aplikację Gdzie się ukryć PL możesz już pobrać na telefon",
+          "url": "https://www.gov.pl/web/kgpsp/aplikacje-gdzie-sie-ukryc-pl-mozesz-juz-pobrac-na-telefon",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-96679889.txt"
+        },
+        {
+          "id": "gov-kgpsp-232aa6f5",
+          "title": "Pracownik pomocniczy - oferta pracy w Komendzie Głównej PSP",
+          "url": "https://www.gov.pl/web/kgpsp/pracownik-pomocniczy---oferta-pracy-w-komendzie-glownej-psp",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-232aa6f5.txt"
+        },
+        {
+          "id": "gov-kgpsp-53e04a89",
+          "title": "Ślubowanie kadetów XXX Turnusu Studium Dziennego Centralnej Szkoły Państwowej Straży Pożarnej w Częstochowie",
+          "url": "https://www.gov.pl/web/kgpsp/slubowanie-kadetow-xxx-turnusu-studium-dziennego-centralnej-szkoly-panstwowej-strazy-pozarnej-w-czestochowie",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-53e04a89.txt"
+        },
+        {
+          "id": "gov-kgpsp-861514b1",
+          "title": "Minister Spraw Wewnętrznych i Administracji oraz Komendant Główny PSP podziękowali strażakom modułu GFFF",
+          "url": "https://www.gov.pl/web/kgpsp/spotkanie-gfff-z-ministrem",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-861514b1.txt"
+        },
+        {
+          "id": "gov-kgpsp-e7ee0651",
+          "title": "Narada szkoleniowa pionu kontrolno-rozpoznawczego PSP",
+          "url": "https://www.gov.pl/web/kgpsp/narada-bpz",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-e7ee0651.txt"
+        },
+        {
+          "id": "gov-kgpsp-7f2241db",
+          "title": "Odprawa rzeczników prasowych i koordynatorów prewencji społecznej PSP",
+          "url": "https://www.gov.pl/web/kgpsp/odprawa-rzecznikow-prasowych-i-koordynatorow-prewencji-spolecznej-psp",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-7f2241db.txt"
+        },
+        {
+          "id": "gov-kgpsp-36950759",
+          "title": "Delegacja Państwowej Straży Pożarnej i Ochotniczych Straży Pożarnych uczciła pamięć zmarłych strażaków",
+          "url": "https://www.gov.pl/web/kgpsp/delegacja-psp-osp",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-36950759.txt"
+        },
+        {
+          "id": "gov-kgpsp-41562f88",
+          "title": "Nabór w ramach przeniesienia służbowego do Biura Logistyki KG PSP",
+          "url": "https://www.gov.pl/web/kgpsp/nabor-kierowca",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-41562f88.txt"
+        },
+        {
+          "id": "gov-kgpsp-3dbe803d",
+          "title": "Polsko-czeska współpraca strażaków - wspólne działania na rzecz bezpieczeństwa transgranicznego",
+          "url": "https://www.gov.pl/web/kgpsp/polsko-czeska-wspolpraca",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-3dbe803d.txt"
+        },
+        {
+          "id": "gov-kgpsp-c2a1b255",
+          "title": "Sukcesy polskich strażaków w Las Vegas",
+          "url": "https://www.gov.pl/web/kgpsp/sukcesy-polskich-strazakow-w-las-vegas",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-c2a1b255.txt"
+        },
+        {
+          "id": "gov-kgpsp-7793c97f",
+          "title": "Ogólnopolskie Zawody Strażaków w Biegu na Orientację",
+          "url": "https://www.gov.pl/web/kgpsp/ogolnopolskie-zawody-strazakow-w-biegu-na-orientacje",
+          "publishedAt": "2026-10-23",
+          "validUntil": null,
+          "file": "data/raw/gov-kgpsp-7793c97f.txt"
+        },
+        {
+          "id": "gov-kgpsp-fcd90a6f",
+          "title": "Rodzina i strażacy pożegnali śp. kpt. Wojciecha Garbacza",
+          "url": "https://www.gov.pl/web/kgpsp/rodzina-i-strazacy-pozegnali-sp-kpt-wojciecha-garbacza",
+          "publishedAt": "2026-10-23",
+          "file": "data/raw/gov-kgpsp-fcd90a6f.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-a35cd1ee",
+          "title": "Rodzina i strażacy pożegnali śp. st. asp. Bartłomieja Pieroga",
+          "url": "https://www.gov.pl/web/kgpsp/rodzina-i-strazacy-pozegnali-sp-asp-bartlomieja-pierog",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-kgpsp-a35cd1ee.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-5d1b6d20",
+          "title": "Ślubowanie kadetów w Szkole Aspirantów PSP w Poznaniu",
+          "url": "https://www.gov.pl/web/kgpsp/slubowanie-kadetow-w-szkole-aspirantow-psp-w-poznaniu",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-kgpsp-5d1b6d20.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-b1183e20",
+          "title": "posiedzenie Grupy Sterującej Obszaru Tematycznego „Bezpieczeństwo Cywilne” (PA SECURE)",
+          "url": "https://www.gov.pl/web/kgpsp/26-posiedzenie",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-kgpsp-b1183e20.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-fc98f1d2",
+          "title": "Nowe zasady kwalifikacji na studia podyplomowe SPK 2026/2027",
+          "url": "https://www.gov.pl/web/kgpsp/nowe-zasady-kwalifikacji-na-studia-podyplomowe-spk-20262027",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-kgpsp-fc98f1d2.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-7875d502",
+          "title": "Odprawa szkoleniowa radców prawnych Państwowej Straży Pożarnej",
+          "url": "https://www.gov.pl/web/kgpsp/odprawa-szkoleniowa-radcow-prawnych-panstwowej-strazy-pozarnej",
+          "publishedAt": "2026-10-21",
+          "file": "data/raw/gov-kgpsp-7875d502.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-da6112d4",
+          "title": "Nabór w ramach przeniesienia służbowego do Biura Kadr KG PSP",
+          "url": "https://www.gov.pl/web/kgpsp/nabor-kadry",
+          "publishedAt": "2026-10-21",
+          "file": "data/raw/gov-kgpsp-da6112d4.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-85ae6d5b",
+          "title": "Akt erekcyjny pod budowę nowej JRG PSP w Kostrzynie nad Odrą",
+          "url": "https://www.gov.pl/web/kgpsp/akt-erekcyjny-pod-budowe-nowej-jrg-psp-w-kostrzynie-nad-odra",
+          "publishedAt": "2026-10-20",
+          "file": "data/raw/gov-kgpsp-85ae6d5b.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-becf71f6",
+          "title": "Wspólnie budujemy gotowość do działań - szkolenie USAR MOLDOVA w Polsce",
+          "url": "https://www.gov.pl/web/kgpsp/wspolnie-budujemy-gotowosc-do-dzialan--szkolenie-usar-moldova-w-polsce",
+          "publishedAt": "2026-10-19",
+          "file": "data/raw/gov-kgpsp-becf71f6.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-kgpsp-c5e4b311",
+          "title": "Informacja dotycząca pogrzebów strażaków PSP, którzy zginęli podczas działań ratowniczych w Nisku 16 października 2026 r.",
+          "url": "https://www.gov.pl/web/kgpsp/informacja-dotyczaca-pogrzebow-strazakow-psp-ktorzy-zgineli-podczas-dzialan-ratowniczych-w-nisku-16-pazdziernika-2026-r",
+          "publishedAt": "2026-10-19",
+          "file": "data/raw/gov-kgpsp-c5e4b311.txt",
+          "validUntil": null
+        }
+      ]
+    },
+    {
+      "id": "gov-rcb",
+      "publisher": "Rządowe Centrum Bezpieczeństwa",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/rcb/komunikaty",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "gov-rcb-660541b0",
+          "title": "Alert RCB - trening systemów alarmowania (21.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemow-alarmowania-2111",
+          "publishedAt": "2026-11-21",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-660541b0.txt"
+        },
+        {
+          "id": "gov-rcb-3913666e",
+          "title": "Alert RCB - atak z powietrza (20.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---atak-z-powietrza-2011",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-3913666e.txt"
+        },
+        {
+          "id": "gov-rcb-a46369ac",
+          "title": "Alert RCB - trening systemów alarmowania (20.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemow-alarmowania-2011",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-a46369ac.txt"
+        },
+        {
+          "id": "gov-rcb-66204b1f",
+          "title": "Alert RCB - trening systemów alarmowania (19.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemow-alarmowania-1912",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-66204b1f.txt"
+        },
+        {
+          "id": "gov-rcb-534c5797",
+          "title": "Alert RCB - woda niezdatna do spożycia, pow. zgorzelecki (19.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---woda-niezdatna-do-picia-pow-zgorzelecki-1911",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-534c5797.txt"
+        },
+        {
+          "id": "gov-rcb-ce8103c0",
+          "title": "Alert RCB - woda niezdatna do spożycia, pow. ząbkowicki (19.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---woda-niezdatna-do-spozycia-pow-zabkowicki-1911",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-ce8103c0.txt"
+        },
+        {
+          "id": "gov-rcb-ae8232b6",
+          "title": "Komunikat (18.11)",
+          "url": "https://www.gov.pl/web/rcb/komunikat-1811",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-ae8232b6.txt"
+        },
+        {
+          "id": "gov-rcb-49cf7e45",
+          "title": "Rusza VIII Seminarium Cyberbezpieczeństwa. Od regulacji do odporności",
+          "url": "https://www.gov.pl/web/rcb/rusza-viii-seminarium-cyberbezpieczenstwa-od-regulacji-do-odpornosci",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-49cf7e45.txt"
+        },
+        {
+          "id": "gov-rcb-24dca148",
+          "title": "Alert RCB - zagrożenie z powietrza (10.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-1011",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-24dca148.txt"
+        },
+        {
+          "id": "gov-rcb-52b4c4d3",
+          "title": "Alert RCB - zagrożenie z powietrza (09.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-0911",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-52b4c4d3.txt"
+        },
+        {
+          "id": "gov-rcb-254cabb7",
+          "title": "Alert RCB - zła jakość powietrza (07.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zla-jakosc-powietrza",
+          "publishedAt": "2026-11-07",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-254cabb7.txt"
+        },
+        {
+          "id": "gov-rcb-006d82ff",
+          "title": "Alert RCB - neutralizacja niewybuchu (07.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---neutralizacja-niewybuchu-0711",
+          "publishedAt": "2026-11-07",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-006d82ff.txt"
+        },
+        {
+          "id": "gov-rcb-bdd92abb",
+          "title": "Alert RCB - trening systemu alarmowania (06.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-0611",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-bdd92abb.txt"
+        },
+        {
+          "id": "gov-rcb-11c6a3ed",
+          "title": "Alert RCB - trening systemu alarmowania (05.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-0511",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-11c6a3ed.txt"
+        },
+        {
+          "id": "gov-rcb-487496fa",
+          "title": "Alert RCB - trening systemu alarmowania (04.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-0411",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-487496fa.txt"
+        },
+        {
+          "id": "gov-rcb-c15663e5",
+          "title": "Alert RCB - zagrożenie z powietrza (03.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-0311",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-c15663e5.txt"
+        },
+        {
+          "id": "gov-rcb-22d00ceb",
+          "title": "Alert RCB - trening systemu alarmowania (03.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-0311",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-22d00ceb.txt"
+        },
+        {
+          "id": "gov-rcb-9318b655",
+          "title": "Alert RCB - zagrożenie z powietrza (03.11)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-0312",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-9318b655.txt"
+        },
+        {
+          "id": "gov-rcb-5363a4d9",
+          "title": "Alert RCB - trening systemu alarmowania (29.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-2910",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-5363a4d9.txt"
+        },
+        {
+          "id": "gov-rcb-e9a6a568",
+          "title": "Alert RCB - zagrożenie z powietrza (28.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-2810",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-e9a6a568.txt"
+        },
+        {
+          "id": "gov-rcb-b77fda69",
+          "title": "Alert RCB - trening systemu alarmowania",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania3",
+          "publishedAt": "2026-10-27",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-b77fda69.txt"
+        },
+        {
+          "id": "gov-rcb-78aa3ec1",
+          "title": "Alert RCB - ostrzeżenie przed silnym wiatrem (24.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---ostrzezenie-przed-silnym-wiatrem-2510",
+          "publishedAt": "2026-10-25",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-78aa3ec1.txt"
+        },
+        {
+          "id": "gov-rcb-7ba71f6f",
+          "title": "Alert RCB - ostrzeżenie przed silnym wiatrem (25.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---ostrzezenie-przed-silnym-wiatrem-2511",
+          "publishedAt": "2026-10-25",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-7ba71f6f.txt"
+        },
+        {
+          "id": "gov-rcb-bc55da5e",
+          "title": "Alert RCB - trening systemu alarmowania (23.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---trening-systemu-alarmowania-2310",
+          "publishedAt": "2026-10-23",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-bc55da5e.txt"
+        },
+        {
+          "id": "gov-rcb-03c638ee",
+          "title": "Alert RCB - zagrożenie z powietrza (23.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-2310",
+          "publishedAt": "2026-10-23",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-03c638ee.txt"
+        },
+        {
+          "id": "gov-rcb-0cab8ace",
+          "title": "Alert RCB - zagrożenie z powietrza (21.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-2111",
+          "publishedAt": "2026-10-21",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-0cab8ace.txt"
+        },
+        {
+          "id": "gov-rcb-1562ac4e",
+          "title": "Alert RCB - zagrożenie z powietrza (21.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---zagrozenie-z-powietrza-2110",
+          "publishedAt": "2026-10-21",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-1562ac4e.txt"
+        },
+        {
+          "id": "gov-rcb-f6b3f8c2",
+          "title": "Alert RCB - ćwiczenia w powiecie kamiennogórskim (20.10)",
+          "url": "https://www.gov.pl/web/rcb/alert-rcb---cwiczenia-w-powiecie-kamiennogorskim-2010",
+          "publishedAt": "2026-10-20",
+          "validUntil": null,
+          "file": "data/raw/gov-rcb-f6b3f8c2.txt"
+        }
+      ]
+    },
+    {
+      "id": "gov-gis",
+      "publisher": "Główny Inspektorat Sanitarny",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/gis/ostrzezenia",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          },
+          {
+            "url": "https://www.gov.pl/web/gis/wiadomosci",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 40
+      },
+      "documents": [
+        {
+          "id": "gov-gis-8e005a10",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: stwierdzenie przekroczenia najwyższego dopuszczalnego poziomu ochratoksyny A w mielonej kawie",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-stwierdzenie-przekroczenia-najwyzszego-dopuszczalnego-poziomu-ochratoksyny-a-w-mielonej-kawie",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-8e005a10.txt"
+        },
+        {
+          "id": "gov-gis-2a1b4290",
+          "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: migracja formaldehydu z kubka z melaminy",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-wyrobu-do-kontaktu-z-zywnoscia-migracja-formaldehydu-z-kubka-z-melaminy",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-2a1b4290.txt"
+        },
+        {
+          "id": "gov-gis-d5352ebe",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: Stwierdzenie obecności pleśni w wodzie mineralnej",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-stwierdzenie-obecnosci-plesni-w-wodzie-mineralnej",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-d5352ebe.txt"
+        },
+        {
+          "id": "gov-gis-a89ca2b7",
+          "title": "Aktualizacja ostrzeżenia publicznego dotyczącego żywności z dnia 28.10.2026: Stwierdzenie substancji psychoaktywnej w suplemencie diety",
+          "url": "https://www.gov.pl/web/gis/aktualizacja-ostrzezenia-publicznego-dotyczacego-zywnosci-z-dnia-28102026-stwierdzenie-substancji-psychoaktywnej-w-suplemencie-diety",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-a89ca2b7.txt"
+        },
+        {
+          "id": "gov-gis-37205e2c",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: możliwa obecność fragmentów szkła w jednej partii puddingu proteinowego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-mozliwa-obecnosc-fragmentow-szkla-w-jednej-partii-puddingu-proteinowego",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-37205e2c.txt"
+        },
+        {
+          "id": "gov-gis-12bee9e2",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: stwierdzenie substancji psychoaktywnej w suplemencie diety",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-stwierdzenie-substancji-psychoaktywnej-w-suplemencie-diety",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-12bee9e2.txt"
+        },
+        {
+          "id": "gov-gis-d07656a9",
+          "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: Migracja pierwszorzędowych amin aromatycznych z zestawu przyborów kuchennych",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-wyrobu-do-kontaktu-z-zywnoscia-migracja-pierwszorzedowych-amin-aromatycznych-z-zestawu-przyborow-kuchennych2",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-d07656a9.txt"
+        },
+        {
+          "id": "gov-gis-9f318198",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii salami",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-salami",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-9f318198.txt"
+        },
+        {
+          "id": "gov-gis-de19525d",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: możliwa obecność fragmentów szkła w jednej partii wody butelkowanej",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-mozliwa-obecnosc-fragmentow-szkla-w-jednej-partii-wody-butelkowanej",
+          "publishedAt": "2026-10-13",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-de19525d.txt"
+        },
+        {
+          "id": "gov-gis-87161dd6",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii serów (różne rodzaje)",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-serow-rozne-rodzaje",
+          "publishedAt": "2026-10-12",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-87161dd6.txt"
+        },
+        {
+          "id": "gov-gis-63c478b6",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii boczku wędzonego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-boczku-wedzonego",
+          "publishedAt": "2026-10-08",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-63c478b6.txt"
+        },
+        {
+          "id": "gov-gis-edbb0805",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Escherichia coli produkującej toksynę Shiga (STEC) w dwóch rodzajach sera z surowego mleka krowiego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-escherichia-coli-produkujacej-toksyne-shiga-stec-w-dwoch-rodzajach-sera-z-surowego-mleka-krowiego",
+          "publishedAt": "2026-10-06",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-edbb0805.txt"
+        },
+        {
+          "id": "gov-gis-67268b33",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii ćwiartki wędzonej z kurczaka",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-cwiartki-wedzonej-z-kurczaka",
+          "publishedAt": "2026-09-29",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-67268b33.txt"
+        },
+        {
+          "id": "gov-gis-d6bc6b6f",
+          "title": "Aktualizacja ostrzeżenia publicznego dotyczącego żywności z dnia 28.08.2026 r. Możliwa obecność toksyny botulinowej w zielonym pesto",
+          "url": "https://www.gov.pl/web/gis/aktualizacja-ostrzezenia-publicznego-dotyczacego-zywnosci-z-dnia-28082026-r-mozliwa-obecnosc-toksyny-botulinowej-w-zielonym-pesto",
+          "publishedAt": "2026-09-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-d6bc6b6f.txt"
+        },
+        {
+          "id": "gov-gis-a0179940",
+          "title": "Ostrzeżenie publiczne dotyczące wyrobu do kontaktu z żywnością: wycofanie szklanek ze względu na ryzyko odłączenia się drobnych szklanych elementów",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-wyrobu-do-kontaktu-z-zywnoscia-wycofanie-szklanek-ze-wzgledu-na-ryzyko-odlaczenia-sie-drobnych-szklanych-elementow",
+          "publishedAt": "2026-09-17",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-a0179940.txt"
+        },
+        {
+          "id": "gov-gis-ef1a2d9a",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: alkaloidy pirolizydynowe w określonej partii herbatki ziołowej z pokrzywy",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-alkaloidy-pirolizydynowe-w-okreslonej-partii-herbatki-ziolowej-z-pokrzywy3",
+          "publishedAt": "2026-09-10",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-ef1a2d9a.txt"
+        },
+        {
+          "id": "gov-gis-f9005f3c",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii sera podpuszczkowego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-sera-podpuszczkowego2",
+          "publishedAt": "2026-09-09",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-f9005f3c.txt"
+        },
+        {
+          "id": "gov-gis-3d21f103",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: Możliwa obecność fragmentów szkła w jednej partii sosu bolońskiego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-mozliwa-obecnosc-fragmentow-szkla-w-jednej-partii-sosu-bolonskiego",
+          "publishedAt": "2026-08-31",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-3d21f103.txt"
+        },
+        {
+          "id": "gov-gis-1e0008f4",
+          "title": "Ostrzeżenie publiczne dotyczące żywności Możliwa obecność toksyny botulinowej w jednej partii zielonego pesto",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-mozliwa-obecnosc-toksyny-botulinowej-w-jednej-partii-zielonego-pesto",
+          "publishedAt": "2026-08-28",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-1e0008f4.txt"
+        },
+        {
+          "id": "gov-gis-1673f6dd",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii serdelków wieprzowych",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-serdelkow-wieprzowych",
+          "publishedAt": "2026-08-28",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-1673f6dd.txt"
+        },
+        {
+          "id": "gov-gis-cab5f05c",
+          "title": "Ostrzeżenie publiczne: dotyczące żywności Wykrycie obecności bakterii Bacillus cereus w jednej partii puddingu proteinowego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-bacillus-cereus-w-jednej-partii-puddingu-proteinowego",
+          "publishedAt": "2026-08-21",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-cab5f05c.txt"
+        },
+        {
+          "id": "gov-gis-6f6359e4",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii sera podpuszczkowego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-sera-podpuszczkowego",
+          "publishedAt": "2026-08-19",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-6f6359e4.txt"
+        },
+        {
+          "id": "gov-gis-e63f370c",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: Wykrycie obecności cereulidyny w jednej partii mleka początkowego",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-cereulidyny-w-jednej-partii-mleka-poczatkowego",
+          "publishedAt": "2026-08-17",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-e63f370c.txt"
+        },
+        {
+          "id": "gov-gis-55b5f3ad",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii wieprzowiny w galarecie",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-wieprzowiny-w-galarecie",
+          "publishedAt": "2026-08-17",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-55b5f3ad.txt"
+        },
+        {
+          "id": "gov-gis-844bbfe0",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: zmiany organoleptyczne w napoju herbacianym",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-zmiany-organoleptyczne-w-napoju-herbacianym",
+          "publishedAt": "2026-08-07",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-844bbfe0.txt"
+        },
+        {
+          "id": "gov-gis-84c78dc4",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii metki brunszwickiej",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-metki-brunszwickiej",
+          "publishedAt": "2026-07-24",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-84c78dc4.txt"
+        },
+        {
+          "id": "gov-gis-1a6e36f8",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii metki łososiowej",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-metki-lososiowej",
+          "publishedAt": "2026-07-24",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-1a6e36f8.txt"
+        },
+        {
+          "id": "gov-gis-557f3285",
+          "title": "Aktualizacja ostrzeżenia publicznego z dnia 03.07.2026 dotyczącego żywności: stwierdzenie niezadeklarowanej obecności składnika alergennego - glutenu w partiach bigosu z mięsem i kiełbasą",
+          "url": "https://www.gov.pl/web/gis/aktualizacja-ostrzezenia-publicznego-z-dnia-03072026-dotyczacego-zywnosci-stwierdzenie-niezadeklarowanej-obecnosci-skladnika-alergennego--glutenu-w-partiach-bigosu-z-miesem-i-kielbasa",
+          "publishedAt": "2026-07-21",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-557f3285.txt"
+        },
+        {
+          "id": "gov-gis-b6164bce",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: wykrycie obecności bakterii Listeria monocytogenes w jednej partii szynki wieprzowej w plastrach gotowanej 100 g.",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-wykrycie-obecnosci-bakterii-listeria-monocytogenes-w-jednej-partii-szynki-wieprzowej-w-plastrach-gotowanej-100-g",
+          "publishedAt": "2026-07-21",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-b6164bce.txt"
+        },
+        {
+          "id": "gov-gis-ec014fcf",
+          "title": "Ostrzeżenie publiczne dotyczące żywności: niewłaściwa informacja dotycząca alergenu - brak wyróżnienia obecności siarczynów na etykiecie produktu",
+          "url": "https://www.gov.pl/web/gis/ostrzezenie-publiczne-dotyczace-zywnosci-niewlasciwa-informacja-dotyczaca-alergenu--brak-wyroznienia-obecnosci-siarczynow-na-etykiecie-produktu",
+          "publishedAt": "2026-07-20",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-ec014fcf.txt"
+        },
+        {
+          "id": "gov-gis-f6a695c6",
+          "title": "Konferencja „Profilaktyka - wzory duńskie” z udziałem Głównego Inspektora Sanitarnego",
+          "url": "https://www.gov.pl/web/gis/konferencja-profilaktyka--wzory-dunskie-z-udzialem-glownego-inspektora-sanitarnego",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-f6a695c6.txt"
+        },
+        {
+          "id": "gov-gis-2655c8d7",
+          "title": "Instytut Ogrodnictwa",
+          "url": "https://www.gov.pl/web/gis/instytut-ogrodnictwa--panstwowy-instytut-badawczy-w-skierniewicach-konczy-75-lat",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-2655c8d7.txt"
+        },
+        {
+          "id": "gov-gis-83c6417d",
+          "title": "Lekooporność drobnoustrojów: Dbaj o swoje dzieci - stosuj antybiotyki rozważnie",
+          "url": "https://www.gov.pl/web/gis/lekoopornosc-drobnoustrojow---dbaj-o-zdrowie-swojego-dziecka-stosuj-antybiotyki-rozsadnie",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-83c6417d.txt"
+        },
+        {
+          "id": "gov-gis-a56d7e25",
+          "title": "Rzuć palenie. Zrób pierwszy krok dla siebie",
+          "url": "https://www.gov.pl/web/gis/rzuc-palenie-zrob-pierwszy-krok-dla-siebie",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-a56d7e25.txt"
+        },
+        {
+          "id": "gov-gis-ffd49a7d",
+          "title": "Finał konkursu „Zroluj zdrowie - siła wyborów” już za nami!",
+          "url": "https://www.gov.pl/web/gis/final-konkursu-zroluj-zdrowie--sila-wyborow-juz-za-nami",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-ffd49a7d.txt"
+        },
+        {
+          "id": "gov-gis-14792023",
+          "title": "Środki do dezynfekcji w sektorze żywności i pasz - wyniki kontroli",
+          "url": "https://www.gov.pl/web/gis/srodki-do-dezynfekcji-w-sektorze-zywnosci-i-pasz-wyniki-kontroli",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-14792023.txt"
+        },
+        {
+          "id": "gov-gis-90db9843",
+          "title": "Globalne wyzwania zdrowotne tematem spotkania z udziałem GIS i WHO",
+          "url": "https://www.gov.pl/web/gis/globalne-wyzwania-zdrowotne-tematem-spotkania-z-udzialem-gis-i-who",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-90db9843.txt"
+        },
+        {
+          "id": "gov-gis-a36b662f",
+          "title": "Wyrazy współczucia dla rodzin i bliskich ofiar tragedii w Krakowie",
+          "url": "https://www.gov.pl/web/gis/wyrazy-wspolczucia-dla-rodzin-i-bliskich-tragedii-w-krakowie",
+          "publishedAt": "2026-11-08",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-a36b662f.txt"
+        },
+        {
+          "id": "gov-gis-87d2f3eb",
+          "title": "Europejski Dzień Radonu - niewidoczny gaz, realne zagrożenie!",
+          "url": "https://www.gov.pl/web/gis/europejski-dzien-radonu--niewidoczny-gaz-realne-zagrozenie",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-87d2f3eb.txt"
+        },
+        {
+          "id": "gov-gis-f4441f62",
+          "title": "Nowa dyrektor Biura WHO w Polsce z wizytą w GIS",
+          "url": "https://www.gov.pl/web/gis/nowa-dyrektor-biura-who-w-polsce-z-wizyta-w-gis",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-gis-f4441f62.txt"
+        },
+        {
+          "id": "gov-gis-ef9a0c7b",
+          "title": "Zdrowe i bezpieczne miejsce pracy. Rusza kampania „Zdrowa praca, zdrowa głowa”",
+          "url": "https://www.gov.pl/web/gis/zdrowe-i-bezpieczne-miejsce-pracy-rusza-kampania-zdrowa-praca-zdrowa-glowa",
+          "publishedAt": "2026-11-05",
+          "file": "data/raw/gov-gis-ef9a0c7b.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-f0bae972",
+          "title": "Konferencja Polskiego Punktu Koordynacyjnego EFSA oraz organizacji kompetentnych z art. 36",
+          "url": "https://www.gov.pl/web/gis/konferencja-polskiego-punktu-koordynacyjnego-efsa-oraz-organizacji-kompetentnych-z-art-36",
+          "publishedAt": "2026-11-04",
+          "file": "data/raw/gov-gis-f0bae972.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-d990f172",
+          "title": "Komunikat Głównego Inspektora Sanitarnego w sprawie potencjalnych zagrożeń związanych z atakami na infrastrukturę łańcucha chłodniczego w przemyśle spożywczym",
+          "url": "https://www.gov.pl/web/gis/komunikat-glownego-inspektora-sanitarnego-w-sprawie-potencjalnych-zagrozen-zwiazanych-z-atakami-na-infrastrukture-lancucha-chlodniczego-w-przemysle-spozywczym",
+          "publishedAt": "2026-11-03",
+          "file": "data/raw/gov-gis-d990f172.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-00710fc9",
+          "title": "Komunikat nr 6 z dnia 03.11.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA)",
+          "url": "https://www.gov.pl/web/gis/komunikat-nr-6-z-dnia-03112026-w-sprawie-ogniska-choroby-wirusowej-ebola-wywolanej-przez-wirusa-bundibugyo-bvd-w-demokratycznej-republice-konga-drk-aktualizacja",
+          "publishedAt": "2026-11-03",
+          "file": "data/raw/gov-gis-00710fc9.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-23c4dca8",
+          "title": "GIS o Programie Szczepień Ochronnych na 2027 r., szczepieniach HPV, sytuacji epidemiologicznej i koncepcji One Health",
+          "url": "https://www.gov.pl/web/gis/gis-o-programie-szczepien-ochronnych-na-2027-r-szczepieniach-hpv-sytuacji-epidemiologicznej-i-koncepcji-one-health",
+          "publishedAt": "2026-11-03",
+          "file": "data/raw/gov-gis-23c4dca8.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-1fc70a94",
+          "title": "Komunikat nr 2 Głównego Inspektora Sanitarnego ws. bezpłatnych szczepień przeciw wirusowi brodawczaka ludzkiego (HPV) u osób dorosłych w wieku 19-26 lat - przekazanie dodatkowych dawek szczepionki 2-walentnej",
+          "url": "https://www.gov.pl/web/gis/komunikat-nr-2-glownego-inspektora-sanitarnego-ws-bezplatnych-szczepien-przeciw-wirusowi-brodawczaka-ludzkiego-hpv-u-osob-doroslych-w-wieku-19-26-lat---przekazanie-dodatkowych-dawek-szczepionki-2-walentnej",
+          "publishedAt": "2026-11-03",
+          "file": "data/raw/gov-gis-1fc70a94.txt",
+          "validUntil": "2028-01-31"
+        },
+        {
+          "id": "gov-gis-c2ad1d8d",
+          "title": "Movember. Zadbaj o zdrowie. Co warto wiedzieć o raku prostaty i jąder?",
+          "url": "https://www.gov.pl/web/gis/movember-zadbaj-o-zdrowie-co-warto-wiedziec-o-raku-prostaty-i-jader",
+          "publishedAt": "2026-11-02",
+          "file": "data/raw/gov-gis-c2ad1d8d.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-72f974c0",
+          "title": "Program Szczepień Ochronnych na 2027 rok",
+          "url": "https://www.gov.pl/web/gis/program-szczepien-ochronnych-na-2027-rok",
+          "publishedAt": "2026-11-02",
+          "file": "data/raw/gov-gis-72f974c0.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-0c977b3e",
+          "title": "W Głównym Inspektoracie Sanitarnym powołano Interdyscyplinarny Zespół do spraw problematyki „Jedno Zdrowie” („One Health”)",
+          "url": "https://www.gov.pl/web/gis/w-glownym-inspektoracie-sanitarnym-powolano-interdyscyplinarny-zespol-do-spraw-problematyki-jedno-zdrowie-one-health",
+          "publishedAt": "2026-10-29",
+          "file": "data/raw/gov-gis-0c977b3e.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-2e603047",
+          "title": "Komunikat Głównego Inspektora Sanitarnego dot. pierwszego wykrycia wirusa Shamonda u człowieka na terenie Francji",
+          "url": "https://www.gov.pl/web/gis/komunikat-glownego-inspektora-sanitarnego-dot-pierwszego-wykrycia-wirusa-shamonda-u-czlowieka-na-terenie-francji",
+          "publishedAt": "2026-10-23",
+          "file": "data/raw/gov-gis-2e603047.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-57e4fc42",
+          "title": "Środki na owady i kleszcze - wyniki kontroli",
+          "url": "https://www.gov.pl/web/gis/srodki-na-owady-i-kleszcze-wyniki-kontroli",
+          "publishedAt": "2026-10-20",
+          "file": "data/raw/gov-gis-57e4fc42.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-13a23c94",
+          "title": "Światowy Dzień Żywności. Innowacje, odpowiedzialność i wspólna troska o przyszłość",
+          "url": "https://www.gov.pl/web/gis/swiatowy-dzien-zywnosci-innowacje-odpowiedzialnosc-i-wspolna-troska-o-przyszlosc",
+          "publishedAt": "2026-10-16",
+          "file": "data/raw/gov-gis-13a23c94.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-21c555e4",
+          "title": "Profilaktyka raka piersi. Co każda kobieta powinna wiedzieć?",
+          "url": "https://www.gov.pl/web/gis/profilaktyka-raka-piersi-co-kazda-kobieta-powinna-wiedziec",
+          "publishedAt": "2026-10-15",
+          "file": "data/raw/gov-gis-21c555e4.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-5b7c5ef8",
+          "title": "Prostsza współpraca szkół, przedszkoli i innych podmiotów z Państwową Inspekcją Sanitarną - promocja zdrowia w SEPIS",
+          "url": "https://www.gov.pl/web/gis/prostsza-wspolpraca-szkol-przedszkoli-i-innych-podmiotow-z-panstwowa-inspekcja-sanitarna--promocja-zdrowia-w-sepis",
+          "publishedAt": "2026-10-14",
+          "file": "data/raw/gov-gis-5b7c5ef8.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-e87a8e7e",
+          "title": "Szkoła przyjazna zdrowiu. Jak sanepid wspiera placówki edukacyjne",
+          "url": "https://www.gov.pl/web/gis/szkola-przyjazna-zdrowiu-jak-sanepid-wspiera-placowki-edukacyjne",
+          "publishedAt": "2026-10-14",
+          "file": "data/raw/gov-gis-e87a8e7e.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-c8bfb72f",
+          "title": "Kontrole zorganizowanego wypoczynku wakacyjnego w 2026 r. - podsumowanie",
+          "url": "https://www.gov.pl/web/gis/kontrole-zorganizowanego-wypoczynku-wakacyjnego-w-2026-r--podsumowanie",
+          "publishedAt": "2026-10-14",
+          "file": "data/raw/gov-gis-c8bfb72f.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-7205eb42",
+          "title": "Komunikat nr 2 dotyczący doniesień o śmiertelnym przypadku zapalenia płuc na terenie Federacji Rosyjskiej",
+          "url": "https://www.gov.pl/web/gis/komunikat-nr-2-dotyczacy-doniesien-o-smiertelnym-przypadku-zapalenia-pluc-na-terenie-federacji-rosyjskiej",
+          "publishedAt": "2026-10-09",
+          "file": "data/raw/gov-gis-7205eb42.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-99853041",
+          "title": "Komunikat nr 5 z dnia 05.10.2026 w sprawie ogniska choroby wirusowej Ebola wywołanej przez wirusa Bundibugyo (BVD) w Demokratycznej Republice Konga (DRK) (AKTUALIZACJA DANYCH)",
+          "url": "https://www.gov.pl/web/gis/komunikat-nr-5-z-dnia-05102026-w-sprawie-ogniska-choroby-wirusowej-ebola-wywolanej-przez-wirusa-bundibugyo-bvd-w-demokratycznej-republice-konga-drk-aktualizacja-danych",
+          "publishedAt": "2026-10-08",
+          "file": "data/raw/gov-gis-99853041.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-7f4740b5",
+          "title": "Wystartował projekt, który wzmocni zdrowie publiczne na poziomach: regionalnym i lokalnym",
+          "url": "https://www.gov.pl/web/gis/wystartowal-projekt-ktory-wzmocni-zdrowie-publiczne-na-poziomach-regionalnym-i-lokalnym",
+          "publishedAt": "2026-10-07",
+          "file": "data/raw/gov-gis-7f4740b5.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-gis-5983d6b2",
+          "title": "Informacja dotycząca doniesień o możliwych przypadkach zachorowań na dżumę u ludzi na terenie Federacji Rosyjskiej",
+          "url": "https://www.gov.pl/web/gis/informacja-dotyczaca-doniesien-o-mozliwych-przypadkach-zachorowan-na-dzume-u-ludzi-na-terenie-federacji-rosyjskiej",
+          "publishedAt": "2026-10-05",
+          "file": "data/raw/gov-gis-5983d6b2.txt",
+          "validUntil": null
+        }
+      ]
+    },
+    {
+      "id": "gov-mswia",
+      "publisher": "Ministerstwo Spraw Wewnętrznych i Administracji",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/mswia/aktualnosci",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "gov-mswia-cba7d677",
+          "title": "Czasowe i terytorialne zawieszenie prawa do azylu przy granicy polsko-białoruskiej przedłużone o następne 60 dni",
+          "url": "https://www.gov.pl/web/mswia/czasowe-i-terytorialne-zawieszenie-prawa-do-azylu-przy-granicy-polsko-bialoruskiej-przedluzone-o-nastepne-60-dni4",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-cba7d677.txt"
+        },
+        {
+          "id": "gov-mswia-d3f307a5",
+          "title": "Polska przystąpi do systemu ETIAS, odprawa ze służbami po zamachu w Krakowie i bezpieczny przebieg Marszu Niepodległości. Podsumowanie drugiego tygodnia listopada w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/polska-przystapi-do-systemu-etias-odprawa-ze-sluzbami-po-zamachu-w-krakowie-i-bezpieczny-przebieg-marszu-niepodleglosci-podsumowanie-drugiego-tygodnia-listopada-w-mswia",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-d3f307a5.txt"
+        },
+        {
+          "id": "gov-mswia-88a09570",
+          "title": "Projekt ustawy o udziale Rzeczypospolitej Polskiej w europejskim systemie informacji o podróży oraz zezwoleń na podróż (ETIAS)",
+          "url": "https://www.gov.pl/web/mswia/projekt-ustawy-o-udziale-rzeczypospolitej-polskiej-w-europejskim-systemie-informacji-o-podrozy-oraz-zezwolen-na-podroz-etias2",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-88a09570.txt"
+        },
+        {
+          "id": "gov-mswia-172dfadf",
+          "title": "MSWiA: Odprawa ze służbami po tragicznym zamachu w Krakowie",
+          "url": "https://www.gov.pl/web/mswia/mswia-odprawa-ze-sluzbami-po-tragicznym-zamachu-w-krakowie",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-172dfadf.txt"
+        },
+        {
+          "id": "gov-mswia-e3b30ed0",
+          "title": "Sukcesy polskiej Policji i rozwój ochrony ludności. Szef MSWiA podsumował efekty działań resortu",
+          "url": "https://www.gov.pl/web/mswia/szef-mswia-podsumowal-efekty-dzialan-resortu",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-e3b30ed0.txt"
+        },
+        {
+          "id": "gov-mswia-56209855",
+          "title": "Coroczna odprawa MSWiA i służb przed Narodowym Świętem Niepodległości",
+          "url": "https://www.gov.pl/web/mswia/coroczna-odprawa-mswia-i-sluzb-przed-narodowym-swietem-niepodleglosci",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-56209855.txt"
+        },
+        {
+          "id": "gov-mswia-3e97b77a",
+          "title": "Aplikację Gdzie się ukryć PL możesz już pobrać na telefon",
+          "url": "https://www.gov.pl/web/mswia/aplikacje-gdzie-sie-ukryc-pl-mozesz-juz-pobrac-na-telefon",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-3e97b77a.txt"
+        },
+        {
+          "id": "gov-mswia-12761d1f",
+          "title": "Bezpieczeństwo, odpowiedzialna polityka migracyjna i edukacja. Podsumowanie ostatniego tygodnia października w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/bezpieczenstwo-odpowiedzialna-polityka-migracyjna-i-edukacja-podsumowanie-ostatniego-tygodnia-pazdziernika-w-mswia",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-12761d1f.txt"
+        },
+        {
+          "id": "gov-mswia-56275c0e",
+          "title": "Polska gospodarzem międzynarodowej konferencji ministerialnej. W Zamku Książ rozmawiano o ochronie ludności i migracjach",
+          "url": "https://www.gov.pl/web/mswia/polska-gospodarzem-miedzynarodowej-konferencji",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-56275c0e.txt"
+        },
+        {
+          "id": "gov-mswia-221d625a",
+          "title": "Szef MSWiA Marcin Kierwiński zapowiedział dalszy rozwój GFFF - wyspecjalizowanych strażaków zwalczających pożary lasów w trudno dostępnym terenie.",
+          "url": "https://www.gov.pl/web/mswia/szef-mswia-marcin-kierwinski-zapowiedzial-dalszy-rozwoj-gfff---wyspecjalizowanych-strazakow-zwalczajacych-pozary-lasow-w-trudno-dostepnym-terenie",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-221d625a.txt"
+        },
+        {
+          "id": "gov-mswia-d8c0cd10",
+          "title": "Odbudowujemy i dbamy o bezpieczeństwo. Podsumowanie trzeciego tygodnia października w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/odbudowujemy-i-dbamy-o-bezpieczenstwo-podsumowanie-trzeciego-tygodnia-pazdziernika-w-mswia",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-d8c0cd10.txt"
+        },
+        {
+          "id": "gov-mswia-3888358d",
+          "title": "Rekordowe 11 mld zł na odbudowę po powodzi. Minister Marcin Kierwiński i wiceminister Magdalena Roguska otworzyli Centrum Kultury i Bibliotekę w Bardzie na Dolnym Śląsku",
+          "url": "https://www.gov.pl/web/mswia/rekordowe-11-mld-zl-na-odbudowe-po-powodzi-minister-marcin-kierwinski-i-wiceminister-magdalena-roguska-otworzyli-centrum-kultury-i-biblioteke-w-bardzie-na-dolnym-slasku",
+          "publishedAt": "2026-10-24",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-3888358d.txt"
+        },
+        {
+          "id": "gov-mswia-72ff1867",
+          "title": "Karta Rodziny Mundurowej z poparciem komisji sejmowych. Projekt obejmie też strażaków OSP",
+          "url": "https://www.gov.pl/web/mswia/karta-rodziny-mundurowej-z-poparciem-komisji-sejmowych-projekt-obejmie-tez-strazakow-osp",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-72ff1867.txt"
+        },
+        {
+          "id": "gov-mswia-9d3e180a",
+          "title": "Niemal 10 tys. uczniów klas mundurowych w całej Polsce",
+          "url": "https://www.gov.pl/web/mswia/niemal-10-tys-uczniow-klas-mundurowych-w-calej-polsce",
+          "publishedAt": "2026-10-20",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-9d3e180a.txt"
+        },
+        {
+          "id": "gov-mswia-487d31db",
+          "title": "Rozwijamy system ostrzegania i dbamy o bezpieczeństwo. Podsumowanie drugiego tygodnia października w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/rozwijamy-system-ostrzegania-i-dbamy-o-bezpieczenstwo-podsumowanie-drugiego-tygodnia-pazdziernika-w-mswia",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-487d31db.txt"
+        },
+        {
+          "id": "gov-mswia-8f2f9104",
+          "title": "Krajowy Trening Rodzinny w blisko 2 tys. punktów w całej Polsce. Minister Marcin Kierwiński odwiedził szkoły w Warszawie",
+          "url": "https://www.gov.pl/web/mswia/krajowy-trening-rodzinny-w-blisko-2-tys-punktow-w-calej-polsce-minister-marcin-kierwinski-odwiedzil-szkoly-w-warszawie",
+          "publishedAt": "2026-10-17",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-8f2f9104.txt"
+        },
+        {
+          "id": "gov-mswia-adf2fb7f",
+          "title": "Szef MSWiA złoży zawiadomienie do prokuratury po atakach na policjantów",
+          "url": "https://www.gov.pl/web/mswia/szef-MSWiA-zlozy-zawiadomienie-do-prokuratury-po-atakach-na-policjantow",
+          "publishedAt": "2026-10-16",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-adf2fb7f.txt"
+        },
+        {
+          "id": "gov-mswia-3aa15075",
+          "title": "Państwo działa sprawnie i zdecydowanie - podsumowanie działań MSWiA, Policji i MEN w związku z ostatnimi zdarzeniami w szkołach",
+          "url": "https://www.gov.pl/web/mswia/panstwo-dziala-sprawnie-i-zdecydowanie--podsumowanie-dzialan-mswia-policji-i-men-w-zwiazku-z-ostatnimi-zdarzeniami-w-szkolach",
+          "publishedAt": "2026-10-16",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-3aa15075.txt"
+        },
+        {
+          "id": "gov-mswia-b54c2c2f",
+          "title": "Ponad 1500 punktów w całej Polsce. Krajowy trening rodzinny na czas kryzysu już w najbliższą sobotę.",
+          "url": "https://www.gov.pl/web/mswia/ponad-1500-punktow-w-calej-polsce-krajowy-trening-rodzinny-na-czas-kryzysu-juz-w-najblizsza-sobote",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-b54c2c2f.txt"
+        },
+        {
+          "id": "gov-mswia-6a8ebc3e",
+          "title": "Stanowisko w sprawie udzielania pomocy humanitarnej oraz walki z procederem nielegalnej migracji",
+          "url": "https://www.gov.pl/web/mswia/stanowisko-w-sprawie-udzielania-pomocy-humanitarnej-oraz-walki-z-procederem-nielegalnej-migracji",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-6a8ebc3e.txt"
+        },
+        {
+          "id": "gov-mswia-7b7f94f1",
+          "title": "Minister Marcin Kierwiński podpisał list intencyjny ws. systemu ostrzegania ludności cywilnej Cell Broadcast",
+          "url": "https://www.gov.pl/web/mswia/minister-marcin-kierwinski-podpisal-list-intencyjny-ws-systemu-ostrzegania-ludnosci-cywilnej-cell-broadcast",
+          "publishedAt": "2026-10-14",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-7b7f94f1.txt"
+        },
+        {
+          "id": "gov-mswia-20116b3e",
+          "title": "Rozmowy o bezpieczeństwie z Estonią i Finlandią",
+          "url": "https://www.gov.pl/web/mswia/rozmowy-o-bezpieczenstwie-z-estonia-i-finlandia",
+          "publishedAt": "2026-10-13",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-20116b3e.txt"
+        },
+        {
+          "id": "gov-mswia-d59aed87",
+          "title": "Zatrzymanie sprawców podpalenia stacji Starlink na Mazowszu. Skuteczna akcja MSWiA, Policji i ABW",
+          "url": "https://www.gov.pl/web/mswia/zatrzymanie-sprawcow-podpalenia-stacji-starlink-na-mazowszu-skuteczna-akcja-mswia-policji-i-abw",
+          "publishedAt": "2026-10-12",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-d59aed87.txt"
+        },
+        {
+          "id": "gov-mswia-fefe8170",
+          "title": "Dbamy o bezpieczeństwo najmłodszych. Podsumowanie pierwszego tygodnia października w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/dbamy-o-bezpieczenstwo-najmlodszych-podsumowanie-pierwszego-tygodnia-pazdziernika-w-mswia",
+          "publishedAt": "2026-10-12",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-fefe8170.txt"
+        },
+        {
+          "id": "gov-mswia-092086fe",
+          "title": "Ponad 24 tys. policjantów zaangażowanych w zapewnienie bezpieczeństwa w szkołach. Zatrzymano 19 osób.",
+          "url": "https://www.gov.pl/web/mswia/ponad-24-tys-policjantow-zaangazowanych-w-zapewnienie-bezpieczenstwa-w-szkolach-zatrzymano-19-osob",
+          "publishedAt": "2026-10-09",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-092086fe.txt"
+        },
+        {
+          "id": "gov-mswia-0e16e86c",
+          "title": "Dzieci i rodzice przećwiczą zachowanie w sytuacjach kryzysowych podczas Krajowego Treningu Rodzinnego",
+          "url": "https://www.gov.pl/web/mswia/dzieci-i-rodzice-przecwicza-zachowanie-w-sytuacjach-kryzysowych-podczas-krajowego-treningu-rodzinnego",
+          "publishedAt": "2026-10-08",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-0e16e86c.txt"
+        },
+        {
+          "id": "gov-mswia-64831190",
+          "title": "Ponad 102 mld zł na ochronę ludności. Rząd przyjął Program Ochrony Ludności i Obrony Cywilnej na lata 2027-2031",
+          "url": "https://www.gov.pl/web/mswia/ponad-102-mld-zl-na-ochrone-ludnosci-rzad-przyjal-program-ochrony-ludnosci-i-obrony-cywilnej-na-lata-20272031",
+          "publishedAt": "2026-10-06",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-64831190.txt"
+        },
+        {
+          "id": "gov-mswia-b6f6cb1f",
+          "title": "Polsko-litewska współpraca na rzecz ochrony ludności i granic",
+          "url": "https://www.gov.pl/web/mswia/polsko-litewska-wspolpraca-na-rzecz-ochrony-ludnosci-i-granic",
+          "publishedAt": "2026-10-05",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-b6f6cb1f.txt"
+        },
+        {
+          "id": "gov-mswia-caec0803",
+          "title": "Bezpieczeństwo i edukacja. Podsumowanie przełomu września i października w MSWiA",
+          "url": "https://www.gov.pl/web/mswia/bezpieczenstwo-i-edukacja-podsumowanie-przelomu-wrzesnia-i-pazdziernika-w-mswia",
+          "publishedAt": "2026-10-05",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-caec0803.txt"
+        },
+        {
+          "id": "gov-mswia-20c8d315",
+          "title": "Aplikacja do ostrzegania ludności wkrótce przejdzie testy. Minister Marcin Kierwiński odwiedził Gdańsk",
+          "url": "https://www.gov.pl/web/mswia/aplikacja-do-ostrzegania-ludnosci-wkrotce-przejdzie-testy-minister-marcin-kierwinski-odwiedzil-gdansk",
+          "publishedAt": "2026-10-03",
+          "validUntil": null,
+          "file": "data/raw/gov-mswia-20c8d315.txt"
+        }
+      ]
+    },
+    {
+      "id": "gov-mon",
+      "publisher": "Ministerstwo Obrony Narodowej",
+      "domain": "gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://www.gov.pl/web/obrona-narodowa/aktualnosci5",
+            "link": "<div class=\"title\">\\s*<a href=\"([^\"]+)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "gov-mon-683272ab",
+          "title": "KOALICJA 26.2. Szef MON obserwował pierwsze ćwiczenie sił Koalicji Chętnych",
+          "url": "https://www.gov.pl/web/obrona-narodowa/koalicja-262-szef-mon-obserwowal-pierwsze-cwiczenie-sil-koalicji-chetnych",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-683272ab.txt"
+        },
+        {
+          "id": "gov-mon-8ff368dc",
+          "title": "Wicepremier W. Kosiniak-Kamysz o naruszeniu polskiej przestrzeni powietrznej",
+          "url": "https://www.gov.pl/web/obrona-narodowa/wicepremier-w-kosiniak-kamysz-o-naruszeniu-polskiej-przestrzeni-powietrznej",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-8ff368dc.txt"
+        },
+        {
+          "id": "gov-mon-509af268",
+          "title": "Polska włącza się w proces tworzenia Międzynarodowego Centrum Sztucznej Inteligencji na rzecz Obronności",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polska-wlacza-sie-w-proces-tworzenia-miedzynarodowego-centrum-sztucznej-inteligencji-na-rzecz-obronnosci",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-509af268.txt"
+        },
+        {
+          "id": "gov-mon-e24a211e",
+          "title": "Rozmowy ministrów obrony Polski i Niemiec",
+          "url": "https://www.gov.pl/web/obrona-narodowa/rozmowy-ministrow-obrony-polski-i-niemiec2",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-e24a211e.txt"
+        },
+        {
+          "id": "gov-mon-816ee2b1",
+          "title": "Polska i Grecja zacieśniają współpracę w obszarze satelitarnej obserwacji Ziemi",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polska-i-grecja-zaciesniaja-wspolprace-w-obszarze-satelitarnej-obserwacji-ziemi",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-816ee2b1.txt"
+        },
+        {
+          "id": "gov-mon-0ec9c07e",
+          "title": "Nowa infrastruktura dla artylerzystów w Jarosławiu",
+          "url": "https://www.gov.pl/web/obrona-narodowa/nowa-infrastruktura-dla-artylerzystow-w-jaroslawiu",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-0ec9c07e.txt"
+        },
+        {
+          "id": "gov-mon-854701a7",
+          "title": "Polsko-amerykańskie rozmowy o zabezpieczeniu medycznym wojsk",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polsko-amerykanskie-rozmowy-o-zabezpieczeniu-medycznym-wojsk",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-854701a7.txt"
+        },
+        {
+          "id": "gov-mon-cea1351d",
+          "title": "Polsko-greckie rozmowy o bezpieczeństwie i współpracy obronnej",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polsko-greckie-rozmowy-o-bezpieczenstwie-i-wspolpracy-obronnej",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-cea1351d.txt"
+        },
+        {
+          "id": "gov-mon-a98a64a8",
+          "title": "Gotowość medyczna wzmacnia bezpieczeństwo Polski i całego Sojuszu",
+          "url": "https://www.gov.pl/web/obrona-narodowa/gotowosc-medyczna-wzmacnia-bezpieczenstwo-polski-i-calego-sojuszu",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-a98a64a8.txt"
+        },
+        {
+          "id": "gov-mon-722f19fa",
+          "title": "Rozmowy o bezpieczeństwie Europy i współpracy z USA w Brukseli",
+          "url": "https://www.gov.pl/web/obrona-narodowa/rozmowy-o-bezpieczenstwie-europy-i-wspolpracy-z-usa-w-brukseli",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-722f19fa.txt"
+        },
+        {
+          "id": "gov-mon-de231b6c",
+          "title": "W Krakowie powstaje siedziba Dowództwa Wojsk Medycznych",
+          "url": "https://www.gov.pl/web/obrona-narodowa/w-krakowie-powstaje-siedziba-dowodztwa-wojsk-medycznych",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-de231b6c.txt"
+        },
+        {
+          "id": "gov-mon-f1ade0be",
+          "title": "Testy bezzałogowych lądowych systemów uzbrojenia (UGV)",
+          "url": "https://www.gov.pl/web/obrona-narodowa/testy-bezzalogowych-ladowych-systemow-uzbrojenia-ugv2",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-f1ade0be.txt"
+        },
+        {
+          "id": "gov-mon-5ef82206",
+          "title": "Polsko-australijskie rozmowy o współpracy wojskowej i bezpieczeństwie",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polsko-australijskie-rozmowy-o-wspolpracy-wojskowej-i-bezpieczenstwie",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-5ef82206.txt"
+        },
+        {
+          "id": "gov-mon-3fd5b985",
+          "title": "Narodowe Święto Niepodległości",
+          "url": "https://www.gov.pl/web/obrona-narodowa/narodowe-swieto-niepodleglosci4",
+          "publishedAt": "2026-11-11",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-3fd5b985.txt"
+        },
+        {
+          "id": "gov-mon-d165c24b",
+          "title": "Wicepremier Kosiniak-Kamysz: Polska jest nie tylko modelowym sojusznikiem USA, ale stała się strategicznym partnerem",
+          "url": "https://www.gov.pl/web/obrona-narodowa/wicepremier-kosiniak-kamysz-polska-jest-nie-tylko-modelowym-sojusznikiem-usa-ale-stala-sie-strategicznym-partnerem-usa",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-d165c24b.txt"
+        },
+        {
+          "id": "gov-mon-319bf7fa",
+          "title": "Polska wzmacnia swoją rolę w przygotowaniu kadr medycznych NATO",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polska-wzmacnia-swoja-role-w-przygotowaniu-kadr-medycznych-nato",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-319bf7fa.txt"
+        },
+        {
+          "id": "gov-mon-392706db",
+          "title": "Uroczysty capstrzyk w przeddzień Narodowego Święta Niepodległości",
+          "url": "https://www.gov.pl/web/obrona-narodowa/uroczysty-capstrzyk-w-przeddzien-narodowego-swieta-niepodleglosci",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-392706db.txt"
+        },
+        {
+          "id": "gov-mon-26df6f2e",
+          "title": "Transatlantyckie Forum Przemysłu Obronnego w Warszawie",
+          "url": "https://www.gov.pl/web/obrona-narodowa/transatlantyckie-forum-przemyslu-obronnego-w-warszawie",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-26df6f2e.txt"
+        },
+        {
+          "id": "gov-mon-410daa97",
+          "title": "Nowe wyznaczenia na stanowiska służbowe w Wojsku Polskim",
+          "url": "https://www.gov.pl/web/obrona-narodowa/wyznaczenia-na-nowe-stanowiska-sluzbowe6",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-410daa97.txt"
+        },
+        {
+          "id": "gov-mon-b6c390ab",
+          "title": "Spotkanie wiceministra Zalewskiego z ambasadorem Irlandii w Polsce",
+          "url": "https://www.gov.pl/web/obrona-narodowa/spotkanie-wiceministra-zalewskiego-z-ambasadorem-irlandii-w-polsce",
+          "publishedAt": "2026-11-06",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-b6c390ab.txt"
+        },
+        {
+          "id": "gov-mon-603baf46",
+          "title": "Spotkanie wiceministra Zalewskiego z Ambasador Królestwa Szwecji w Warszawie",
+          "url": "https://www.gov.pl/web/obrona-narodowa/spotkanie-wiceministra-zalewskiego-z-ambasador-krolestwa-szwecji-w-warszawie",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-603baf46.txt"
+        },
+        {
+          "id": "gov-mon-b9a9b175",
+          "title": "Powstaje fabryka nowoczesnej amunicji rakietowej. To inwestycja w bezpieczeństwo na dekady",
+          "url": "https://www.gov.pl/web/obrona-narodowa/powstaje-fabryka-nowoczesnej-amunicji-rakietowej-to-inwestycja-w-bezpieczenstwo-na-dekady",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-b9a9b175.txt"
+        },
+        {
+          "id": "gov-mon-f316693e",
+          "title": "Kolejne Groty dla Wojska Polskiego",
+          "url": "https://www.gov.pl/web/obrona-narodowa/kolejne-groty-dla-wojska-polskiego",
+          "publishedAt": "2026-11-04",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-f316693e.txt"
+        },
+        {
+          "id": "gov-mon-3197e3c1",
+          "title": "Sojusznicy wzmacniają przygotowania do pokoju w Ukrainie dużymi ćwiczeniami w Polsce",
+          "url": "https://www.gov.pl/web/obrona-narodowa/sojusznicy-wzmacniaja-przygotowania-do-pokoju-w-ukrainie-duzymi-cwiczeniami-w-polsce2",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-3197e3c1.txt"
+        },
+        {
+          "id": "gov-mon-34e8522a",
+          "title": "Oficjalna wizyta delegacji wojskowej służby zdrowia Republiki Azerbejdżanu w Polsce",
+          "url": "https://www.gov.pl/web/obrona-narodowa/oficjalna-wizyta-delegacji-wojskowej-sluzby-zdrowia-republiki-azerbejdzanu-w-polsce",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-34e8522a.txt"
+        },
+        {
+          "id": "gov-mon-489eb137",
+          "title": "Polsko-amerykańskie rozmowy o współpracy obronnej i obecności wojsk USA w Polsce",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polsko-amerykanskie-rozmowy-o-wspolpracy-obronnej-i-obecnosci-wojsk-usa-w-polsce",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-489eb137.txt"
+        },
+        {
+          "id": "gov-mon-7e4b2541",
+          "title": "Systemy bezzałogowe to priorytet w procesie modernizacji Wojska Polskiego",
+          "url": "https://www.gov.pl/web/obrona-narodowa/systemy-bezzalogowe-to-priorytet-w-procesie-modernizacji-wojska-polskiego",
+          "publishedAt": "2026-10-30",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-7e4b2541.txt"
+        },
+        {
+          "id": "gov-mon-e688cafc",
+          "title": "Od innowacji do zdolności wojska. VI Forum Innowacyjności Sił Zbrojnych",
+          "url": "https://www.gov.pl/web/obrona-narodowa/od-innowacji-do-zdolnosci-wojska-vi-forum-innowacyjnosci-sil-zbrojnych",
+          "publishedAt": "2026-10-30",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-e688cafc.txt"
+        },
+        {
+          "id": "gov-mon-36b7bc6e",
+          "title": "Komunikat MON",
+          "url": "https://www.gov.pl/web/obrona-narodowa/komunikat-mon45",
+          "publishedAt": "2026-10-29",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-36b7bc6e.txt"
+        },
+        {
+          "id": "gov-mon-e11d3e7a",
+          "title": "Komunikat MON",
+          "url": "https://www.gov.pl/web/obrona-narodowa/komunikat-mon44",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/gov-mon-e11d3e7a.txt"
+        },
+        {
+          "id": "gov-mon-238cd50e",
+          "title": "Edukacja z wojskiem. Inauguracja VI edycji projektu z udziałem wicepremiera Władysława Kosiniaka-Kamysza i minister Barbary Nowackiej",
+          "url": "https://www.gov.pl/web/obrona-narodowa/edukacja-z-wojskiem-inauguracja-vi-edycji-projektu-z-udzialem-wicepremiera-wladyslawa-kosiniaka-kamysza-i-minister-barbary-nowackiej",
+          "publishedAt": "2026-10-28",
+          "file": "data/raw/gov-mon-238cd50e.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-792ede9a",
+          "title": "Bezpieczeństwo państwa zaczyna się od odpornego społeczeństwa!",
+          "url": "https://www.gov.pl/web/obrona-narodowa/bezpieczenstwo-panstwa-zaczyna-sie-od-odpornego-spoleczenstwa",
+          "publishedAt": "2026-10-28",
+          "file": "data/raw/gov-mon-792ede9a.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-928ef89a",
+          "title": "Strategiczne partnerstwo Polski i Wielkiej Brytanii. Podpisano trzyletni Plan Współpracy Obronnej",
+          "url": "https://www.gov.pl/web/obrona-narodowa/strategiczne-partnerstwo-polski-i-wielkiej-brytanii-podpisano-trzyletni-plan-wspolpracy-obronnej",
+          "publishedAt": "2026-10-27",
+          "file": "data/raw/gov-mon-928ef89a.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-0a6933bd",
+          "title": "W Polsce powstanie centrum obsługi pocisków rakietowych PAC-3",
+          "url": "https://www.gov.pl/web/obrona-narodowa/w-polsce-powstanie-centrum-obslugi-pociskow-rakietowych-pac-3",
+          "publishedAt": "2026-10-27",
+          "file": "data/raw/gov-mon-0a6933bd.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-17aef92b",
+          "title": "Przywrócona pamięć o architekcie zwycięstwa 1920 roku. Pomnik gen. broni Tadeusza Jordan-Rozwadowskiego odsłonięty przed Sztabem Generalnym Wojska Polskiego",
+          "url": "https://www.gov.pl/web/obrona-narodowa/przywrocona-pamiec-o-architekcie-zwyciestwa-1920-roku-pomnik-gen-broni-tadeusza-jordan-rozwadowskiego-odsloniety-przed-sztabem-generalnym-wojska-polskiego",
+          "publishedAt": "2026-10-26",
+          "file": "data/raw/gov-mon-17aef92b.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-de161c95",
+          "title": "Porozumienie o współpracy pomiędzy MON a Naczelną Izbą Lekarską oraz Wojskową Izbą Lekarską na rzecz Legionu Medycznego",
+          "url": "https://www.gov.pl/web/obrona-narodowa/porozumienie-o-wspolpracy-pomiedzy-mon-a-naczelna-izba-lekarska-oraz-wojskowa-izba-lekarska-na-rzecz-legionu-medycznego",
+          "publishedAt": "2026-10-26",
+          "file": "data/raw/gov-mon-de161c95.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-49a8dc91",
+          "title": "Europejska Grupa 5 Ministrów Obrony (E5) o dalszym wzmacnianiu NATO",
+          "url": "https://www.gov.pl/web/obrona-narodowa/europejska-grupa-5-ministrow-obrony-e5-o-dalszym-wzmacnianiu-nato",
+          "publishedAt": "2026-10-26",
+          "file": "data/raw/gov-mon-49a8dc91.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-d734bfb5",
+          "title": "Polsko-amerykańska współpraca na rzecz wzmacniania gotowości medycznej",
+          "url": "https://www.gov.pl/web/obrona-narodowa/polsko-amerykanska-wspolpraca-na-rzecz-wzmacniania-gotowosci-medycznej",
+          "publishedAt": "2026-10-23",
+          "file": "data/raw/gov-mon-d734bfb5.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-05fac30c",
+          "title": "MON i Narodowy Instytut Onkologii rozpoczynają współpracę. Wspólne działania na rzecz bezpieczeństwa i zdrowia pacjentów",
+          "url": "https://www.gov.pl/web/obrona-narodowa/mon-i-narodowy-instytut-onkologii-rozpoczynaja-wspolprace-wspolne-dzialania-na-rzecz-bezpieczenstwa-i-zdrowia-pacjentow",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-mon-05fac30c.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-7dbc4ca5",
+          "title": "Współpraca polsko - amerykańska na rzecz bezpieczeństwa",
+          "url": "https://www.gov.pl/web/obrona-narodowa/wspolpraca-polsko--amerykanska-na-rzecz-bezpieczenstwa",
+          "publishedAt": "2026-10-22",
+          "file": "data/raw/gov-mon-7dbc4ca5.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-d463c6ae",
+          "title": "Wiceminister Wziątek otworzył konferencję Global Defence Aviation 2026",
+          "url": "https://www.gov.pl/web/obrona-narodowa/wiceminister-wziatek-otworzyl-konferencje-global-defence-aviation-2026",
+          "publishedAt": "2026-10-20",
+          "file": "data/raw/gov-mon-d463c6ae.txt",
+          "validUntil": null
+        },
+        {
+          "id": "gov-mon-803eb58e",
+          "title": "Komunikat MON",
+          "url": "https://www.gov.pl/web/obrona-narodowa/komunikat-mon43",
+          "publishedAt": "2026-10-19",
+          "file": "data/raw/gov-mon-803eb58e.txt",
+          "validUntil": null
+        }
+      ]
+    },
+    {
+      "id": "policja",
+      "publisher": "Policja (Komenda Główna Policji)",
+      "domain": "policja.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://policja.pl/pol/aktualnosci",
+            "link": "href=\"(/pol/aktualnosci/\\d+,[^\"]+\\.html)\"",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30
+      },
+      "documents": [
+        {
+          "id": "policja-96d17139",
+          "title": "Operacja TOR. Rok wspólnej służby na rzecz bezpieczeństwa kolei",
+          "url": "https://policja.pl/pol/aktualnosci/284115,Operacja-TOR-Rok-wspolnej-sluzby-na-rzecz-bezpieczenstwa-kolei.html",
+          "publishedAt": "2026-11-21",
+          "validUntil": null,
+          "file": "data/raw/policja-96d17139.txt"
+        },
+        {
+          "id": "policja-d5de488c",
+          "title": "Pamiętamy!",
+          "url": "https://policja.pl/pol/aktualnosci/181717,Pamietamy.html",
+          "publishedAt": "2026-11-21",
+          "validUntil": null,
+          "file": "data/raw/policja-d5de488c.txt"
+        },
+        {
+          "id": "policja-d6c26fa7",
+          "title": "Doskonalenie współpracy sztabowej i wymiana doświadczeń – ogólnopolska odprawa Policji w Żyrardowie",
+          "url": "https://policja.pl/pol/aktualnosci/284101,Doskonalenie-wspolpracy-sztabowej-i-wymiana-doswiadczen-ogolnopolska-odprawa-Pol.html",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/policja-d6c26fa7.txt"
+        },
+        {
+          "id": "policja-41009c3a",
+          "title": "Pracownica banku wyłudziła pożyczki na łączną kwotę 170 tys. zł - wykorzystała dane swoich klientów",
+          "url": "https://policja.pl/pol/aktualnosci/284111,Pracownica-banku-wyludzila-pozyczki-na-laczna-kwote-170-tys-zl-wykorzystala-dane.html",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/policja-41009c3a.txt"
+        },
+        {
+          "id": "policja-f050b239",
+          "title": "21 listopada sprawdź bezpłatnie światła w samochodzie",
+          "url": "https://policja.pl/pol/aktualnosci/283982,21-listopada-sprawdz-bezplatnie-swiatla-w-samochodzie.html",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/policja-f050b239.txt"
+        },
+        {
+          "id": "policja-ff5b1fd2",
+          "title": "Pamiętamy!",
+          "url": "https://policja.pl/pol/aktualnosci/181526,Pamietamy.html",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/policja-ff5b1fd2.txt"
+        },
+        {
+          "id": "policja-7d608d91",
+          "title": "Finał ogólnopolskiej kampanii „Dzieciństwo bez przemocy”",
+          "url": "https://policja.pl/pol/aktualnosci/284056,Final-ogolnopolskiej-kampanii-Dziecinstwo-bez-przemocy.html",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/policja-7d608d91.txt"
+        },
+        {
+          "id": "policja-44e34e1b",
+          "title": "Niewyraźna mowa i przerwane połączenie. Czujność dyżurnego oraz reakcja dzielnicowych pozwoliły udzielić pomocy na czas",
+          "url": "https://policja.pl/pol/aktualnosci/284092,Niewyrazna-mowa-i-przerwane-polaczenie-Czujnosc-dyzurnego-oraz-reakcja-dzielnico.html",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/policja-44e34e1b.txt"
+        },
+        {
+          "id": "policja-8b2d799e",
+          "title": "Bankowcy dla CyberEdukacji: Fałszywa zbiórka charytatywna. Oszuści wykorzystują ludzką dobroć, by wyłudzać pieniądze",
+          "url": "https://policja.pl/pol/aktualnosci/284018,Bankowcy-dla-CyberEdukacji-Falszywa-zbiorka-charytatywna-Oszusci-wykorzystuja-lu.html",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/policja-8b2d799e.txt"
+        },
+        {
+          "id": "policja-63d76cc6",
+          "title": "Nielegalny handel podrobionymi urządzeniami diagnostycznymi. Straty sięgają niemal 1 milion złotych",
+          "url": "https://policja.pl/pol/aktualnosci/284071,Nielegalny-handel-podrobionymi-urzadzeniami-diagnostycznymi-Straty-siegaja-niema.html",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/policja-63d76cc6.txt"
+        },
+        {
+          "id": "policja-5e104251",
+          "title": "Gala finałowa ogólnopolskiego konkursu plastyczno-filmowego „Letni PrzeWodnik” - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/284017,Gala-finalowa-ogolnopolskiego-konkursu-plastyczno-filmowego-Letni-PrzeWodnik.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-5e104251.txt"
+        },
+        {
+          "id": "policja-7ac6ff44",
+          "title": "Napadł na mężczyznę i okradł go z oszczędności. 42-letni recydywista zatrzymany już godzinę po ataku na seniora",
+          "url": "https://policja.pl/pol/aktualnosci/284012,Napadl-na-mezczyzne-i-okradl-go-z-oszczednosci-42-letni-recydywista-zatrzymany-j.html",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/policja-7ac6ff44.txt"
+        },
+        {
+          "id": "policja-a3e1eb84",
+          "title": "Spowodował wypadek, następnie uciekł z miejsca zdarzenia. Kryminalni zatrzymali sprawcę - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/284003,Spowodowal-wypadek-nastepnie-uciekl-z-miejsca-zdarzenia-Kryminalni-zatrzymali-sp.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-a3e1eb84.txt"
+        },
+        {
+          "id": "policja-f5a71007",
+          "title": "Pisał w Internecie, że kontaktował się ze sprawcą zamachu w Krakowie i wie o planowanych atakach terrorystycznych w Polsce. Został zatrzymany przez gdańskich kryminalnych",
+          "url": "https://policja.pl/pol/aktualnosci/284001,Pisal-w-Internecie-ze-kontaktowal-sie-ze-sprawca-zamachu-w-Krakowie-i-wie-o-plan.html",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/policja-f5a71007.txt"
+        },
+        {
+          "id": "policja-4b536cb5",
+          "title": "Dzięki czujności sąsiadów i wspólnym działaniom służb uratowane zostało życie 90-latka - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/283991,Dzieki-czujnosci-sasiadow-i-wspolnym-dzialaniom-sluzb-uratowane-zostalo-zycie-90.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-4b536cb5.txt"
+        },
+        {
+          "id": "policja-2fb528e3",
+          "title": "23-latek pobił ojca i groził rodzinie oraz policjantom podczas transmisji w Internecie - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/283987,23-latek-pobil-ojca-i-grozil-rodzinie-oraz-policjantom-podczas-transmisji-w-Inte.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-2fb528e3.txt"
+        },
+        {
+          "id": "policja-6c19c091",
+          "title": "Podszył się pod syna i wyłudził pieniądze. Tożsamość 21-latka ustalona przez policjantów z Garwolina - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/283984,Podszyl-sie-pod-syna-i-wyludzil-pieniadze-Tozsamosc-21-latka-ustalona-przez-poli.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-6c19c091.txt"
+        },
+        {
+          "id": "policja-7a102342",
+          "title": "Obchody Święta Policji i Straży Granicznej Estonii - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/283980,Obchody-Swieta-Policji-i-Strazy-Granicznej-Estonii.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-7a102342.txt"
+        },
+        {
+          "id": "policja-4242dadd",
+          "title": "Odpowie za wywołanie fałszywego alarmu o zagrożeniu - Aktualności Policja.pl",
+          "url": "https://policja.pl/pol/aktualnosci/283973,Odpowie-za-wywolanie-falszywego-alarmu-o-zagrozeniu.html",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/policja-4242dadd.txt"
+        },
+        {
+          "id": "policja-42767feb",
+          "title": "Przed zamknięciem schował się w toalecie na stacji paliw, a jak został sam ukradł 47 tys. zł",
+          "url": "https://policja.pl/pol/aktualnosci/283968,Przed-zamknieciem-schowal-sie-w-toalecie-na-stacji-paliw-a-jak-zostal-sam-ukradl.html",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/policja-42767feb.txt"
+        },
+        {
+          "id": "policja-1b36498f",
+          "title": "CHRONIMY TYCH, KTÓRZY CHRONIĄ INNYCH. MILIONOWE INWESTYCJE W OCHRONĘ POLICJANTÓW",
+          "url": "https://policja.pl/pol/aktualnosci/283964,CHRONIMY-TYCH-KTORZY-CHRONIA-INNYCH-MILIONOWE-INWESTYCJE-W-OCHRONE-POLICJANTOW.html",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/policja-1b36498f.txt"
+        },
+        {
+          "id": "policja-862e4ac2",
+          "title": "Pięciu zatrzymanych w sprawie podpalenia lokalu w Nowym Targu. Policjanci zabezpieczyli również narkotyki i amunicję",
+          "url": "https://policja.pl/pol/aktualnosci/283954,Pieciu-zatrzymanych-w-sprawie-podpalenia-lokalu-w-Nowym-Targu-Policjanci-zabezpi.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-862e4ac2.txt"
+        },
+        {
+          "id": "policja-32ccfffa",
+          "title": "Pięciu zatrzymanych w sprawie podpalenia lokalu w Nowym Targu. Policjanci zabezpieczyli również narkotyki i amunicję",
+          "url": "https://policja.pl/pol/aktualnosci/283953,Pieciu-zatrzymanych-w-sprawie-podpalenia-lokalu-w-Nowym-Targu-Policjanci-zabezpi.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-32ccfffa.txt"
+        },
+        {
+          "id": "policja-d6b7e14a",
+          "title": "Policjantka zapobiegła tragedii. 34-latek z nożem podejrzany o planowanie zabójstwa",
+          "url": "https://policja.pl/pol/aktualnosci/283948,Policjantka-zapobiegla-tragedii-34-latek-z-nozem-podejrzany-o-planowanie-zabojst.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-d6b7e14a.txt"
+        },
+        {
+          "id": "policja-ca093f2e",
+          "title": "Za kierownicą tracił przytomność. Szybka reakcja dzielnicowych pozwoliła udzielić mu pomocy na czas",
+          "url": "https://policja.pl/pol/aktualnosci/283945,Za-kierownica-tracil-przytomnosc-Szybka-reakcja-dzielnicowych-pozwolila-udzielic.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-ca093f2e.txt"
+        },
+        {
+          "id": "policja-d63784e4",
+          "title": "Dzielnicowi z Błonia zdążyli z pomocą na czas",
+          "url": "https://policja.pl/pol/aktualnosci/283943,Dzielnicowi-z-Blonia-zdazyli-z-pomoca-na-czas.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-d63784e4.txt"
+        },
+        {
+          "id": "policja-a509fd09",
+          "title": "Policjanci pomogli wychłodzonej 93-latce",
+          "url": "https://policja.pl/pol/aktualnosci/283937,Policjanci-pomogli-wychlodzonej-93-latce.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-a509fd09.txt"
+        },
+        {
+          "id": "policja-442d7255",
+          "title": "Dzielnicowy w drodze na służbę zatrzymał sprawcę kradzieży dwóch łańcuszków wartych blisko 200 tys. zł",
+          "url": "https://policja.pl/pol/aktualnosci/283935,Dzielnicowy-w-drodze-na-sluzbe-zatrzymal-sprawce-kradziezy-dwoch-lancuszkow-wart.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-442d7255.txt"
+        },
+        {
+          "id": "policja-60da8f15",
+          "title": "Lubelscy „łowcy głów” zatrzymali poszukiwanego niemieckim ENA",
+          "url": "https://policja.pl/pol/aktualnosci/283924,Lubelscy-lowcy-glow-zatrzymali-poszukiwanego-niemieckim-ENA.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-60da8f15.txt"
+        },
+        {
+          "id": "policja-81b8e938",
+          "title": "Groził masowym zabójstwem – 16-letni obywatel Rosji zatrzymany",
+          "url": "https://policja.pl/pol/aktualnosci/283922,Grozil-masowym-zabojstwem-16-letni-obywatel-Rosji-zatrzymany.html",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/policja-81b8e938.txt"
+        },
+        {
+          "id": "policja-75cb6648",
+          "title": "Nowe przepisy dla większego bezpieczeństwa na przejazdach kolejowych",
+          "url": "https://policja.pl/pol/aktualnosci/283912,Nowe-przepisy-dla-wiekszego-bezpieczenstwa-na-przejazdach-kolejowych.html",
+          "publishedAt": "2026-11-14",
+          "file": "data/raw/policja-75cb6648.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-892795c2",
+          "title": "Krakowscy policjanci zatrzymali mężczyznę, który oddał strzały w ich kierunku",
+          "url": "https://policja.pl/pol/aktualnosci/283904,Krakowscy-policjanci-zatrzymali-mezczyzne-ktory-oddal-strzaly-w-ich-kierunku.html",
+          "publishedAt": "2026-11-13",
+          "file": "data/raw/policja-892795c2.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-f559bc9b",
+          "title": "Kolejne sportowe sukcesy bydgoskiego policjanta",
+          "url": "https://policja.pl/pol/aktualnosci/283897,Kolejne-sportowe-sukcesy-bydgoskiego-policjanta.html",
+          "publishedAt": "2026-11-13",
+          "file": "data/raw/policja-f559bc9b.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-6b53898f",
+          "title": "Groził sąsiadce pozbawieniem życia, miał przy sobie maczetę. 62-latek usłyszał zarzuty",
+          "url": "https://policja.pl/pol/aktualnosci/283896,Grozil-sasiadce-pozbawieniem-zycia-mial-przy-sobie-maczete-62-latek-uslyszal-zar.html",
+          "publishedAt": "2026-11-13",
+          "file": "data/raw/policja-6b53898f.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-f4530c7b",
+          "title": "Poszukiwany 12 listami gończymi w rękach policjantów",
+          "url": "https://policja.pl/pol/aktualnosci/283888,Poszukiwany-12-listami-gonczymi-w-rekach-policjantow.html",
+          "publishedAt": "2026-11-13",
+          "file": "data/raw/policja-f4530c7b.txt",
+          "validUntil": null
+        }
+      ]
+    },
+    {
+      "id": "policja-mazowiecka",
+      "publisher": "Komenda Stołeczna i Wojewódzka Policja mazowiecka",
+      "domain": "mazowiecka.policja.gov.pl",
+      "sourceType": "urzedowe",
+      "license": "Materiały informacyjne organu władzy publicznej, publicznie dostępne bez logowania. Wykorzystanie w prototypie: tylko tekst, z podaniem wydawcy, adresu i daty pobrania (cytat i informacja publiczna; art. 4 pkt 2 oraz art. 29 ustawy o prawie autorskim i prawach pokrewnych). Brak odrębnej licencji otwartej: zakres do potwierdzenia prawnego przed wdrożeniem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci",
+            "link": "href=\"((?:https://mazowiecka\\.policja\\.gov\\.pl)?/ra/aktualnosci/aktualnosci/\\d+,[^\"]+\\.html)\"",
+            "pages": 2
+          }
+        ],
+        "maxNew": 20
+      },
+      "documents": [
+        {
+          "id": "policja-mazowiecka-1adc5e31",
+          "title": "Z sądowym zakazem uciekał przed policjantami - został zatrzymany po pościgu przez policjantów z Kadzidła",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141522,Z-sadowym-zakazem-uciekal-przed-policjantami-zostal-zatrzymany-po-poscigu-przez-.html",
+          "publishedAt": "2026-11-21",
+          "file": "data/raw/policja-mazowiecka-1adc5e31.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-e9e5b874",
+          "title": "Policjant z Mławy na podium w kraju! Podkom. Krzysztof Grędziński drugim najlepszym dyżurnym w Polsce",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141534,Policjant-z-Mlawy-na-podium-w-kraju-Podkom-Krzysztof-Gredzinski-drugim-najlepszy.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-e9e5b874.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-e5f4d2c7",
+          "title": "Kradzież drewna w gminie Zatory. 50-latek wpadł po śladach w lesie",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141508,Kradziez-drewna-w-gminie-Zatory-50-latek-wpadl-po-sladach-w-lesie.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-e5f4d2c7.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-fe5e8860",
+          "title": "Kierowca z 3 promilami w drodze po alkohol spowodował kolizję",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141507,Kierowca-z-3-promilami-w-drodze-po-alkohol-spowodowal-kolizje.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-fe5e8860.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-925769a0",
+          "title": "Nietrzeźwy kierowca potrącił psa na przejściu dla pieszych w Żyrardowie",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141505,Nietrzezwy-kierowca-potracil-psa-na-przejsciu-dla-pieszych-w-Zyrardowie.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-925769a0.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-bf19c587",
+          "title": "Płoccy policjanci zatrzymali kolejnych 7 osób poszukiwanych",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141530,Ploccy-policjanci-zatrzymali-kolejnych-7-osob-poszukiwanych.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-bf19c587.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-5fb6d4e3",
+          "title": "Tymczasowy areszt za wywołanie pożaru w Pułtusku. Ponad 20 osób ewakuowanych z zadymionego bloku",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141493,Tymczasowy-areszt-za-wywolanie-pozaru-w-Pultusku-Ponad-20-osob-ewakuowanych-z-za.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-5fb6d4e3.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-0eb39db3",
+          "title": "35 tysięcy złotych straciła 83-latka. Oszustka podawała się za jej córkę",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141479,35-tysiecy-zlotych-stracila-83-latka-Oszustka-podawala-sie-za-jej-corke.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-0eb39db3.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-77d65263",
+          "title": "Kino, pasja i profilaktyka - warsztaty filmowe radomskiej grupy PaT",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141492,Kino-pasja-i-profilaktyka-warsztaty-filmowe-radomskiej-grupy-PaT.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-77d65263.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-c3a93ad5",
+          "title": "Jedna kontrola, seria naruszeń. 31-latek z mandatami i sprawą w sądzie",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141475,Jedna-kontrola-seria-naruszen-31-latek-z-mandatami-i-sprawa-w-sadzie.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-c3a93ad5.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-0c8cb398",
+          "title": "Ponad 230 gramów narkotyków w mieszkaniu 34-latka. Płońscy kryminalni zatrzymali dwóch mężczyzn",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141474,Ponad-230-gramow-narkotykow-w-mieszkaniu-34-latka-Plonscy-kryminalni-zatrzymali-.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-0c8cb398.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-8aa21c5b",
+          "title": "Bezpłatna kontrola świateł w samochodzie: Najbliższa okazja już w sobotę, 21 listopada",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141429,Bezplatna-kontrola-swiatel-w-samochodzie-Najblizsza-okazja-juz-w-sobote-21-listo.html",
+          "publishedAt": "2026-11-20",
+          "file": "data/raw/policja-mazowiecka-8aa21c5b.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-b92af317",
+          "title": "Mazowiecka Policja na czerwono. Razem przeciwko przemocy wobec dzieci",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141343,Mazowiecka-Policja-na-czerwono-Razem-przeciwko-przemocy-wobec-dzieci.html",
+          "publishedAt": "2026-11-19",
+          "file": "data/raw/policja-mazowiecka-b92af317.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-dd220607",
+          "title": "Miłość, która kosztowała blisko 9 tysięcy złotych. Uwierzyła w historię lekarza ONZ i straciła pieniądze",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141419,Milosc-ktora-kosztowala-blisko-9-tysiecy-zlotych-Uwierzyla-w-historie-lekarza-ON.html",
+          "publishedAt": "2026-11-19",
+          "file": "data/raw/policja-mazowiecka-dd220607.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-fa022a38",
+          "title": "Młodzież i seniorzy z Sokołowa Podlaskiego o bezpieczeństwie w cyberprzestrzeni",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141430,Mlodziez-i-seniorzy-z-Sokolowa-Podlaskiego-o-bezpieczenstwie-w-cyberprzestrzeni.html",
+          "publishedAt": "2026-11-18",
+          "file": "data/raw/policja-mazowiecka-fa022a38.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-da3e2b7c",
+          "title": "„Samochód widmo” w rowie. Cztery osoby z promilami. Policjanci ustalili, kto kierował BMW",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141388,Samochod-widmo-w-rowie-Cztery-osoby-z-promilami-Policjanci-ustalili-kto-kierowal.html",
+          "publishedAt": "2026-11-18",
+          "file": "data/raw/policja-mazowiecka-da3e2b7c.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-64918473",
+          "title": "„Odbierak” namierzony przez płockich policjantów. 18-latek tymczasowo aresztowany",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141380,Odbierak-namierzony-przez-plockich-policjantow-18-latek-tymczasowo-aresztowany.html",
+          "publishedAt": "2026-11-18",
+          "file": "data/raw/policja-mazowiecka-64918473.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-02bf4177",
+          "title": "Nocna kontrola drogowa. Brak uprawnień i mefedron w kieszeni 20-latka",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141370,Nocna-kontrola-drogowa-Brak-uprawnien-i-mefedron-w-kieszeni-20-latka.html",
+          "publishedAt": "2026-11-18",
+          "file": "data/raw/policja-mazowiecka-02bf4177.txt",
+          "validUntil": null
+        },
+        {
+          "id": "policja-mazowiecka-7870baed",
+          "title": "Poszukiwany 32-latek zatrzymany przez płońskich kryminalnych. Ukrywał się w stolicy",
+          "url": "https://mazowiecka.policja.gov.pl/ra/aktualnosci/aktualnosci/141176,Poszukiwany-32-latek-zatrzymany-przez-plonskich-kryminalnych-Ukrywal-sie-w-stoli.html",
+          "publishedAt": "2026-11-12",
+          "file": "data/raw/policja-mazowiecka-7870baed.txt",
+          "validUntil": null
+        }
+      ]
+    },
+    {
+      "id": "cert",
+      "publisher": "CERT Polska (NASK)",
+      "domain": "moje.cert.pl",
+      "sourceType": "urzedowe",
+      "license": "Komunikaty CERT Polska (NASK) publikowane publicznie. Brak potwierdzonej licencji otwartej: przechowujemy tylko początek tekstu (do 1500 znaków) z odsyłaczem do pełnej wersji. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://moje.cert.pl/komunikaty/",
+            "link": "href=\"\\s*(/komunikaty/\\d{4}/\\d+/[^\"\\s]+)",
+            "pages": 3
+          }
+        ],
+        "maxNew": 30,
+        "excerptChars": 1500
+      },
+      "documents": [
+        {
+          "id": "cert-7afd6677",
+          "title": "⚠️ Fałszywe informacje o zwrocie za energię elektryczną – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/218/falszywe-informacje-o-zwrocie-za-energie-elektryczna/",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/cert-7afd6677.txt"
+        },
+        {
+          "id": "cert-0a84f621",
+          "title": "Krytyczne podatności w serwerze nginx umożliwiające zdalne wykonanie kodu - nginx2root – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/217/krytyczne-podatnosci-w-serwerze-nginx-umozliwiajace-zdalne-wykonanie-kodu-nginx2root/",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/cert-0a84f621.txt"
+        },
+        {
+          "id": "cert-f3f8ca16",
+          "title": "Krytyczna podatność w środowisku Java umożliwiająca zdalne wykonanie kodu - java4shell – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/216/krytyczna-podatnosc-w-srodowisku-java-umozliwiajaca-zdalne-wykonanie-kodu-java4shell/",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/cert-f3f8ca16.txt"
+        },
+        {
+          "id": "cert-093c00a5",
+          "title": "„Akta dochodzenia karnego”? To może być próba oszustwa! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/215/akta-dochodzenia-karnego-to-moze-byc-proba-oszustwa/",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/cert-093c00a5.txt"
+        },
+        {
+          "id": "cert-29b24d95",
+          "title": "🚨 Fałszywe alerty od dostawców hostingu – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/214/falszywe-alerty-od-dostawcow-hostingu/",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/cert-29b24d95.txt"
+        },
+        {
+          "id": "cert-e24173ef",
+          "title": "Raport miesięczny za październik 2026 – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/213/raport-miesieczny-za-pazdziernik-2026/",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/cert-e24173ef.txt"
+        },
+        {
+          "id": "cert-f998b8ef",
+          "title": "🚨 Uwaga na fałszywe SMS-y o mandatach! Oszuści podszywają się pod Policję – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/212/uwaga-na-falszywe-sms-y-o-mandatach-oszusci-podszywaja-sie-pod-policje/",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/cert-f998b8ef.txt"
+        },
+        {
+          "id": "cert-1e160c22",
+          "title": "📦 Uważaj na fałszywe wiadomości o przesyłkach! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/211/uwazaj-na-falszywe-wiadomosci-o-przesylkach/",
+          "publishedAt": "2026-11-09",
+          "validUntil": null,
+          "file": "data/raw/cert-1e160c22.txt"
+        },
+        {
+          "id": "cert-8440912c",
+          "title": "🎵 Oszuści wykorzystują wizerunek Spotify do wyłudzania danych – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/210/oszusci-wykorzystuja-wizerunek-spotify-do-wyludzania-danych/",
+          "publishedAt": "2026-11-05",
+          "validUntil": null,
+          "file": "data/raw/cert-8440912c.txt"
+        },
+        {
+          "id": "cert-37bd6f23",
+          "title": "Dopłata do przesyłki? Zachowaj ostrożność! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/209/doplata-do-przesylki-zachowaj-ostroznosc/",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/cert-37bd6f23.txt"
+        },
+        {
+          "id": "cert-bc6ce6af",
+          "title": "Podatności w systemie Synology DSM wykorzystywane w atakach ransomware – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/208/podatnosci-w-systemie-synology-dsm-wykorzystywane-w-atakach-ransomware/",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/cert-bc6ce6af.txt"
+        },
+        {
+          "id": "cert-c26e73fc",
+          "title": "🔔 Wystartował program bug bounty NASK! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/207/wystartowal-program-bug-bounty-nask/",
+          "publishedAt": "2026-11-03",
+          "validUntil": null,
+          "file": "data/raw/cert-c26e73fc.txt"
+        },
+        {
+          "id": "cert-41c99494",
+          "title": "Wiadomość o zwrocie podatku? Uważaj na kradzież danych! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/206/wiadomosc-o-zwrocie-podatku-uwazaj-na-kradziez-danych/",
+          "publishedAt": "2026-11-02",
+          "validUntil": null,
+          "file": "data/raw/cert-41c99494.txt"
+        },
+        {
+          "id": "cert-02efbbf8",
+          "title": "Fałszywy SMS o zwrocie paczki – to może być próba wyłudzenia danych – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/205/falszywy-sms-o-zwrocie-paczki-to-moze-byc-proba-wyludzenia-danych/",
+          "publishedAt": "2026-10-28",
+          "validUntil": null,
+          "file": "data/raw/cert-02efbbf8.txt"
+        },
+        {
+          "id": "cert-76f19ae8",
+          "title": "Przejęte klucze Updraft Central Cloud wykorzystywane do ataków na strony WordPress – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/204/przejete-klucze-updraft-central-cloud-wykorzystywane-do-atakow-na-strony-wordpress/",
+          "publishedAt": "2026-10-27",
+          "validUntil": null,
+          "file": "data/raw/cert-76f19ae8.txt"
+        },
+        {
+          "id": "cert-ecd7ccfd",
+          "title": "🔐 Oszuści wciąż rozsyłają wiadomości podszywające się pod bank, ale wykorzystują nowy motyw – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/203/oszusci-wciaz-rozsylaja-wiadomosci-podszywajace-sie-pod-bank-ale-wykorzystuja-nowy-motyw/",
+          "publishedAt": "2026-10-26",
+          "validUntil": null,
+          "file": "data/raw/cert-ecd7ccfd.txt"
+        },
+        {
+          "id": "cert-86791b50",
+          "title": "⚠️ Komunikat dla klientów biznesowych? Zachowaj ostrożność – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/202/komunikat-dla-klientow-biznesowych-zachowaj-ostroznosc/",
+          "publishedAt": "2026-10-25",
+          "validUntil": null,
+          "file": "data/raw/cert-86791b50.txt"
+        },
+        {
+          "id": "cert-fd8f11c8",
+          "title": "🕯️ Znicze w atrakcyjnych cenach? Uważaj na fałszywe sklepy! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/201/znicze-w-atrakcyjnych-cenach-uwazaj-na-falszywe-sklepy/",
+          "publishedAt": "2026-10-24",
+          "validUntil": null,
+          "file": "data/raw/cert-fd8f11c8.txt"
+        },
+        {
+          "id": "cert-e46025af",
+          "title": "🚨 Aktualizacja danych klienta? To może być próba wyłudzenia – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/200/aktualizacja-danych-klienta-to-moze-byc-proba-wyludzenia/",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/cert-e46025af.txt"
+        },
+        {
+          "id": "cert-83347250",
+          "title": "Utrata poufności kluczy urzędu certyfikacji eMudhra (emSign) – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/199/utrata-poufnosci-kluczy-urzedu-certyfikacji-emudhra-emsign/",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/cert-83347250.txt"
+        },
+        {
+          "id": "cert-d865f745",
+          "title": "Krytyczne podatności w produktach Fortinet – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/198/krytyczne-podatnosci-w-produktach-fortinet/",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/cert-d865f745.txt"
+        },
+        {
+          "id": "cert-a98c660d",
+          "title": "Krytyczne podatności w oprogramowaniu GitLab umożliwiające zdalne wykonanie kodu – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/197/krytyczne-podatnosci-w-oprogramowaniu-gitlab-umozliwiajace-zdalne-wykonanie-kodu/",
+          "publishedAt": "2026-10-22",
+          "validUntil": null,
+          "file": "data/raw/cert-a98c660d.txt"
+        },
+        {
+          "id": "cert-44c6a9ca",
+          "title": "Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu - php2shell – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/196/krytyczne-podatnosci-w-php-umozliwiajace-zdalne-wykonanie-kodu-php2shell/",
+          "publishedAt": "2026-10-21",
+          "validUntil": null,
+          "file": "data/raw/cert-44c6a9ca.txt"
+        },
+        {
+          "id": "cert-90e5178c",
+          "title": "Krytyczne podatności w PHP umożliwiające zdalne wykonanie kodu – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/195/krytyczne-podatnosci-w-php-umozliwiajace-zdalne-wykonanie-kodu/",
+          "publishedAt": "2026-10-21",
+          "validUntil": null,
+          "file": "data/raw/cert-90e5178c.txt"
+        },
+        {
+          "id": "cert-7a6403a5",
+          "title": "Krytyczna podatność w Collabora Online dla Nextcloud aktywnie wykorzystywana w atakach – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/194/krytyczna-podatnosc-w-collabora-online-dla-nextcloud-aktywnie-wykorzystywana-w-atakach/",
+          "publishedAt": "2026-10-20",
+          "validUntil": null,
+          "file": "data/raw/cert-7a6403a5.txt"
+        },
+        {
+          "id": "cert-0c7b5c97",
+          "title": "🚨Uwaga na fałszywe wiadomości SMS podszywające się pod Główny Inspektorat Transportu Drogowego! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/193/uwaga-na-falszywe-wiadomosci-sms-podszywajace-sie-pod-glowny-inspektorat-transportu-drogowe-caueqk9d/",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/cert-0c7b5c97.txt"
+        },
+        {
+          "id": "cert-f1cb6853",
+          "title": "🚨 Uwaga na e-maile z „nagraniem” uszkodzonego produktu! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/192/uwaga-na-e-maile-z-nagraniem-uszkodzonego-produktu/",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/cert-f1cb6853.txt"
+        },
+        {
+          "id": "cert-57367af6",
+          "title": "📦 Uważaj na wiadomości o nieudanym doręczeniu przesyłki! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/191/uwazaj-na-wiadomosci-o-nieudanym-doreczeniu-przesylki/",
+          "publishedAt": "2026-10-16",
+          "validUntil": null,
+          "file": "data/raw/cert-57367af6.txt"
+        },
+        {
+          "id": "cert-67de8b2a",
+          "title": "🚨 Cyberprzestępcy podszywają się pod KAS i straszą błędami w JPK_VAT! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/190/cyberprzestepcy-podszywaja-sie-pod-kas-i-strasza-bledami-w-jpk_vat/",
+          "publishedAt": "2026-10-15",
+          "validUntil": null,
+          "file": "data/raw/cert-67de8b2a.txt"
+        },
+        {
+          "id": "cert-c8bef852",
+          "title": "📩 „Ostatnie przypomnienie” zanim konto zostanie zablokowane. Chroń dane logowania do banku! – moje.cert.pl",
+          "url": "https://moje.cert.pl/komunikaty/2026/189/ostatnie-przypomnienie-zanim-konto-zostanie-zablokowane-chron-dane-logowania-do-banku/",
+          "publishedAt": "2026-10-13",
+          "validUntil": null,
+          "file": "data/raw/cert-c8bef852.txt"
+        }
+      ]
+    },
+    {
+      "id": "cert-blog",
+      "publisher": "CERT Polska (NASK)",
+      "domain": "cert.pl",
+      "sourceType": "urzedowe",
+      "license": "Komunikaty CERT Polska (NASK) publikowane publicznie. Brak potwierdzonej licencji otwartej: przechowujemy tylko początek tekstu (do 1500 znaków) z odsyłaczem do pełnej wersji. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się strona tekstowa organu władzy publicznej z listy mentora MSZ (ostrzeżenia, komunikaty, aktualności, prawa pasażera), dostępna bez logowania, zgodna z robots.txt, co najmniej 300 znaków tekstu, ta sama domena co lista.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: mapy i panele danych (brak tekstu), strony zablokowane przez robots.txt lub wymagające JavaScript, przekierowania na inną domenę, dokumenty ponad 1 MB, strony krótsze niż 300 znaków, pliki i obrazy. Nie obchodzimy zabezpieczeń."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://cert.pl/",
+            "link": "href=\"(\\./posts/\\d{4}/[^\"]+/)\"",
+            "pages": 1
+          }
+        ],
+        "maxNew": 15,
+        "excerptChars": 1500
+      },
+      "documents": [
+        {
+          "id": "cert-blog-d3416031",
+          "title": "CERT Polska uruchamia program bug bounty dla administracji publicznej",
+          "url": "https://cert.pl/posts/2026/11/bug-bounty/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-d3416031.txt"
+        },
+        {
+          "id": "cert-blog-1244f8f5",
+          "title": "Komunikacja kryzysowa w cyberbezpieczeństwie",
+          "url": "https://cert.pl/posts/2026/10/komunikacja-kryzysowa-w-cyberbezpieczenstwie/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-1244f8f5.txt"
+        },
+        {
+          "id": "cert-blog-ce7f555c",
+          "title": "Fałszywe reklamy i złośliwe aplikacje - analiza operacji toll fraud",
+          "url": "https://cert.pl/posts/2026/09/analiza-tollfraud/",
+          "publishedAt": "2026-08-24",
+          "validUntil": null,
+          "file": "data/raw/cert-blog-ce7f555c.txt"
+        },
+        {
+          "id": "cert-blog-1ca96e84",
+          "title": "MikroTrick: analiza techniczna, proces ujawnienia i zastosowanie agentów LLM",
+          "url": "https://cert.pl/posts/2026/09/mikrotrick-analiza-techniczna/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-1ca96e84.txt"
+        },
+        {
+          "id": "cert-blog-0ffee1b8",
+          "title": "Krytyczne podatności w MikroTik RouterOS są aktywnie wykorzystywane. Zalecana pilna aktualizacja",
+          "url": "https://cert.pl/posts/2026/09/podatnosci-w-mikrotik-routeros-aktywnie-wykorzystywane/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-0ffee1b8.txt"
+        },
+        {
+          "id": "cert-blog-11b6bc63",
+          "title": "Nowości od CERT Polska - premiera wiedza.cert.pl i nowa funkcja w moje.cert.pl",
+          "url": "https://cert.pl/posts/2026/09/nowosci-cert-polska/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-11b6bc63.txt"
+        },
+        {
+          "id": "cert-blog-af3a4b47",
+          "title": "Uzupełnienie raportu z incydentu w sektorze energii w grudniu 2025 roku",
+          "url": "https://cert.pl/posts/2026/08/uzupelnienie-raportu-incydent-sektor-energii-2025/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-af3a4b47.txt"
+        },
+        {
+          "id": "cert-blog-7352f874",
+          "title": "Kampania phishingowa grupy UNC1151/Ghostwriter na pocztę Gmail",
+          "url": "https://cert.pl/posts/2026/06/UNC1151-kampania-gmail/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-7352f874.txt"
+        },
+        {
+          "id": "cert-blog-4bef7fd1",
+          "title": "Zaufanie liczone w tysiącach – moje.cert.pl",
+          "url": "https://cert.pl/posts/2026/06/zaufanie-liczone-w-tysiacach-moje.cert.pl/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-4bef7fd1.txt"
+        },
+        {
+          "id": "cert-blog-2cf98f3e",
+          "title": "CRA – nowe obowiązki dla producentów oprogramowania i korzyści dla użytkowników",
+          "url": "https://cert.pl/posts/2026/05/cra-dobre-praktyki/",
+          "publishedAt": null,
+          "validUntil": null,
+          "file": "data/raw/cert-blog-2cf98f3e.txt"
+        }
+      ]
+    },
+    {
+      "id": "konkret24",
+      "publisher": "Konkret24 (TVN24)",
+      "domain": "konkret24.tvn24.pl",
+      "sourceType": "factcheck",
+      "license": "Serwis fact-checkingowy TVN24 (sygnatariusz IFCN). Treść chroniona prawem autorskim, brak licencji otwartej: przechowujemy tylko początek artykułu (do 800 znaków) z autorem serwisu i odsyłaczem do pełnej wersji (prawo cytatu, art. 29). Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się publicznie dostępny artykuł organizacji weryfikującej fakty (IFCN/EFCSN) lub organizacji badającej dezinformację, zgodny z robots.txt. Gdy licencja nie pozwala na pełny tekst, zapisujemy tylko początek (do 800 znaków) z odsyłaczem. Typ źródła wpływa wyłącznie na siłę podstawy, nie na treść werdyktu.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: strony blokowane przez robots.txt lub zabezpieczenia (np. 403), treści płatne lub za logowaniem, strony krótsze niż 300 znaków. Nie obchodzimy zabezpieczeń; organizacji, które blokują roboty (np. Demagog), nie pobieramy."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://konkret24.tvn24.pl/",
+            "link": "href=\"((?:https://konkret24\\.tvn24\\.pl)?/[a-z0-9-]+/[a-z0-9-]+-st\\d+)\"",
+            "pages": 1
+          }
+        ],
+        "maxNew": 40,
+        "excerptChars": 800
+      },
+      "documents": [
+        {
+          "id": "konkret24-096fa9cb",
+          "title": "Ukraina \"szykuje 14-letnie dzieci na front\"? Co widać na nagraniu",
+          "url": "https://konkret24.tvn24.pl/swiat/ukraina-szykuje-14-letnie-dzieci-na-front-co-widac-na-nagraniu-st9342342",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/konkret24-096fa9cb.txt"
+        },
+        {
+          "id": "konkret24-6ce8ef2f",
+          "title": "\"Planują coś wielkiego\"? Co robią \"barykady pod Kapitolem",
+          "url": "https://konkret24.tvn24.pl/swiat/planuja-cos-wielkiego-co-robia-barykady-pod-kapitolem-st9347801",
+          "publishedAt": "2026-11-20",
+          "validUntil": null,
+          "file": "data/raw/konkret24-6ce8ef2f.txt"
+        },
+        {
+          "id": "konkret24-3878ab8a",
+          "title": "\"Xi Jinping odmówił podania ręki Putinowi\". Serio?",
+          "url": "https://konkret24.tvn24.pl/swiat/xi-jinping-odmowil-podania-reki-putinowi-serio-st9347690",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/konkret24-3878ab8a.txt"
+        },
+        {
+          "id": "konkret24-d27a4d0c",
+          "title": "Niemieccy tajniacy policyjni będą działać \"w głębi państwa polskiego\"? Skąd wziął się ten przekaz",
+          "url": "https://konkret24.tvn24.pl/polska/niemieccy-tajniacy-policyjni-beda-dzialac-w-glebi-panstwa-polskiego-skad-wzial-sie-ten-przekaz-st9342529",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/konkret24-d27a4d0c.txt"
+        },
+        {
+          "id": "konkret24-eafd1455",
+          "title": "\"Most Krymski ledwo stoi\"? Nagranie tego nie dowodzi",
+          "url": "https://konkret24.tvn24.pl/swiat/most-krymski-ledwo-stoi-nagranie-tego-nie-dowodzi-st9344633",
+          "publishedAt": "2026-11-19",
+          "validUntil": null,
+          "file": "data/raw/konkret24-eafd1455.txt"
+        },
+        {
+          "id": "konkret24-5c0bdb54",
+          "title": "Kanał prezydenta bez komentarzy. \"Utrwalona praktyka\" i nowy problem",
+          "url": "https://konkret24.tvn24.pl/polityka/kanal-prezydenta-bez-komentarzy-utrwalona-praktyka-i-nowy-problem-st9341646",
+          "publishedAt": "2026-11-18",
+          "validUntil": null,
+          "file": "data/raw/konkret24-5c0bdb54.txt"
+        },
+        {
+          "id": "konkret24-c3433856",
+          "title": "\"Ponad 800 doradców\" prezydenta? Policzyliśmy",
+          "url": "https://konkret24.tvn24.pl/polityka/ponad-800-doradcow-prezydenta-policzylismy-st9341916",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/konkret24-c3433856.txt"
+        },
+        {
+          "id": "konkret24-1d105139",
+          "title": "\"Pierwsze oficjalne zdjęcie\" Mostu Krymskiego po ataku? Sprawdzamy",
+          "url": "https://konkret24.tvn24.pl/swiat/pierwsze-oficjalne-zdjecie-mostu-krymskiego-po-ataku-sprawdzamy-st9343710",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/konkret24-1d105139.txt"
+        },
+        {
+          "id": "konkret24-553d8007",
+          "title": "Fogiel wypomina Nitrasowi \"opiłowanie katolików\". To powracająca manipulacja",
+          "url": "https://konkret24.tvn24.pl/polityka/fogiel-wypomina-nitrasowi-opilowanie-katolikow-to-powracajaca-manipulacja-st9337302",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/konkret24-553d8007.txt"
+        },
+        {
+          "id": "konkret24-cf19f4a7",
+          "title": "\"To zbrodnia wojenna\"? Wątpliwości wokół nagrania z \"egzekucji\"",
+          "url": "https://konkret24.tvn24.pl/swiat/to-zbrodnia-wojenna-watpliwoci-wokol-nagrania-z-egzekucji-st9336417",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/konkret24-cf19f4a7.txt"
+        },
+        {
+          "id": "konkret24-943355a8",
+          "title": "Likwidacja kopalni \"Bolesław Śmiały\". \"Tak wygląda Polska Tuska\"? Kto decydował",
+          "url": "https://konkret24.tvn24.pl/polityka/likwidacja-kopalni-boleslaw-smialy-tak-wyglada-polska-tuska-kto-decydowal-st9312085",
+          "publishedAt": "2026-11-16",
+          "validUntil": null,
+          "file": "data/raw/konkret24-943355a8.txt"
+        },
+        {
+          "id": "konkret24-a81c2e79",
+          "title": "Szanse na to, że zostanie się zabitym przez minę lądową dostarczoną przez niedźwiedzia, są niewielkie, ale nigdy nie wyn",
+          "url": "https://konkret24.tvn24.pl/swiat/szanse-na-to-ze-zostanie-sie-zabitym-przez-mine-ladowa-dostarczona-przez-niedzwiedzia-sa-niewielkie-ale-nigdy-nie-wyn-st9324229",
+          "publishedAt": "2026-11-15",
+          "validUntil": null,
+          "file": "data/raw/konkret24-a81c2e79.txt"
+        },
+        {
+          "id": "konkret24-f6d6ddd5",
+          "title": "\"Bokserzy spuścili łomot rekruterom Zełenskiego\"? Co to za nagranie",
+          "url": "https://konkret24.tvn24.pl/swiat/bokserzy-spuscili-lomot-rekruterom-zelenskiego-co-to-za-nagranie-st9331676",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/konkret24-f6d6ddd5.txt"
+        },
+        {
+          "id": "konkret24-81f720c7",
+          "title": "Klimczak o kolei: \"45 procent więcej pasażerów niż za rządów PiS\". Co mówią dane",
+          "url": "https://konkret24.tvn24.pl/polityka/klimczak-o-kolei-45-procent-wiecej-pasazerow-niz-za-rzadow-pis-co-mowia-dane-st9314389",
+          "publishedAt": "2026-11-13",
+          "validUntil": null,
+          "file": "data/raw/konkret24-81f720c7.txt"
+        },
+        {
+          "id": "konkret24-8badf4e6",
+          "title": "\"Milion Polaków\" na Marszu Niepodległości? Nie na tym zdjęciu",
+          "url": "https://konkret24.tvn24.pl/polska/milion-polakow-na-marszu-niepodleglosci-nie-na-tym-zdjeciu-st9335049",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/konkret24-8badf4e6.txt"
+        },
+        {
+          "id": "konkret24-d07d0ab0",
+          "title": "\"Policjanci pod TK dostają 3000 zł za dobę\"? Coś się nie zgadza",
+          "url": "https://konkret24.tvn24.pl/polska/policjanci-pod-tk-dostaja-3000-zl-za-dobe-cos-sie-nie-zgadza-st9331482",
+          "publishedAt": "2026-11-12",
+          "validUntil": null,
+          "file": "data/raw/konkret24-d07d0ab0.txt"
+        },
+        {
+          "id": "konkret24-89b13f30",
+          "title": "\"Ludzi w Krakowie zastrzelił wielbiciel Ukrainy\"? Rosyjska dezinformacja w akcji",
+          "url": "https://konkret24.tvn24.pl/polska/ludzi-w-krakowie-zastrzelil-wielbiciel-ukrainy-rosyjska-dezinformacja-w-akcji-st9329687",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/konkret24-89b13f30.txt"
+        },
+        {
+          "id": "konkret24-3e873a64",
+          "title": "W spódnicy, szpilkach, z torebką? Kolejna próba dyskredytacji brytyjskiego ministra",
+          "url": "https://konkret24.tvn24.pl/swiat/w-spodnicy-szpilkach-z-torebka-kolejna-proba-dyskredytacji-brytyjskiego-ministra-st9332345",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/konkret24-3e873a64.txt"
+        },
+        {
+          "id": "konkret24-9929a2ba",
+          "title": "Zmniejszenie pojemności baków do 15 litrów to \"normalka w UE\"? Czyj to pomysł",
+          "url": "https://konkret24.tvn24.pl/swiat/zmniejszenie-pojemnosci-bakow-do-15-litrow-to-normalka-w-ue-czyj-to-pomysl-st9324617",
+          "publishedAt": "2026-11-10",
+          "validUntil": null,
+          "file": "data/raw/konkret24-9929a2ba.txt"
+        },
+        {
+          "id": "konkret24-199cb092",
+          "title": "Na filmie jedzie, a naprawdę nie ruszy. Jak rządowy spot \"lukruje rzeczywistość\"",
+          "url": "https://konkret24.tvn24.pl/polska/na-filmie-jedzie-a-naprawde-nie-ruszy-jak-rzadowy-spot-lukruje-rzeczywistosc-st9278665",
+          "publishedAt": "2026-10-24",
+          "validUntil": null,
+          "file": "data/raw/konkret24-199cb092.txt"
+        },
+        {
+          "id": "konkret24-5f84a92a",
+          "title": "\"Ruszyła maszyna po szynach ospale\". Jak idą rozliczenia PiS trzy lata po wyborach",
+          "url": "https://konkret24.tvn24.pl/polityka/ruszyla-maszyna-po-szynach-ospale-jak-ida-rozliczenia-pis-trzy-lata-po-wyborach-st9282241",
+          "publishedAt": "2026-10-15",
+          "validUntil": null,
+          "file": "data/raw/konkret24-5f84a92a.txt"
+        },
+        {
+          "id": "konkret24-a378e7c1",
+          "title": "Tolkien i Orwell radykalizują? Jak skrajna prawica zawłaszcza ich książki",
+          "url": "https://konkret24.tvn24.pl/swiat/tolkien-i-orwell-radykalizuja-jak-skrajna-prawica-zawlaszcza-ich-ksiazki-st9270230",
+          "publishedAt": "2026-10-10",
+          "validUntil": null,
+          "file": "data/raw/konkret24-a378e7c1.txt"
+        },
+        {
+          "id": "konkret24-bd08aa11",
+          "title": "Nocny \"atak z anten 5G\" i rzekome objawy. Co naprawdę wiemy o wpływie sieci na zdrowie?",
+          "url": "https://konkret24.tvn24.pl/zdrowie/nocny-atak-z-anten-5g-i-rzekome-objawy-co-naprawde-wiemy-o-wplywie-sieci-na-zdrowie-st9251754",
+          "publishedAt": "2026-09-24",
+          "validUntil": null,
+          "file": "data/raw/konkret24-bd08aa11.txt"
+        },
+        {
+          "id": "konkret24-b48bf862",
+          "title": "Tysiące noworodków chorują z powodu \"szczepionki od Gatesów\"? W tej historii nic się nie zgadza",
+          "url": "https://konkret24.tvn24.pl/zdrowie/tysiace-noworodkow-choruja-z-powodu-szczepionki-od-gatesow-w-tej-historii-nic-sie-nie-zgadza-st9214449",
+          "publishedAt": "2026-09-09",
+          "validUntil": null,
+          "file": "data/raw/konkret24-b48bf862.txt"
+        },
+        {
+          "id": "konkret24-6331daff",
+          "title": "\"Porażające\" dane po szczepieniach na HPV w Danii? Na pewno zmanipulowane",
+          "url": "https://konkret24.tvn24.pl/zdrowie/porazajace-dane-po-szczepieniach-na-hpv-w-danii-na-pewno-zmanipulowane-st9196922",
+          "publishedAt": "2026-08-27",
+          "validUntil": null,
+          "file": "data/raw/konkret24-6331daff.txt"
+        },
+        {
+          "id": "konkret24-f445fd23",
+          "title": "Prezydent o \"lex szarlatan\": uczciwy przedsiębiorca i szarlatan w jednej szufladce? Jest inaczej",
+          "url": "https://konkret24.tvn24.pl/zdrowie/prezydent-o-lex-szarlatan-uczciwy-przedsiebiorca-i-szarlatan-w-jednej-szufladce-jest-inaczej-st9199266",
+          "publishedAt": "2026-08-21",
+          "validUntil": null,
+          "file": "data/raw/konkret24-f445fd23.txt"
+        },
+        {
+          "id": "konkret24-d6a42449",
+          "title": "Borelioza, RSV i koronawirus stworzone w laboratorium? \"Bajki\" sekretarza zdrowia USA",
+          "url": "https://konkret24.tvn24.pl/zdrowie/borelioza-rsv-i-koronawirus-stworzone-w-laboratorium-bajki-sekretarza-zdrowia-usa-st9173857",
+          "publishedAt": "2026-08-06",
+          "validUntil": null,
+          "file": "data/raw/konkret24-d6a42449.txt"
+        },
+        {
+          "id": "konkret24-aea40138",
+          "title": "\"Kobiety do dronów\"? Tak nie wygląda mobilizacja do ukraińskiego wojska",
+          "url": "https://konkret24.tvn24.pl/swiat/kobiety-do-dronow-tak-nie-wyglada-mobilizacja-do-ukrainskiego-wojska-st9249692",
+          "publishedAt": "2026-09-23",
+          "validUntil": null,
+          "file": "data/raw/konkret24-aea40138.txt"
+        },
+        {
+          "id": "konkret24-b222e7c9",
+          "title": "W kajdankach na front? Nie tak wygląda mobilizacja w Ukrainie",
+          "url": "https://konkret24.tvn24.pl/swiat/w-kajdankach-na-front-nie-tak-wyglada-mobilizacja-w-ukrainie-st9255338",
+          "publishedAt": "2026-09-28",
+          "validUntil": null,
+          "file": "data/raw/konkret24-b222e7c9.txt"
+        },
+        {
+          "id": "konkret24-e790bed8",
+          "title": "Mężczyzna z psem \"ma pecha, że bomby spadają tylko tam, gdzie się znajduje\". Tak działa rosyjska dezinformacja",
+          "url": "https://konkret24.tvn24.pl/swiat/mezczyzna-z-psem-ma-pecha-ze-bomby-spadaja-tylko-tam-gdzie-sie-znajduje-tak-dziala-rosyjska-dezinformacja-st9294962",
+          "publishedAt": "2026-10-21",
+          "validUntil": null,
+          "file": "data/raw/konkret24-e790bed8.txt"
+        },
+        {
+          "id": "konkret24-73e62f52",
+          "title": "Muzeum Auschwitz \"usuwa informacje o polskich więźniach\"? O co chodzi z tablicami",
+          "url": "https://konkret24.tvn24.pl/polska/muzeum-auschwitz-usuwa-informacje-o-polskich-wiezniach-o-co-chodzi-z-tablicami-st9019462",
+          "publishedAt": "2026-04-28",
+          "validUntil": null,
+          "file": "data/raw/konkret24-73e62f52.txt"
+        }
+      ]
+    },
+    {
+      "id": "fakenews-pl",
+      "publisher": "fakenews.pl (NASK)",
+      "domain": "fakenews.pl",
+      "sourceType": "organizacja",
+      "license": "Serwis edukacyjny o dezinformacji (NASK). Brak potwierdzonej licencji otwartej: przechowujemy tylko początek tekstu (do 800 znaków) z odsyłaczem. Retencja: zamknięty korpus prototypu do końca hackathonu.",
+      "policy": {
+        "qualification": "Kwalifikuje się publicznie dostępny artykuł organizacji weryfikującej fakty (IFCN/EFCSN) lub organizacji badającej dezinformację, zgodny z robots.txt. Gdy licencja nie pozwala na pełny tekst, zapisujemy tylko początek (do 800 znaków) z odsyłaczem. Typ źródła wpływa wyłącznie na siłę podstawy, nie na treść werdyktu.",
+        "update": "Jedno polecenie (npm run corpus:fetch, potem corpus:ingest) pobiera listy od nowa, dodaje nowe dokumenty do limitu maxNew i odświeża treść istniejących; wersja korpusu zmienia się wraz z treścią; asOf to najnowsza data pobrania.",
+        "exclusion": "Wykluczamy: strony blokowane przez robots.txt lub zabezpieczenia (np. 403), treści płatne lub za logowaniem, strony krótsze niż 300 znaków. Nie obchodzimy zabezpieczeń; organizacji, które blokują roboty (np. Demagog), nie pobieramy."
+      },
+      "discovery": {
+        "seeds": [
+          {
+            "url": "https://fakenews.pl/",
+            "link": "href=\"(https://fakenews\\.pl/(?:blog|badania|baza-wiedzy|poradniki)/[a-z0-9-]{12,}/)\"",
+            "pages": 1
+          }
+        ],
+        "maxNew": 40,
+        "excerptChars": 800
+      },
+      "documents": [
+        {
+          "id": "fakenews-pl-8fff4a69",
+          "title": "Dezorientacja klimatyczna. Polki i Polacy wobec dezinformacji klimatycznej i energetycznej w internecie. Raport",
+          "url": "https://fakenews.pl/badania/dezorientacja-klimatyczna-polki-i-polacy-wobec-dezinformacji-klimatycznej-i-energetycznej-w-internecie-raport/",
+          "publishedAt": "2026-10-19",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-8fff4a69.txt"
+        },
+        {
+          "id": "fakenews-pl-257f8cfe",
+          "title": "Ruszyła rekrutacja do Akademii Liderów Odporności Informacyjnej w Obszarze Klimatu",
+          "url": "https://fakenews.pl/blog/ruszyla-rekrutacja-do-akademii-liderow-odpornosci-informacyjnej-w-obszarze-klimatu/",
+          "publishedAt": "2026-11-17",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-257f8cfe.txt"
+        },
+        {
+          "id": "fakenews-pl-c28859a4",
+          "title": "Zadanie publiczne w ramach programu „Budowanie wiedzy w zakresie przeciwdziałania dezinformacji” Ministerstwa Cyfryzacji",
+          "url": "https://fakenews.pl/blog/zadanie-publiczne-w-ramach-programu-budowanie-wiedzy-w-zakresie-przeciwdzialania-dezinformacji-ministerstwa-cyfryzacji/",
+          "publishedAt": "2026-07-21",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-c28859a4.txt"
+        },
+        {
+          "id": "fakenews-pl-5a92bd33",
+          "title": "Zadanie „Klimat Prawdy” w ramach programu „Kompas Młodego Obywatela” Ministerstwa Edukacji Narodowej",
+          "url": "https://fakenews.pl/blog/zadanie-klimat-prawdy-w-ramach-programu-kompas-mlodego-obywatela-ministerstwa-edukacji-narodowej/",
+          "publishedAt": "2026-07-16",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-5a92bd33.txt"
+        },
+        {
+          "id": "fakenews-pl-0726d3f8",
+          "title": "Migracja - wybór czy konieczność?",
+          "url": "https://fakenews.pl/blog/migracja-wybor-czy-koniecznosc/",
+          "publishedAt": "2025-11-21",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-0726d3f8.txt"
+        },
+        {
+          "id": "fakenews-pl-38835d03",
+          "title": "Migracja a przestępczość - przyglądamy się danym",
+          "url": "https://fakenews.pl/blog/migracja-a-przestepczosc-przygladamy-sie-danym/",
+          "publishedAt": "2025-11-20",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-38835d03.txt"
+        },
+        {
+          "id": "fakenews-pl-08b714e3",
+          "title": "Ekonomiczny bilans migracji - czy migranci przyjeżdżają tylko po zasiłki?",
+          "url": "https://fakenews.pl/blog/ekonomiczny-bilans-migracji-czy-migranci-przyjezdzaja-tylko-po-zasilki/",
+          "publishedAt": "2025-11-19",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-08b714e3.txt"
+        },
+        {
+          "id": "fakenews-pl-78ef2996",
+          "title": "Rzeczywista skala migracji - fakty i liczby",
+          "url": "https://fakenews.pl/blog/rzeczywista-skala-migracji-fakty-i-liczby/",
+          "publishedAt": "2025-11-18",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-78ef2996.txt"
+        },
+        {
+          "id": "fakenews-pl-ee5adf36",
+          "title": "Czym jest edukacja globalna? Globalne wyzwania i odpowiedzialność",
+          "url": "https://fakenews.pl/blog/czym-jest-edukacja-globalna-globalne-wyzwania-i-odpowiedzialnosc/",
+          "publishedAt": "2025-11-17",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-ee5adf36.txt"
+        },
+        {
+          "id": "fakenews-pl-d74cb11c",
+          "title": "Zaproszenie na webinar w temacie dezinformacji migracyjnej",
+          "url": "https://fakenews.pl/blog/zaproszenie-na-webinar-w-temacie-dezinformacji-migracyjnej/",
+          "publishedAt": "2025-11-12",
+          "validUntil": null,
+          "file": "data/raw/fakenews-pl-d74cb11c.txt"
         }
       ]
     }

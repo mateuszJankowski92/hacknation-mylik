@@ -1,0 +1,65 @@
+Komunikat Głównego Inspektora Sanitarnego w sprawie potencjalnych zagrożeń związanych z atakami na infrastrukturę łańcucha chłodniczego w przemyśle spożywczym
+
+03.11.2026
+
+Główny Inspektor Sanitarny, w ramach monitorowania zagrożeń zdrowia publicznego, pozyskał informacje dotyczące cyberataków na infrastrukturę w niektórych krajach Unii Europejskiej w zakresie przerwania łańcucha chłodniczego.
+
+Aktualna sytuacja
+
+Pierwsza fala ataków miała miejsce w połowie października br. we Francji, doprowadzając do zniszczenia żywności o wartości wielu milionów euro. Druga fala ataków rozpoczęła się 2 listopada i objęła supermarkety co najmniej w 10 krajach europejskich, w tym w Belgii, Estonii, Finlandii, Irlandii, Włoszech, Luksemburgu, Holandii, Portugalii, Niemczech, Szwecji oraz Wielkiej Brytanii i Polski. Ataki dotyczą zarówno dużych sieci handlowych, jak i mniejszych podmiotów m.in. rzeźni i zakładów dystrybucji mięsa.
+
+Unijny Komisarz ds. rolnictwa Christophe Hansen ocenił, że bezpieczeństwo żywnościowe Europy nie jest zagrożone, lecz fala cyberataków budzi obawy o odporność łańcucha dostaw. Powtarzające się zdarzenia są niepokojące, powodują straty ekonomiczne dla sprzedawców detalicznych i puste półki dla konsumentów. Ataki nie dotyczyły domowych lodówek.
+
+Techniczna strona incydentu i skutki zagrożenia
+
+Ataki mają na celu zdalne przejęcie sterowania urządzeniami zapewniającymi łańcuch chłodniczy w podmiotach branży spożywczej. Wzrost temperatury w tych urządzeniach skutkuje przerwaniem łańcucha chłodniczego, co powoduje zniszczenie mrożonek, mięsa i nabiału ze względów sanitarno-higienicznych. Napastnicy uzyskują zdalny dostęp do kontrolerów chłodniczych, zmieniają ich konfigurację, przełączając urządzenia w tryb odszraniania lub podnoszą ich temperaturę do 40°C-50°C.
+
+Informacja dla przedsiębiorców branży spożywczej
+
+W związku z wystąpieniem zagrożeń dotyczących infrastruktury łańcucha chłodniczego, zwracamy uwagę przedsiębiorców prowadzących sklepy spożywcze, hurtownie oraz inne punkty sprzedaży i przechowywania żywności na konieczność zachowania szczególnej czujności w zakresie monitorowania temperatury w urządzeniach chłodniczych i mroźniczych. Potencjalne cyberataki mogą obejmować systemy informatyczne i elektroniczne sterujące pracą urządzeń chłodniczych.
+
+Nie można wykluczyć sytuacji, w której w wyniku nieuprawnionej ingerencji dojdzie do zmiany ustawionych parametrów temperatury, zakłócenia pracy urządzeń lub nieprawidłowego wskazywania wartości temperatury przez elektroniczne systemy monitorujące. W związku z tym, szczególnie istotne jest, aby przedsiębiorcy nie polegali wyłącznie na automatycznych wskazaniach urządzeń i systemach elektronicznego monitorowania temperatury.
+
+Aby uniknąć zagrożenia Główny Inspektor Sanitarny zaleca:
+
+regularne, fizyczne sprawdzanie i dokumentowanie temperatury w lodówkach, chłodniach, zamrażarkach i innych urządzeniach mroźniczych, z wykorzystaniem niezależnych urządzeń pomiarowych;
+
+porównywanie wskazań systemów elektronicznych z rzeczywistymi pomiarami temperatury;
+
+zwracanie uwagi na nietypowe zmiany temperatury, nieuzasadnione zmiany ustawień urządzeń oraz brak lub nieprawidłowe działanie alarmów;
+
+zwiększenie częstotliwości kontroli w przypadku stwierdzenia nieprawidłowości w działaniu urządzeń lub systemów monitorujących;
+
+niezwłoczne reagowanie na każdy przypadek niekontrolowanego wzrostu temperatury i ocenę bezpieczeństwa przechowywanej żywności przed dopuszczeniem jej do dalszej sprzedaży;
+
+dokonanie przeglądu systemów chłodzenia w zakresie korzystania z publicznego Internetu, systemów zabezpieczeń w sterownikach i modułach komunikacyjnych.
+
+Podejrzane sytuacje lub zdarzenia należy zgłaszać właściwym organom, w tym Państwowej Inspekcji Sanitarnej w zakresie bezpieczeństwa żywności. Przedsiębiorcy powinni zweryfikować swoje procedury wewnętrzne w zakresie utrzymywania żywności we właściwych warunkach chłodniczych, oraz procedury kryzysowe.
+
+Warto zadbać także o aspekt techniczny i zgodnie z rekomendacjami zespołu CERT Polska zweryfikować wykorzystywane poświadczenia, w szczególności, sprawdzić czy zostały zmienione domyślne hasła. Można także rozważyć wprowadzenie VPN dla dostępu zdalnego do urządzenia, aby ograniczyć możliwości atakujących.
+
+Swoje bezpieczeństwo można także podnieść korzystając z bezpłatnego serwisu moje.cert.pl , a wiadomości na temat budowania odpornych systemów zdobyć na stronie wiedza.cert.pl .
+
+Informacja dla konsumentów
+
+Zwracamy się do konsumentów o zachowanie szczególnej uwagi podczas dokonywania zakupów produktów spożywczych wymagających przechowywania w warunkach chłodniczych lub mroźniczych. W trosce o własne bezpieczeństwo zdrowotne należy:
+
+zwracać uwagę na nieprawidłowości funkcjonowania urządzeń chłodniczych i mroźniczych, w których przechowywana jest żywność;
+
+sprawdzać, czy produkty nie wykazują oznak rozmrożenia lub niewłaściwego przechowywania;
+
+oceniać stan opakowań i samych produktów, zwracając uwagę m.in. na uszkodzenia, wycieki, nietypowy wygląd, zapach, zawilgocenie lub inne oznaki mogące świadczyć o pogorszeniu ich jakości;
+
+w przypadku produktów mrożonych zwracać uwagę na oznaki ponownego zamrożenia, zbrylenia lub obecności nadmiernej ilości lodu;
+
+nie kupować produktów, co do których istnieją uzasadnione wątpliwości dotyczące warunków ich przechowywania lub bezpieczeństwa;
+
+zgłaszać personelowi sklepów wszelkie zauważone nieprawidłowości, w szczególności brak chłodzenia, nieprawidłowe działanie urządzeń lub podejrzenie niewłaściwego przechowywania żywności.
+
+W przypadku nieprawidłowości konsumenci mogą w uzasadnionych przypadkach dotyczących bezpieczeństwa żywności zgłaszać interwencje do Państwowej Inspekcji Sanitarnej.
+
+Informacje o elektroniczym zgłaszaniu interwencji do Państwowej Inspekcji Sanitarnej.
+
+Bezpieczeństwo żywności - wspólna odpowiedzialność
+
+Utrzymanie właściwych warunków przechowywania żywności ma bezpośredni wpływ na jej bezpieczeństwo i jakość. Nieprawidłowości w funkcjonowaniu urządzeń chłodniczych, w tym wynikające z ataku na systemy sterowania, mogą doprowadzić do przerwania łańcucha chłodniczego, a w konsekwencji stanowić zagrożenie dla zdrowia konsumentów. Szybkie wykrycie nieprawidłowości, odpowiednia reakcja i wzajemna odpowiedzialność, mogą zapobiec zagrożeniom zdrowia na dużą skalę.

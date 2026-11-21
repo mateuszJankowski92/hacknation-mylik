@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { chunkText } from './chunk';
-import { loadCatalog } from './catalog';
+import { loadCatalog, type CatalogSource } from './catalog';
 
 export interface IngestResult {
 	documents: number;
@@ -21,6 +21,16 @@ function readFetchedMap(rootDir: string): Record<string, string> {
 	const path = join(rootDir, FETCHED_FILE);
 	if (!existsSync(path)) return {};
 	return JSON.parse(readFileSync(path, 'utf8')) as Record<string, string>;
+}
+
+function sourceNotes(source: CatalogSource): string | null {
+	const parts = [
+		source.notes,
+		source.policy ? `Kwalifikacja: ${source.policy.qualification}` : undefined,
+		source.policy ? `Aktualizacja: ${source.policy.update}` : undefined,
+		source.policy ? `Wykluczanie: ${source.policy.exclusion}` : undefined,
+	].filter((part): part is string => Boolean(part));
+	return parts.length > 0 ? parts.join('\n') : null;
 }
 
 export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: string): IngestResult {
@@ -66,7 +76,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		db.exec('DELETE FROM documents');
 		db.exec('DELETE FROM sources');
 		for (const { source, documents: docs } of prepared) {
-			insertSource.run(source.id, source.publisher, source.domain, source.sourceType, source.license, source.notes ?? null);
+			insertSource.run(source.id, source.publisher, source.domain, source.sourceType, source.license, sourceNotes(source));
 			for (const { doc, content, fetchedAt, contentSha } of docs) {
 				insertDocument.run(doc.id, source.id, doc.title, doc.url, doc.publishedAt, doc.validUntil ?? null, fetchedAt, version, contentSha);
 				documents += 1;
@@ -78,6 +88,7 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		}
 		upsertMeta.run('version', version);
 		upsertMeta.run('ingested_at', new Date().toISOString());
+		upsertMeta.run('as_of', prepared.flatMap(({ documents: docs }) => docs.map(({ fetchedAt }) => fetchedAt)).sort().pop() ?? null);
 		upsertMeta.run('documents', String(documents));
 		db.exec('COMMIT');
 	} catch (error) {

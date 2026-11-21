@@ -1,0 +1,9 @@
+Przejdź na hack.cert.pl
+
+Startuje program bug bounty - uruchomiony na autorskiej platformie hack.cert.pl, stworzonej i obsługiwanej przez CERT Polska. Cały proces zgłaszania i obsługi podatności odbywa się w wewnętrznej infrastrukturze. Pula nagród to milion złotych.
+
+Program CERT Polska wyznacza nowy kierunek współpracy administracji publicznej ze społecznością badaczy bezpieczeństwa. To jedno z pierwszych na świecie przedsięwzięć tego rodzaju, w którym obsługa programu bug bounty odbywa się na niezależnej, krajowej platformie, bez udziału komercyjnych pośredników. Dzięki temu cały proces – od zgłoszenia podatności po komunikację z właścicielem systemu – pozostaje w infrastrukturze zarządzanej przez organizatora.
+
+Udział w programie to dla badaczy możliwość sprawdzenia swoich umiejętności w praktyce i realnego wpływu na bezpieczeństwo usług cyfrowych, z których korzystają obywatele. Za potwierdzone podatności badacze mogą otrzymać nagrodę w wysokości od kilkuset do nawet 20 tys. zł, w zależności od poziomu krytyczności wykrytego błędu.
+
+Program został uruchomiony na autorskiej platformie hack.cert.pl, stworzonej i obsługiwanej przez CERT Polska. Cały proces zgłaszania i obsługi podatności odbywa się w wewnętrznej infrastrukturze. Dzięki temu informacje o wykrytych błędach nie opuszczają bezpiecznego środowiska zarządzanego przez zaufaną i bezstronną instytucję.
