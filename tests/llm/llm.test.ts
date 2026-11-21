@@ -184,7 +184,7 @@ describe('anthropic (zamockowane SDK)', () => {
     const { p, calls } = provider([message(okClaims)]);
     const r = await p.extractClaims({ text: 'Coś się stało.' });
     expect(r.claims[0].id).toBe('c1');
-    expect(DEFAULT_ANTHROPIC_MODEL).toBe('claude-sonnet-5-5');
+    expect(DEFAULT_ANTHROPIC_MODEL).toBe('claude-haiku-5-5');
     expect(r.usage).toMatchObject({ model: DEFAULT_ANTHROPIC_MODEL, inputTokens: 100, outputTokens: 20, latencyMs: 10 });
     expect(r.usage.estimatedCostUsd).toBeGreaterThan(0);
     const body = calls[0] as unknown as Record<string, unknown>;
