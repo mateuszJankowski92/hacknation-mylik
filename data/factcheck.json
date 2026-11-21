@@ -5,8 +5,9 @@
     "endpoint": "https://factchecktools.googleapis.com/v1alpha1/claims:search",
     "languageCode": "pl",
     "pageSize": 10,
-    "maxQueries": 3,
-    "timeoutMs": 6000
+    "maxQueries": 8,
+    "timeoutMs": 6000,
+    "variants": 5
   },
   "qualification": "Wydawca kwalifikuje się, gdy jest sygnatariuszem Kodeksu Zasad IFCN albo zweryfikowanym członkiem EFCSN (sprawdzone na oficjalnej liście, z datą sprawdzenia), publikuje weryfikacje po polsku i jego wpisy zwraca indeks Google (pole claimReview.publisher.site). Wpis z innej domeny niż lista odpada w kodzie. Wykluczenie: utrata statusu sygnatariusza lub członka, zmiana wydawcy, wpisy bez oceny lub bez adresu publikacji.",
   "publishers": [
@@ -66,7 +67,7 @@
     "_opis": "Wyłącznik dokumentów redakcji sprawdzających fakty w zbiorze (sourceIds). use=true: dokumenty są w ścieżce dowodowej (decyzja PM po odpowiedzi mentora z 21.11, 23:15: indeks Google dopasowuje frazy dosłownie, więc weryfikacje redakcji szukamy też własnym wyszukiwaniem w zbiorze). use=false: wyszukiwanie je pomija. Pliki zostają na dysku."
   },
   "harvest": {
-    "_opis": "Masowe pobranie wpisów z indeksu (scripts/factcheck-index-pobierz.ts): claims:search z reviewPublisherSiteFilter (query wtedy niewymagane, dokumentacja 21.11.2026), languageCode, pageSize, pageToken. Grzecznie: odstęp między zapytaniami, limit zapytań na przebieg, wznawianie z pliku stanu.",
+    "_opis": "WYŁĄCZONE: wymaga pisemnej zgody wydawcy lub Google; nieużywane (warunki Google APIs, pkt 5(e)). Parametry zostają dla wariantu ze zgodą.",
     "dir": "data/raw/factcheck-index",
     "pageSize": 50,
     "delayMs": 1100,

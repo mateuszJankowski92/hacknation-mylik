@@ -6508,40 +6508,6 @@
           "file": "data/raw/policja-wielkopolska-40a7c0b8.txt"
         }
       ]
-    },
-    {
-      "id": "fc-demagog",
-      "publisher": "Demagog",
-      "domain": "demagog.org.pl",
-      "sourceType": "factcheck",
-      "license": "Wpisy ClaimReview (teza, autor tezy, ocena redakcji, tytuł, adres, daty) z indeksu Google Fact Check Tools lub zbiorczego pliku ClaimReview Google; prawa do treści weryfikacji ma redakcja. Przechowujemy tylko pola wpisu (bez treści artykułu), z podaniem redakcji i adresu publikacji. Warunki: docs/ZRODLA.md, warstwa 3.",
-      "policy": {
-        "qualification": "Redakcja sprawdzająca fakty z listy data/factcheck.json z enabled=true (sygnatariusz IFCN albo zweryfikowany członek EFCSN, weryfikacje po polsku); wpis tylko z domeny redakcji.",
-        "update": "npx tsx scripts/factcheck-index-pobierz.ts (wznawialne, z limitem zapytań), opcjonalnie --feed <plik zbiorczy>, potem npm run corpus:ingest.",
-        "exclusion": "Wpis bez tezy, bez oceny albo z adresem spoza domeny redakcji; redakcja traci status z zasady kwalifikacji (wtedy enabled=false i usunięcie wpisu źródła)."
-      },
-      "reviews": {
-        "file": "data/raw/factcheck-index/demagog.org.pl.jsonl",
-        "excerptChars": 1000
-      },
-      "documents": []
-    },
-    {
-      "id": "fc-pravda",
-      "publisher": "Pravda",
-      "domain": "pravda.org.pl",
-      "sourceType": "factcheck",
-      "license": "Wpisy ClaimReview (teza, autor tezy, ocena redakcji, tytuł, adres, daty) z indeksu Google Fact Check Tools lub zbiorczego pliku ClaimReview Google; prawa do treści weryfikacji ma redakcja. Przechowujemy tylko pola wpisu (bez treści artykułu), z podaniem redakcji i adresu publikacji. Warunki: docs/ZRODLA.md, warstwa 3.",
-      "policy": {
-        "qualification": "Redakcja sprawdzająca fakty z listy data/factcheck.json z enabled=true (sygnatariusz IFCN albo zweryfikowany członek EFCSN, weryfikacje po polsku); wpis tylko z domeny redakcji.",
-        "update": "npx tsx scripts/factcheck-index-pobierz.ts (wznawialne, z limitem zapytań), opcjonalnie --feed <plik zbiorczy>, potem npm run corpus:ingest.",
-        "exclusion": "Wpis bez tezy, bez oceny albo z adresem spoza domeny redakcji; redakcja traci status z zasady kwalifikacji (wtedy enabled=false i usunięcie wpisu źródła)."
-      },
-      "reviews": {
-        "file": "data/raw/factcheck-index/pravda.org.pl.jsonl",
-        "excerptChars": 1000
-      },
-      "documents": []
     }
   ]
 }

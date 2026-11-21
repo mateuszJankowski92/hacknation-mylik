@@ -14,6 +14,7 @@ import { sha256Hex, type ExtractedClaim, type Notice, type Passage, type SourceM
 import type { AcceptedEvidence } from '../engine/citations';
 import { detectInjectionSignals, type InjectionSignalCode } from '../engine/injection';
 import { claimDate, dateMatches, properNames } from '../live/select';
+import { claimTerms, relevance } from '../live/layer';
 import type { FactcheckIndex, IndexErrorCode } from './client';
 import { matchPublisher, type FactcheckConfig } from './config';
 import { labelForRating, labelForUserClaim } from './ratings';
@@ -46,7 +47,9 @@ export interface FactcheckSelection {
 
 export interface FactcheckLayer {
   readonly budgetMs: number;
-  find(claim: ExtractedClaim, opts: { budgetMs: number; now: Date }): Promise<FactcheckFindResult>;
+  find(claim: ExtractedClaim, opts: { budgetMs: number; now: Date; maxQueries?: number }): Promise<FactcheckFindResult>;
+  /** Łączny limit zapytań do indeksu na jedno zgłoszenie (dzielony między twierdzenia). */
+  readonly maxQueriesPerRequest: number;
   select(claim: ExtractedClaim, accepted: AcceptedEvidence[], now: Date): FactcheckSelection;
 }
 
@@ -64,15 +67,15 @@ function isoDay(v: string | undefined): string | null {
 const STOP = new Set(['który', 'która', 'które', 'których', 'przez', 'oraz', 'tylko', 'jest', 'były', 'było', 'była', 'będzie', 'został', 'została', 'zostały', 'jako', 'także', 'około', 'ponad', 'bardzo', 'jeszcze', 'wszystkie', 'można', 'może', 'mogą', 'nawet', 'kiedy', 'gdzie', 'ostatnio']);
 
 /**
- * Zapytania do indeksu: kilka krótkich wariantów fraz kluczowych (indeks dopasowuje frazy dosłownie,
- * bez podobieństwa): (1) nazwy własne i liczby, (2) słowa kluczowe od modelu, (3) najdłuższe słowa
- * treści. Bez treści zgłoszenia i bez danych osobowych spoza twierdzenia. Wyniki łączy kod, a odsiewa
- * ten sam wymóg zgodności tezy.
+ * Krótkie warianty frazy z twierdzenia (po 1-3 słowa): indeks dopasowuje frazy dosłownie, bez
+ * podobieństwa, więc pytamy go kilkoma krótkimi frazami zamiast całego zdania. Kolejność: nazwy własne,
+ * nazwa z liczbą, najdłuższe słowa treści, słowa kluczowe od modelu, nazwa ze słowem treści.
+ * Bez treści zgłoszenia i bez danych spoza twierdzenia.
  */
-export function indexQueries(claim: ExtractedClaim, max: number): string[] {
+export function phraseVariants(claim: ExtractedClaim, max = 5): string[] {
   const out: string[] = [];
   const add = (words: string[]) => {
-    const t = words.join(' ').replace(/\s+/g, ' ').trim().slice(0, 120);
+    const t = words.slice(0, 3).join(' ').replace(/\s+/g, ' ').trim().slice(0, 80);
     if (t.length >= 3 && !out.includes(t)) out.push(t);
   };
   const text = claim.text.replace(/[.?!]+$/u, '');
@@ -81,14 +84,41 @@ export function indexQueries(claim: ExtractedClaim, max: number): string[] {
   // Pierwszy wyraz zdania liczy się jako nazwa tylko, gdy to skrótowiec albo model podał go jako słowo kluczowe.
   const isName = (w: string, i: number) =>
     w.length >= 2 && /^\p{Lu}/u.test(w) && (i > 0 ? w.length >= 3 : /^\p{Lu}{2,}$/u.test(w) || terms.has(w.toLowerCase()));
-  const names = tokens.filter((w, i) => isName(w, i) || /\d/.test(w));
-  if (names.length) add(names.slice(0, 4));
-  if (claim.searchTerms?.length) add(claim.searchTerms.slice(0, 3));
-  const content = tokens.filter((w) => w.length >= 5 && !STOP.has(w.toLowerCase()) && !/\d/.test(w));
-  const longest = [...content].sort((x, y) => y.length - x.length || content.indexOf(x) - content.indexOf(y)).slice(0, 3);
+  const names = tokens.filter((w, i) => isName(w, i) && !/\d/.test(w));
+  const numbers = tokens.filter((w) => /\d/.test(w));
+  const content = tokens.filter((w, i) => w.length >= 5 && !STOP.has(w.toLowerCase()) && !/\d/.test(w) && !isName(w, i));
+  const longest = [...content].sort((x, y) => y.length - x.length || content.indexOf(x) - content.indexOf(y)).slice(0, 2);
+  if (names.length) add(names);
+  if (names.length && numbers.length) add([names[0]!, numbers[0]!]);
   if (longest.length) add(content.filter((w) => longest.includes(w)));
-  if (!out.length) add(tokens.slice(0, 6));
+  for (const t of claim.searchTerms ?? []) add(t.split(/\s+/));
+  if (names.length && content.length) add([names[0]!, content[0]!]);
+  if (!out.length) add(tokens.slice(0, 3));
   return out.slice(0, max);
+}
+
+/** Zgodność wstecz: same warianty fraz. */
+export function indexQueries(claim: ExtractedClaim, max: number): string[] {
+  return phraseVariants(claim, max);
+}
+
+export interface PlannedQuery {
+  query: string;
+  site?: string;
+}
+
+/**
+ * Plan zapytań jednego twierdzenia: każdy wariant bez filtra wydawcy, potem (po kolei) warianty
+ * z filtrem dla każdego włączonego wydawcy z listy, łącznie najwyżej `maxTotal`.
+ */
+export function planQueries(variants: string[], sites: string[], maxTotal: number): PlannedQuery[] {
+  const plan: PlannedQuery[] = variants.map((query) => ({ query }));
+  for (let v = 0; plan.length < maxTotal && v < variants.length; v++)
+    for (const site of sites) {
+      if (plan.length >= maxTotal) break;
+      plan.push({ query: variants[v]!, site });
+    }
+  return plan.slice(0, maxTotal);
 }
 
 export function createFactcheckLayer(opts: { config: FactcheckConfig; index: FactcheckIndex }): FactcheckLayer {
@@ -96,23 +126,26 @@ export function createFactcheckLayer(opts: { config: FactcheckConfig; index: Fac
 
   return {
     budgetMs: config.index.timeoutMs,
-    async find(claim, { budgetMs, now }) {
+    maxQueriesPerRequest: config.index.maxQueries,
+    async find(claim, { budgetMs, now, maxQueries }) {
       const started = Date.now();
       const out: FactcheckFindResult = { status: 'brak_wynikow', passages: [], flagged: [], hits: 0, otherPublishers: 0, queries: 0, ms: 0 };
       const ctrl = new AbortController();
       const timer = setTimeout(() => ctrl.abort(), Math.max(0, budgetMs));
       (timer as { unref?: () => void }).unref?.();
       try {
-        const queries = indexQueries(claim, config.index.maxQueries);
+        const sites = config.publishers.filter((p) => p.enabled).map((p) => p.site);
+        const queries = planQueries(phraseVariants(claim, config.index.variants ?? 5), sites, Math.max(1, Math.min(config.index.maxQueries, maxQueries ?? config.index.maxQueries)));
         out.queries = queries.length;
         const results = await Promise.all(
-          queries.map((query) =>
+          queries.map(({ query, site }) =>
             index
-              .search({ query, languageCode: config.index.languageCode, pageSize: config.index.pageSize, signal: ctrl.signal })
+              .search({ query, ...(site ? { site } : {}), languageCode: config.index.languageCode, pageSize: config.index.pageSize, signal: ctrl.signal })
               .catch(() => ({ ok: false as const, code: 'blad_sieci' as const })),
           ),
         );
         const seen = new Set<string>();
+        const candidates: Passage[] = [];
         let failure: { code: IndexErrorCode; status?: number } | null = null;
         for (const r of results) {
           if (!r.ok) {
@@ -172,10 +205,18 @@ export function createFactcheckLayer(opts: { config: FactcheckConfig; index: Fac
                   label: labelForRating(rating),
                 },
               };
-              if (out.passages.length < FACTCHECK_MAX_PASSAGES) out.passages.push({ id, documentId: docId, text, meta });
+              candidates.push({ id, documentId: docId, text, meta });
             }
           }
         }
+        // Nasz ranking zamiast kolejności indeksu: dopasowanie słów i liczb twierdzenia do tezy i tytułu.
+        // Dalej o tym, czy to ta sama teza, rozstrzyga ocena modelu i wymóg zgodności zdarzenia.
+        const terms = claimTerms(claim);
+        out.passages = candidates
+          .map((p, i) => ({ p, i, score: relevance(`${p.text}\n${p.meta.title}`, terms) }))
+          .sort((x, y) => y.score - x.score || x.i - y.i)
+          .slice(0, FACTCHECK_MAX_PASSAGES)
+          .map((x) => x.p);
         if (out.passages.length) out.status = 'ok';
         else if (failure) {
           out.status = failure.code;

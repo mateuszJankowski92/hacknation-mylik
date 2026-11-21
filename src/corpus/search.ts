@@ -88,7 +88,7 @@ export function createSearcher(db: DatabaseSync, opts: SearcherOptions = {}): Se
 		JOIN sources s ON s.id = d.source_id
 		LEFT JOIN document_reviews r ON r.document_id = d.id
 		WHERE passages_fts MATCH ? AND s.id NOT IN (SELECT value FROM json_each(?))
-		ORDER BY rank
+		ORDER BY rank, p.id
 		LIMIT ?`);
 	const getStatement = db.prepare(`${PASSAGE_SELECT}
 		FROM passages p

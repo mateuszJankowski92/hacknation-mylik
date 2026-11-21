@@ -1,3 +1,8 @@
+// WYŁĄCZONY. Wymaga pisemnej zgody wydawcy lub Google; nieużywany (decyzja prowadzącego 21.11.2026).
+// Powód: Google APIs Terms of Service pkt 5(e) zabraniają budowania baz danych z treści API i trzymania
+// kopii dłużej, niż pozwala nagłówek pamięci podręcznej. Skrypt odmawia działania bez --zgoda <sygnatura>
+// (numer lub data pisemnej zgody). Opis: docs/ZRODLA.md, „Czego świadomie nie robimy”.
+//
 // Masowe pobranie spisu weryfikacji redakcji z indeksu Google Fact Check Tools (zad. 41).
 //
 //   npx tsx scripts/factcheck-index-pobierz.ts [--sites demagog.org.pl,pravda.org.pl] [--max 400]
@@ -18,6 +23,11 @@ const arg = (name: string) => {
 };
 
 async function main(): Promise<void> {
+  const consent = arg('--zgoda');
+  if (!consent && !process.argv.includes('--stats')) {
+    console.error('Skrypt wyłączony: wymaga pisemnej zgody wydawcy lub Google (--zgoda <sygnatura>). Zob. docs/ZRODLA.md.');
+    process.exit(3);
+  }
   const root = process.cwd();
   try {
     process.loadEnvFile(join(root, '.env'));

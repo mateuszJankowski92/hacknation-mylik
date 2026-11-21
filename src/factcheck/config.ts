@@ -17,7 +17,10 @@ export const FactcheckConfigSchema = z.object({
     endpoint: z.url().refine((u) => u.startsWith('https://'), 'tylko https'),
     languageCode: z.string().min(2).max(10),
     pageSize: z.number().int().min(1).max(50),
-    maxQueries: z.number().int().min(1).max(3),
+    /** Łączna liczba zapytań na twierdzenie (warianty bez filtra + z filtrem wydawcy). */
+    maxQueries: z.number().int().min(1).max(8),
+    /** Ile krótkich wariantów frazy (po 1-3 słowa). */
+    variants: z.number().int().min(1).max(5).optional(),
     timeoutMs: z.number().int().min(500).max(15_000),
   }),
   qualification: z.string().min(20),

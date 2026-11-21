@@ -105,3 +105,59 @@ describe('forma odpowiedzi', () => {
     expect(neededDocumentFor('Coś się stało.')).toMatch(/oficjalny komunikat/);
   });
 });
+
+import { cacheTtlMs } from '../../src/factcheck/client';
+import { phraseVariants, planQueries } from '../../src/factcheck/layer';
+
+describe('zapytania na żywo: krótkie frazy, plan, pamięć tylko w procesie', () => {
+  const claim = { id: 'c1', kind: 'faktograficzna' as const, text: 'Wrocław był jedynym miastem w Polsce, w którym 65-latkowie jeździli komunikacją miejską za darmo.', searchTerms: ['Wrocław', 'darmowa komunikacja', 'seniorzy'] };
+
+  it('3-5 wariantów po 1-3 słowa, bez całego zdania', () => {
+    const v = phraseVariants(claim);
+    expect(v.length).toBeGreaterThanOrEqual(3);
+    expect(v.length).toBeLessThanOrEqual(5);
+    for (const q of v) expect(q.split(' ').length).toBeLessThanOrEqual(3);
+    expect(v).toContain('Wrocław Polsce');
+  });
+
+  it('plan: najpierw bez filtra, potem z filtrem wydawcy; łącznie najwyżej limit', () => {
+    const plan = planQueries(['a b', 'c', 'd e'], ['demagog.org.pl', 'pravda.org.pl'], 8);
+    expect(plan).toHaveLength(8);
+    expect(plan.slice(0, 3).every((q) => !q.site)).toBe(true);
+    expect(plan[3]).toEqual({ query: 'a b', site: 'demagog.org.pl' });
+    expect(planQueries(['a', 'b'], ['x.pl'], 3)).toHaveLength(3);
+  });
+
+  it('pamięć odpowiedzi: tylko według Cache-Control', async () => {
+    expect(cacheTtlMs('public, max-age=300')).toBe(300_000);
+    expect(cacheTtlMs('private, no-store')).toBe(0);
+    expect(cacheTtlMs(null)).toBe(0);
+    let calls = 0;
+    let now = 0;
+    const mk = (cc: string | null) =>
+      new GoogleFactCheckIndex({
+        endpoint: 'https://x.example/s',
+        apiKey: 'k',
+        nowMs: () => now,
+        fetchImpl: async () => (calls++, { ok: true, status: 200, json: async () => ({ claims: [] }), headers: { get: () => cc } }),
+      });
+    const cached = mk('max-age=60');
+    await cached.search({ query: 'q', languageCode: 'pl', pageSize: 5 });
+    await cached.search({ query: 'q', languageCode: 'pl', pageSize: 5 });
+    expect(calls).toBe(1);
+    now = 61_000;
+    await cached.search({ query: 'q', languageCode: 'pl', pageSize: 5 });
+    expect(calls).toBe(2);
+    const nocache = mk(null);
+    await nocache.search({ query: 'q', languageCode: 'pl', pageSize: 5 });
+    await nocache.search({ query: 'q', languageCode: 'pl', pageSize: 5 });
+    expect(calls).toBe(4);
+  });
+
+  it('filtr wydawcy trafia do parametru reviewPublisherSiteFilter', async () => {
+    let seen = '';
+    const idx = new GoogleFactCheckIndex({ endpoint: 'https://x.example/s', apiKey: 'k', fetchImpl: async (u) => ((seen = u), { ok: true, status: 200, json: async () => ({}) }) });
+    await idx.search({ query: 'Wrocław', site: 'demagog.org.pl', languageCode: 'pl', pageSize: 10 });
+    expect(new URL(seen).searchParams.get('reviewPublisherSiteFilter')).toBe('demagog.org.pl');
+  });
+});

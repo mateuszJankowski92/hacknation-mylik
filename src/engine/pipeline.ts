@@ -841,7 +841,10 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           store.logEvent('factcheck_search', { recordId, channel, detail: { claimId: c.id, status: 'przekroczony_czas', stage: 'start' } });
           return { accepted: [], rejected: 0, status: 'przekroczony_czas', flagged: 0 };
         }
-        const found = await layer.find(c, { budgetMs: budget, now: nowDate });
+        // Wspólny limit zapytań na zgłoszenie, dzielony równo między twierdzenia faktograficzne (co najmniej 1).
+        const factual = checkable.filter((x) => x.kind === 'faktograficzna').length || 1;
+        const perClaim = Math.max(1, Math.floor(layer.maxQueriesPerRequest / factual));
+        const found = await layer.find(c, { budgetMs: budget, now: nowDate, maxQueries: perClaim });
         for (const f of found.flagged) {
           for (const sig of f.signals) sd.signals.push(`fragment:${f.passageId}:${sig}`);
           sd.notices.push({ type: 'ograniczenie_techniczne', text: FACTCHECK_INJECTION_NOTICE, passageId: f.passageId });
