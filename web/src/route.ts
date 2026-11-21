@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
 
-export type Route = { page: 'check' } | { page: 'record'; id: string } | { page: 'sources' };
+export type Route =
+	| { page: 'check' }
+	| { page: 'record'; id: string }
+	| { page: 'sources' }
+	| { page: 'accessibility' }
+	| { page: 'privacy' };
 
 const NAVIGATE_EVENT = 'mylik:navigate';
 const ID_PATTERN = /^[0-9a-f]{64}$/;
 
 function routeForPath(path: string): Route | null {
 	if (path === '/zrodla') return { page: 'sources' };
+	if (path === '/dostepnosc') return { page: 'accessibility' };
+	if (path === '/prywatnosc') return { page: 'privacy' };
 	const result = /^\/r\/([^/]+)\/?$/.exec(path);
 	if (result) return { page: 'record', id: decodeURIComponent(result[1]) };
 	const legacy = /^\/rekord\/([^/]+)$/.exec(path);
@@ -70,6 +77,18 @@ export function navigate(path: string, options: NavigateOptions = {}): void {
 	else window.history.pushState(state, '', path);
 	window.dispatchEvent(new Event(NAVIGATE_EVENT));
 	window.scrollTo?.(0, 0);
+	focusFragment(path);
+}
+
+function focusFragment(path: string): void {
+	const fragment = path.split('#')[1];
+	if (!fragment) return;
+	window.setTimeout(() => {
+		const target = document.getElementById(decodeURIComponent(fragment));
+		if (!target) return;
+		target.scrollIntoView?.({ block: 'start' });
+		target.focus({ preventScroll: true });
+	}, 0);
 }
 
 export function useRoute(): Route {

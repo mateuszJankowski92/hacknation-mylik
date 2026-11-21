@@ -2,13 +2,12 @@ import { useRef } from 'react';
 import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
+import { AccessibilityPage, PrivacyPage } from './components/StaticPages';
+import { SiteFooter } from './components/SiteFooter';
 import { Link } from './components/Link';
 import { useRoute } from './route';
 import { CharacterStage } from './stage/CharacterStage';
 import { StageProvider } from './stage/StageContext';
-import { nb } from './typography';
-
-export const PROTOTYPE_NOTE = 'To wczesna wersja próbna. Wyniki mogą mieć braki.';
 
 function AppShell() {
 	const route = useRoute();
@@ -26,9 +25,6 @@ function AppShell() {
 					<Link to="/" aria-current={isHome ? 'page' : undefined}>
 						Mylik
 					</Link>
-					<span className="site-header__badge" title={PROTOTYPE_NOTE}>
-						Prototyp
-					</span>
 				</Brand>
 				<nav aria-label="Główna nawigacja">
 					<Link to="/zrodla" aria-current={route.page === 'sources' ? 'page' : undefined}>
@@ -40,11 +36,10 @@ function AppShell() {
 				{route.page === 'check' && <CheckPage />}
 				{route.page === 'record' && <RecordPage id={route.id} />}
 				{route.page === 'sources' && <SourcesPage />}
+				{route.page === 'accessibility' && <AccessibilityPage />}
+				{route.page === 'privacy' && <PrivacyPage />}
 			</main>
-			<footer className="site-footer">
-				<p>{nb(PROTOTYPE_NOTE)}</p>
-				<p>{nb('Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.')}</p>
-			</footer>
+			<SiteFooter />
 			<CharacterStage appRef={appRef} />
 		</div>
 	);
