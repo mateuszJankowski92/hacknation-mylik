@@ -123,6 +123,8 @@ async function main(): Promise<void> {
     live = {
       sources: base.sources,
       budgetMs: base.budgetMs,
+      // Reguły doboru dowodów (zad. 29b) muszą przejść przez opakowanie liczące koszt.
+      ...(base.select ? { select: base.select } : {}),
       async find(claim, o) {
         const r = await base.find(claim, o);
         liveCost.claims++;
