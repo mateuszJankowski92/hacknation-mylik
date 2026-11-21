@@ -1,0 +1,39 @@
+Programiści zmierzą się z wyzwaniami administracji publicznej. Trwa rejestracja na HackNation 2026
+
+18.11.2026
+
+21-22 listopada Bydgoszcz ponownie stanie się miejscem spotkania programistów, ekspertów technologicznych i przedstawicieli administracji publicznej. Podczas drugiej edycji HackNation, największego w Polsce stacjonarnego hackathonu wdrożeniowego, uczestnicy będą mieli 24 godziny na opracowanie rozwiązań odpowiadających na 15 rzeczywistych wyzwań zgłoszonych przez 14 partnerów. Celem wydarzenia jest wykorzystanie potencjału nowych technologii do usprawnienia funkcjonowania państwa i poprawy jakości usług publicznych. Najlepsze projekty mają szansę na dalszy rozwój i wdrożenie.
+
+Hackathon wdrożeniowy, czyli technologie odpowiadające na potrzeby państwa
+
+HackNation to pierwszy w Polsce projekt tej skali, który bezpośrednio łączy administrację publiczną ze środowiskiem innowatorów. W odróżnieniu od tradycyjnych maratonów programistycznych jego celem jest nie tylko tworzenie pomysłów, ale przede wszystkim opracowanie prototypów rozwiązań z potencjałem do rzeczywistego wykorzystania przez instytucje państwowe.
+
+Inicjatywa, organizowana przez Ministerstwo Cyfryzacji i Miasto Bydgoszcz, ma wspierać cyfryzację państwa, rozwijać współpracę administracji ze środowiskiem technologicznym oraz angażować młode talenty w rozwiązywanie problemów sektora publicznego.
+
+- Polska ma jednych z najlepszych programistów na świecie. HackNation to okazja, żeby pokazać, jak wiele mogą wnieść do rozwoju naszego państwa. Przez 24 godziny w Bydgoszczy uczestnicy będą mierzyć się z prawdziwymi wyzwaniami administracji, łączyć siły i szukać nieszablonowych rozwiązań. Właśnie takiej energii, kreatywności i odwagi w myśleniu potrzebuje nowoczesna Polska - mówi Krzysztof Gawkowski , wicepremier, minister cyfryzacji.
+
+Uczestnicy tworzą interdyscyplinarne zespoły, łącząc kompetencje programistyczne, analityczne, projektowe i branżowe. W trakcie 24-godzinnej pracy mogą korzystać ze wsparcia mentorów, w tym ekspertów technologicznych, specjalistów od cyberbezpieczeństwa, prawa i biznesu oraz przedstawicieli instytucji zgłaszających wyzwania. Program wydarzenia obejmuje również prelekcje, spotkania z ekspertami oraz strefy partnerów i odpoczynku.
+
+15 nowych wyzwań w 2026 roku
+
+Podczas tegorocznej edycji uczestnicy zmierzą się z 15 zadaniami przygotowanymi przez 14 partnerów. Wyzwania odpowiadają na konkretne potrzeby instytucji publicznych, a ich rozwiązanie może przyczynić się do usprawnienia administracji, zwiększenia bezpieczeństwa i poprawy jakości usług świadczonych obywatelom. Wśród nich znalazły się m.in. „Risk Miner” Ministerstwa Funduszy i Polityki Regionalnej, zakładający wykorzystanie sztucznej inteligencji i analizy danych do identyfikowania zagrożeń oraz przewidywania problemów związanych z realizacją inwestycji publicznych, „Osintowy łapacz cyfrowych śladów” Ministerstwa Finansów- Krajowej Administracji Skarbowej, dotyczący wykorzystania nowoczesnych technologii do analizy danych związanych z kryptowalutami, a także „Przewodnik przyszłej mamy” Zakładu Ubezpieczeń Społecznych, którego celem jest stworzenie intuicyjnej aplikacji pomagającej przyszłym i świeżo upieczonym rodzicom w poruszaniu się po systemie świadczeń, uprawnień i formalności związanych z rodzicielstwem.
+
+Zasady rywalizacji pozostają takie same jak w ubiegłym roku. Najlepsze zespoły otrzymają nagrody finansowe, a ich projekty będą miały szansę na dalszy rozwój i wdrożenie we współpracy z instytucjami odpowiedzialnymi za poszczególne wyzwania.
+
+Sukces pierwszej edycji
+
+Pierwsza edycja HackNation, zorganizowana w 2025 roku w Bydgoszczy, zgromadziła 1500 uczestników, którzy w ciągu 24 godzin pracowali nad rozwiązaniami 16 problemów zgłoszonych przez administrację publiczną i spółki Skarbu Państwa. Powstało 437 projektów, spośród których nagrodzono 16 zwycięskich zespołów. Każdy otrzymał 25 tys. zł oraz możliwość dalszej współpracy z instytucją odpowiedzialną za dane wyzwanie.
+
+Nagrodzone rozwiązania dotyczyły m.in. bezpieczeństwa publicznego, cyberbezpieczeństwa, analizy danych, cyfryzacji usług i usprawniania procesów administracyjnych. Wśród zwycięskich projektów znalazły się m.in. „Cyfrowy nieśmiertelnik” dla Komendy Głównej Państwowej Straży Pożarnej, rozwiązanie mające zwiększyć bezpieczeństwo strażaków poprzez monitorowanie ich lokalizacji podczas akcji ratowniczych, również w miejscach bez dostępu do sygnału GPS, oraz „Scenariusze jutra” dla Ministerstwa Spraw Zagranicznych, narzędzie wykorzystujące analizę danych i sztuczną inteligencję do prognozowania możliwych wydarzeń i trendów w polityce międzynarodowej.
+
+Rejestracja na HackNation 2026 już trwa
+
+Druga edycja HackNation odbędzie się 21-22 listopada 2026 roku w Bydgoszczy. Rejestracja uczestników jest otwarta na oficjalnej stronie wydarzenia: www.hacknation.pl .
+
+- Ubiegłoroczna edycja HackNation pokazała, jak ogromny potencjał drzemie w młodych innowatorach i jak duże jest zainteresowanie wykorzystaniem nowych technologii na rzecz administracji publicznej. Liczba zgłoszeń przekroczyła nasze oczekiwania, a rejestrację musieliśmy zamknąć przed terminem. W tym roku ponownie zapraszamy do Bydgoszczy, gdzie uczestnicy będą pracować nad rozwiązaniami, które w przyszłości mogą usprawnić funkcjonowanie instytucji publicznych i poprawić jakość usług świadczonych obywatelom -mówi Rafał Rosiński, wiceminister cyfryzacji.
+
+Na uczestników czekają 24 godziny intensywnej pracy, wsparcie mentorów, prelekcje ekspertów oraz strefy relaksu, VR, symulatory i konkursy. Organizatorzy zapewniają wyżywienie oraz bezpłatny transport z wybranych miast do Bydgoszczy i z powrotem.
+
+O HackNation :
+
+HackNation to pierwszy i największy w Polsce stacjonarny hackathon wdrożeniowy, który łączy administrację publiczną ze środowiskiem innowatorów, by wspólnie tworzyć rozwiązania odpowiadające na rzeczywiste potrzeby państwa, miast i instytucji publicznych. W ciągu 24 godzin interdyscyplinarne zespoły, łączące kompetencje programistyczne, analityczne, projektowe i branżowe, pracują nad konkretnymi wyzwaniami przy wsparciu ekspertów i mentorów. Celem inicjatywy jest rozwijanie innowacji technologicznych z potencjałem do wdrożenia, które mogą usprawnić funkcjonowanie administracji i poprawić jakość codziennego życia milionów Polaków. Organizatorami wydarzenia są Ministerstwo Cyfryzacji, Departament GovTech Polska oraz Miasto Bydgoszcz. Zaprogramuj z nami przyszłość Polski!

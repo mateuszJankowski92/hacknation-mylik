@@ -1,0 +1,15 @@
+Prawdziwy wizerunek - fałszywa inwestycja
+
+🚨 CERT Polska monitoruje kampanię reklamową fałszywych inwestycji. Ten schemat od lat jest jednym z najbardziej powszechnych sposobów wyłudzania pieniędzy 💸
+
+📱 Przestępcy wykorzystują reklamy w mediach społecznościowych, wizerunki znanych osób, logotypy firm oraz materiały wideo wygenerowane za pomocą AI, aby uwiarygodnić próbę oszustwa.
+
+🔎 Schemat zwykle wygląda podobnie: przestępcy tworzą fałszywe reklamy, wykorzystując zmyślone kontrowersje i sensacyjne informacje, aby przyciągnąć uwagę odbiorców. Reklama prowadzi na stronę rzekomej „platformy inwestycyjnej”, za pomocą której oszuści pozyskują dane kontaktowe użytkownika. Następnie z potencjalną ofiarą kontaktuje się fałszywy doradca, który zachęca do wykonania pierwszej wpłaty.
+
+📈 Czasami oszuści pozwalają na wypłatę niewielkich zysków, które mają uwiarygodnić cały proceder i zachęcić do dokonywania dalszych wpłat na coraz większe kwoty. W rzeczywistości pieniądze pochodzą od innych ofiar podobnych schematów oszustwa.
+
+💻 Na kolejnym etapie przestępcy mogą próbować nakłonić ofiarę do zainstalowania programu umożliwiającego zdalny dostęp do komputera. W ten sposób chcą uzyskać dane logowania m.in . do bankowości internetowej, a także inne wrażliwe dane i poufne informacje 🔐
+
+🛡️ CERT Polska na bieżąco blokuje dostęp do stron wykorzystywanych przez oszustów umieszczając je na Liście Ostrzeżeń oraz zgłasza fałszywe reklamy do Meta, aby ograniczać ich zasięg.
+
+Jak się chronić?

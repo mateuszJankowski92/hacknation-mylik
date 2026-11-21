@@ -1,0 +1,29 @@
+„Witamy w Amazon Prime” - uważaj na fałszywe wiadomości o subskrypcji
+
+🔎 CERT Polska obserwuje kolejną falę kampanii phishingowej wykorzystującej wizerunek firmy Amazon.
+
+Cyberprzestępcy rozsyłają e-maile informujące o rzekomym uruchomieniu subskrypcji - niżej znajduje się informacja o możliwości anulowania usługi. Link prowadzi do serwisu przygotowanego przez oszustów, gdzie użytkownik proszony jest o podanie hasła do konta powiązanego z jego adresem e-mail oraz danych karty płatniczej. Wprowadzone informacje trafiają bezpośrednio do przestępców 💳
+
+🧠 To dobrze znany mechanizm socjotechniczny. Nadawcy próbują wywołać poczucie zagrożenia związane z niechcianą opłatą, jednocześnie podsuwając pozornie proste rozwiązanie.
+
+🔐 Jak chronić swoje dane?
+
+🔹 Nie działaj pod wpływem presji. Informacja o nieoczekiwanym wydatku ma skłonić cię do nieprzemyślanego działania.
+
+🔹 Sprawdzaj uważnie adres nadawcy oraz adres strony internetowej.
+
+🔹 W razie wątpliwości status subskrypcji zweryfikuj samodzielnie na oficjalnej stronie firmy.
+
+🚨 Podejrzane wiadomości oraz strony internetowe zgłaszaj do CERT Polska przez incydent.cert.pl lub w aplikacji mObywatel, korzystając z usługi „Bezpiecznie w sieci”.
+
+Treść fałszywej wiadomości e-mail
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

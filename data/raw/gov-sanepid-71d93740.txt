@@ -1,0 +1,57 @@
+Komunikat Głównego Inspektora Sanitarnego w sprawie zgłoszenia informacji o substancjach chemicznych, ich mieszaninach, czynnikach lub procesach technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym w środowisku pracy - e-usługa
+
+13.08.2026
+
+12 sierpnia uruchomiona została e-usługa na platformie e-Sanepid, która umożliwia pracodawcom/przedstawicielom zakładu zgłoszenie informacji o substancjach chemicznych, ich mieszaninach, czynnikach lub procesach technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym w środowisku pracy.
+
+Wdrożone rozwiązanie umożliwia online realizację obowiązku wynikającego z § 6 ust. 2 rozporządzenia Ministra Zdrowia z dnia 26 lipca 2024 r. w sprawie substancji chemicznych, ich mieszanin, czynników lub procesów technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym w środowisku pracy (Dz.U. 2024 poz. 1126)
+
+Jeśli jesteś pracodawcą i w zakładzie pracy pracownicy, wykonując czynności zawodowe mają kontakt z substancjami chemicznymi, ich mieszaninami, czynnikami lub procesami technologicznymi o działaniu rakotwórczym, mutagennym lub reprotoksycznym lub pozostają w narażeniu na takie substancje, czynniki lub procesy, prześlij online zgłoszenie „Informacja o substancjach chemicznych, ich mieszaninach, czynnikach lub procesach technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym”.
+
+W jaki sposób złożyć zgłoszenie informacji o substancjach chemicznych, ich mieszaninach, czynnikach lub procesach technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym w środowisku pracy?
+
+Zgłoszenie należy złożyć elektronicznie, poprzez formularz dostępny po zalogowaniu na platformie e-Sanepid: https://e.sanepid.gov.pl/ .
+
+Kto może złożyć zgłoszenie?
+
+Zgłoszenie może złożyć:
+
+Pracodawca lub przedstawiciel zakładu.
+
+Pamiętaj: zgłoszenia należy dokonać oddzielnie za każde miejsce wykonywania pracy, jeżeli adres jest inny niż siedziba pracodawcy.
+
+Jak złożyć zgłoszenie
+
+Zaloguj się do systemu e-Sanepid
+
+Przełącz się z profilu obywatela na konto podmiotu (UWAGA: Jeśli nie posiadasz konta podmiotu w systemie e-Sanepid, najpierw skorzystaj z e-usługi Zgłoszenie założenia konta podmiotu na platformie e-Sanepid .
+
+Wypełnij elektroniczny formularz zgłoszenia informacji o substancjach chemicznych, ich mieszaninach, czynnikach lub procesach technologicznych o działaniu rakotwórczym, mutagennym lub reprotoksycznym w środowisku pracy
+
+Podpisz i wyślij zgłoszenie w systemie.
+
+Informacje o statusie zgłoszenia
+
+Po złożeniu zgłoszenia zostaniesz poinformowany o jego statusie:
+
+poprzez zalogowanie się do konta w systemie e-Sanepid.
+
+Dlaczego potrzebne jest zgłoszenie?
+
+Zgodnie z obowiązującymi przepisami,
+
+pracodawca ma obowiązek przekazania informacji właściwemu państwowemu wojewódzkiemu inspektorowi sanitarnemu niezwłocznie po rozpoczęciu działalności oraz corocznie, w terminie do dnia 15 stycznia za rok poprzedni, albo na ich wniosek
+
+Instrukcja złożenia zgłoszenia
+
+Szczegółowe wskazówki dotyczące założenia konta podmiotu oraz wypełnienia formularza znajdziesz tutaj:
+
+Instrukcja założenia konta podmiotu
+
+Instrukcja składania zgłoszenia
+
+Informacje o projekcie
+
+Projekt pn.: „e-Sanepid” współfinansowany ze środków Unii Europejskiej, w ramach Programu Fundusze Europejskie na Rozwój Cyfrowy 2021-2027, Priorytet FERC.02: Zaawansowane usługi cyfrowe, Działanie: FERC.02.01 Wysoka jakość i dostępność e-usług publicznych.
+
+Czas realizacji: 01.09.2025 r. - 31.08.2028 r. Całkowita wartość projektu: 59 846 850,00 zł

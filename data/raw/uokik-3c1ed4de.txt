@@ -1,0 +1,71 @@
+Twórcy aplikacji mobilnych w Polsce będą mogli konkurować na urządzeniach Apple na uczciwych zasadach.
+
+Polscy konsumenci będą lepiej informowani o tym, jak przetwarzane są ich dane.
+
+To efekty decyzji Prezesa UOKiK, który zobowiązał Apple do zmiany praktyk.
+
+Wypowiedź Prezesa UOKiK Tomasza Chróstnego
+
+Koncern Apple, oprócz produkcji sprzętu elektronicznego, ustala zasady, których muszą przestrzegać twórcy aplikacji przeznaczonych na jego urządzenia. Sam również wydaje aplikacje i świadczy usługi reklamy mobilnej, a więc konkuruje z niezależnymi wydawcami. Jednocześnie kontroluje dystrybucję programów na iPhone’ach i iPadach, przez co pełni wobec swoich rynkowych rywali rolę zbliżoną do regulatora. Tym samym Apple może posiadać pozycję dominującą, której nadużywanie jest zakazane przez prawo ochrony konkurencji.
+
+Do niedozwolonych praktyk mogło dochodzić po wprowadzeniu przez Apple polityki App Tracking Transparency (ATT) w systemach iOS i iPadOS. ATT określała zasady, na jakich wydawcy aplikacji mogą uzyskiwać dostęp do danych użytkowników. Prezes UOKiK wszczął postępowanie , które zakończyło się wydaniem decyzji zobowiązującej wobec spółek: Apple, Apple Distribution International oraz Apple Operations International.
+
+„Śledzenie” i reklamy spersonalizowane
+
+W polityce ATT Apple zdefiniował czynności określane jako „śledzenie” użytkowników. Było to łączenie danych o użytkowniku pochodzących z aplikacji różnych firm w celu wyświetlania spersonalizowanych reklam. Wiązało się to z obowiązkiem wyświetlania dodatkowego komunikatu. „Śledzeniem” nie było łączenie danych pozyskiwanych bezpośrednio przez jeden podmiot, w tym Apple. W rezultacie Apple nie został objęty obowiązkiem uzyskiwania dodatkowej zgody na „śledzenie” użytkowników, nawet jeśli zbierał dane osobowe i wyświetlał spersonalizowane reklamy.
+
+W efekcie użytkownicy iPhone’ów i iPadów widzieli różne komunikaty: zewnętrzne aplikacje pytały o zgodę na „śledzenie”, a Apple – na „reklamy spersonalizowane”. Różnił się także wygląd okien i treść przycisków umożliwiających wyrażenie zgody lub jej odmowę.
+
+Mogło to zniechęcać użytkowników do dzielenia się danymi z niezależnymi wydawcami aplikacji i jednocześnie faworyzować podmioty wykorzystujące własne dane do świadczenia usług reklamowych, w szczególności Apple. Tymczasem w obu przypadkach dane użytkownika mogły być wykorzystywane w tym samym celu.
+
+Skomplikowane warunki dostępu do danych użytkowników mogły utrudniać wydawcom aplikacji oferowanie spersonalizowanych reklam i zmniejszać ich przychody z powierzchni reklamowej w aplikacjach.
+
+Zobowiązanie korzystne dla twórców i użytkowników
+
+W rezultacie przeprowadzonego postępowania Prezes UOKiK zobowiązał spółki Apple do zmiany praktyk wobec wydawców oferujących aplikacje użytkownikom w Polsce. Nowe reguły będą widoczne dla osób, które na swoim koncie Apple korzystają z adresu rozliczeniowego w Polsce i dla których nasz kraj został zgłoszony jako lokalizacja urządzenia.
+
+– Apple wyszło naprzeciw naszym oczekiwaniom zmian polityki ATT. Dzięki temu polscy twórcy aplikacji mobilnych będą mogli zarówno konkurować, jak i współpracować z big techem, na uczciwych zasadach. Zyskają również użytkownicy, którzy będą lepiej informowani o wykorzystaniu ich danych na urządzeniach Apple. Decyzja zobowiązująca jest wreszcie efektem intensywnej, wielomiesięcznej współpracy z Komisją Europejską, której zależało na tym, aby wspólnymi działaniami skłonić przedsiębiorcę do korzystnych zmian polityki ATT także w pozostałych państwach członkowskich UE – mówi Prezes UOKiK Tomasz Chróstny.
+
+Zmiany w komunikatach
+
+Apple zmieni wygląd komunikatów dotyczących uzyskania zgody na wykorzystywanie danych użytkowników - zarówno we własnych aplikacjach, jak i pochodzących od innych twórców. Będą one miały neutralny wygląd, układ i treść. Usunięte zostaną wszystkie znaki graficzne i sformułowania, które mogłyby wpływać na wybory użytkowników, m.in. nie będzie już używane słowo „śledzenie".
+
+Polscy konsumenci dostaną dokładną informację o tym, w jaki sposób ich dane będą wykorzystywane. Dzięki temu będą mogli łatwiej ocenić, czy chcą udzielić zgody, a treść wyświetlanego komunikatu nie będzie ich do tego zachęcać lub zniechęcać. Pozwoli im to na dokonanie bardziej świadomego wyboru.
+
+Dodatkowo wydawcy aplikacji będą mogli zamieścić w komunikatach odnośnik do strony internetowej lub dodatkowego widoku zawierającego bardziej szczegółowe informacje o przetwarzaniu danych osobowych. Apple nie będzie mogło ingerować w ich treść.
+
+Big tech ma również obowiązek poinformować wydawców o przyjętych zobowiązaniach i zmianach w polityce ATT. Będzie musiał zamieścić te informacje m.in. w regulaminach publikowanych na stronach internetowych oraz w dokumentacji przeznaczonej dla wydawców.
+
+Niezależny Oficer Łącznikowy dla polskich twórców
+
+Prezes UOKiK zobowiązał również Apple do wdrożenia mechanizmów, które usprawnią rozstrzyganie sporów z wydawcami aplikacji. Powołany zostanie m.in. niezależny Oficer Łącznikowy, który będzie przyjmował uwagi, zapytania i skargi po polsku lub angielsku od twórców aplikacji. Będą one przekazywane następnie do innego niezależnego podmiotu – Powiernika Monitorującego, który rozpatrzy skargi wydawców dotyczące polityki ATT Apple.
+
+Szybkie zmiany
+
+Zgodnie z treścią decyzji, Apple będzie musiał wykonać zobowiązania i zmienić swoją praktykę już w ciągu dwóch miesięcy od uprawomocnienia się decyzji. Koncern będzie musiał również przekazać Urzędowi dokumenty i informacje potwierdzające wykonanie zobowiązania. Prezes UOKiK nałożył też na Apple coroczne obowiązki sprawozdawcze.
+
+Big techy pod lupą Prezesa UOKiK
+
+– Zasady uczciwej gry rynkowej obowiązują wszystkich, również największe firmy technologiczne na świecie. Nie obawiamy się interwencji w przypadku podejrzenia ograniczania konkurencji przez tzw. wielką piątkę. Przypominam, że prowadzimy również postępowania w sprawie praktyk Google i Mety – mówi Prezes UOKiK Tomasz Chróstny.
+
+Decyzje w innych krajach i współpraca z KE
+
+Polityką App Tracking Transparency Apple zajmowały się również organy antymonopolowe w kilku państwach europejskich. W marcu 2025 r. decyzję w tej sprawie wydał francuski organ , a w grudniu 2025 r. – włoski . Natomiast w sierpniu 2026 r. niemiecki urząd wydał decyzję zobowiązującą Apple do zmiany praktyk.
+
+Pliki do pobrania
+
+Informacje dla mediów
+
+603 124 154
+
+biuroprasowe@uokik.gov.pl
+
+Pl. Powstańców Warszawy 1 00-950 Warszawa
+
+Obserwuj nas
+
+@UOKiKgovPL
+
+Zgłoś naruszenie prawa konkurencji
+
+Platforma dla anonimowych sygnalistów

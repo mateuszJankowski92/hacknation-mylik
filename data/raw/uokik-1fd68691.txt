@@ -1,0 +1,31 @@
+Dark patterns to sposoby projektowania stron i aplikacji, które mogą wpływać na decyzje konsumentów – np. skłaniać do nieplanowanego kliknięcia, zakupu czy wyrażenia zgody.
+
+Takie mechanizmy wykrywa DRAKE – stworzone przez UOKiK narzędzie wykorzystujące sztuczną inteligencję. Analizuje treść, wygląd i kod stron internetowych oraz wskazuje elementy wymagające uwagi Urzędu.
+
+Projekt zwyciężył w konkursie 2026 ICPEN – World Bank Group Consumer Protection Contest w kategorii Busting Dark Patterns.
+
+Fałszywy licznik odmierzający czas do końca promocji, ukryty przycisk rezygnacji czy możliwość wyrażenia zgody znacznie prostsza niż jej odmowa. To przykłady dark patterns, które coraz częściej próbują nami manipulować i wpływać na nasze decyzje zakupowe. Problemem jest również skala – sklepy internetowe, serwisy i aplikacje zmieniają się szybciej, niż organy chroniące konsumentów mogą je przeanalizować ręcznie.
+
+Dlatego UOKiK stworzył DRAKE – narzędzie wykorzystujące sztuczną inteligencję do wspierania ekspertów w wykrywaniu potencjalnych dark patterns. Projekt został nagrodzony w konkursie Międzynarodowej Sieci Ochrony Konsumentów (ICPEN) i Grupy Banku Światowego. Jego siłą jest połączenie technologii z wiedzą i doświadczeniem Urzędu –pozwala szybciej analizować dużą liczbę stron i wychwytywać najpoważniejsze praktyki wprowadzające w błąd wymagające dalszej oceny.
+
+AI zagląda tam, gdzie człowiek nie zdąży
+
+– Rynek cyfrowy zmienia się bardzo szybko, a wraz z nim techniki wpływające na decyzje konsumentów. Dlatego także po stronie ochrony konsumentów potrzebujemy nowoczesnych narzędzi. DRAKE pozwala nam szybciej docierać do miejsc, które wymagają uwagi. Sztuczna inteligencja nie zastępuje ekspertów – daje im więcej możliwości i pomaga skuteczniej działać w środowisku cyfrowym – mówi Prezes UOKiK Tomasz Chróstny.
+
+Podstawowym wyzwaniem jest skala cyfrowego rynku. Żaden organ ochrony konsumentów nie jest w stanie ręcznie przeanalizować tysięcy stron, które zmieniają się z tygodnia na tydzień. DRAKE pomaga wybrać te przypadki, które wymagają uwagi i przyspiesza pracę analityczną.
+
+Za tym rozwiązaniem stoi jednak nie tylko technologia. Punktem wyjścia do stworzenia DRAKE była wiedza Urzędu. Najpierw uporządkowano doświadczenia z prowadzonych spraw, dokonano analizy kodu źródłowego stron internetowych, przeprowadzono badania konsumenckie z wykorzystaniem metod neuromarketingowych oraz ankietowych, analizując wpływ tzw. dark patterns na zachowania i decyzje zakupowe konsumentów. Przebadano literaturę naukową i dokumenty unijne. Na tej podstawie powstała baza informacji wykorzystywana przez system AI.
+
+DRAKE wskazuje, ekspert weryfikuje i ocenia
+
+DRAKE nie dokonuje oceny prawnej, nie stwierdza naruszeń i nie rozstrzyga spraw prowadzonych przez Prezesa UOKiK. Ekspert może zmienić każde ustalenie systemu. O sposobie dalszego wykorzystania rezultatu działania systemu decyduje pracownik Urzędu przygotowujący materiał dowodowy w sprawie. W sytuacji, w której DRAKE sygnalizuje możliwe naruszenie, pracownik zawsze samodzielnie weryfikuje materiał źródłowy – w tym stronę internetową przedsiębiorcy.
+
+– Manipulacja w sieci może być ukryta w kolorze przycisku, kilku dodatkowych krokach potrzebnych do odmowy czy fałszywym liczniku czasu. DRAKE pomaga nam dostrzegać takie mechanizmy na większą skalę. Technologia podpowiada, gdzie spojrzeć, ale to człowiek ocenia, czy zostało naruszone prawo – mówi Prezes UOKiK Tomasz Chróstny.
+
+Narzędzie wspiera już bieżące wewnętrzne analizy UOKiK. Jest wykorzystywane m.in. na etapie wstępnym przy wszczynaniu postępowań wyjaśniających dotyczących praktyk siedmiu bukmacherów . Sprawy są w toku, a wyniki pracy DRAKE nie przesądzają o wszczęciu postępowań, stwierdzeniu naruszenia przepisów, ani nie są samodzielną podstawą oceny prawnej i faktycznej dokonywanej przez UOKiK.
+
+Międzynarodowa nagroda
+
+DRAKE zwyciężył w kategorii Busting Dark Patterns konkursu 2026 ICPEN – World Bank Group Consumer Protection Contest. Projekt, finansowany ze środków Unii Europejskiej, ma także wymiar międzynarodowy – UOKiK dzieli się doświadczeniami z jego realizacji z zagranicznymi organami ochrony konsumentów.
+
+Plik do pobrania

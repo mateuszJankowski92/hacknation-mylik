@@ -1,0 +1,21 @@
+Przestrzegamy przed oszustami, którzy wysyłają fałszywe maile
+
+16.10.2026
+
+Oszuści podszywający się pod Ministerstwo Finansów i Krajową Administrację Skarbową wysyłają fałszywe wiadomości e-mail dotyczące korekty plików JPK_VAT.
+
+Próbują wyłudzić poufne informacje, takie jak: dane osobowe, numery kont bankowych, adresy i hasła poczty elektronicznej.
+
+Przestrzegamy przed oszustami, którzy za pomocą fałszywych e-maili próbują wyłudzić dane. Oszuści wysyłają fałszywe wiadomości e-mail, które dotyczą weryfikacji plików JPK_VAT. Wiadomości zachęcają do kliknięcia w niebezpieczne linki lub otwarcia załączników. Po kliknięciu w link, użytkownik jest przekierowywany do serwisu, który może wymagać podania poufnych danych. Jest to próba wyłudzenia informacji.
+
+WAŻNE: Powiadomienia dotyczące JPK_VAT wysyłane przez Krajową Administrację Skarbową nie mają w swojej treści żadnych linków, ani odnośników, w które można kliknąć. Nie zawierają również prośby o logowanie do jakiegokolwiek systemu.
+
+Przykładowa fałszywa wiadomość
+
+Co robić w przypadku próby oszustwa?
+
+Należy pamiętać, aby nigdy nie podawać nikomu poufnych informacji, zwłaszcza po otrzymaniu podejrzanych wiadomości e-mail zawierających prośbę o udostępnienie danych.
+
+W przypadku gdy otrzymana wiadomość budzi jakiekolwiek wątpliwości zachęcamy do korzystania z platformy CERT , która służy do zgłaszania wszelkich incydentów w zakresie cyberbezpieczeństwa.
+
+Zachęcamy też do korzystania z usługi „Bezpiecznie w sieci” dostępnej w aplikacji mObywatel. Usługa umożliwia zgłaszanie podejrzanych wiadomości SMS, e-maili oraz fałszywych stron internetowych bezpośrednio do ekspertów zajmujących się analizą tego typu zagrożeń. Więcej informacji o tej usłudze znajduje się na stronie Ministerstwa Cyfryzacji .

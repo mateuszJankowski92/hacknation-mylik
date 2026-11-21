@@ -1,0 +1,23 @@
+Krytyczna podatność w produktach firmy Check Point
+
+Zespół CERT Polska informuje o krytycznej podatności w produktach Check Point. Podatność jest aktywnie wykorzystywana przez atakujących.
+
+Podatność, oznaczona jako CVE-2026-93616 (CVSS 9.8), wynika z połączenia błędu typu path traversal oraz nieprawidłowej obsługi przesyłania plików. Umożliwia nieuwierzytelnionemu atakującemu umieszczenie i wykonanie dowolnych skryptów na serwerze zarządzania, co może skutkować pełnym przejęciem serwera. Istotnym warunkiem wykorzystania podatności jest dostęp do panelu zarządzania dostępnego z portu TCP/19009.
+
+Podatność dotyczy produktów Security Management Server, Multi-Domain Security Management Server, Log Server, Multi-Domain Log Server oraz SmartEvent w wersjach:
+
+R82.20
+
+R82.10 Jumbo Hotfix 44 i starsze
+
+R82 Jumbo Hotfix 126 i starsze
+
+R81.20 Jumbo Hotfix 166 i starsze
+
+R81.10 Jumbo Hotfix 190 i starsze (brak wsparcia producenta)
+
+R80, R80.10, R80.20, R80.30, R80.40, R81 (brak wsparcia producenta)
+
+Rekomendujemy natychmiastową aktualizację oprogramowania do wersji pozbawionych powyższej podatności. Do czasu aktualizacji zalecamy ograniczenie dostępu do panelu zarządzania. Zalecamy również weryfikację serwerów pod kątem wskaźników potencjalnego wykorzystania podatności:
+
+wpisy logowania w $MDS_FWDIR/log/cpm.elg* zawierające nazwę użytkownika dłuższą niż 1000 znaków, skorelowane czasowo ze zrzutem pamięci procesu fwm lub mds w /var/log/dump/usermode/ ,

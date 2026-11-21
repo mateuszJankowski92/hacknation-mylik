@@ -1,0 +1,69 @@
+Z twojego konta zniknęły pieniądze? Jeśli doszło do nieautoryzowanej transakcji płatniczej, bank powinien oddać skradzione środki.
+
+Prezes UOKiK zobowiązał kolejne cztery banki do zmiany procedur w sprawach nieautoryzowanych transakcji płatniczych.
+
+ING Bank Śląski, Bank Ochrony Środowiska, Nest Bank i Plus Bank ponownie przeanalizują odrzucone reklamacje i w uzasadnionych przypadkach zwrócą konsumentom pieniądze.
+
+Wypowiedź Prezesa UOKiK Tomasza Chróstnego
+
+Wątpliwości Prezesa UOKiK wzbudziło podejście banków do rozpatrywania zgłoszeń tzw. nieautoryzowanych transakcji. Chodzi o sytuacje, w których środki z konta klienta zostały pobrane bez jego zgody i wiedzy, np. w wyniku cyberataku lub kradzieży danych. Po rozstrzygnięciach dotyczących Alior Banku, mBanku, BNP Paribas oraz Banku Millennium , Prezes UOKiK wydał decyzje wobec czterech kolejnych instytucji finansowych.
+
+Obowiązki banku
+
+Zgodnie z prawem, po zgłoszeniu nieautoryzowanej transakcji, bank powinien niezwłocznie, tj. najpóźniej do końca następnego dnia roboczego (tzw. zasada D+1) zwrócić konsumentowi skradzioną kwotę. Wyjątkiem są sytuacje, gdy istnieją udokumentowane podstawy, by podejrzewać oszustwo ze strony samego klienta, lub gdy od transakcji minęło więcej niż 13 miesięcy.
+
+Tymczasem ING Bank Śląski, Bank Ochrony Środowiska, Nest Bank i Plus Bank w wielu przypadkach odmawiały zwrotu środków. Sugerowały konsumentom, że samo prawidłowe uwierzytelnienie transakcji (np. wpisanie kodu PIN lub autoryzacja w aplikacji) zwalnia je z odpowiedzialności i automatycznie oznacza, że klient wyraził zgodę na przelew. Banki bezpodstawnie przerzucały też ciężar dowodu na konsumenta oraz twierdziły, że ewentualne odzyskanie pieniędzy jest możliwe wyłącznie poprzez działania organów ścigania.
+
+– Prawo jasno określa obowiązki banków w przypadku cyberataku lub utraty środków przez klientów. Instytucje finansowe nie mogą unikać odpowiedzialności poprzez automatyczne odrzucanie reklamacji i przerzucanie całego ciężaru udowodnienia winy na poszkodowanego konsumenta. Samo wykazanie przez bank, że transakcja została poprawnie uwierzytelniona to za mało, by odmówić zwrotu pieniędzy. Bank musi udowodnić, że to klient samodzielnie i świadomie autoryzował operację lub dopuścił się rażącego niedbalstwa. Kolejne cztery banki muszą zmienić procedury i ponownie przeanalizować sprawy, w których niezgodnie z prawem odmówiły klientom zwrotu pieniędzy – mówi Prezes UOKiK Tomasz Chróstny.
+
+Co muszą zrobić banki?
+
+ING Bank Śląski, Bank Ochrony Środowiska, Nest Bank i Plus Bank zmienią dotychczasowe praktyki i usunąć ich negatywne skutki. Na mocy decyzji Prezesa UOKiK banki muszą m.in.:
+
+Zmienić procedury wewnętrzne – wdrożą nowe zasady, zgodnie z którymi prawidłowe uwierzytelnienie transakcji nie będzie jedyną podstawą do uznania, że klient sam ją autoryzował.
+
+Ponownie zweryfikować reklamacje obecnych klientów – banki jeszcze raz przeanalizują negatywne odpowiedzi na reklamacje udzielone od 16 listopada 2022 r. Dotyczy to osób, które nadal są ich klientami. W uzasadnionych przypadkach oddadzą konsumentom utracone pieniądze – nastąpi to najpóźniej do 31 grudnia 2027 r.
+
+Poinformować byłych klientów – osoby, które nie korzystają już z usług banku, a ich reklamacje zgłoszone po 15 listopada 2022 r. odrzucono, otrzymają powiadomienie o możliwości i sposobie złożenia wniosku o ponowną weryfikację sprawy.
+
+Banki mają obowiązek poinformować o decyzjach na swoich stronach internetowych oraz powiadomić o nich swoich klientów przez aplikacje mobilne. Muszą również poinformować Prezesa UOKiK o tym jak wywiązały się z nałożonych na nich obowiązków do 30 kwietnia 2028 r.
+
+TSUE potwierdza
+
+W październiku br. Trybunał Sprawiedliwości Unii Europejskiej wydał przełomowy wyrok , który w pełni potwierdził stanowisko Prezesa UOKiK w zakresie nieautoryzowanych transakcji płatniczych. Zgodnie z orzeczeniem w sprawie C-70/25 ( Tukowiecka ), w przypadku nieautoryzowanych transakcji, np. w wyniku phishingu, bank ma bezwzględny obowiązek natychmiastowego zwrotu środków klientowi. Zasłanianie się „rażącym zaniedbaniem” konsumenta, aby odmówić mu wypłaty, jest działaniem bezprawnym.
+
+– Wyrok TSUE potwierdził, że banki nie mogą być sędziami we własnej sprawie i nie mają podstaw do masowego odrzucania reklamacji okradzionych klientów. Od lat powtarzaliśmy, że prawo chroni konsumenta, a bank ma bezwzględny obowiązek najpierw oddać skradzione środki, a potem ustalić, po czyjej stronie leży wina. Trybunał w Luksemburgu w pełni podzielił nasze stanowisko. To jasny sygnał dla sektora finansowego: czas skończyć z przerzucaniem odpowiedzialności za cyberataki na barki poszkodowanych konsumentów – mówi Prezes UOKiK Tomasz Chróstny.
+
+Najważniejsze wnioski z wydanych decyzji i wyroku TSUE:
+
+Bank nie może samodzielnie stawiać się w roli sędziego i odmawiać zwrotu skradzionych pieniędzy, twierdząc, że konsument dał się podejść cyberprzestępcom.
+
+Środki muszą zostać przelane na konto poszkodowanego bezzwłocznie, najpóźniej do końca następnego dnia roboczego od zgłoszenia.
+
+Jedyną legalną podstawą do wstrzymania zwrotu jest uzasadnione podejrzenie, że to sam konsument próbuje wyłudzić pieniądze, co bank musi niezwłocznie zgłosić organom ścigania.
+
+Jeśli bank uważa, że klient dopuścił się rażącego zaniedbania, musi najpierw oddać pieniądze, a dopiero potem może walczyć o ich odzyskanie przed sądem, gdzie to na instytucji finansowej spoczywa pełen ciężar dowodu.
+
+Pliki do pobrania
+
+Informacje dla mediów
+
+603 124 154
+
+biuroprasowe@uokik.gov.pl
+
+Pl. Powstańców Warszawy 1 00-950 Warszawa
+
+Obserwuj nas
+
+@UOKiKgovPL
+
+Pomoc dla konsumentów
+
+801 440 220 | 222 66 76 76 opłata wg taryfy operatora
+
+dlakonsumentow.pl formularz kontaktowy
+
+Rzecznicy Konsumentów w twoim mieście lub powiecie
+
+Inspekcja Handlowa w twoim województwie

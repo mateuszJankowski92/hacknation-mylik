@@ -1,0 +1,41 @@
+Wzmacniamy cyberbezpieczeństwo resortu finansów
+
+03.11.2026
+
+Ministerstwo Finansów realizuje projekt w ramach konkursu grantowego „Cyberbezpieczny Rząd”, którego celem jest zwiększenie odporności resortu finansów na cyberzagrożenia.
+
+Projekt obejmuje rozwój narzędzi do wykrywania zagrożeń i reagowania na incydenty, podnoszenie kompetencji specjalistów oraz doskonalenie zarządzania cyberbezpieczeństwem.
+
+Wsparciem objęto sześć jednostek resortu finansów.
+
+Projekt jest realizowany do 31 grudnia 2026 r.
+
+Ministerstwo Finansów realizuje projekt w ramach konkursu grantowego „Cyberbezpieczny Rząd”. Jego celem jest wzmocnienie ochrony infrastruktury teleinformatycznej resortu oraz rozwój zdolności do wykrywania cyberzagrożeń i ograniczania ich skutków.
+
+Systemy resortu finansów wspierają realizację kluczowych zadań państwa, w tym obsługę procesów podatkowych i celnych oraz świadczenie usług publicznych. Rosnąca złożoność cyberzagrożeń wymaga stałego doskonalenia zabezpieczeń, narzędzi i kompetencji pracowników.
+
+Co zmieni się dzięki realizacji projektu?
+
+Projekt obejmuje cztery obszary:
+
+Skuteczniejsze wykrywanie cyberzagrożeń - rozbudowę możliwości monitorowania infrastruktury teleinformatycznej oraz identyfikowania i analizowania potencjalnych zagrożeń.
+
+Sprawniejsze reagowanie na incydenty - wzmocnienie zdolności operacyjnych zespołu SOC oraz rozwój narzędzi wspierających obsługę incydentów cyberbezpieczeństwa.
+
+Wyższe kompetencje specjalistów - specjalistyczne szkolenia dla pracowników Ministerstwa Finansów i Centrum Informatyki Resortu Finansów, którzy realizują zadania związane z cyberbezpieczeństwem.
+
+Doskonalenie zarządzania cyberbezpieczeństwem - ocenę poziomu dojrzałości cyberbezpieczeństwa, która pomoże wskazać obszary wymagające rozwoju i zaplanować dalsze działania.
+
+Realizacja projektu przyczyni się do ograniczenia ryzyka zakłóceń w funkcjonowaniu systemów oraz zwiększenia odporności usług cyfrowych resortu finansów.
+
+Kogo obejmuje projekt?
+
+Wsparciem objęto Ministerstwo Finansów, Centrum Informatyki Resortu Finansów oraz izby administracji skarbowej w Lublinie, Olsztynie, Białymstoku i Rzeszowie.
+
+Projekt jest realizowany od 1 kwietnia 2025 r. do 31 grudnia 2026 r. Koordynuje go Departament Bezpieczeństwa Ministerstwa Finansów przy współpracy merytorycznej z Centrum Informatyki Resortu Finansów.
+
+Finansowanie projektu
+
+Projekt jest realizowany w ramach konkursu grantowego „Cyberbezpieczny Rząd”, nr KPOD.05.10-CR.01-001/25, finansowanego z Krajowego Planu Odbudowy i Zwiększania Odporności, w ramach inwestycji C3.1.1 „Cyberbezpieczeństwo - CyberPL, infrastruktura przetwarzania danych oraz optymalizacja infrastruktury służb państwowych odpowiedzialnych za bezpieczeństwo”.
+
+Finansowanie pochodzi ze środków Unii Europejskiej w ramach Instrumentu na rzecz Odbudowy i Zwiększania Odporności.

@@ -1,0 +1,21 @@
+🚨 Prowadzisz firmę? Uważaj na fałszywe zapytania ofertowe!
+
+Obserwujemy kampanię, w której cyberprzestępcy rozsyłają wiadomości zachęcające do odpowiedzi na rzekome zapytanie ofertowe znajdujące się w załączonym dokumencie.
+
+📧 Do wiadomości dołączany jest plik w formacie .xls, który po uruchomieniu zamiast przedstawienia oczekiwanych informacji instaluje szkodliwe oprogramowanie typu Remcos.
+
+💻 Remcos to narzędzie umożliwiające zdalne przejęcie kontroli nad zainfekowanym urządzeniem. Po uruchomieniu złośliwego pliku atakujący mogą monitorować aktywność użytkownika np. rejestrować wciskane przyciski, przejąć dostęp do kamery i mikrofonu, przechwytywać ekran.
+
+🔒 Instalacja programu może także umożliwić cyberprzestępcom wykradanie danych z Twojej firmy, doprowadzić do przejęcia kontroli nad komputerem lub instalacji kolejnych rodzajów szkodliwego oprogramowania.
+
+🔎 Na co zwrócić uwagę?
+
+• Nie otwieraj załączników pochodzących z nieznanych źródeł.
+
+• Sprawdź nadawcę oraz wiarygodność otrzymanej wiadomości.
+
+• Regularnie aktualizuj systemy i aplikacje.
+
+🔐 Pamiętaj, że cyberprzestępcy często wykorzystują pozornie zwyczajne tematy biznesowe, takie jak oferty handlowe, zapytania ofertowe czy dokumenty do weryfikacji. Chwila nieuwagi może doprowadzić do zainfekowania urządzenia i utraty danych.
+
+📣 Jeśli otrzymasz podobną wiadomość, zgłoś ją do nas za pośrednictwem formularza na stronie incydent.cert.pl .

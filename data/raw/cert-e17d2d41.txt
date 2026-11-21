@@ -1,0 +1,25 @@
+🤖 Problem z opłatą za ChatGPT? To może być próba oszustwa.
+
+🚨 Obserwujemy kampanię phishingową, w której cyberprzestępcy podszywają się pod firmę OpenAI i rozsyłają maile z informacją o rzekomych trudnościach z przetworzeniem płatności za subskrypcję.
+
+📩 Oszuści próbują wzbudzić w odbiorcy poczucie pilności ostrzegając przed ograniczeniem dostępu do usługi. Nakłaniają do "zaktualizowania" danych płatniczych - w wiadomości znajduje się link, który prowadzi do specjalnie przygotowanej strony internetowej podszywającej się pod witrynę twórców popularnego chatbota.
+
+✅ Aby ograniczyć ryzyko utraty swoich danych zachowaj ostrożność wobec wiadomości dotyczących płatności i subskrypcji. Weryfikuj status swojego konta, logując się bezpośrednio przez oficjalną stronę usługi lub aplikację.
+
+📢 Nie zapomnij powiadomić CERT Polska o takiej sytuacji! Każde zgłoszenie pomaga chronić kolejnych użytkowników przed podobnymi oszustwami.
+
+🧐 Możesz to zrobić za pomocą intuicyjnego formularza na stronie incydent.cert.pl lub w aplikacji mObywatel w usłudze „Bezpiecznie w sieci”.
+
+Treść fałszywej wiadomości e-mail
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

@@ -1,0 +1,37 @@
+Rząd przyjął projekt ustawy o Europejskim Portfelu Tożsamości Cyfrowej
+
+17.11.2026
+
+Bezpieczne potwierdzanie tożsamości, przechowywanie dokumentów i korzystanie z usług cyfrowych w całej Unii Europejskiej - to najważniejsze możliwości, jakie zapewni w przyszłości Europejski Portfel Tożsamości Cyfrowej (EPTC). Przyjęty przez rząd projekt ustawy przygotowuje Polskę do wdrożenia tego rozwiązania. Dzięki niemu obywatele docelowo zyskają większą kontrolę nad udostępnianymi danymi, a korzystanie z portfela będzie dobrowolne.
+
+Jeden portfel cyfrowy w całej Unii Europejskiej
+
+Projekt ustawy dostosowuje polskie przepisy do unijnego rozporządzenia eIDAS2.0. Dzięki Europejskiemu Portfelowi Tożsamości Cyfrowej obywatele będą mogli korzystać z usług publicznych i prywatnych w innych państwach UE. Nie będą musieli przy tym korzystać z odrębnych krajowych metod potwierdzania tożsamości.
+
+- Europejski Portfel Tożsamości Cyfrowej sprawi, że granice państw nie będą już barierą w korzystaniu z usług cyfrowych. To konkretne ułatwienie dla Polaków, którzy załatwiają sprawy za granicą. Chcemy, aby cyfrowa tożsamość dawała obywatelom większą swobodę, a nie nakładała na nich kolejne obowiązki . Dlatego korzystanie z portfela będzie dobrowolne, a każdy użytkownik sam zdecyduje, jakie dane i komu udostępni - mówi Krzysztof Gawkowski, wicepremier, minister cyfryzacji .
+
+Przyjęty dziś projekt ustawy otwiera drzwi do zbudowania w przyszłości portfela, który umożliwi docelowo m.in.:
+
+potwierdzanie tożsamości w kontaktach z urzędami i przedsiębiorcami,
+
+przechowywanie i okazywanie dokumentów elektronicznych,
+
+potwierdzanie wieku, kwalifikacji i uprawnień zawodowych,
+
+korzystanie z usług publicznych i prywatnych w innych państwach UE,
+
+podpisywanie dokumentów kwalifikowanym podpisem elektronicznym.
+
+Większa kontrola nad danymi obywatela
+
+Jednym z najważniejszych założeń EPTC jest ochrona prywatności użytkowników. Będą oni mogli udostępniać wyłącznie informacje niezbędne do skorzystania z konkretnej usługi świadczonej przez różnych dostawców z Unii Europejskiej. Przykładowo mogą to być informacje o: wieku, wykształceniu i kwalifikacjach, uprawnieniach zawodowych, innych cechach i statusach potwierdzonych przez właściwe instytucje.
+
+Projekt przewiduje również utworzenie rejestru stron ufających, czyli instytucji i firm uprawnionych do występowania o określone dane użytkowników portfela. Rozwiązanie ma zwiększyć przejrzystość i ograniczyć ryzyko nieuprawnionego pozyskiwania informacji.
+
+- Rozwijamy usługi cyfrowe tak, aby tworzyły jeden, dobrze współpracujący system, który ułatwia obywatelkom i obywatelom załatwianie codziennych spraw. Europejski Portfel Tożsamości Cyfrowej będzie kolejnym krokiem w tym kierunku. Pozwoli korzystać z usług i potwierdzać swoją tożsamość nie tylko w Polsce, ale również w innych państwach Unii Europejskiej. Granice państw nie powinny być barierą w korzystaniu z usług cyfrowych, a technologia ma ułatwiać życie niezależnie od tego, gdzie się znajdujemy - powiedział wiceminister cyfryzacji Dariusz Standerski .
+
+Trwają przygotowania do wdrożenia portfela
+
+Za zapewnienie funkcjonowania Europejskiego Portfela Tożsamości Cyfrowej w Polsce odpowiada Minister Cyfryzacji. Wdrożenie rozwiązania wymaga dostosowania usług i systemów administracji publicznej oraz przedsiębiorców do wspólnych europejskich standardów.
+
+Ministerstwo Cyfryzacji i Centralny Ośrodek Informatyki prowadzą już przygotowania techniczne do wdrożenia portfela, który w Polsce będzie częścią ekosystemu aplikacji mObywatel. We wrześniu 2026 r. uruchomiono środowisko testowe Sandbox EPTC z demonstracyjną aplikacją mObywatel Europa. Do udziału w testach zgłosiło się 80 firm i instytucji z Polski oraz innych państw UE.

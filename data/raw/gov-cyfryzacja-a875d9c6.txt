@@ -1,0 +1,13 @@
+Rekomendacja Pełnomocnika Rządu ds. Cyberbezpieczeństwa dla sektora bankowości i infrastruktury rynków finansowych
+
+17.11.2026
+
+Pełnomocnik Rządu ds. Cyberbezpieczeństwa wydał rekomendację dotyczącą cyberbezpieczeństwa sektora bankowości i infrastruktury rynków finansowych. Rekomendacja powstała w ramach współpracy Ministerstwa Cyfryzacji i Urzędu Komisji Nadzoru Finansowego, w tym CSIRT KNF.
+
+Dokument stanowi sektorowe uzupełnienie rekomendacji Pełnomocnika Rządu do Spraw Cyberbezpieczeństwa nr 2026-67a-9 dotyczącej środków organizacyjnych i technicznych służących zwiększaniu poziomu bezpieczeństwa systemów informacyjnych podmiotów krajowego systemu cyberbezpieczeństwa , czyli tzw. rekomendacji ogólnej dla KSC.
+
+Celem rekomendacji jest wskazanie środków organizacyjnych i technicznych służących zwiększeniu poziomu bezpieczeństwa systemów informacyjnych wykorzystywanych przez podmioty sektora bankowości i infrastruktury rynków finansowych, z uwzględnieniem specyfiki tego sektora. Rekomendacja nie zastępuje wymagań wynikających z przepisów prawa ani rekomendacji o charakterze ogólnym, lecz doprecyzowuje sposób ich stosowania z uwzględnieniem uwarunkowań sektora bankowości i infrastruktury rynków finansowych.
+
+Jest to pierwsza z serii rekomendacji sektorowych. Planowane jest opracowanie rekomendacji także dla innych sektorów KSC we współpracy z poszczególnymi organami właściwymi do spraw cyberbezpieczeństwa oraz CSIRT-ami sektorowymi.
+
+Materiały

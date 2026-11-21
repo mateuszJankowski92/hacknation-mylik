@@ -1,0 +1,17 @@
+Krytyczna podatność w BIG-IP APM
+
+Zespół CERT Polska informuje o krytycznej podatności, oznaczonej jako CVE-2026-94127, w module BIG-IP APM (znanym również jako Zero Trust Access) firmy F5.
+
+Producent potwierdził, że podatność jest aktywnie wykorzystywana przez atakujących.
+
+Podatność dotyczy wirtualnych serwerów ze skonfigurowaną polityką dostępu APM oraz profilem OAuth, działających jako OAuth Authorization Server. Producent nie udostępnił jeszcze szczegółów podatności, ale w przypadku tak skonfigurowanych serwerów nieuwierzytelniony atakujący może zdalnie wykonać dowolny kod, co może skutkować pełnym przejęciem serwera. Systemy działające w trybie Appliance również są podatne.
+
+Podatne wersje oprogramowania BIG-IP APM:
+
+21.1.0
+
+17.5.0 - 17.5.1
+
+17.1.0 - 17.1.3
+
+Rekomendujemy niezwłoczną instalację poprawek udostępnionych przez producenta. Producent nie weryfikował podatności w przypadku wersji oprogramowania już nie wspieranych (EoTS). Jeżeli korzystają Państwo z takiej wersji, zalecamy migrację na wersję wspieraną i bieżąco aktualizowaną. Z uwagi na aktywne wykorzystanie podatności zalecamy również weryfikację systemów w celu zidentyfikowania prób jej wykorzystania. Według producenta następujące przykładowe wskaźniki powinny być podstawą do dalszej analizy potencjalnego incydentu:

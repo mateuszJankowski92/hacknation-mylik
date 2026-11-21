@@ -1,0 +1,17 @@
+🚨 Uważaj na fałszywe powiadomienia udające komunikaty z popularnych aplikacji
+
+🎲 Obserwujemy nowy sposób działania oszustów. Cyberprzestępcy wykorzystują mechanizmy reklamowe smartfonów do wyświetlania powiadomień przypominających komunikaty od znanych aplikacji.
+
+Na ekranie możesz zobaczyć powiadomienie wykorzystujące nazwę lub logo popularnej usługi, ale po kliknięciu zamiast do aplikacji trafisz na zewnętrzną stronę internetową. Problem zaobserwowaliśmy na smartfonach Xiaomi, Oppo oraz Realme, ale podatni mogą być wszyscy producenci oferujący wyświetlanie zewnętrznych reklam w systemie operacyjnym telefonu.
+
+📱 Cybeprzestępcy wykorzystują mechanizmy reklamowe urządzeń do wyświetlania powiadomień wykorzystujących wizerunek i nazwę znanych aplikacji, takich jak sklepy, programy lojalnościowe czy platformy zakupowe.
+
+🔗 Po kliknięciu użytkownik zamiast do aplikacji zostaje przekierowany na zewnętrzną stronę internetową. Może ona służyć m.in . do promowania niechcianych usług lub wyłudzania danych.
+
+✋ Jeśli korzystasz np. z telefonu Xiaomi, możesz ograniczyć ryzyko wyświetlania niechcianych powiadomień reklamowych, wyłączając powiadomienia z aplikacji MSA (MIUI System Ads).
+
+Jak zadbać o bezpieczeństwo?
+
+🔹 Zwracaj uwagę, czy kliknięcie powiadomienia rzeczywiście otwiera aplikację, której dotyczy komunikat.
+
+🔹 Nie podawaj swoich danych na stronach internetowych, na które przekierowują Cię podejrzane lub niezaufane linki.

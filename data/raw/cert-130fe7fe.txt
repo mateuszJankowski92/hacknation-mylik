@@ -1,0 +1,17 @@
+Podatności 0-day w urządzeniach Citrix NetScaler
+
+Zespół CERT Polska informuje o dwóch podatnościach 0-day w urządzeniach Citrix NetScaler, które są aktywnie wykorzystywane do ataków.
+
+Na podstawie dostępnych informacji należy założyć, że podatności umożliwiają zdalnemu, nieuwierzytelnionemu atakującemu wykonanie dowolnego kodu na urządzeniu. Szczegóły techniczne nie zostały jeszcze ujawnione, a producent nie opublikował aktualizacji bezpieczeństwa.
+
+Z uwagi na aktywnie wykorzystywane luki i brak dostępnej poprawki, rekomendujemy odłączenie urządzeń NetScaler od Internetu oraz śledzenie oficjalnych komunikatów producenta.
+
+Biuletyny bezpieczeństwa Citrix znajdują się na stronie: https://support.citrix.com/support-home/topic-article-list?trendingCategory=20&trendingTopicName=Security%20Bulletin
+
+W przypadku wykrycia oznak wykorzystania podatności prosimy o niezwłoczny kontakt z naszym zespołem przez formularz na stronie incydent.cert.pl .
+
+Aktualizacja 28.09
+
+Producent opublikował biuletyn bezpieczeństwa wraz z aktualizacjami naprawiającymi opisane wyżej krytyczne podatności, które otrzymały identyfikatory CVE-2026-88771 oraz CVE-2026-88772.
+
+CVE-2026-88771 wynika z niewłaściwej walidacji danych wejściowych i pozwala nieuwierzytelnionemu atakującemu na zdalne wykonanie dowolnych poleceń, dotyczy wszystkich urządzeń w konfiguracji domyślnej. CVE-2026-88772 to przepełnienie bufora pamięci prowadzące do zdalnego wykonania kodu lub odmowy usługi.

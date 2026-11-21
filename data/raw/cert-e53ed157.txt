@@ -1,0 +1,23 @@
+Krytyczna podatność w FortiMail aktywnie wykorzystywana w atakach
+
+Zespół CERT Polska informuje o krytycznej podatności w FortiMail.
+
+Podatność, oznaczona jako CVE-2026-104286, umożliwia nieuwierzytelnionemu atakującemu zapisywanie dowolnych plików w systemie i w konsekwencji wykonanie dowolnego kodu, poprzez specjalnie sformatowane żądania HTTP. Wykorzystanie podatności wymaga dostępu do interfejsu zarządzania FortiMail. Producent potwierdza, że luka jest aktywnie wykorzystywana w atakach.
+
+Podatność dotyczy następujących wersji:
+
+FortiMail 8.0: 8.0.0 - 8.0.1
+
+FortiMail 7.6: 7.6.0 - 7.6.6
+
+FortiMail 7.4: 7.4.0 - 7.4.8
+
+FortiMail 7.2: 7.2.0 - 7.2.9
+
+Na moment publikacji oficjalnego komunikatu aktualizacja bezpieczeństwa nie została jeszcze wydana. Producent zapowiada wydanie poprawek w wersjach: 8.0.2, 7.6.7 oraz 7.4.9, a dla gałęzi 7.2 zalecana jest migracja do gałęzi 7.4 lub nowszej. Do czasu udostępnienia poprawki rekomendujemy zastosowanie tymczasowego zabezpieczenia poprzez wyłączenie obsługi funkcji IBE:
+
+config system encryption ibe set status disable end
+
+Dodatkowo należy ograniczyć dostęp do interfejsu zarządzania FortiMail wyłącznie do zaufanych sieci wewnętrznych. Zalecamy śledzenie komunikatów producenta w celu niezwłocznej instalacji aktualizacji po jej opublikowaniu.
+
+Z uwagi na aktywne wykorzystanie podatności zalecamy weryfikację wszystkich podatnych instancji pod kątem oznak nieautoryzowanego dostępu.

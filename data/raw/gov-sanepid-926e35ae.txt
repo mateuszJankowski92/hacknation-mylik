@@ -1,0 +1,17 @@
+Informacja dla laboratoriów wykonujących badania jakości wody do spożycia
+
+Państwowy Powiatowy Inspektor Sanitarny we Wrocławiu informuje, że zgodnie z art. 37ag ust. 4 ustawy z dnia 14 marca 1985 r. o Państwowej Inspekcji Sanitarnej (Dz. U. z 2024 r. poz. 416 z późn. zm.) laboratoria wykonujące badania jakości wody do spożycia, w ramach monitoringu zgodności lub harmonogramu , o którym mowa w art. 4p ust. 2 pkt 2 ustawy z dnia 7 czerwca 2001 r. o zbiorowym zaopatrzeniu w wodę i zbiorowym odprowadzaniu ścieków (Dz. U. z 2024 r., poz. 757 z późn. zm.), zwaną dalej ustawą o zaopatrzeniu w wodę, przekazują sprawozdanie z badań jakości tej wody podmiotowi zlecającemu wykonanie tych badań, a ponadto właściwemu państwowemu powiatowemu lub państwowemu granicznemu inspektorowi sanitarnemu w przypadku:
+
+1) niezgodności z wartością parametryczną w badanej próbce wody do spożycia wartości parametrycznych parametru Escherichia coli lub enterokoki jelitowe określonych w przepisach wydanych na podstawie art. 13 ustawy o zaopatrzeniu w wodę - w dniu sporządzenia cząstkowego lub całościowego sprawozdania;
+
+2) gdy w badanej próbce wody do spożycia liczba bakterii grupy coli jest równa lub wyższa niż 10 jtk (NPL)/100 ml - w dniu sporządzenia cząstkowego lub całościowego sprawozdania;
+
+3) niezgodności z wartością parametryczną w badanej próbce ciepłej wody użytkowej wartości parametrycznej parametru Legionella określonej w przepisach wydanych na podstawie art. 13 ustawy o zaopatrzeniu w wodę - w dniu sporządzenia cząstkowego lub całościowego sprawozdania;
+
+4) niezgodności z wartością parametryczną w badanej próbce wody do spożycia wartości parametrycznych parametrów niewskazanych w pkt 1-3 - w terminie 7 dni od dnia sporządzenia cząstkowego lub całościowego sprawozdania.
+
+Powyższe informacje należy przekazywać Państwowemu Powiatowemu Inspektorowi Sanitarnemu we Wrocławiu w formie dokumentu elektronicznego za pomocą środków komunikacji elektronicznej , zgodnie z art. 37ag ust. 6 ww. ustawy o Państwowej Inspekcji Sanitarnej, zwłaszcza za pośrednictwem adresu do doręczeń elektronicznych: AE:PL-36627-27966-RIAEJ-15.
+
+W przypadku braku możliwości sporządzenia sprawozdania z badań jakości wody do spożycia po zakończeniu badania i uzyskaniu wyniku tego badania, informację o wynikach badań będących podstawą stwierdzenia niezgodności z wartością parametryczną, o których mowa w ust. 4 art. 37ag ustawy o Państwowej Inspekcji Sanitarnej, laboratoria mogą przekazać telefonicznie na numer tel. 71 329 58 43 wew. 349 wyłącznie w godzinach pracy urzędu.
+
+Informacja przekazana telefonicznie musi zostać potwierdzona w sposób określony w art. 37ag ust. 6 ustawy o Państwowej Inspekcji Sanitarnej.

@@ -1,0 +1,23 @@
+📦 „Problem z dostawą” może być próbą wyłudzenia danych
+
+🔎 CERT Polska obserwuje kampanię phishingową, w której przestępcy podszywają się pod firmę kurierską UPS.
+
+W wiadomości e-mail informują o rzekomej nieścisłości w danych dotyczących dostawy i kierują odbiorcę na stronę, która ma pomóc w rozwiązaniu problemu. W rzeczywistości formularz przygotowany przez przestępców służy do pozyskania danych osobowych i danych kart płatniczych 💳
+
+🔐 Warto sprawdzić, czy wiadomość rzeczywiście pochodzi od firmy kurierskiej, a informacje o przesyłce zweryfikować niezależnie, np. za pośrednictwem oficjalnego serwisu przewoźnika. Dobrą praktyką jest również uważne sprawdzanie adresu strony oraz nadawcy przed podaniem jakichkolwiek danych 🌐
+
+📩 Podejrzane wiadomości e-mail i strony zgłaszaj do CERT Polska przez incydent.cert.pl lub w aplikacji mObywatel, w usłudze „Bezpiecznie w sieci”. Twoje zgłoszenie pomaga nam chronić Ciebie i innych użytkowników!
+
+Treść fałszywej wiadomości e-mail
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

@@ -1,0 +1,69 @@
+Komunikat nr 37 Ministra Zdrowia w sprawie realizacji u dzieci młodszych (6. miesięcy do 11 lat) szczepień przeciw COVID-19 w sezonie 2024/2025
+
+Na podstawie rekomendacji Zespołu ds. Szczepień Ochronnych z 2 października 2024 r., zaleceń WHO, CDC, oraz Grupy zadaniowej ds. sytuacji nadzwyczajnych (ETF) działającej przy Europejskiej Agencji Leków (EMA), Minister Zdrowia informuje, że bezpłatne szczepienia przeciw COVID-19 dzieci młodszych odbywają się na zasadach ogólnych. Szczepionki są zakupione przez Ministra Zdrowia, a koszt usługi (kwalifikacji do szczepienia i jego wykonania) zostanie sfinansowany ze środków Narodowego Funduszu Zdrowia.
+
+Od 27 listopada br. są realizowane zamówienia na szczepionkę Spikevax JN.1 Junior 6m-11lat złożone przez każdą przychodnię POZ, która wystąpi o zapotrzebowanie dla pacjentów.
+
+Szczepienie jest realizowane szczepionką przeznaczoną dla dzieci w wieku 6 miesięcy -11 lat o nazwie Spikevax JN.1 w dawce 0,25 ml (50 mikrogramów mRNA) w poniższych schematach:
+
+1. u dzieci dotychczas nieszczepionych w wieku od 6 miesięcy do 4 lat [3] podawane są dwie dawki szczepionki po 0,25 ml, w odstępie co najmniej 28 dni. Dzieci szczepione w ubiegłych latach przeciw COVID-19 powinny otrzymać jedną dawkę szczepionki 0,25 ml.
+
+2. u dzieci w wieku od 5 lat do 11 lat , po uprzednim szczepieniu (szczepienie przypominające) lub bez uprzedniego szczepienia (schemat podstawowy 1z1) podawana jest jedna dawka szczepionki 0,25 ml.
+
+Szczepienie powinno być wykonywane u dzieci o największym ryzyku przebiegu ciężkiego COVID-19, do których należą dzieci z chorobami współistniejącymi zwiększającymi ryzyko ciężkiego przebiegu COVID-19, tj. otyłością (BMI&ge;25), cukrzycą, przewlekłą chorobą płuc, przewlekłą chorobą nerek, chorobą układu sercowo-naczyniowego, zaburzeniami neurorozwojowymi, aktywną chorobą nowotworową, chorobą immunosupresyjną lub leczeniem immunosupresyjnym.
+
+Podanie sezonowe szczepionki przeciw COVID-19 wraz ze szczepionką przeciw grypie jest postępowaniem powszechnie zalecanym i bezpiecznym. Szczepionkę przeciw COVID-19 można podawać w dowolnym czasie przed podaniem lub po podaniu innych szczepionek, w tym „żywych”, inaktywowanych.
+
+Podanie szczepionki przeciw COVID-19 wraz ze szczepionkami wynikającymi z PSO oraz z innymi szczepionkami zalecanymi pozostaje do decyzji lekarza.
+
+Informacja dla rodziców i opiekunów
+
+Skierowania do szczepienia przeciw COVID-19 zostaną wygenerowane automatycznie dla wszystkich osób uprawnionych, w celu zapisu na szczepienie szczepionką JN1. Skierowanie na bezpłatne szczepienie będzie dostępne na Internetowym Koncie Pacjenta (IKP).
+
+Skierowania zostaną wystawione do 27 listopada br . Brak skierowania w IKP może być spowodowany błędnie oznaczoną dawką w ostatniej karcie szczepienia, brakiem realizacji poprzedniego skierowania przez punkt szczepień lub niezakończenia schematu podstawowego (przyjęcie pierwszej dawki). W takich sytuacjach konieczna jest analiza i indywidualne wyjaśnienie sprawy i wystawienie nowego skierowania.
+
+Zgłoszenia przyjmowane są pod adresem ikp-pomoc@cez.gov.pl
+
+Szczepienia wykonywane są przez uprawnione osoby w przychodniach POZ. Każda przychodnia POZ ma prawo zgłosić do RARS zapotrzebowanie na szczepionkę Spikevax JN1 Junior 6m-11lat.
+
+Na szczepienie należy zapisać się za pośrednictwem IKP (w przypadku gdy punkt szczepień udostępni terminy w e-Rejestracji) lub bezpośrednio w przychodni POZ.
+
+Wykaz punktów szczepień, które pobrały szczepionki do szczepień zostanie udostępniony na stronie pacjent.gov.pl
+
+Szczepienie wykonane szczepionką kupioną samodzielnie przez pacjenta (dopuszczoną do obrotu na terytorium RP) w POZ jest wykonane w ramach stawki kapitacyjnej (przychodnia w której pacjent złożył deklarację) i nie podlega odrębnemu rozliczeniu przez NFZ.
+
+Informacja dla punktów szczepień
+
+Szczegółowe informacje dot. zasad realizacji szczepień zostały zawarte w dokumencie „Ogólne wytyczne Ministra Zdrowia dla świadczeniodawców dotyczące realizacji szczepień przeciw COVID-19 z wykorzystaniem szczepionek zakupionych przez ministra właściwego do spraw zdrowia.”
+
+Szczepionka zarówno w karcie RARS, jak i w słowniku dostępnym w Karcie Szczepień dla rozróżnienia ma oznaczenie „junior”.
+
+Rejestracji szczepienia dla dzieci wcześniej zaszczepionych dokonujemy poprzez oznaczenie dawki jako 1P lub 2P, dla dzieci wcześniej nieszczepionych wybieramy schemat 1z2/2z2 lub 1 z1. O wyborze decyduje wiek dziecka. W przypadku, gdy pacjent nie ukończył cyklu podstawowego szczepień (np. otrzymał tylko dawkę 1 z 2, 1 z 3, 2 z 3) należy przy uzupełnianiu karty szczepienia wybrać dawkę 1 z 1.
+
+Podmioty uprawnione do realizacji szczepień przeciw COVID-19 składają do Rządowej Agencji Rezerw Strategicznych (RARS) zapotrzebowanie na szczepionki od dnia 27 listopada br.
+
+Podmiot dotychczas nie posiadający uprawnień do składania zamówień w systemie RARS PUE powinien wystosować prośbę o nadanie uprawnień na adres: szczepionkacovid@rars.gov.pl
+
+Do szczepionek mRNA Spikevax JN.1 Junior 6m-11lat dostarczanych do punktów szczepień dołączane są igły.
+
+Rządowa Agencja Rezerw nie przyjmuje zwrotów szczepionek.
+
+Weryfikacja zużycia szczepionek następuje poprzez raportowanie ich podania w elektronicznej Karcie Szczepień, a strat poprzez system PUE RARS.
+
+Szczepionki powinny być zamawiane zgodnie z bieżącymi potrzebami z uwzględnieniem wskazania ich nazwy i ilości dawek. Najmniejsza ilość szczepionki Skikevax JN1 Junior 6m-11lat do punktu szczepień POZ wynosi 20 dawek (są to dwie ampułki każda po 2,5 ml). Szczepionka posiada nr serii 812001A. Kod GTIN wprowadzany w Karcie Szczepień: 05909991559793.
+
+Sposób transportowania i przechowywania szczepionek w warunkach tzw. „zimnego łańcucha”, czyli w temperaturze między +2 a +8 stopni przebiega w oparciu o Charakterystykę Produktu Leczniczego oraz przyjęte wytyczne w sprawie przyjmowania i przechowywania szczepionek do szczepień przeciw COVID-19 https://www.gov.pl/web/gis/zasady-dystrybucji-szczepionek . Data ważności każdej ampułki jest podana przez hurtownię dostarczającą szczepionkę do przychodni.
+
+Uwaga!
+
+Do składania zapotrzebowania na szczepionki przeciw COVID-19 przeznaczonych do realizacji szczepień u dzieci uprawnione są wyłącznie przychodnie POZ.
+
+Obowiązkowe jest raportowanie wykonanych szczepień do elektronicznej Karty Szczepień, a ewentualnych strat poprzez system PUE RARS.
+
+[1] do ukończenia 11. roku życia
+
+[2] Na podstawie art. 18 ust. 5d ustawy z dnia 5 grudnia 2008 r. o zapobieganiu oraz zwalczaniu zakażeń i chorób zakaźnych u ludzi (Dz. U. z 2024 r. poz. 924) ustala się wykaz zalecanych szczepień ochronnych, dla których zakup szczepionek został objęty finansowaniem przez ministra właściwego do spraw zdrowia, stanowiący załącznik do obwieszczenia.
+
+[3] Do ukończenia 4. roku życia
+
+Materiały

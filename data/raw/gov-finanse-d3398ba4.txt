@@ -1,0 +1,45 @@
+Ostatni etap wdrożenia KSeF - zmiany od 1 stycznia 2027 r.
+
+16.11.2026
+
+Od 1 stycznia obowiązek wystawiania faktur w Krajowym Systemie e-Faktur obejmie ostatnią grupę przedsiębiorców, których wartość sprzedaży dokumentowana fakturami za okresy miesięczne nie przekracza 10 000 zł (brutto), oraz tych, którzy dotychczas wystawiali faktury przy użyciu kas rejestrujących.
+
+Wszystkie faktury, bez względu na wartość sprzedaży, muszą być wystawiane w KSeF, również te, które dotychczas były wystawiane przy zastosowaniu kas rejestrujących, czy paragony fiskalne z NIP nabywcy uznawane dotychczas za faktury.
+
+Od 1 stycznia powstaje obowiązek podawania przez nabywcę numeru KSeF lub identyfikatora zbiorczego podczas dokonywania płatności za faktury wystawiane w KSeF lub wystawiane w trybie offline i przesyłane do KSeF. Obowiązek obejmie podatników czynnych VAT oraz transakcje w ramach MPP.
+
+Procedowana w Sejmie ustawa przewiduje przedłużenie odroczenia kar pieniężnych za błędy związane ze stosowaniem KSeF do końca 2027 r.
+
+Ostatni etap wdrożenia systemu
+
+Obowiązkowe wystawianie faktur w KSeF jest wprowadzane etapami:
+
+od 1 lutego 2026 r. obowiązek objął podatników, których wartość sprzedaży wraz z VAT przekroczyła w 2024 r. 200 mln zł;
+
+od 1 kwietnia 2026 r. do systemu dołączyli pozostali podatnicy, z wyjątkiem najmniejszych, których wartość sprzedaży dokumentowana fakturami za okresy miesięczne nie przekracza 10 000 zł (brutto);
+
+od 1 stycznia 2027 r. obowiązkowe wystawianie faktur w systemie obejmie wszystkich przedsiębiorców, w tym także podatników, którzy do tej pory wystawiali faktury przy zastosowaniu kas rejestrujących, czy paragony fiskalne do 450 zł z NIP nabywcy.
+
+Dodatkowy rok na naukę
+
+Procedowana ustawa przewiduje, że mimo obowiązkowego charakteru KSeF, kary pieniężne za błędy związane z jego stosowaniem będą odroczone do końca 2027 r.
+
+Rozwiązanie odpowiada na postulaty przedsiębiorców i ma zapewnić im dodatkowy czas na dostosowanie procesów oraz narzędzi informatycznych do e-fakturowania. Będzie to szczególnie istotne dla najmniejszych firm, które zostaną objęte obowiązkiem wystawiania faktur w systemie od początku 2027 r.
+
+Odroczenie kar nie zmienia terminu objęcia tej grupy obowiązkowym KSeF. Administracja skarbowa będzie nadal wspierać podatników w prawidłowym korzystaniu z systemu oraz przypominać o obowiązkach wynikających z przepisów.
+
+W stosunku do podatników, którzy wbrew obowiązkowi nie będą wystawiać faktur w KSeF (z wyjątkiem sytuacji przewidzianych w przepisach), organy Krajowej Administracji Skarbowej będą sprawdzać, czy niestosowanie KSeF prowadzi do nierzetelnego rozliczania podatku.
+
+Szkolenia „KSeF w pigułce”
+
+W listopadzie i grudniu 2026 r. oraz na początku 2027 r. kontynuowana będzie szeroka akcja szkoleniowa „KSeF w pigułce”, w tym Środy z KSeF.
+
+Pracownicy urzędów skarbowych oraz izb administracji skarbowej będą przypominać informacje na temat KSeF oraz przedstawiać funkcjonalności bezpłatnych narzędzi KSeF, w szczególności jak wystawiać i odbierać faktury w KSeF oraz jak nadawać uprawnienia w systemie. Szkolenia będą ukierunkowane w szczególności na potrzeby najmniejszych przedsiębiorców.
+
+Terminy i miejsca szkoleń będą komunikowane na stronach poszczególnych jednostek KAS.
+
+Informacje i wsparcie dla przedsiębiorców
+
+Ministerstwo Finansów i Krajowa Administracja Skarbowa kontynuują działania informacyjne i edukacyjne w zakresie KSeF. Przedsiębiorcy mogą korzystać z materiałów dostępnych na stronie ksef.podatki.gov.pl oraz całodobowej infolinii Krajowej Administracji Skarbowej pod numerem 22 330 03 30 , gdzie uzyskają pomoc w zakresie funkcjonowania systemu.
+
+Istnieje również możliwość umówienia wizyty w urzędzie skarbowym przez zainteresowanych podatników, w celu uzyskania informacji na temat KSeF. Pracownicy urzędów skarbowych udzielają podatnikom niezbędnych informacji w tym obszarze oraz pomagają w nauce obsługi systemu.

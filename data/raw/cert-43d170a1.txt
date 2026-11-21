@@ -1,0 +1,29 @@
+⚠️ Korekta prognozy zużycia prądu? Zachowaj ostrożność!
+
+🚨 Obserwujemy kampanię phishingową, w której cyberprzestępcy podszywają się pod dostawcę energii elektrycznej i rozsyłają wiadomości e-mail dotyczące rzekomej korekty prognozy należności.
+
+📩 Oszuści piszą o przysługującym zwrocie nadpłaconych środków i przesyłają link prowadzący do strony podszywającej się pod oficjalny serwis dostawcy. Ich celem jest pozyskanie danych osobowych oraz danych kart płatniczych użytkowników.
+
+🔎 Pamiętaj, że wygląd strony internetowej czy logo firmy nie są wystarczającym potwierdzeniem jej autentyczności.
+
+✅ Jeśli otrzymasz podobną wiadomość:
+
+👉 zwróć uwagę na poprawność adresu e-mail nadawcy i adresu strony, do której przenosi link zawarty w wiadomości,
+
+👉 w przypadku jakichkolwiek wątpliwości nie podawaj swoich danych osobowych ani danych płatniczych,
+
+👉 zweryfikuj informację bezpośrednio u dostawcy usługi, korzystając z oficjalnych kanałów kontaktu.
+
+📢 Podejrzane wiadomości i strony internetowe zgłaszaj do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel. Pamiętaj, każde zgłoszenie zwiększa bezpieczeństwo wszystkich użytkowników internetu!
+
+Treść fałszywej wiadomości e-mail
+
+Wygląd fałszywej strony internetowej
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska
+
+Za pomocą aplikacji mObywatel, w usłudze "Bezpiecznie w sieci"

@@ -1,0 +1,47 @@
+DSA w walce z dezinformacją. Platformy muszą skuteczniej reagować na zagrożenia
+
+10.11.2026
+
+Dezinformacja, fałszywe konta i manipulowanie przekazem w internecie mogą zagrażać bezpieczeństwu obywateli i podważać zaufanie do instytucji publicznych. Dlatego tak ważne są skuteczne mechanizmy reagowania oraz większa odpowiedzialność platform internetowych. Unijny Akt o usługach cyfrowych (DSA) nakłada na największe serwisy obowiązek identyfikowania i ograniczania zagrożeń systemowych, w tym związanych z dezinformacją. Polska rozwija krajowe rozwiązania, które mają zapewnić skuteczne egzekwowanie tych przepisów.
+
+Dezinformacja to zagrożenie dla bezpieczeństwa
+
+Fałszywe informacje mogą rozprzestrzeniać się w internecie w ciągu kilku minut, docierając do ogromnej liczby odbiorców. Cyberprzestępcy i podmioty prowadzące operacje wpływu wykorzystują do tego fałszywe konta, sieci botów, zmanipulowane nagrania i mechanizmy rekomendacji treści. Dezinformacja może wywoływać niepokój, pogłębiać podziały społeczne i osłabiać zaufanie do państwa. Szczególnie niebezpieczna staje się w sytuacjach kryzysowych, gdy użytkownicy szukają szybkich informacji, a niezweryfikowane doniesienia mogą być rozpowszechniane na dużą skalę. Przeciwdziałanie tym zagrożeniom wymaga współpracy instytucji publicznych, ekspertów i platform internetowych. Kluczowe znaczenie mają szybka identyfikacja fałszywych narracji, przekazywanie zweryfikowanych informacji oraz skuteczne reagowanie na treści naruszające prawo.
+
+DSA zwiększa odpowiedzialność platform
+
+Unijny Akt o usługach cyfrowych nakłada na platformy internetowe obowiązki związane z przejrzystością moderacji treści, reklam i działania systemów rekomendacji.
+
+Największe platformy muszą również oceniać zagrożenia systemowe wynikające z funkcjonowania ich usług i podejmować działania ograniczające związane z nimi ryzyko. Dotyczy to m.in. zagrożeń dla debaty publicznej, procesów wyborczych i bezpieczeństwa publicznego. DSA zapewnia również użytkownikom większą kontrolę nad treściami, które widzą w internecie, oraz możliwość odwoływania się od decyzji moderacyjnych.
+
+Co istotne, nie każda fałszywa informacja jest treścią nielegalną. DSA nie wprowadza ogólnego zakazu dezinformacji ani automatycznego usuwania wszystkich nieprawdziwych materiałów. Jego celem jest m.in. zwiększenie odpowiedzialności platform za sposób działania ich usług i ograniczanie zagrożeń systemowych.
+
+Polska wzmacnia egzekwowanie przepisów
+
+DSA obowiązuje w całej Unii Europejskiej. Polska przyjęła pierwszą ustawę dostosowującą krajowe przepisy do tego rozporządzenia, która wyznacza Prezesa Urzędu Komunikacji Elektronicznej na koordynatora ds. usług cyfrowych. Druga ustawa wdrażająca DSA czeka na podpis Prezydenta RP. Przewiduje krajowe procedury reagowania na treści nielegalne, z uwzględnieniem ochrony praw użytkowników i możliwości kontroli podejmowanych decyzji. Mechanizmy te mają dotyczyć treści naruszających prawo, a nie każdej informacji uznanej za fałszywą.
+
+Skuteczne egzekwowanie DSA to ważny element budowania bezpieczniejszej przestrzeni cyfrowej. Platformy powinny nie tylko reagować na zgłoszenia, ale również odpowiednio identyfikować i ograniczać zagrożenia wynikające z funkcjonowania ich usług.
+
+Każdy może przeciwdziałać dezinformacji
+
+Odpowiedzialność platform i działania państwa to tylko część odpowiedzi na zagrożenia informacyjne. Ważną rolę odgrywają również użytkownicy internetu.
+
+Przed udostępnieniem informacji warto sprawdzić jej źródło, datę publikacji i wiarygodność. Szczególną ostrożność należy zachować wobec treści wywołujących silne emocje, niepotwierdzonych doniesień oraz nagrań, których autentyczność budzi wątpliwości.
+
+Podejrzane materiały można zgłaszać do NASK za pośrednictwem formularza zgłaszania dezinformacji .
+
+Bezpieczniejszy internet wymaga wspólnego działania - odpowiedzialności platform, skutecznych instytucji i świadomych użytkowników.
+
+Dowiedz się więcej
+
+Przepisy wdrażające Akt o usługach cyfrowych (DSA) to efekt wielomiesięcznych prac nad zwiększeniem bezpieczeństwa użytkowników internetu. Więcej o założeniach reformy, obowiązkach platform cyfrowych oraz kolejnych etapach procesu legislacyjnego można przeczytać w komunikatach Ministerstwa Cyfryzacji:
+
+Silniejsza ochrona użytkowników internetu. Rząd przyjął dwa projekty ustaw wdrażające DSA
+
+Krok w stronę lepszej ochrony użytkowników sieci
+
+DSA - co zmienią nowe przepisy
+
+Bezpieczniejszy internet coraz bliżej. Parlament zakończył prace nad drugą ustawą wdrażającą DSA
+
+Bezpieczniejszy internet na ostatniej prostej. Ustawa czeka na podpis Prezydenta

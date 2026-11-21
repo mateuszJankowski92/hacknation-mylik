@@ -12,7 +12,7 @@ Wymagania: Node.js 24 lub nowszy (wbudowany `node:sqlite`), npm. Bez Dockera, be
 
 ```bash
 git clone <adres-repozytorium> mylik && cd mylik
-npm install
+npm ci
 cp .env.example .env          # w trybie bez klucza ustaw w .env: LLM_PROVIDER=mock
 npm run corpus:ingest         # buduje korpus w data/mylik.sqlite z data/sources.json i data/raw/
 npm run build                 # buduje interfejs do dist/web (i sprawdza typy)
@@ -34,7 +34,28 @@ Symulator SMS w przeglądarce: `http://localhost:8787/sms`.
 
 Pozostałe polecenia: `npm test` (testy, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
-Surowe teksty źródeł (`data/raw/*.txt`) są w repozytorium, więc `npm run corpus:ingest` działa bez sieci. Odświeżenie źródeł z internetu: `npm run corpus:fetch`, potem ponownie `npm run corpus:ingest`.
+## Skąd bierze się korpus (odtwarzalność)
+
+Wybrana metoda: **migawka w repozytorium**. Zbiór źródeł (733 dokumenty, ok. 3 MB tekstu w `data/raw/`, lista i licencje w `data/sources.json`) jest zacommitowany, więc czysty klon buduje ten sam korpus bez sieci i bez naszej maszyny. Uzasadnienie: wynik ma być powtarzalny dla jury, a strony źródeł się zmieniają i mogą zniknąć. W repozytorium są tylko treści, które wolno przechowywać: informacja publiczna organów władzy, akty prawne, treści na licencjach otwartych (CC BY 4.0, EEAS). Źródła bez licencji otwartej (CERT Polska, Konkret24, fakenews.pl, NASK) mają tylko krótki początek tekstu (800 do 2500 znaków), zapisany w polu `excerptChars`.
+
+Sprawdzenie, że pliki są nietknięte, i że korpus jest ten sam:
+
+```bash
+(cd data/raw && shasum -a 256 -c SHA256SUMS | grep -vc ': OK$')   # 0 = wszystkie sumy zgodne (na Linuksie: sha256sum -c)
+npm run corpus:ingest    # oczekiwane: documents=733 passages=3543 version=cb62b4255ea0
+```
+
+`version` to skrót z treści i metadanych wszystkich dokumentów, więc ta sama wartość oznacza ten sam korpus.
+
+Odświeżenie z internetu (opcjonalne, zmienia wersję korpusu): `npm run corpus:fetch`, potem `npm run corpus:ingest`. Pobieranie sprawdza `robots.txt` każdego serwisu, trzyma odstęp co najmniej 1,1 s między żądaniami do jednego serwisu i zapisuje daty pobrania (`data/raw/_fetched.json`) oraz strony pominięte (`data/raw/_skipped.json`). Treści stron mogły się zmienić od migawki, więc po odświeżeniu sumy w `SHA256SUMS` i `version` będą inne; wyniki z migawki trzeba wtedy liczyć od nowa. Szczegóły: `docs/ZRODLA.md`.
+
+**EUvsDisinfo.** Zbiór znanych operacji informacyjnych (`npm run known-ops:fetch`) nie jest w repozytorium, bo warunki jego ponownego użycia nie są potwierdzone (`data/known-ops/_terms.json`). Bez niego system działa normalnie: po prostu nie dodaje ostrzeżeń o znanych operacjach i nie zgłasza z tego powodu błędu.
+
+## Jak odtworzyć wyniki testów
+
+- `npm test`: testy jednostkowe i e2e, bez sieci i bez klucza.
+- `npm run eval -- --mock`: zestaw testowy na atrapie modelu (deterministyczny, bez kosztu, bez sieci). Mierzy przepływ, nie jakość oceny.
+- Przebieg na żywym modelu (`npm run eval`, opcje w nagłówku `scripts/eval.ts`) wymaga `ANTHROPIC_API_KEY` i kosztuje (liczone za tokeny). Wyniki naszych przebiegów są zapisane w `data/eval/` (`results.json`, `results_live.json`) wraz z kosztem; dla jury wystarczy je przejrzeć.
 
 ## Konfiguracja `.env`
 

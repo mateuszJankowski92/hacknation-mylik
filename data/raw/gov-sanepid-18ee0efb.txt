@@ -1,0 +1,17 @@
+Komunikat Głównego Inspektora Sanitarnego Zgłoszenia do ewidencji laboratoriów wykonujących badania wody - e-usługa
+
+24.06.2026
+
+Co wynika z nowych przepisów krajowych w zakresie systemu jakości badań wody dla laboratoriów wykonujących badania jakości wody do spożycia, wody w kąpieliskach i miejscach okazjonalnie wykorzystywanych do kąpieli? Zgodnie z art. 37aa ust. 1 ustawy z dnia 14 marca 1985 r. o Państwowej Inspekcji Sanitarnej [1] , obowiązującym od dnia 21 maja 2026 r., badania jakości wody do spożycia oraz badania jakości wody w kąpieliskach i miejscach okazjonalnie wykorzystywanych do kąpieli, zwane dalej „badaniami wody”, mogą wykonywać laboratoria, które: posiadają akredytację Polskiego Centrum Akredytacji albo innej jednostki akredytacyjnej z państw członkowskich Unii Europejskiej na zgodność z wymaganiami normy PN-EN ISO/IEC 17025, zwaną dalej „akredytacją”, na wykonywanie: badań jakości wody do spożycia - według metod referencyjnych określonych w przepisach wydanych na podstawie art. 13 ustawy z dnia 7 czerwca 2001 r. o zbiorowym zaopatrzeniu w wodę i zbiorowym odprowadzaniu ścieków, zwanej dalej „ustawą o zaopatrzeniu w wodę”, lub metod alternatywnych dopuszczonych do stosowania zgodnie z art. 37ae oraz metod zwalidowanych z uwzględnieniem charakterystyk wykonania analiz określonych w przepisach wydanych na podstawie art. 13 ustawy o zaopatrzeniu w wodę, a dla nowych parametrów jakości wody do spożycia, dla których nie określono metod referencyjnych - z uwzględnieniem opisów procedur badawczych;
+
+badań jakości wody w kąpieliskach i miejscach okazjonalnie wykorzystywanych do kąpieli - według metod określonych w przepisach wydanych na podstawie art. 48 ust. 1 ustawy z dnia 20 lipca 2017 r. - Prawo wodne (Dz.U. z 2025 r. poz. 960 i 1535 oraz z 2026 r. poz. 445 i 605);
+
+zapewniają pobieranie próbek wody do badań wody przez próbkobiorców na podstawie właściwych i akredytowanych metod reprezentatywnych dla poszczególnych parametrów badania wody;
+
+sporządzają cząstkowe lub całościowe sprawozdania z badań jakości wody do spożycia, o których mowa w art. 37ag;
+
+zostały zgłoszone do ewidencji laboratoriów wykonujących badania wody w sposób określony w ust. 3.
+
+W jaki sposób złożyć zgłoszenie do ewidencji laboratoriów wykonujących badania wody? W Głównym Inspektoracie Sanitarnym obecnie prowadzone są prace wdrożeniowe nad e-usługą na platformie e-Sanepid, która umożliwi podmiotom ubiegającym się o wpis do ewidencji laboratoriów wykonujących badania wody złożenie stosownego zgłoszenia. Rozwiązanie ma być możliwie proste, intuicyjne i ułatwiające użytkownikom realizację ich obowiązków. Usługa będzie dostępna na portalu e-Sanepid po 15 lipca 2026 r. Wszelkie szczegółowe informacje, w tym terminy, będą publikowane w formie komunikatów na stronie internetowej Głównego Inspektoratu Sanitarnego. Prosimy o jej bieżące śledzenie.
+
+[1] Dz.U. z 2024 r. poz. 416 z późn. zm.

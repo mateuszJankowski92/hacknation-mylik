@@ -1,0 +1,33 @@
+ePUAP ponownie działa w pełnym zakresie
+
+19.11.2026
+
+Przywróciliśmy pełne działanie systemu ePUAP po incydencie bezpieczeństwa, który wykryliśmy 10 listopada. System działa w pełnym zakresie, wszystkie usługi są dostępne i stale monitorowane. System został sprawdzony pod kątem bezpieczeństwa i stabilności działania. Przepraszamy za tak długą niedostępność, ale musimy mieć pewność co do bezpiecznego funkcjonowania całego katalogu usług cyfrowych.
+
+Bezpośrednio po wykryciu problemu prewencyjnie ograniczyliśmy dostęp do części systemu, aby zatrzymać zagrożenie i bezpiecznie rozpocząć działania naprawcze. Od tego momentu prowadziliśmy równolegle analizę incydentu, weryfikację bezpieczeństwa systemów, wdrażanie dodatkowych zabezpieczeń oraz stopniowe przywracanie usług.
+
+Dziś ePUAP działa już w pełnym zakresie. Usługi zostały przywrócone i są dostępne dla użytkowników. Etapowe przywracanie systemu było świadomym działaniem. Nie chcieliśmy uruchamiać usług szybciej kosztem ich bezpieczeństwa. Każdy kolejny element ePUAP udostępnialiśmy po sprawdzeniu, że może działać prawidłowo i bezpiecznie. Przed uruchomieniem systemu przeprowadziliśmy testy funkcjonalne i bezpieczeństwa.
+
+Dlaczego pełne przywrócenie ePUAP wymagało czasu?
+
+Nie mogliśmy uruchomić całego systemu od razu. Przed ponownym udostępnieniem usług musieliśmy dokładnie sprawdzić zarówno źródło i zakres incydentu, jak i poszczególne elementy systemu. Bezpieczeństwo było ważniejsze niż jak najszybsze przywrócenie pełnej dostępności. Stale utrzymujemy zwiększony monitoring i kontynuujemy działania wzmacniające bezpieczeństwo.
+
+Od 10 listopada:
+
+ograniczyliśmy dostęp do części systemu, aby zatrzymać zagrożenie i zabezpieczyć ePUAP przed dalszym oddziaływaniem incydentu;
+
+szczegółowo analizowaliśmy incydent, przy wsparciu ekspertów ds. cyberbezpieczeństwa i odpowiednich służb, w tym NASK i Agencji Bezpieczeństwa Wewnętrznego;
+
+sprawdziliśmy, czy incydent objął inne systemy. W trakcie prowadzonych analiz nie znaleźliśmy śladów wskazujących na rozszerzenie ataku poza zidentyfikowany obszar;
+
+wdrożyliśmy dodatkowe zabezpieczenia, aby przygotować system do bezpiecznego ponownego uruchomienia;
+
+weryfikowaliśmy poszczególne elementy systemu przed ich ponownym uruchomieniem, sprawdzając ich prawidłowe i bezpieczne działanie;
+
+przywracaliśmy usługi etapami, aby każdą część systemu uruchamiać dopiero po zakończeniu niezbędnych sprawdzeń;
+
+15 listopada uruchomiliśmy rozwiązanie przejściowe, które pozwoliło przywrócić znaczną część e-usług jeszcze przed pełnym uruchomieniem ePUAP;
+
+16 listopada działały już wszystkie usługi transakcyjne dostępne przez mObywatel.gov.pl oraz większość pozostałych usług;
+
+następnie kontynuowaliśmy przywracanie i sprawdzanie pozostałych elementów ePUAP, aż do pełnego uruchomienia systemu.

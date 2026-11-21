@@ -17,7 +17,6 @@ coverage/
 data/*.sqlite
 data/*.sqlite-*
 data/*.db
-data/raw/
 logs/
 *.log
 

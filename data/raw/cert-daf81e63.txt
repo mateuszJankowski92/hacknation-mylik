@@ -1,0 +1,21 @@
+🚚 Wiadomość od firmy kurierskiej z prośbą o weryfikację danych? Zachowaj ostrożność!
+
+Obserwujemy kampanię dystrybucji szkodliwego oprogramowania, w której cyberprzestępcy podszywają się pod znane firmy kurierskie.
+
+📧 W wiadomościach e-mail oszuści piszą o rzekomych niezgodnościach między listą przewozową, a fakturą i proszą o ich weryfikację. Ich celem jest skłonienie odbiorcy do pobrania i otwarcia załącznika.
+
+💻 W załączonym pliku znajduje się szkodliwe oprogramowanie typu MassLogger. Służy ono do kradzieży danych wprowadzanych na urządzeniu za pomocą klawiatury np. loginów, haseł oraz innych informacji wykorzystywanych do uwierzytelniania.
+
+🔎 Jak się chronić?
+
+• Zachowaj ostrożność wobec nieoczekiwanych wiadomości dotyczących przesyłek, faktur lub dokumentów przewozowych.
+
+• Przed otwarciem załącznika sprawdź poprawność adresu nadawcy i upewnij się, że wiadomość pochodzi z wiarygodnego źródła.
+
+• Zwracaj szczególną uwagę na rozszerzenia załączników - formaty takie jak .rar, .zip, .exe czy .js mogą sugerować, że zawartość załącznika jest inna niż obiecuje treść maila.
+
+• Również mniej typowe formaty, jak widoczny na zrzucie ekranu .uu, powinny wzbudzić naszą czujność.
+
+• W razie wątpliwości zweryfikuj informację bezpośrednio u przewoźnika, korzystając z oficjalnych kanałów kontaktu.
+
+📣 Jeśli otrzymasz podobną wiadomość, nie otwieraj załącznika i zgłoś tę sytuację do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl .

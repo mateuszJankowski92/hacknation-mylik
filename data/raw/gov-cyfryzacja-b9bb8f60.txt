@@ -1,0 +1,27 @@
+Krajowe Centrum Przetwarzania Danych - 1,6 mld zł na bezpieczną infrastrukturę cyfrową państwa
+
+09.11.2026
+
+Bezpieczniejsze dane, większa odporność na awarie i stabilne działanie usług cyfrowych administracji publicznej - to główne korzyści z budowy Krajowego Centrum Przetwarzania Danych (KCPD). Nowoczesna infrastruktura pozwoli na bezpieczne przetwarzanie danych wykorzystywanych przez instytucje publiczne. Wartość inwestycji wynosi 1,6 mld zł. Projekt realizuje NASK - Państwowy Instytut Badawczy, a jego partnerem jest Ministerstwo Cyfryzacji.
+
+Bezpieczne dane i niezawodne usługi publiczne
+
+Coraz więcej spraw urzędowych można załatwić przez internet. Wraz z rozwojem usług cyfrowych rośnie znaczenie infrastruktury, która zapewnia bezpieczeństwo danych oraz ciągłość działania systemów administracji publicznej.
+
+Krajowe Centrum Przetwarzania Danych będzie jednym z kluczowych elementów tej infrastruktury. Jego zadaniem będzie zapewnienie bezpiecznych i stabilnych warunków do przetwarzania danych na potrzeby instytucji publicznych. Inwestycja wzmocni odporność państwa na zagrożenia cyfrowe oraz zwiększy bezpieczeństwo i suwerenność polskich zasobów cyfrowych.
+
+Centrum zostanie zbudowane w sposób umożliwiający jego stopniową rozbudowę. Dzięki modułowej architekturze infrastruktura będzie mogła rozwijać się wraz z rosnącymi potrzebami administracji publicznej.
+
+Nowoczesne technologie i efektywne wykorzystanie energii
+
+KCPD będzie wykorzystywać zaawansowane rozwiązania technologiczne, które zapewnią wysoki poziom bezpieczeństwa i niezawodności infrastruktury.
+
+Projekt przewiduje zastosowanie odnawialnych źródeł energii, technologii wodorowych oraz systemów odzysku ciepła. Pozwoli to na bardziej efektywne wykorzystanie energii podczas funkcjonowania centrum.
+
+Infrastruktura zostanie zaprojektowana zgodnie z wymaganiami normy PN-EN 50600, określającej standardy dotyczące centrów danych. Wysoki poziom redundancji systemów zasilania i chłodzenia pozwoli ograniczyć ryzyko przerw w działaniu infrastruktury.
+
+W projekcie wykorzystane zostaną również technologie BIM (Building Information Modeling) oraz Digital Twin. Rozwiązania te umożliwią skuteczniejsze planowanie, monitorowanie i zarządzanie infrastrukturą na wszystkich etapach jej funkcjonowania.
+
+Ponad 1,5 mld zł dofinansowania z Funduszy Europejskich
+
+Całkowita wartość projektu Krajowego Centrum Przetwarzania Danych wynosi 1,6 mld zł, z czego 1,558 mld zł stanowi dofinansowanie z programu Fundusze Europejskie na Rozwój Cyfrowy 2021-2027.

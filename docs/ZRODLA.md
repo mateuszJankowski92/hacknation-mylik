@@ -7,6 +7,8 @@ Mylik (zespół Iteracja7) opiera odpowiedź na źródłach z jawnych list. Są 
 - Lista: `data/sources.json` (serwisy organów władzy publicznej, akty prawne, wybrane organizacje), teksty w `data/raw/`, indeks FTS5 w bazie.
 - Zasady kwalifikowania, aktualizowania i wykluczania są zapisane przy każdym źródle w polu `policy` (`qualification`, `update`, `exclusion`). Aktualizacja: `npm run corpus:fetch`, potem `npm run corpus:ingest`; zmiana treści zmienia wersję korpusu, „stan na” to najnowsza data pobrania.
 - Ta warstwa jest zawsze pytana pierwsza.
+- Odtwarzalność: migawka tekstów (`data/raw/`, 733 dokumenty) jest w repozytorium, razem z sumami kontrolnymi `data/raw/SHA256SUMS`. Czysty klon buduje bez sieci ten sam korpus (`npm run corpus:ingest` wypisuje `version=cb62b4255ea0`). W repozytorium są tylko treści, które wolno przechowywać: informacja publiczna organów władzy, akty prawne, licencje otwarte (CC BY 4.0, EEAS); źródła bez licencji otwartej mają tylko krótki początek tekstu (`discovery.excerptChars`). Alternatywa (odtwarzanie z sieci) odrzucona jako metoda główna, bo strony się zmieniają, a wynik dla jury ma być powtarzalny. Odświeżenie z sieci (`npm run corpus:fetch`) jest opcjonalne, szanuje `robots.txt` i odstęp co najmniej 1,1 s na serwis; po nim sumy i wersja korpusu się zmieniają, a treści mogły się zmienić od migawki.
+- Zbiór EUvsDisinfo (znane operacje informacyjne) nie jest w repozytorium (licencja niepotwierdzona, `data/known-ops/_terms.json`); bez niego system działa bez ostrzeżeń o znanych operacjach i bez błędu.
 
 ## Warstwa 2: media i instytucje (szukanie na żywo, zad. 29)
 

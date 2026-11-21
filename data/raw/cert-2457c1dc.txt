@@ -1,0 +1,27 @@
+🚨 Przestępcy znów podszywają się pod Krajową Administrację Skarbową!
+
+Monitorujemy kolejny powrót kampanii, w której cyberprzestępcy rozsyłają wiadomości e-mail informujące o rzekomej niezgodności w rozliczeniach podatkowych.
+
+📧 Nadawcy podszywają się pod Krajową Administrację Skarbową i próbują wzbudzić niepokój odbiorców, sugerując konieczność pilnego zapoznania się ze szczegółami sprawy. W wiadomości znajduje się załącznik określany jako raport zawierający informacje o wykrytych rozbieżnościach.
+
+⚠️ Otwarcie załącznika prowadzi do instalacji złośliwego oprogramowania z rodziny Remcos. Umożliwia ono atakującym zdalny dostęp do zainfekowanego urządzenia oraz przejęcie przechowywanych na nim danych.
+
+🔎 Jak zadbać o bezpieczeństwo?
+
+Zachowaj ostrożność wobec wiadomości wywołujących presję na szybkie działanie,
+
+nie otwieraj załączników z nieoczekiwanych wiadomości e-mail, dopóki nie zweryfikujesz kim naprawdę jest nadawca,
+
+w przypadku informacji dotyczących podatków lub rozliczeń weryfikuj ich autentyczność bezpośrednio w swoim urzędzie skarbowym,
+
+regularnie aktualizuj systemy i aplikacje.
+
+📢 Podejrzane wiadomości i strony internetowe zgłaszaj do CERT Polska za pośrednictwem formularza na stronie incydent.cert.pl . Możesz również skorzystać z usługi „Bezpiecznie w sieci” w aplikacji mObywatel 📲
+
+Treść fałszywej wiadomości e-mail
+
+Pamiętaj!
+
+Widzisz phishing? Zgłoś to.
+
+Za pomocą formularza na stronie CERT Polska

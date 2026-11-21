@@ -1,0 +1,45 @@
+Już wkrótce granty na wdrożenia open source w JST - za nami Dzień Otwartych Technologii
+
+13.11.2026
+
+Już na przełomie roku jednostki samorządu terytorialnego z całej Polski będą mogły składać wnioski grantowe w konkursie na pilotażowe wdrożenia oprogramowania open source. Rychłe rozpoczęcie programu zapowiedział wiceminister cyfryzacji Dariusz Standerski podczas Dnia Otwartych Technologii - pierwszego rządowego wydarzenia poświęconego open source. Będzie to zarazem pierwszy program, w którym państwo finansuje wdrożenia otwartego oprogramowania w administracji.
+
+Przełomowy konkurs dla samorządów
+
+Konkurs zapowiedział 12 listopada w Warszawie wiceminister cyfryzacji Dariusz Standerski. Do samorządów trafi 10 mln zł z działania 2.4 programu Fundusze Europejskie na Rozwój Cyfrowy 2021-2027 (FERC). Centrum Projektów Polska Cyfrowa (CPPC) będzie odpowiadać za wdrożenie mechanizmu wsparcia grantowego - od organizacji naboru i wyboru projektów, przez monitorowanie ich realizacji, aż po rozliczenie środków i weryfikację osiągniętych rezultatów.
+
+Granty obejmą wdrożenia otwartych rozwiązań, z których urzędnicy korzystają na co dzień, w tym:
+
+pakietów biurowych: edytorów tekstu, arkuszy kalkulacyjnych i programów do prezentacji,
+
+programów pocztowych i kalendarzy,
+
+programów do wideokonferencji i komunikatorów,
+
+rozwiązań do przechowywania plików,
+
+rozwiązań backendowych.
+
+To przełom dla cyfrowej suwerenności polskiej administracji publicznej. Do tej pory urzędy sięgały po open source z własnej inicjatywy i na własny koszt. Teraz po raz pierwszy takie wdrożenia sfinansuje państwo. Pilotaże mają wypracować modele, które będzie można powtórzyć w kolejnych urzędach, a zarazem - skalować na poziom krajowy. Korzyści to niższe koszty oprogramowania, mniejsza zależność od pojedynczych dostawców i większa kontrola administracji nad własnymi narzędziami i danymi.
+
+Ponad 100 uczestników i goście z zagranicy
+
+W Dniu Otwartych Technologii wzięło udział ponad 100 osób: przedstawiciele samorządów, instytucji publicznych, biznesu i organizacji eksperckich. Podczas dwóch paneli goście z Polski i zagranicy rozmawiali o najważniejszych aspektach open source: suwerenności cyfrowej, cyberbezpieczeństwie i skuteczności wdrożeń.
+
+O europejskich doświadczeniach z cyfrowymi dobrami wspólnymi dyskutowali: Johan Lin&aring;ker (RISE Research Institutes of Sweden, Uniwersytet w Lund), Sophie Bloemen (Commons Network) i Sebastian Raible (Digital Commons EDIC). Rozmowę poprowadziła Sylwia Czubkowska. W drugim panelu, moderowanym przez Jana Jęcza z Polityki Insight, o polskich doświadczeniach mówili: Ryszard Łuczyn (Ministerstwo Cyfryzacji), Kuba Piwowar (Centrum Cyfrowe), Natalia Kobza (CloudFerro), Damian Fajfer (Bank Pekao S.A.) i Marcin Madey (SUSE).
+
+Spotkanie zakończyła sesja pytań i odpowiedzi z przedstawicielami Ministerstwa Cyfryzacji i Centrum Projektów Polska Cyfrowa. Samorządowcy mogli z pierwszej ręki dowiedzieć się, jak będzie wyglądał planowany konkurs.
+
+Open source w Strategii Cyfryzacji Państwa
+
+Konkurs jest częścią szerszych działań, które wynikają ze Strategii Cyfryzacji Państwa. To pierwszy dokument rządowy, który wprost deklaruje wsparcie dla wdrażania i upowszechniania otwartego oprogramowania. Strategia stawia dwa cele: większe wykorzystanie otwartego oprogramowania i otwartych standardów w administracji publicznej oraz silniejszy polski ekosystem open source.
+
+Przygotowując się do wdrażania Strategii, Ministerstwo Cyfryzacji i Centralny Ośrodek Informatyki (COI) zbadały 604 jednostki administracji publicznej. W większości obszarów dominuje w nich wykorzystania oprogramowanie własnościowe, ale ponad 83% już punktowo stosuje rozwiązania open source. Prawie połowa wskazuje oszczędności jako zdecydowanie ważną motywację do wymiany rozwiązań własnościowych na otwarte, a największy potencjał jednostki widzą w pakietach biurowych. Te wnioski znalazły odzwierciedlenie w założeniach konkursu.
+
+W kwietniu w ministerstwie powstał zespół ds. open source, który koordynuje działania w resorcie oraz współpracę z NASK i COI. Polska jest też obserwatorem w EDIC Digital Commons, europejskim konsorcjum państw rozwijających cyfrowe dobra wspólne, a od 1 stycznia 2027 r. zostanie jego członkiem.
+
+Wśród kolejnych kroków po konkursie będzie budowa Biura Programów Otwartego Oprogramowania oraz publicznego repozytorium oprogramowania open source dla administracji publicznej. To jedne z najważniejszych zadań w tym obszarze Strategii. Do planowanego repozytorium trafią rozwiązania sprawdzone pod kątem bezpieczeństwa, które jednostki administracji będą mogły samodzielnie wdrażać.
+
+Wyniki badania MC i COI są dostępne w materiałach z konsultacji założeń konkursu .
+
+Zdjęcia (1)

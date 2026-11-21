@@ -1,0 +1,73 @@
+Google może nieuczciwie wykorzystywać swoją pozycję rynkową w relacji z polskimi wydawcami medialnymi.
+
+Zastrzeżenia budzi sposób negocjacji w sprawie wynagrodzenia za wykorzystywanie artykułów prasowych.
+
+Prezes UOKiK postawił zarzuty czterem spółkom z grupy kapitałowej cyfrowego giganta.
+
+Wypowiedź Prezesa UOKiK Tomasza Chróstnego
+
+Wyszukiwarki internetowe zmieniły sposób, w jaki docieramy do informacji. Zamiast czytać całe artykuły, coraz częściej przeglądamy wyniki wyszukiwania i zatrzymujemy się na wyświetlanych tam fragmentach wiadomości lub czytamy syntezę artykułów przygotowaną przez sztuczną inteligencję. Często nie klikamy już w link prowadzący do pełnego tekstu. Reklamy pojawiające się obok przynoszą wówczas przychody operatorom serwisów, np. Google. Wydawcy, którzy stworzyli te materiały, tracą natomiast ruch na swoich stronach i związane z nim przychody, stanowiące podstawę utrzymania ich działalności.
+
+Tę sytuację miała zmienić nowelizacja prawa autorskiego z 2024 r., która wdrożyła unijną dyrektywę Parlamentu Europejskiego i Rady (UE) 2019/790 w sprawie prawa autorskiego i praw pokrewnych na jednolitym rynku cyfrowym, zwaną dyrektywą DSM. Wprowadzone przepisy mają znaczenie nie tylko ekonomiczne. Niezależna i pluralistyczna prasa jest jednym z fundamentów demokracji, a przygotowanie rzetelnych i wartościowych materiałów wymaga odpowiednich środków finansowych. Wynagrodzenie za wykorzystywanie publikacji ma wspierać funkcjonowanie niezależnych mediów.
+
+Przepisy wzmocniły pozycję wydawców prasy na rynku cyfrowym – zezwoliły serwisom internetowym na korzystanie z ich publikacji w zamian za wynagrodzenie. Platforma internetowa powinna więc uzgodnić z wydawcą warunki, na podstawie których będzie wykorzystywała fragmenty artykułów. Przepisy zobowiązują ją przy tym do przekazania wydawcy informacji niezbędnych do ustalenia wysokości wynagrodzenia.
+
+Spór wydawców z Google
+
+Pomimo istnienia tych przepisów, właściciel najpopularniejszej wyszukiwarki internetowej, czyli koncern Google, nie podpisał z większością polskich wydawców prasy umów określających warunki korzystania z ich publikacji oraz wysokość wynagrodzenia z tego tytułu. Chodzi o artykuły pojawiające się nie tylko w wyszukiwarce Google, ale również w serwisach Google News oraz Google Discover – spersonalizowanych dla użytkowników telefonów i tabletów. Zastrzeżenia Prezesa UOKiK budzi sposób, w jaki amerykański koncern prowadził negocjacje z organizacjami skupiającymi wydawców w sprawie wysokości wynagrodzenia.
+
+Brak wymaganych prawem danych
+
+Z informacji posiadanych przez Urząd wynika, że Google proponując wynagrodzenie wydawcom nie przedstawił im wymaganych prawem danych pozwalających ocenić zaoferowane stawki. Nie wskazał m.in. w jaki sposób korzysta z publikacji prasowych i osiąganych z tego tytułu przychodów. Nie wyjaśnił również parametrów przyjętych w kalkulacji ani nie przekazał dokumentów umożliwiających zweryfikowanie jej założeń.
+
+To prowadzi do asymetrii informacji i powoduje, że wydawcy nie mogą zweryfikować opłacalności przedstawionej im oferty lub sami zaproponować własnej, uzasadnionej danymi, propozycji.
+
+– Big techy nie mogą stawiać się ponad prawem. Przepisy jasno określają jakie informacje Google powinien przedstawić wydawcom, aby móc uczciwie rozliczyć się z nimi za treści, z których korzysta. Brak tych danych prowadził do sytuacji, w której negocjacje stawały się pozorne i zmierzały do narzucenia warunków przez rynkowego dominanta. Za takie działanie prawo ochrony konkurencji przewiduje karę do 10 proc. przychodów przedsiębiorcy – mówi Prezes UOKiK Tomasz Chróstny.
+
+Duży może … mniej
+
+Prowadzone postępowanie dotyczy podejrzenia stosowania przez Google praktyki zakazanej w prawie ochrony konkurencji, czyli nadużywania pozycji dominującej. Oznacza ona, że przedsiębiorca ma tak dużą siłę rynkową, że może działać niezależnie od konkurentów i kontrahentów. Samo jej posiadanie nie jest zakazane, jednak dominujący podmiot nie może wykorzystywać swojej przewagi do narzucania innym uczestnikom rynku nieuczciwych warunków. W tej sprawie do ograniczenia konkurencji mogło dochodzić w relacjach pomiędzy Google a wydawcami prasy podczas negocjowania wynagrodzenia za korzystanie z ich publikacji. Wydawcy są uzależnieni od platformy jako ważnego kanału dotarcia do czytelników, a jednocześnie nie mają porównywalnej siły negocjacyjnej ani pełnej wiedzy o wartości wykorzystywanych treści. Dominująca platforma może wykorzystać tę przewagę, aby narzucać stawki i inne warunki wynagrodzenia. W rezultacie wydawcy nie mają realnej możliwości negocjowania na równych zasadach. Przez to ustanowiony przez prawo mechanizm może nie działać zgodnie ze swoim celem.
+
+Cztery firmy z zarzutami
+
+Zarzuty Prezesa UOKiK dotyczą czterech spółek:
+
+Alphabet Inc – spółka dominująca grupy Google,
+
+Google LLC – spółka specjalizująca się w świadczeniu usług reklamowych, która wcześniej prowadziła i zarządzała wyszukiwarką Google na terenie Europejskiego Obszaru Gospodarczego,
+
+Google Ireland Limited – przedsiębiorca prowadzi i zarządza obecnie wyszukiwarką Google na terytorium EOG,
+
+Google Poland – zajmuje się sprzedażą miejsca na cele reklamowe w internecie.
+
+Maksymalna kara za nadużywanie pozycji dominującej może wynieść 10 proc. obrotu przedsiębiorcy. Kwestia odpowiedzialności poszczególnych spółek będzie analizowana w trakcie postępowania.
+
+Prezes UOKiK nie jest stroną w sporze
+
+Co istotne, Prezes UOKiK nie jest stroną w negocjacjach, czy też sporze pomiędzy Google a wydawcami prasy. Nie ocenia również, czy proponowana wysokość stawki jest odpowiednia. Przepisy określają, że jeśli strony nie dojdą w tej sprawie do porozumienia, to Prezes Urzędu Komunikacji Elektronicznej może wyznaczyć wysokość wynagrodzenia.
+
+Działania Komisji Europejskiej
+
+Odrębne postępowanie wobec Google prowadzi Komisja Europejska. W grudniu 2025 r. KE wszczęła formalne postępowanie aby sprawdzić, czy Google wykorzystuje treści wydawców w usługach opartych na sztucznej inteligencji bez odpowiedniego wynagrodzenia i zapewnienia im możliwości sprzeciwu. Przedmiot postępowania KE jest przy tym różny od wszczętego przez Prezesa UOKiK postępowania antymonopolowego. Postepowanie KE dotyczy usług Google w zakresie sztucznej inteligencji, a postępowanie prowadzone przez Prezesa UOKiK dotyczy wykorzystania treści wydawców w wynikach wyszukiwania Google oraz serwisach Google News i Discover. Postępowania te są niezależne względem siebie, co zostało uzgodnione z KE jeszcze przez wszczęciem postępowania właściwego.
+
+Big techy pod lupą Prezesa UOKiK
+
+To kolejne działanie, w którym Prezes UOKiK interweniuje w sprawie możliwych antykonkurencyjnych działań największych koncernów technologicznych. W końcowej fazie jest postępowanie antymonopolowe przeciwko Apple , który pod pozorem ochrony prywatności użytkowników mógł działać na niekorzyść wydawców konkurencyjnych aplikacji mobilnych. Trwa również postępowanie wyjaśniające w sprawie praktyk spółki Meta i zmiany sposobu prezentacji odnośników do publikacji prasowych.
+
+Pliki do pobrania
+
+Informacje dla mediów
+
+603 124 154
+
+biuroprasowe@uokik.gov.pl
+
+Pl. Powstańców Warszawy 1 00-950 Warszawa
+
+Obserwuj nas
+
+@UOKiKgovPL
+
+Zgłoś naruszenie prawa konkurencji
+
+Platforma dla anonimowych sygnalistów

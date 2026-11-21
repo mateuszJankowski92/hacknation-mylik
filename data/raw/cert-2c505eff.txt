@@ -1,0 +1,21 @@
+Krytyczne podatności w Gitlab
+
+Zespół CERT Polska informuje o krytycznych podatnościach w Gitlab które umożliwiają wykonywanie uwierzytelnionemu atakującemu kodu na serwerze.
+
+Łącznie producent opublikował 11 podatności które dotyczą Gitlab.
+
+Podatne wersje Gitlab CE oraz Gitlab EE:
+
+- 19.2.x przed 19.2.7
+
+- 19.3.x przed 19.3.3
+
+- 19.4.x przed 19.4.1
+
+Rekomendujemy niezwłoczną instalację zaktualizowanych przez producenta wersji oprogramowania.
+
+W przypadku wykrycia oznak wykorzystania podatności prosimy o niezwłoczny kontakt z naszym zespołem przez formularz na stronie incydent.cert.pl .
+
+Szczegółowe informacje oraz lista poprawek znajdują się w komunikacie producenta: https://docs.gitlab.com/releases/patches/patch-release-gitlab-19-4-1-released/
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.

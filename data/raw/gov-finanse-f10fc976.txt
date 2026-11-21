@@ -1,0 +1,21 @@
+Rozporządzenie w sprawie czasowego zwolnienia w CIT z obowiązków w zakresie JPK CIT dotyczących ewidencji środków trwałych i wartości niematerialnych i prawnych
+
+30.10.2026
+
+Minister Finansów i Gospodarki podpisał rozporządzenie, które czasowo zwalnia wybrane podmioty z obowiązku prowadzenia ewidencji środków trwałych oraz wartości niematerialnych i prawnych przy użyciu programów komputerowych.
+
+Zwolnienie obejmie również obowiązek przekazywania danych z tej ewidencji w strukturze logicznej JPK_ST_KR.
+
+Rozwiązanie będzie miało zastosowanie do lat podatkowych (obrotowych) rozpoczynających się po 31 grudnia 2025 r., a przed 1 stycznia 2029 r.
+
+29 października 2026 r. Minister Finansów i Gospodarki podpisał rozporządzenie w sprawie zwolnienia z obowiązku prowadzenia przy użyciu programów komputerowych i przesyłania części ksiąg rachunkowych na podstawie ustawy o podatku dochodowym od osób prawnych.
+
+Na podstawie rozporządzenia podatnicy CIT oraz spółki niebędące osobami prawnymi, zobowiązani do prowadzenia ksiąg rachunkowych przy użyciu programów komputerowych oraz ich przekazywania właściwemu naczelnikowi urzędu skarbowego drogą elektroniczną, zostaną czasowo zwolnieni z obowiązku:
+
+prowadzenia ewidencji środków trwałych oraz wartości niematerialnych i prawnych przy użyciu programów komputerowych;
+
+przekazywania danych z tej ewidencji z wykorzystaniem dedykowanej struktury logicznej JPK_ST_KR.
+
+Zwolnienie będzie miało zastosowanie do ewidencji środków trwałych oraz wartości niematerialnych i prawnych prowadzonej za rok podatkowy, a w przypadku spółek niebędących osobami prawnymi za rok obrotowy, rozpoczynający się po 31 grudnia 2025 r. a przed 1 stycznia 2029 r.
+
+Rozporządzenie wejdzie w życie z dniem następującym po dniu jego ogłoszenia w Dzienniku Ustaw.

@@ -1,0 +1,23 @@
+Krytyczna podatność w Cisco Secure Email Gateway - wrzesień 2026
+
+Zespół CERT Polska informuje o krytycznej podatności w oprogramowaniu Cisco AsyncOS dla urządzeń Cisco Secure Email Gateway.
+
+Podatność, oznaczona jako CVE-2026-76461 , wynika z niewystarczającej walidacji w logice przetwarzania wiadomości mailowych. Pozwala ona na wstrzyknięcie złośliwych instrukcji SQL poprzez wysłanie spreparowanej wiadomości e-mail, co umożliwia nieuwierzytelnionemu, zdalnemu atakującemu wykonanie dowolnych poleceń w systemie operacyjnym z uprawnieniami root. Podatność jest aktywnie wykorzystywana w przeprowadzanych atakach.
+
+Podatność dotyczy urządzeń Cisco Secure Email Gateway (fizycznych i wirtualnych) niezależnie od konfiguracji.
+
+Rekomendujemy niezwłoczną aktualizację oprogramowania do wersji pozbawionych podatności:
+
+AsyncOS 15.5 i starsze: 15.5.5-014
+
+AsyncOS 16.0: 16.0.4-302
+
+AsyncOS 16.5: 16.5.0-780
+
+Wersje Cisco Secure Email Cloud zostały już zaktualizowane przez producenta.
+
+Z uwagi na potwierdzone aktywne wykorzystywanie podatności zalecamy weryfikację urządzeń pod kątem oznak kompromitacji. W tym celu, zgodnie z rekomendacją producenta, należy przejrzeć logi mail_logs i wyszukać podejrzane instrukcje SQL, np. poleceniem:
+
+grep -i "COPY.*TO PROGRAM"
+
+W przypadku wykrycia oznak potencjalnego wykorzystania tej podatności prosimy o niezwłoczny kontakt z CERT Polska.

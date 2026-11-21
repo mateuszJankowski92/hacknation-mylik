@@ -1,0 +1,41 @@
+Informacja dla właścicieli i zarządców obiektów priorytetowych
+
+Dotyczy: nowych obowiązków wynikających z nowelizacji przepisów w sprawie jakości wody przeznaczonej do spożycia przez ludzi w tym jakości wody ciepłej użytkowej.
+
+Państwowy Powiatowy Inspektor Sanitarny we Wrocławiu informuje o zmianach w związku z wejściem w życie znowelizowanych przepisów: 1. ustawy z dnia 13 marca 2026 r. o zbiorowym zaopatrzeniu w wodę i zbiorowym odprowadzaniu ścieków (Dz.U. z 2026 r. poz. 605). 2. rozporządzenia Ministra Zdrowia z dnia 22 maja 2026 r. w sprawie jakości wody przeznaczonej do spożycia przez ludzi (Dz.U. z 2026 r. poz.748).
+
+W cytowanej ustawie zawarto definicje i obowiązki:
+
+1. Obiekt priorytetowy to niemieszkalny obiekt, w którym więcej niż 50 osób dziennie jest narażonych na ryzyko związane z wodą, w szczególności budynek użyteczności publicznej lub budynek przeznaczony do okresowego pobytu ludzi (czynne sezonowo lub związane z turystyką, takie jak hotele, motele, pensjonaty, ośrodki turystyczno-wczasowe lub kempingi, - zakłady karne lub areszty śledcze, - domy rencistów, - budynki użyteczności publicznej, w których podczas użytkowania wewnętrznych systemów wodociągowych lub związanych z nimi urządzeń jest wytwarzany aerozol wodny , - domy dla matek z małoletnimi dziećmi lub kobiet w ciąży,
+
+2. Ocena ryzyka i jej aktualizacja obejmują ogólną analizę potencjalnego ryzyka związanego z wewnętrznym systemem wodociągowym oraz z powiązanymi z nim materiałami lub wyrobami do kontaktu z wodą przeznaczoną do spożycia przez ludzi, a także ustalenie, czy to potencjalne ryzyko ma wpływ na jakość tej wody w punktach czerpalnych używanych zwykle do jej poboru.
+
+3. Ocena ryzyka obejmuje badania w kierunku bakterii z rodzaju Legionella sp. w ciepłej wodzie użytkowej w zakresie spełniania wymagań w obiektach priorytetowych.
+
+4. Właściciel lub zarządca obiektu priorytetowego przekazuje dokonaną ocenę ryzyka w wewnętrznym systemie wodociągowym w terminie do dnia 30 czerwca 2028 r. właściwemu Państwowemu Powiatowemu Inspektorowi Sanitarnemu.
+
+Jeżeli z ogólnej analizy potencjalnego ryzyka związanego z wewnętrznym systemem wodociągowym oraz z powiązanymi z nim materiałami lub wyrobami do kontaktu z wodą przeznaczoną do spożycia przez ludzi wynika, że ołów nie stanowi potencjalnego ryzyka wpływającego na jakość tej wody w punkcie czerpalnym używanym zwykle do jej poboru, odstępuje się od badania ołowiu w zakresie spełniania wymagań określonych w przepisach.
+
+Jeżeli z ogólnej analizy potencjalnego ryzyka związanego z wewnętrznym systemem wodociągowym oraz z powiązanymi z nim materiałami lub wyrobami do kontaktu z wodą przeznaczoną do spożycia przez ludzi wynika, że ołów stanowi potencjalne ryzyko wpływające na jakość tej wody w punkcie czerpalnym używanym zwykle do jej poboru, właściciel lub zarządca obiektu priorytetowego, w uzgodnieniu z właściwym organem nadzoru sanitarnego ustala częstotliwość badania ołowiu, uwzględniającą weryfikację podejmowanych przez właściciela lub zarządcę budynku działań mających na celu wyeliminowanie lub zmniejszenie ryzyka niezgodności z wartością parametryczną ołowiu określoną w przepisach wydanych na podstawie art. 1
+
+W załączniku nr 5 do rozporządzenia Ministra Zdrowia z dnia 22 maja 2026 r. w sprawie jakości wody przeznaczonej do spożycia przez ludzi (Dz.U. z 2026 r. poz. 748) określono minimalną częstotliwość pobierania próbek ciepłej wody użytkowej do badań w kierunku bakterii z rodzaju Legionella sp oraz procedury postępowania w zależności od uzyskanych wyników. Obowiązek organizacji monitoringu jakości ciepłej wody użytkowej pozostaje po stronie właściciela lub zarządcy obiektu budowlanego.
+
+Zgodnie z § 10 w/w rozporządzenia właściciel lub zarządca obiektu priorytetowego przekazuje właściwemu państwowemu inspektorowi sanitarnemu: 1. sprawozdania z badań jakości wody pobranej z wewnętrznego systemu wodociągowego w zakresie wartości parametrycznej bakterii z rodzaju Legionella w ciepłej wodzie użytkowej lub wartości parametrycznej ołowiu - w terminie 7 dni roboczych od dnia otrzymania sprawozdania z badań, jeżeli nie stwierdzono przekroczeń wartości parametrycznych; 2. informacje o działaniach podejmowanych w celu wyeliminowania lub ograniczenia ryzyka niezgodności z wartością parametryczną bakterii z rodzaju Legionella w ciepłej wodzie użytkowej.
+
+Zgodnie z § 7 ust. 1 rozporządzenia punkty poboru próbek powinny być zlokalizowane w szczególności: 1. w punkcie czerpalnym położonym najdalej od urządzenia służącego do podgrzewania wody na każdym pionie instalacyjnym; 2. w miejscu wypływu z urządzenia służącego do podgrzewania wody lub w najbliższym punkcie czerpalnym; 3. na powrocie wody cyrkulacyjnej; 4. w punktach reprezentatywnych dla systemowego narażenia.
+
+Punkty poboru należy opisać w sposób umożliwiający ich jednoznaczną identyfikację, np.: „Budynek A, 8 piętro, pomieszczenie nr 801, toaleta ogólnodostępna - punkt czerpalny położony najdalej od urządzenia służącego do podgrzewania wody”. Jednocześnie przypomina się, że zgodnie z § 7 ust. 2 rozporządzenia miejsca pobierania próbek mogą być również wyznaczane na podstawie oceny ryzyka wewnętrznego systemu wodociągowego, w szczególności w miejscach sprzyjających namnażaniu bakterii z rodzaju Legionella sp .
+
+Punkty poboru próbek powinny umożliwiać ocenę całej instalacji ciepłej wody użytkowej oraz miejsc o najwyższym ryzyku namnażania bakterii Legionella sp. Jeżeli obiekt posiada kilka niezależnych układów przygotowania i dystrybucji CWU (np. odrębne węzły, wymienniki lub stacje przygotowania ciepłej wody), każdy układ powinien być oceniany odrębnie. Wyniki uzyskane dla jednego obiegu nie mogą być uznawane za reprezentatywne dla całego obiektu. Szczególną uwagę należy zwrócić na punkty końcowe generujące aerozol wodny, takie jak: - prysznice i natryski, - baterie umywalkowe, - inne urządzenia lub punkty czerpalne wytwarzające aerozol.
+
+Przy wyznaczaniu punktów poboru próbek należy kierować się przede wszystkim podziałem instalacji na niezależne obiegi i cyrkulacje CWU. Każdy obieg powinien posiadać reprezentatywne punkty obejmujące zasilanie, powrót oraz punkty końcowe.
+
+Państwowy Powiatowy Inspektor Sanitarny we Wrocławiu informuje, iż wyniki badania wody ciepłej użytkowej opisane niezgodnie z wymogami rozporządzenia nie będą stanowiły podstawy do uznania, że sieć wody ciepłej nie jest skażona bakteriami Legionella sp. lub jej skażenie jest nieznaczne i nie wymaga podjęcia działań naprawczych .
+
+W związku z powyższym, zarządcy obiektów priorytetowych zobowiązani są do :
+
+1. Przeanalizowania szczegółowych informacji technicznych dotyczących instalacji ciepłej wody użytkowej (CWU), w tym informacji o liczbie funkcjonujących obiegów CWU (jeden obieg główny lub kilka niezależnych obiegów).
+
+2. Wyznaczenia punktów poboru próbek wody przeznaczonych do monitorowania jakości ciepłej wody użytkowej, sporządzonego odrębnie dla każdego obiegu CWU, zgodnie z wymogami rozporządzenia.
+
+Materiały

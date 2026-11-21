@@ -1,0 +1,17 @@
+Raport miesięczny za sierpień 2026
+
+Publikujemy wydanie raportu miesięcznego o stanie cyberbezpieczeństwa w Polsce w sierpniu 2026 roku.
+
+📌 Raport za sierpień 2026 jest dostępny pod tym linkiem – https://cert.pl/uploads/docs/Podsumowanie_CERT_Polska_2026_08.pdf
+
+W każdym wydaniu raportu miesięcznego znajdziesz:
+
+najnowsze statystyki incydentów,
+
+opisy aktualnych kampanii i technik ataków,
+
+działania zespołu na rzecz edukacji i współpracy,
+
+rekomendacje, jak chronić siebie i swoje systemy.
+
+Komunikaty bezpieczeństwa publikowane w serwisie są udostępniane na licencji Creative Commons: uznanie autorstwa – na tych samych warunkach 4.0 (CC BY-SA 4.0) , o ile nie jest to stwierdzone inaczej.
