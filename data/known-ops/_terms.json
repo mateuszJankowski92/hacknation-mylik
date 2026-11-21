@@ -3,11 +3,12 @@
   "checkedAt": "2026-11-21",
   "api": {
     "doc": "https://euvsdisinfo.eu/public-docs/How_to_grab_all_Articles_and_Cases_from_disinfo.pdf",
-    "endpoint": "https://euvsdisinfo-mcp-server.vercel.app/mcp",
+    "endpoint": "https://mcp.euvsd.info/mcp",
     "transport": "MCP streamable HTTP (JSON-RPC: initialize, tools/list, tools/call 'cases' / 'articles')",
     "pagination": "offset + limit, limit maks. 100",
-    "auth": "Wymagany klucz (Authorization: Bearer). Bez klucza HTTP 401 'API key required'; z kluczem z .env (EUVSDISINFO_TOKEN) 2026-11-21 HTTP 401 'Unauthorized: Invalid API key' (Bearer, X-API-Key i ?key= sprawdzone).",
-    "howToGetKey": "Według https://euvsdisinfo.eu/about/ serwer MCP dostępny 'by request only' (e-mail/formularz). Klucz dostarcza właściciel projektu w .env jako EUVSDISINFO_TOKEN; skrypt go nie drukuje."
+    "auth": "Klucz: ?key=, Authorization: Bearer albo X-API-Key; Accept: application/json, text/event-stream; initialize protocolVersion 2025-03-26, sesja w nagłówku mcp-session-id. Stary host euvsdisinfo-mcp-server.vercel.app odrzuca klucz (401); nowy host działa (sprawdzone 2026-11-21).",
+    "howToGetKey": "Według https://euvsdisinfo.eu/about/ serwer MCP dostępny 'by request only' (e-mail/formularz). Klucz dostarcza właściciel projektu w .env jako EUVSDISINFO_TOKEN; skrypt go nie drukuje.",
+    "docNewer": "EUvsDisinfo MCP. API. (07.2025, zmiana 04.05.2026), strona Fibery udostępniona przez EUvsDisinfo wraz z kluczem."
   },
   "robotsTxt": "https://euvsdisinfo.eu/robots.txt (2026-11-21): User-agent * ; zakazy m.in. */page/*, *?s=, *sort=, *type=, */feed/, */card/, */p-card/, /*?action=generate_pdf*. Serwer MCP jest na innym hoście (vercel.app). Strona euvsdisinfo.eu stoi za Cloudflare i blokuje automatyczne pobieranie (strona 'Attention Required'), więc nie scrapujemy HTML.",
   "rateLimits": "Dokumentacja nie podaje limitów. scripts/fetch-euvsdisinfo.ts (npm run known-ops:fetch): 1 żądanie na ok. 1,1 s, strony po 100, do 5 ponowień z rosnącą przerwą (429, 5xx, błąd sieci), przerwanie przy 401/403, limit rozmiaru odpowiedzi 8 MB, kontrola schematu, wznowienie od offsetu w _fetch-state.json.",

@@ -1,6 +1,6 @@
 /*
  * Pobieranie przypadków EUvsDisinfo do lokalnej migawki (data/known-ops/cases-*.json).
- * Serwer MCP po zwykłym HTTP (streamable HTTP, nie SSE): initialize -> notifications/initialized
+ * Serwer MCP (https://mcp.euvsd.info/mcp) po zwykłym HTTP (streamable HTTP, nie SSE): initialize -> notifications/initialized
  * -> tools/call "cases" { offset, limit <= 100 }. Opis API:
  * https://euvsdisinfo.eu/public-docs/How_to_grab_all_Articles_and_Cases_from_disinfo.pdf
  *
@@ -22,7 +22,8 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import { compactKnownOpCase, KNOWN_OP_CLAIM_MAX } from '../src/corpus/incidents';
 
-const ENDPOINT = 'https://euvsdisinfo-mcp-server.vercel.app/mcp';
+/** Adres z dokumentacji EUvsDisinfo (07.2025, zmiana 04.05.2026); stary host vercel.app odrzuca klucze. */
+const ENDPOINT = process.env.EUVSDISINFO_MCP_URL?.trim() || 'https://mcp.euvsd.info/mcp';
 const USER_AGENT = 'mylik-known-ops-fetcher/0.2';
 const PAGE_LIMIT = 100;
 const MIN_DELAY_MS = 1100;
