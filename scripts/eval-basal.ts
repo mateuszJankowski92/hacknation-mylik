@@ -1,10 +1,11 @@
 // Zad. 30: pomiar bramki wsparcia na Basalu obok Haiku na zestawie kontrolnym v2.
 //   npx tsx scripts/eval-basal.ts --health
 //   npx tsx scripts/eval-basal.ts [--part kontrolny_v2] [--only A01,B02] [--gpu-usd-per-hour 0.69] [--concurrency 3]
-//     [--corpus-root <katalog>] [--out-dir data/eval/basal]
+//     [--corpus-root <katalog>] [--out-dir data/eval/basal] [--assess]
+// --assess: także ocena stanowisk fragmentów na Basalu (przebieg "basal-gate-assess").
 // Ekstrakcja, wybór kandydatów i ocena stanowisk: Claude Haiku 5.5. Bramka wsparcia: Basal (BASAL_URL, BASAL_TOKEN),
 // przy błędzie Haiku (zapas jak w produkcji). Sędzia cytowań: Claude Sonnet 5.5. Bez Opusa.
-// Wyniki: <out-dir>/results.json (mierniki, ten sam format co npm run eval) i <out-dir>/basal_gate.json
+// Wyniki: <out-dir>/results.json (mierniki, ten sam format co npm run eval) i <out-dir>/<przebieg>.json
 // (kalibracja: pewność Basala wobec oceny sędziego, bez treści twierdzeń i cytatów). Adres i token nie są wypisywane.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -21,6 +22,7 @@ import {
   type BasalDecisionResponse,
   type BasalGateEvent,
 } from '../src/llm/basal';
+import { withBasalAssess, type BasalAssessEvent } from '../src/llm/basalAssess';
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -103,21 +105,25 @@ async function main(): Promise<void> {
   const haiku = new AnthropicProvider({ apiKey: cfg.anthropicApiKey, model: DEFAULT_ANTHROPIC_MODEL });
   const basal = new BasalSupportGate({ baseUrl: gateCfg.url, client, minConfidence: gateCfg.minConfidence, onEvent: (e) => events.push(e) });
   const gate = new FallbackSupportGate(basal, { name: haiku.name, checkSupport: (r) => haiku.checkSupport(r) }, { onEvent: (e) => events.push(e), cooldownMs: gateCfg.cooldownMs });
-  const llm = withSupportGate(haiku, gate);
+  const assess = flag('--assess');
+  const runName = assess ? 'basal-gate-assess' : 'basal-gate';
+  const assessEvents: BasalAssessEvent[] = [];
+  const base = assess ? withBasalAssess(haiku, { client, minConfidence: gateCfg.minConfidence, onEvent: (e) => assessEvents.push(e) }) : haiku;
+  const llm = withSupportGate(base, gate);
 
   const started = Date.now();
   const { run } = await runEval({
     rootDir,
     provider: 'anthropic',
-    model: 'basal-gate',
+    model: runName,
     llm,
     judge: new AnthropicJudge('claude-sonnet-5-5', cfg.anthropicApiKey),
     apiKey: cfg.anthropicApiKey,
     part,
     resultsPath: join(outDir, 'results.json'),
-    reviewPath: join(outDir, 'review_sample.json'),
+    reviewPath: join(outDir, `${runName}.review_sample.json`),
     writeReview: true,
-    defaultRun: 'basal-gate',
+    defaultRun: runName,
     ...(arg('--corpus-root') ? { corpusRoot: arg('--corpus-root')! } : {}),
     ...(only?.length ? { only } : {}),
     ...(arg('--concurrency') ? { concurrency: Number(arg('--concurrency')) } : {}),
@@ -150,11 +156,21 @@ async function main(): Promise<void> {
     : null;
   const decisions = events.filter((e): e is Extract<BasalGateEvent, { type: 'support_gate_basal' }> => e.type === 'support_gate_basal');
   const fallbacks = events.filter((e) => e.type === 'support_gate_fallback');
-  const lat = decisions.map((d) => d.latencyMs);
+  const lat = [...decisions.map((d) => d.latencyMs), ...assessEvents.flatMap((e) => (e.type === 'assess_basal' ? [e.latencyMs] : []))];
   const gpuBusyH = lat.reduce((s, x) => s + x, 0) / 3_600_000;
   const summary = {
-    run: 'basal-gate',
+    run: runName,
     part,
+    assess: assess
+      ? {
+          decisions: assessEvents.filter((e) => e.type === 'assess_basal').length,
+          fallbacks: assessEvents.filter((e) => e.type === 'assess_fallback').length,
+          stances: Object.fromEntries(
+            ['potwierdza', 'obala', 'rozbieznosc_kontekstu', 'kontekst', 'bez_zwiazku'].map((k) => [k, assessEvents.filter((e) => e.type === 'assess_basal' && e.stance === k).length]),
+          ),
+          medianLatencyMs: median(assessEvents.flatMap((e) => (e.type === 'assess_basal' ? [e.latencyMs] : []))),
+        }
+      : null,
     finishedAt: new Date().toISOString(),
     basalModel: decisions[0]?.model ?? null,
     calibration: decisions[0]?.calibration ?? null,
@@ -175,7 +191,7 @@ async function main(): Promise<void> {
     },
     calibrationTable: { pairs: pairs.length, ece, bins, note: 'pewność Basala przy cytatach, które przeszły bramkę, wobec oceny sędziego (Sonnet); cytaty odrzucone nie mają oceny sędziego' },
   };
-  writeFileSync(join(outDir, 'basal_gate.json'), JSON.stringify(summary, null, 2) + '\n');
+  writeFileSync(join(outDir, `${runName}.json`), JSON.stringify(summary, null, 2) + '\n');
 
   const m = run.metrics;
   let haikuLine = '';
@@ -189,7 +205,7 @@ async function main(): Promise<void> {
   console.log('\n| Przebieg | macro-F1 | poprawność cytowań | wstrzymania | fałszywe wstrzymania | mediana czasu | koszt API silnika |');
   console.log('|---|---|---|---|---|---|---|');
   if (haikuLine) console.log(haikuLine);
-  console.log(row('Basal (bramka)', run));
+  console.log(row(assess ? 'Basal (bramka i ocena)' : 'Basal (bramka)', run));
   console.log(`\nBasal: ${summary.decisions} decyzji, poniżej progu ${summary.belowThreshold}, zapas Haiku ${summary.fallbacks}, mediana ${summary.basalLatencyMs.median} ms; czas przebiegu ${summary.wallClockS.toFixed(0)} s; GPU ${gpuPerHour !== null ? `$${summary.gpu.wallUsd!.toFixed(3)} (czas przebiegu), $${summary.gpu.busyUsd!.toFixed(4)} (czas pracy)` : 'cena za godzinę nie podana'}`);
   console.log(`Kalibracja: ${pairs.length} par, ECE ${ece?.toFixed(3) ?? '-'}`);
   console.log(`Koszt: silnik $${m.cost.engineUsd.toFixed(4)}, sędzia $${m.cost.judgeUsd.toFixed(4)}`);

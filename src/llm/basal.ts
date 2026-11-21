@@ -27,6 +27,7 @@ import {
   type SupportGate,
   type SupportRelation,
 } from '../engine/supportGate';
+import { withBasalAssess } from './basalAssess';
 
 export const DEFAULT_BASAL_TIMEOUT_MS = 5000;
 export const DEFAULT_BASAL_MIN_CONFIDENCE = 0.6;
@@ -316,6 +317,8 @@ export interface SupportGateEnvConfig {
   timeoutMs: number;
   minConfidence: number;
   cooldownMs: number;
+  /** BASAL_ASSESS=on: także ocena stanowisk fragmentów na Basalu (src/llm/basalAssess.ts). */
+  assess: boolean;
 }
 
 function num(v: string | undefined, def: number, min: number, max: number): number {
@@ -334,11 +337,12 @@ export function supportGateConfigFromEnv(env: Record<string, string | undefined>
     timeoutMs: num(env.BASAL_TIMEOUT_MS, DEFAULT_BASAL_TIMEOUT_MS, 200, 60_000),
     minConfidence: num(env.BASAL_MIN_CONFIDENCE, DEFAULT_BASAL_MIN_CONFIDENCE, 0, 1),
     cooldownMs: num(env.BASAL_COOLDOWN_MS, DEFAULT_BASAL_COOLDOWN_MS, 0, 3_600_000),
+    assess: String(env.BASAL_ASSESS ?? '').trim().toLowerCase() === 'on',
   };
 }
 
 /** Zdarzenia bramki do dziennika serwera: jedna linia JSON, bez treści i bez tokenu. */
-export function consoleBasalSink(e: BasalGateEvent): void {
+export function consoleBasalSink(e: { type: string }): void {
   console.warn(JSON.stringify({ ts: new Date().toISOString(), ...e }));
 }
 
@@ -357,14 +361,15 @@ export function applySupportGateConfig<T extends LlmProvider>(
     return llm;
   }
   const onEvent = opts.onEvent ?? consoleBasalSink;
-  const basal = new BasalSupportGate({
+  const client = new BasalClient({
     baseUrl: cfg.url,
     ...(cfg.token ? { token: cfg.token } : {}),
     timeoutMs: cfg.timeoutMs,
-    minConfidence: cfg.minConfidence,
-    onEvent,
     ...(opts.fetch ? { fetch: opts.fetch } : {}),
   });
-  const fallback: SupportGate = { name: llm.name, checkSupport: (req) => llm.checkSupport(req) };
-  return withSupportGate(llm, new FallbackSupportGate(basal, fallback, { onEvent, cooldownMs: cfg.cooldownMs }));
+  const basal = new BasalSupportGate({ baseUrl: cfg.url, client, minConfidence: cfg.minConfidence, onEvent });
+  const gated = llm as T & SupportGate;
+  const fallback: SupportGate = { name: llm.name, checkSupport: (req) => gated.checkSupport(req) };
+  const base = cfg.assess ? withBasalAssess(llm, { client, minConfidence: cfg.minConfidence, onEvent: consoleBasalSink }) : llm;
+  return withSupportGate(base, new FallbackSupportGate(basal, fallback, { onEvent, cooldownMs: cfg.cooldownMs }));
 }
