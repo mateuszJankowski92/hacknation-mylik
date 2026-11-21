@@ -3,11 +3,14 @@ import { formatDateTime, shortId } from '../format';
 import { recordUrlPath } from '../route';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
+import { KnownOpWarnings } from './KnownOpWarning';
+import { isKnownOpNotice } from '../../../src/render/warning';
 import './record.css';
 
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
 	const permalink = recordUrlPath(record.id);
+	const otherNotices = record.notices.filter((notice) => !isKnownOpNotice(notice));
 
 	return (
 		<div className="record">
@@ -24,11 +27,13 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 				<p>{record.shortAnswer}</p>
 			</section>
 
-			{record.notices.length > 0 && (
+			<KnownOpWarnings notices={record.notices} />
+
+			{otherNotices.length > 0 && (
 				<section className="record__notices" aria-label="Dodatkowe uwagi">
 					<h3>Dodatkowe uwagi</h3>
 					<ul>
-						{record.notices.map((notice, index) => (
+						{otherNotices.map((notice, index) => (
 							<li key={`${notice.type}-${index}`}>{notice.text}</li>
 						))}
 					</ul>

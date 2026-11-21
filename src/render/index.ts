@@ -19,9 +19,11 @@ import {
 	strengthSentence,
 } from './templates';
 import { buildResultLayout } from './layout';
+import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 
 export { EVIDENCE_LINK_TEXT, buildHeadline, buildResultLayout, pickLayoutEvidence, type ResultLayout } from './layout';
+export * from './warning';
 export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measureLanguage } from './metrics';
 
 const MAX_PUBLISHER_CHARS = 60;
@@ -55,6 +57,7 @@ export function renderShortAnswer(record: VerificationRecord, cardUrl: string): 
 	const lead = leadClaim(record);
 	const asOf = asOfStamp(record.asOf);
 	const tail = `${EVIDENCE_LINK_TEXT}: ${cardUrl}`;
+	const warning = knownOpSmsText(record.notices);
 	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
 
 	const count = record.claims.length;
@@ -68,10 +71,12 @@ export function renderShortAnswer(record: VerificationRecord, cardUrl: string): 
 			quote,
 		});
 		const certainty = layout.certainty ? `${layout.certainty}.` : '';
-		const text = join(layout.headline, `[${layout.label}]`, certainty, extra, layout.asOf, tail);
+		const text = join(layout.headline, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
 		if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
 	}
 	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 });
+	const compactWithWarning = join(VERDICT_EXPLANATIONS_PL[lead.verdict], `[${layout.label}]`, layout.asOf, warning, tail);
+	if (compactWithWarning.length <= SHORT_ANSWER_MAX_CHARS) return compactWithWarning;
 	const compact = join(VERDICT_EXPLANATIONS_PL[lead.verdict], `[${layout.label}]`, layout.asOf, tail);
 	if (compact.length <= SHORT_ANSWER_MAX_CHARS) return compact;
 	return join(`[${layout.label}]`, layout.asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);

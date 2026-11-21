@@ -6,6 +6,7 @@ import {
 } from '../contracts/index';
 import { EVIDENCE_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
 import { asOfStamp, formatDate } from '../render/templates';
+import { BRAND_TAGLINE, KNOWN_OP_INTRO, knownOpDescription, selectKnownOpWarnings } from '../render/warning';
 import { renderGaugeMarkup, zoneForStrength } from './visuals';
 
 export const CARD_WIDTH = 1200;
@@ -186,8 +187,14 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 			textLines(wrapText(`Sprawdzane twierdzenie: „${claimText}”`, 100, 2), 48, 416, CARD_FONT_SIZES.detail, 28, MUTED),
 		);
 	}
+	const knownOpFirst = selectKnownOpWarnings(record.notices)[0];
 	if (item) {
-		parts.push(textLines(wrapText(`Źródło: ${sourceLine(item)}`, 100, 2), 48, 484, CARD_FONT_SIZES.detail, 28, MUTED));
+		parts.push(textLines(wrapText(`Źródło: ${sourceLine(item)}`, 100, knownOpFirst ? 1 : 2), 48, 484, CARD_FONT_SIZES.detail, 28, MUTED));
+	}
+
+	if (knownOpFirst) {
+		const warningLines = wrapText(`${KNOWN_OP_INTRO} ${knownOpDescription({ ...knownOpFirst, title: null })}`, 135, 1);
+		parts.push(textLines(warningLines, 48, 526, 16, 20, MUTED));
 	}
 
 	parts.push(`<line x1="48" y1="540" x2="1152" y2="540" stroke="${MUTED}" stroke-width="1"/>`);
@@ -195,6 +202,7 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 	parts.push(
 		textLines([`${layout.evidenceLink}: ${address}`], 48, 604, CARD_FONT_SIZES.footer, 26, MUTED),
 	);
+	parts.push(`<text x="1152" y="30" font-size="16" text-anchor="end" fill="${MUTED}">${escapeXml(`Mylik. ${BRAND_TAGLINE}`)}</text>`);
 	parts.push('</svg>');
 	return parts.filter(Boolean).join('\n');
 }

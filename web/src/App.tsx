@@ -3,6 +3,7 @@ import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
 import { useRoute } from './route';
+import { BRAND_TAGLINE } from '../../src/render/warning';
 
 export function App() {
 	const route = useRoute();
@@ -17,6 +18,7 @@ export function App() {
 			</div>
 			<header className="site-header">
 				<h1>Mylik</h1>
+				<p className="site-header__tagline">{BRAND_TAGLINE}</p>
 				<p>Pokazuję, co o danej informacji mówią wiarygodne źródła. Nie wydaję wyroków.</p>
 				<nav aria-label="Główna nawigacja">
 					<Link to="/" aria-current={route.page === 'check' ? 'page' : undefined}>

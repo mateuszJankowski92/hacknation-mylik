@@ -1,5 +1,7 @@
 # Mylik
 
+_Mapa to nie terytorium. Mylik sprawdza mapę, zanim w nią uwierzysz._
+
 Zespół: Iteracja7.
 
 Prototyp weryfikacji doniesień (HackNation 2026). Obywatel wysyła tekst lub adres URL, a system sprawdza twierdzenia w zamkniętym, wersjonowanym korpusie źródeł i odpowiada po polsku: werdykt, uzasadnienie, siła podstawy i cytaty ze źródeł albo uczciwe wstrzymanie się. Mylik nie jest „sędzią prawdy”.

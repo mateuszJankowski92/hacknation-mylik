@@ -407,3 +407,36 @@ td {
 		scroll-behavior: auto !important;
 	}
 }
+
+.site-header__tagline {
+	font-style: italic;
+	color: var(--muted);
+}
+
+.known-op {
+	margin: 1rem 0;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--border);
+	border-radius: 0.5rem;
+	background: var(--surface);
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.known-op__item + .known-op__item {
+	margin-top: 0.75rem;
+	padding-top: 0.75rem;
+	border-top: 1px solid var(--border);
+}
+
+.known-op p {
+	margin: 0.25rem 0;
+}
+
+.known-op__intro {
+	font-weight: 600;
+}
+
+.known-op__note {
+	font-size: 0.85rem;
+}
