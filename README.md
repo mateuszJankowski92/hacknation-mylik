@@ -42,7 +42,7 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 |---|---|---|
 | `LLM_PROVIDER` | `mock` | Dostawca modelu: `mock`, `anthropic` (`mistral` jeszcze niezaimplementowany). |
 | `ANTHROPIC_API_KEY` | brak | Klucz Anthropic. Brak klucza przy `anthropic` daje stan „awaria techniczna”, nigdy werdykt. |
-| `ANTHROPIC_MODEL` | pusty | Model Anthropic; pusty oznacza domyślny model ustalony w `src/llm/anthropic.ts`. |
+| `ANTHROPIC_MODEL` | pusty | Model Anthropic; pusty oznacza domyślny `claude-sonnet-5-5` (Claude Sonnet 5.5, stała w `src/llm/anthropic.ts`). Tańsza opcja: `claude-haiku-5-5` (Claude Haiku 5.5). |
 | `DB_PATH` | `data/mylik.sqlite` | Baza SQLite (korpus, rekordy, log zdarzeń). Ścieżka względna liczona od katalogu projektu. Jedyne miejsce zapisu serwera. |
 | `PORT` | `8787` | Port HTTP (na hostingu z Passengerem nadawany automatycznie). |
 | `RATE_LIMIT_PER_MIN` | `20` | Limit zgłoszeń na minutę na klienta: osobno `POST /api/*` (odpowiedź 429 JSON) i `POST /sms/webhook` (429 tekstem). `GET` bez limitu. |

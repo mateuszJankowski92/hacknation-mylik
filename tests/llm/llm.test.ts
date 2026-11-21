@@ -4,7 +4,7 @@ import { loadConfig } from '../../src/config';
 import { LlmError, AssessOutputSchema, ExtractClaimsOutputSchema } from '../../src/contracts/llm';
 import type { ExtractedClaim } from '../../src/contracts/claim';
 import { createLlmProvider, LlmConfigError, MockLlmProvider } from '../../src/llm/index';
-import { AnthropicProvider, type AnthropicMessagesClient } from '../../src/llm/anthropic';
+import { AnthropicProvider, DEFAULT_ANTHROPIC_MODEL, type AnthropicMessagesClient } from '../../src/llm/anthropic';
 import { ASSESS_SYSTEM_PROMPT, EXTRACT_SYSTEM_PROMPT, buildAssessUserMessage } from '../../src/llm/prompts';
 import { looksLikeInjection, neutralizeTags, wrapPassage, wrapUserData } from '../../src/llm/sanitize';
 import { estimateCostUsd } from '../../src/llm/pricing';
@@ -146,7 +146,7 @@ function message(text: string, stop: Anthropic.StopReason = 'end_turn'): Anthrop
     id: 'msg_test',
     type: 'message',
     role: 'assistant',
-    model: 'claude-haiku-5-5',
+    model: 'claude-sonnet-5-5',
     content: [{ type: 'text', text }],
     stop_reason: stop,
     usage: { input_tokens: 100, output_tokens: 20 },
@@ -184,7 +184,8 @@ describe('anthropic (zamockowane SDK)', () => {
     const { p, calls } = provider([message(okClaims)]);
     const r = await p.extractClaims({ text: 'Coś się stało.' });
     expect(r.claims[0].id).toBe('c1');
-    expect(r.usage).toMatchObject({ model: 'claude-haiku-5-5', inputTokens: 100, outputTokens: 20, latencyMs: 10 });
+    expect(DEFAULT_ANTHROPIC_MODEL).toBe('claude-sonnet-5-5');
+    expect(r.usage).toMatchObject({ model: DEFAULT_ANTHROPIC_MODEL, inputTokens: 100, outputTokens: 20, latencyMs: 10 });
     expect(r.usage.estimatedCostUsd).toBeGreaterThan(0);
     const body = calls[0] as unknown as Record<string, unknown>;
     expect(body.tools).toBeUndefined();

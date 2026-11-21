@@ -1,10 +1,12 @@
 /**
  * Dostawca `anthropic` (oficjalne SDK `@anthropic-ai/sdk`).
  *
- * - Model domyślny: `claude-haiku-5-5` (mały, tani, szybki); zmiana przez `ANTHROPIC_MODEL`.
+ * - Model domyślny: `claude-sonnet-5-5` (Claude Sonnet 5.5; jedyny z trafnością >= 0,75 w zestawie testowym).
+ *   Tańsza opcja: `ANTHROPIC_MODEL=claude-haiku-5-5` (Claude Haiku 5.5). Powrót do Haiku jako domyślnego:
+ *   zmiana jednej stałej `DEFAULT_ANTHROPIC_MODEL` poniżej.
  * - Wyjście wymuszone schematem przez structured outputs (`output_config.format`),
  *   to NIE jest narzędzie: żadnych `tools`, brak sieci po stronie modelu, brak streamingu.
- * - `temperature` NIE jest wysyłane: Claude Haiku 5.5 (i nowsze modele) zwraca 400
+ * - `temperature` NIE jest wysyłane: Claude Sonnet 5.5 i Claude Haiku 5.5 zwracają 400
  *   dla niedomyślnych parametrów próbkowania. Determinizm zapewnia schemat i prompt.
  * - `output_config.effort: 'low'`: myślenie adaptacyjne zostaje domyślne, niski wysiłek
  *   trzyma opóźnienie i koszt nisko.
@@ -37,7 +39,7 @@ import {
   buildSchemaRetryNote,
 } from './prompts';
 
-export const DEFAULT_ANTHROPIC_MODEL = 'claude-haiku-5-5';
+export const DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-5-5';
 export const ANTHROPIC_TIMEOUT_MS = 25_000;
 const MAX_TOKENS = 8_000;
 
