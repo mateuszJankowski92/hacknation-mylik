@@ -88,7 +88,7 @@ describe('pierwszy ekran strony głównej', () => {
 		expect(countWords(visible)).toBeLessThanOrEqual(35);
 	});
 
-	it('rezerwuje miejsce na ilustrację: zaślepka z kodu albo plik z tekstem alternatywnym', () => {
+	it('rezerwuje miejsce na ilustrację: obraz zastępczy z kodu albo plik z tekstem alternatywnym', () => {
 		const placeholder = render(<HeroIllustration />);
 		const still = placeholder.container.querySelector('img');
 		expect(still?.getAttribute('src')).toMatch(/\/postacie\/start\/praca__spoczynek\.webp$/);
