@@ -6,15 +6,29 @@
  *   wywołanie rzuca `LlmError('no_key')` (silnik zamienia to na stan techniczny).
  * - `mistral`: miejsce na trzeciego dostawcę (implementacja `LlmProvider` w `src/llm/mistral.ts`
  *   i jedna gałąź poniżej; silnik bez zmian). Na razie błąd konfiguracji.
+ *
+ * Bramka wsparcia (zad. 30): SUPPORT_GATE_PROVIDER=basal + BASAL_URL podmienia bramkę dostawcy na Basal
+ * z automatycznym zapasem w bramce dostawcy (src/llm/basal.ts). Domyślnie wyłączone.
  */
 import type { AppConfig } from '../config';
 import type { LlmProvider } from '../contracts/llm';
 import { AnthropicProvider } from './anthropic';
+import { applySupportGateConfig, supportGateConfigFromEnv } from './basal';
 import { MockLlmProvider } from './mock';
 
 export { AnthropicProvider, DEFAULT_ANTHROPIC_MODEL, mapAnthropicError } from './anthropic';
 export { MockLlmProvider } from './mock';
 export { looksLikeInjection } from './sanitize';
+export {
+  BasalClient,
+  BasalError,
+  BasalSupportGate,
+  FallbackSupportGate,
+  applySupportGateConfig,
+  supportGateConfigFromEnv,
+  withSupportGate,
+  type BasalGateEvent,
+} from './basal';
 
 /** Błąd konfiguracji dostawcy (nieznana nazwa, niezaimplementowany dostawca). Bez sekretów w treści. */
 export class LlmConfigError extends Error {
@@ -24,7 +38,14 @@ export class LlmConfigError extends Error {
   }
 }
 
-export function createLlmProvider(cfg: Pick<AppConfig, 'llmProvider' | 'anthropicApiKey' | 'anthropicModel'>): LlmProvider {
+export function createLlmProvider(
+  cfg: Pick<AppConfig, 'llmProvider' | 'anthropicApiKey' | 'anthropicModel'>,
+  env: Record<string, string | undefined> = process.env,
+): LlmProvider {
+  return applySupportGateConfig(createBaseProvider(cfg), supportGateConfigFromEnv(env));
+}
+
+function createBaseProvider(cfg: Pick<AppConfig, 'llmProvider' | 'anthropicApiKey' | 'anthropicModel'>): LlmProvider {
   const name = String(cfg.llmProvider ?? 'mock');
   switch (name) {
     case 'mock':
