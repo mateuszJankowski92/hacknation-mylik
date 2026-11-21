@@ -6,7 +6,7 @@
 
 | Zestaw | Plik | Do czego |
 |---|---|---|
-| strojeniowy | data/eval/cases.json (60 przypadków) | rozwój silnika i promptów; wyniki są "na danych strojeniowych" |
+| strojeniowy | data/eval/cases.json (71 przypadków; 60 pierwotnych + 11 pytań Q01-Q11 z zad. 35) | rozwój silnika i promptów; wyniki są "na danych strojeniowych" |
 | kontrolny v1 | data/eval/control/cases.json (30 przypadków) | pisany osobno jako niezależny pomiar. **Od zadania 25 (21.11.2026) nie jest czysty**: posłużył do diagnozy etapów (liczby zbiorcze), na jej podstawie zmieniono ogólne reguły silnika i promptów. Wyniki na nim są odtąd "na danych użytych do diagnozy". Niezależny pomiar: zestaw kontrolny v2 (zad. 26). |
 | kontrolny v2 | data/eval/control_v2/cases.json (176 przypadków, 27 oznaczonych `doubtful`) | pisany po zad. 25 bez wglądu w silnik, prompty i wyniki (rozkład: data/eval/control_v2/rozklad.md). Czysty pomiar: uruchomiony raz, bez strojenia. Źródło profilu omylności. |
 
@@ -33,7 +33,8 @@ Pozycja to teza z oczekiwanym werdyktem: całe zgłoszenie (`expected.verdict`) 
 | Fałszywe wstrzymania | przypadki z etykietą rozstrzygającą zakończone wstrzymaniem / przypadki z etykietą rozstrzygającą. |
 | Odporność | ataki odparte (polecenie zignorowane i odnotowane w logu, nic nie wyciekło) / ataki. |
 | Stany techniczne | przypadki awarii zakończone właściwym stanem / przypadki awarii; plus liczba pozornych werdyktów (ma być 0). |
-| Spójność kanałów | ten sam tekst przez WWW i adapter SMS (w prototypie: symulator): zgodne werdykty i dokumenty dowodów / pary. |
+| Spójność kanałów | ten sam tekst przez WWW i adapter SMS (w prototypie: symulator): zgodne werdykty i dokumenty dowodów / pary. Od zad. 35 liczona jak w produkcji: SMS idzie przez ten sam silnik i tę samą bazę rekordów (wspólna pamięć rekordów), a treść SMS ma inny zapis (bez polskich znaków, inne cudzysłowy i myślniki, powtórzona interpunkcja; `smsVariant` w src/eval/runner.ts). Wariant ścisły (`channelConsistencyStrict`) wymaga dodatkowo zgodnej odpowiedzi SMS (odsyłacz /r/<id>). |
+| Powtarzalność bez pamięci rekordów | ten sam tekst liczony drugi raz na osobnej, pustej bazie: zgodne werdykty / pary (`repeatability`). Mierzy niedeterminizm modelu, nie spójność kanałów; dawniej oba efekty były zmieszane w jednym mierniku. |
 | Mediana czasu, koszt | bez przypadków awarii; koszt silnika (wszystkie wywołania modelu, także bramka wsparcia) i sędziego osobno. |
 
 ## Profil omylności ("pomyliłem się X razy na Y")
@@ -89,7 +90,9 @@ Przypadki wątpliwe (27): A04, A25, A28, A37, A38, A51, A52, A53, B04, B22, B31,
 
 ## Końcowy przebieg zestawów (21.11.2026)
 
-Silnik do wdrożenia: **2aeccd3da6f9** (commit 5953a4e; skrót src/engine, src/llm, src/contracts). Późniejsze commity do 2976b7a tych katalogów nie zmieniają. Claude Haiku 5.5 (model domyślny), bez drugiej warstwy (LIVE_LAYER=off), bez Basala, sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach (eval nie ma trybu próbki). Silnik uruchomiony z czystej kopii repozytorium w katalogu tymczasowym, korpus cb62b4255ea0 (733 dokumenty, ta sama zamrożona kopia co w zad. 26, `--corpus-root`). Jeden przebieg każdego zestawu, 17:47-18:03 UTC, bez strojenia.
+**Zastąpiony przebiegiem z zad. 35 (sekcja niżej, silnik dd6f303f5e02).** Ta sekcja zostaje jako punkt odniesienia "przed zad. 35".
+
+Silnik z tego przebiegu: **2aeccd3da6f9** (commit 5953a4e; skrót src/engine, src/llm, src/contracts). Późniejsze commity do 2976b7a tych katalogów nie zmieniają. Claude Haiku 5.5 (model domyślny), bez drugiej warstwy (LIVE_LAYER=off), bez Basala, sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach (eval nie ma trybu próbki). Silnik uruchomiony z czystej kopii repozytorium w katalogu tymczasowym, korpus cb62b4255ea0 (733 dokumenty, ta sama zamrożona kopia co w zad. 26, `--corpus-root`). Jeden przebieg każdego zestawu, 17:47-18:03 UTC, bez strojenia.
 
 | Zestaw | macro-F1 | pokrycie cytowań | poprawność cytowań (sędzia) | wstrzymanie się | odporność | mediana czasu (p90 / maks.) | koszt silnika na 100 testów | spójność kanałów |
 |---|---|---|---|---|---|---|---|---|
@@ -126,3 +129,44 @@ Zmiana 8fbcebd776c7 -> 2aeccd3da6f9 dotyczy tylko punktu doboru dowodów drugiej
 - Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek; ręczna próbka review_sample.md bez ocen ludzkich.
 - Profil jest ważny tylko dla silnika 2aeccd3da6f9 i claude-haiku-5-5; każda zmiana src/engine, src/llm lub src/contracts go unieważni.
 
+
+## Przebieg zadania 35 (21.11.2026): silnik dd6f303f5e02
+
+Silnik **dd6f303f5e02** (skrót src/engine, src/llm, src/contracts; ostatnia zmiana w commicie fe5ef53) jest silnikiem do zamrożenia. Claude Haiku 5.5 (model domyślny), bez drugiej warstwy (`LIVE_LAYER=off`), sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach. Uruchomienie z czystego klonu repozytorium w katalogu tymczasowym, korpus cb62b4255ea0 (733 dokumenty, ta sama zamrożona kopia, `--corpus-root`), jeden przebieg każdego zestawu, 18:25-18:41 UTC, bez strojenia po przebiegu. Wyniki: data/eval/results.json, ręczna próbka cytowań: data/eval/review_sample.md.
+
+| Zestaw | macro-F1 | poprawność cytowań (sędzia) | wstrzymanie się | odporność | fałszywe wstrzymania | spójność kanałów | powtarzalność bez pamięci rekordów | mediana czasu (p90 / maks.) | koszt silnik + sędzia |
+|---|---|---|---|---|---|---|---|---|---|
+| strojeniowy (71) | 0,799 (n=60) | 93,3% (83/89) | 7/7 | 6/6 | 9/43 | 3/3 | 3/3 | 7,2 s (9,5 / 13,5) | $0,204 + $0,240 |
+| kontrolny v1, użyty do diagnozy (30) | 0,737 (n=34) | 84,8% (56/66) | 3/4 | 2/2 | 5/21 | 2/2 | 1/2 | 8,8 s (12,2 / 14,5) | $0,164 + $0,163 |
+| **kontrolny v2 (176), użyty do jednej decyzji o progu wstrzymania** | **0,701 (n=176)** | **79,7% (169/212)** | 15/21 (71,4%) | 8/8 | 35/136 | 5/5 | 3/5 | 7,5 s (10,3 / 13,2) | $0,607 + $0,626 |
+| v2 bez 27 wątpliwych | 0,727 (n=145) | 81,8% (144/176) | 13/15 | 7/7 | 30/122 | - | - | - | - |
+
+Pokrycie cytowań i cytat dosłowny 100% na wszystkich zestawach (v2: 121/121 i 212/212). Inne mierniki v2: dokładność ogólna 118/174, stany techniczne 4/4 (0 pozornych werdyktów), koszt silnika na 100 testów $0,36. F1 klas v2: potwierdzone 0,825, fałszywe 0,690, wprowadzające w błąd 0,529, brak dowodów 0,506, nie podlega weryfikacji 0,955. Koszt końcowego przebiegu $2,00 (silnik + sędzia); razem z przebiegiem rozwojowym na zestawie strojeniowym ($0,43) zad. 35 kosztowało ok. $2,45.
+
+**Wobec silnika 2aeccd3da6f9 (sekcja wyżej)** na v2: macro-F1 0,673 -> 0,701, poprawność cytowań 73,8% -> 79,7%, odporność 6/8 -> 8/8, spójność kanałów 4/5 -> 5/5, wstrzymanie się 15/21 bez zmian. Cena ostrzejszej bramki wsparcia: fałszywe wstrzymania 24/136 -> 35/136. Na zestawie strojeniowym (przebieg rozwojowy przed ostatnią poprawką fe5ef53: macro-F1 0,784, cytowania 89,8%) i v1 (0,697 -> 0,737) wynik także lepszy, ale oba zestawy nie są czyste. Nadal poniżej celów MVP na v2: macro-F1 (cel 0,75), poprawność cytowań (85%), wstrzymanie się (80%); odporność (90%) osiągnięta (8/8, ale tylko 8 ataków).
+
+**Profil omylności** (results.json, `errorProfileMeta`: set v2, model claude-haiku-5-5, silnik dd6f303f5e02, data 2026-11-21T18:41:01Z, koszyki >= 20 tez): średnia 14/58, niska 12/43, brak 28/70. Koszyk "wysoka" (0/3) się nie pokazuje. Poza profilem 2 pozycje (1 stan techniczny, 1 teza niewyodrębniona). Bez wątpliwych (do wglądu): wysoka 0/2, średnia 8/48, niska 9/34, brak 24/60. Sprawdzone: `loadVerifiedErrorProfile` dla claude-haiku-5-5 i dd6f303f5e02 zwraca te trzy koszyki; dla innej wersji silnika zwraca null. Koszyk "niska" spadł z 33/55 do 12/43, więc zdanie o omylności przy niskiej sile podstawy jest teraz dużo bliższe prawdy niż w poprzednim profilu.
+
+### Co zmieniło się w pomiarze
+
+- **Spójność kanałów** jest mierzona jak w produkcji (wspólny silnik i baza rekordów, SMS w innym zapisie), a **powtarzalność bez pamięci rekordów** osobno. Poprzednio SMS liczył się na osobnej bazie, więc miernik porównywał dwa niezależne liczenia niedeterministycznego modelu (diagnoza: pkt 1 zad. 35). Realne luki, które naprawiono: klucz rekordu zależał od polskich znaków, cudzysłowów, myślników i powtórzonej interpunkcji; sam adres w SMS-ie szedł jako tekst; dwa jednoczesne identyczne zgłoszenia liczyły się dwa razy. Powtarzalność 3/5 na v2 i 1/2 na v1 pokazuje, że model bez pamięci rekordów nadal potrafi dać inny werdykt dla tego samego tekstu; dlatego rekord w bazie jest ważny dla spójności.
+- **Zestaw strojeniowy ma 71 przypadków** (+11 pytań Q01-Q11): pytanie tak/nie ("Czy ...?", "czy to prawda, że", "podobno") jest traktowane jako twierdzenie do sprawdzenia, pytanie otwarte daje prośbę o doprecyzowanie z przykładem (docs/NIEOBSLUGIWANE.md).
+- **v2 przestał być w pełni "czysty"**: użyty do jednej decyzji (wariant "przy niskiej sile brak werdyktu", niżej). Silnika ani promptów nie dostrajano na jego przypadkach; poprawki zad. 35 wynikały z diagnozy kanałów, przeglądu cytowań i błędów strojeniowego. Mimo to wynik v2 należy czytać jako "kontrolny, po jednej decyzji o progu", a nie jako dziewiczy pomiar.
+
+### Spadek poprawności cytowań (pkt 3) i poprawka
+
+Poprawność cytowań spadła w zad. 25 (strojeniowy 85,1% -> 80,6%, v1 89,6% -> 71,6%). Sędzia nie zmienił się od zad. 20 (judge.ts i przekazywany tytuł oraz fragment bez zmian), więc przyczyną był silnik z zad. 25: szersza pula i wybór kandydatów dały więcej cytatów "rozbieżność", a bramka wsparcia przepuszczała dowód przy samym zgodnym kierunku (za/przeciw). Na tym samym sędzi poprawność cytatów "rozbieżność" wynosiła 13/18 (zad. 20), 18/29 (po zad. 25), 13/36 (b4951b5); cytaty "obala" i "potwierdza" były stabilne (88-100%). Poprawka: bramka wymaga dokładnie tej samej relacji co ocena, a każda niezgoda oznacza, że słaby dowód odpada (wstrzymanie). Efekt: v2 73,8% -> 79,7%, strojeniowy 72,7% -> 93,3%, v1 74,6% -> 84,8%. Kosztem rośnie liczba fałszywych wstrzymań.
+
+### Wariant "przy niskiej sile brak werdyktu" (pkt 4): nie wdrożony
+
+Policzono bez nowych wywołań modelu, na wynikach b4951b5 (v2). Warunek wdrożenia: błędne werdykty rozstrzygające spadają o połowę, a macro-F1 nie spada o więcej niż 0,03. Wynik: błędne werdykty rozstrzygające 28 -> 14 (warunek spełniony), ale macro-F1 0,673 -> 0,585 (-0,088, warunek niespełniony). Wstrzymanie się 15/21 -> 17/21, fałszywe wstrzymania 24/136 -> 57/136, profil "niska" 33/55 -> 52/55; strojeniowy 0,732 -> 0,725, v1 0,697 -> 0,674. Decyzja wg reguły: zostawić bez zmian. Z 33 błędów koszyka "niska" 19 to wstrzymania "sprzeczne źródła" (potwierdza + rozbieżność), wszystkie błędne; ostrzejsza bramka z pkt 3 zmniejszyła ich liczbę (koszyk "niska" 12/43).
+
+### Rozrzut i ograniczenia
+
+- **Rozrzut między przebiegami** na v2 (ten sam silnik bez drugiej warstwy) wynosił co najmniej 0,06 macro-F1 (0,673-0,733). Pkt 6 zad. 35 usunął źródło zależne od kolejności (porcje oceny w stałej kolejności wyszukiwania), ale temperatura nie jest dostępna dla Haiku ani Sonneta 5.5 (odpowiedź 400), więc reszta to próbkowanie modelu. Różnic poniżej ok. 0,05 macro-F1 nie należy traktować jako rozstrzygających; wynik 0,701 to jeden przebieg.
+- **Fałszywe wstrzymania 35/136 (25,7%)** to realny koszt: system częściej odmawia werdyktu, gdy dowód jest słaby. Najczęstszy błąd v2 to nadal wstrzymanie zamiast oczekiwanej etykiety (głównie "wprowadzające w błąd": recall 0,39).
+- Spójność kanałów i odporność liczone na kilku parach (v1: 2, strojeniowy: 3, v2: 5; ataki: 2, 6, 8), więc to sygnał, nie dowód. Powtarzalność 3/5 na v2.
+- Trzy stany techniczne z poprzedniego przebiegu (limit zapytań, niezgodna odpowiedź modelu) zniknęły dzięki ponowieniu i podziałowi porcji; w tym przebiegu nie było niespodziewanych stanów technicznych (v2 4/4, strojeniowy 5/5).
+- Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek; próbka review_sample.md bez ocen ludzkich.
+- Klucz rekordu zawiera treść i wersję korpusu, ale nie wersję silnika. Przed wdrożeniem trzeba wyczyścić bazę produkcyjną (`scripts/deploy.sh --replace-db` lub src/security/purge-cli.ts), inaczej stare rekordy dla wejść bez polskich znaków dalej będą trafiane.
+- Profil jest ważny tylko dla silnika dd6f303f5e02 i claude-haiku-5-5; każda zmiana src/engine, src/llm lub src/contracts go unieważni.
