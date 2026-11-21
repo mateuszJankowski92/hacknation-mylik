@@ -161,21 +161,3 @@ describe('zapytania na żywo: krótkie frazy, plan, pamięć tylko w procesie', 
     expect(new URL(seen).searchParams.get('reviewPublisherSiteFilter')).toBe('demagog.org.pl');
   });
 });
-
-import { namePhrases, namesMatch } from '../../src/factcheck/layer';
-
-describe('zgodność nazw osób z wpisem redakcji', () => {
-  const p = namePhrases('Czy radna Anna Testowska otworzyła nowy most?');
-  it('wystarczy nazwisko, także w innej odmianie', () => {
-    expect(namesMatch(p, 'Testowska otworzyła most w Lipnie')).toBe(true);
-    expect(namesMatch(p, 'Radna Testowskiej przypisano otwarcie mostu')).toBe(true);
-  });
-  it('to samo nazwisko z innym imieniem: odrzucenie', () => {
-    expect(namesMatch(p, 'Maria Testowska otworzyła most')).toBe(false);
-  });
-  it('brak członu nazwy: odrzucenie; nazwa jednowyrazowa jak dotąd', () => {
-    expect(namesMatch(p, 'Anna otworzyła most')).toBe(false);
-    expect(namesMatch(namePhrases('Czy w Lipnie otwarto most?'), 'Most w Lipnie otwarty')).toBe(true);
-    expect(namesMatch(namePhrases('Czy w Lipnie otwarto most?'), 'Most w Borowie otwarty')).toBe(false);
-  });
-});

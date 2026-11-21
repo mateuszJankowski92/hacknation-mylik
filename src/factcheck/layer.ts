@@ -13,7 +13,7 @@
 import { sha256Hex, type ExtractedClaim, type Notice, type Passage, type SourceMeta } from '../contracts/index';
 import type { AcceptedEvidence } from '../engine/citations';
 import { detectInjectionSignals, type InjectionSignalCode } from '../engine/injection';
-import { claimDate, dateMatches, stem } from '../live/select';
+import { claimDate, dateMatches, properNames } from '../live/select';
 import { claimTerms, relevance } from '../live/layer';
 import type { FactcheckIndex, IndexErrorCode } from './client';
 import { matchPublisher, type FactcheckConfig } from './config';
@@ -245,7 +245,7 @@ export function createFactcheckLayer(opts: { config: FactcheckConfig; index: Fac
 export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEvidence[], now: Date): FactcheckSelection {
     const reasons: Record<string, number> = {};
     const drop = (code: string) => (reasons[code] = (reasons[code] ?? 0) + 1);
-    const phrases = namePhrases(claim.text);
+    const names = properNames(claim.text);
     const date = claimDate(claim.text);
     const kept: AcceptedEvidence[] = [];
     for (const a of accepted) {
@@ -273,7 +273,7 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
       // Zgodność zdarzenia: nazwy własne z twierdzenia w tezie lub tytule; data lub okres zgodne.
       const hay = `${a.passage.meta.title}\n${review.claimReviewed}`;
       const low = hay.toLowerCase();
-      if (!namesMatch(phrases, hay)) {
+      if (names.some((n) => !low.includes(n))) {
         drop('inne_nazwy');
         continue;
       }
@@ -304,52 +304,6 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
     const dropped = accepted.length - kept.length;
     return { accepted: kept, ...(Object.keys(reasons).length ? { reasons } : {}), ...(dropped ? { dropped } : {}) };
   }
-
-/**
- * Nazwy własne twierdzenia jako frazy (sąsiednie wyrazy z wielkiej litery poza początkiem zdania),
- * np. „Billa Gatesa” -> [„bill”, „gates”] (rdzenie jak w drugiej warstwie).
- */
-export function namePhrases(text: string): string[][] {
-  const out: string[][] = [];
-  for (const sentence of text.split(/(?<=[.!?])\s+/)) {
-    const words = sentence.match(/[\p{L}][\p{L}-]*/gu) ?? [];
-    let cur: string[] = [];
-    words.forEach((w, i) => {
-      if (i > 0 && /^\p{Lu}/u.test(w) && w.length >= 3) cur.push(stem(w));
-      else if (cur.length) (out.push(cur), (cur = []));
-    });
-    if (cur.length) out.push(cur);
-  }
-  return out;
-}
-
-/**
- * Zgodność nazw z wpisem redakcji. Nazwa jednowyrazowa: musi wystąpić (rdzeniem). Nazwa wielowyrazowa
- * (np. imię i nazwisko): wystarczy ostatni człon (nazwisko); odrzucamy, gdy we wpisie nie ma ostatniego
- * członu albo gdy przed tym samym nazwiskiem stoi INNE imię (inny wyraz z wielkiej litery).
- */
-export function namesMatch(phrases: string[][], hay: string): boolean {
-  const low = hay.toLowerCase();
-  // Wyrazy zdaniami: pierwszy wyraz zdania (wielka litera z powodu początku) nie liczy się jako imię.
-  const sentences = hay.split(/(?<=[.!?:])\s+|\n+/).map((x) => x.match(/[\p{L}][\p{L}-]*/gu) ?? []);
-  for (const ph of phrases) {
-    const last = ph[ph.length - 1]!;
-    if (!low.includes(last)) return false;
-    if (ph.length < 2) continue;
-    const firsts = new Set(ph.slice(0, -1));
-    for (const words of sentences)
-      for (let i = 1; i < words.length; i++) {
-        if (!words[i]!.toLowerCase().startsWith(last)) continue;
-        const prev = words[i - 1]!;
-        // Na początku zdania tytuł lub funkcja („Radna”, „Minister”) to nie imię; inne słowo: ostrożnie jak imię.
-        if (i - 1 === 0 && ROLE_WORDS.test(prev.toLowerCase())) continue;
-        if (/^\p{Lu}/u.test(prev) && prev.length >= 3 && !firsts.has(stem(prev))) return false;
-      }
-  }
-  return true;
-}
-
-const ROLE_WORDS = /^(radn|pos[łl]|minist|prezyd|premier|burmistrz|prezes|prof|dr|pan|pani|senat|wojewod|marsza|wicemin|rzeczni|sędzi|sedzi|komendan|starost|wójt|wojt)/u;
 
 /** Słowa zakresu i progu (kwantyfikatory), porównywane rdzeniem. */
 const DETAIL_WORDS = /^(jedyn|pierws|wszys|wszyst|każd|kazd|zawsz|nigdy|nikt|żadn|zadn|ponad|powyż|powyz|poniż|poniz|najwi|najmn)/u;
