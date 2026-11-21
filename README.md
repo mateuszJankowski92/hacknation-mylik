@@ -23,7 +23,12 @@ Sprawdzenie, że działa:
 curl -s localhost:8787/api/health
 curl -s -X POST localhost:8787/api/verify -H 'content-type: application/json' \
   -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}'
+curl -s -X POST localhost:8787/sms/webhook -H 'content-type: application/json' \
+  -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}'
+curl -s localhost:8787/api/stats
 ```
+
+Symulator SMS w przeglądarce: `http://localhost:8787/sms`.
 
 Pozostałe polecenia: `npm test` (testy, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
@@ -40,8 +45,13 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `ANTHROPIC_MODEL` | pusty | Model Anthropic; pusty oznacza domyślny model ustalony w `src/llm/anthropic.ts`. |
 | `DB_PATH` | `data/mylik.sqlite` | Baza SQLite (korpus, rekordy, log zdarzeń). Ścieżka względna liczona od katalogu projektu. Jedyne miejsce zapisu serwera. |
 | `PORT` | `8787` | Port HTTP (na hostingu z Passengerem nadawany automatycznie). |
-| `RATE_LIMIT_PER_MIN` | `20` | Limit żądań na minutę (wdrażany w zad. 07). |
-| `RETENTION_DAYS` | `30` | Retencja rekordów i zdarzeń (wdrażana w zad. 07). |
+| `RATE_LIMIT_PER_MIN` | `20` | Limit zgłoszeń na minutę na klienta: osobno `POST /api/*` (odpowiedź 429 JSON) i `POST /sms/webhook` (429 tekstem). `GET` bez limitu. |
+| `TRUSTED_PROXY_HOPS` | `0` | Liczba zaufanych proxy przed serwerem (np. `1` za Passengerem/nginx). Przy `0` nagłówek `X-Forwarded-For` jest ignorowany i liczy się adres połączenia. |
+| `RETENTION_DAYS` | `30` | Retencja rekordów i zdarzeń: czyszczenie przy starcie i co godzinę. Ręcznie: `npx tsx src/security/purge-cli.ts [--all]`. |
+| `EVAL_RESULTS_PATH` | `data/eval/results.json` | Wyniki zestawu testowego (profil błędów w rekordzie). Plik opcjonalny. |
+| `KNOWN_OPS_DIR` | `data/known-ops` | Znane operacje informacyjne (EUvsDisinfo), tylko ostrzeżenia. Brak plików nie przeszkadza. |
+| `INCIDENTS_PATH` | brak | Plik bazy incydentów (JSON/CSV), tylko ostrzeżenia. Brak = wyszukiwanie domyślne; brak pliku nie przeszkadza. |
+| `PUBLIC_BASE_URL` | brak | Publiczny adres serwisu dla odsyłacza na karcie SVG; brak = adres względny. |
 
 `GET /api/health` zwraca nazwę dostawcy i modelu (bez klucza). Konfiguracja wypisywana przy starcie zawiera tylko informację, czy klucz jest ustawiony.
 
@@ -58,7 +68,7 @@ Uwaga: `.env.example` ma `LLM_PROVIDER=anthropic`. Bez klucza zmień to w `.env`
 - Potok: przygotowanie wejścia i maskowanie danych osobowych (`src/input`) -> ekstrakcja twierdzeń (model) -> wyszukiwanie FTS5 w korpusie (`src/corpus`) -> ocena stanowisk fragmentów (model) -> bramka cytatów (kod: cytat musi być dosłownym podciągiem fragmentu) -> werdykt i siła podstawy (kod, `src/engine/rules.ts`) -> zapis rekordu.
 - Model nigdy nie podaje URL-i ani metadanych źródeł; widzi tylko identyfikator i treść fragmentu. Metadane wstawia kod z bazy.
 - Brak klucza, limit, wyjątek to zawsze stan techniczny (`kind: "state"`), nigdy werdykt. Wykryte sygnały prompt injection trafiają do rekordu i do logu zdarzeń (tabela `events`, bez treści zgłoszeń).
-- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`.
+- API (`src/contracts/api.ts`): `POST /api/verify` (JSON, maks. 16 KB, dokładnie jedno z `text`/`url`), `GET /api/records/:id`, `GET /api/sources`, `GET /api/health`. Dodatkowo w tym samym serwerze: `GET /api/records/:id/card.svg` (karta do pobrania, `?download=1`), `GET /api/stats` (agregaty bez treści zgłoszeń), `POST /sms/webhook` (JSON lub formularz, pole `text`/`tresc`/`body`; odpowiedź zwykłym tekstem, ten sam rekord co WWW) i `GET /sms` (symulator telefonu).
 - Nagłówki bezpieczeństwa: CSP ograniczone do własnego originu, `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: no-referrer`; brak CORS. Log na stdout: jedna linia na żądanie (metoda, ścieżka, status, czas), bez treści zgłoszeń i sekretów.
 
 ## Struktura katalogów

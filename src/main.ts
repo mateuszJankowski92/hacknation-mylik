@@ -17,6 +17,9 @@ for (const p of [join(PROJECT_ROOT, '.env'), '.env']) {
 const app = bootstrap();
 console.log('MYLIK: konfiguracja', JSON.stringify(redactedConfig(app.config)));
 console.log(`MYLIK: dostawca modelu ${app.providerName} (${app.modelName})`);
+console.log(
+  `MYLIK: ostrzeżenia: baza incydentów ${app.incidentSources.incidents ? 'wczytana' : 'brak'}, znane operacje ${app.incidentSources.knownOps}`,
+);
 
 const server = serve({ fetch: app.app.fetch, port: app.config.port }, (info) => {
   console.log(`MYLIK: serwer nasłuchuje na porcie ${info.port}`);

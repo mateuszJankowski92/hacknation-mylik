@@ -15,6 +15,14 @@ const ConfigSchema = z.object({
   PORT: z.preprocess(emptyToUndefined, z.coerce.number().int().min(1).max(65535).default(8787)),
   RATE_LIMIT_PER_MIN: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(20)),
   RETENTION_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(30)),
+  // Integracja fali 2 (zad. I): pliki opcjonalne; brak pliku nie wywraca serwera.
+  EVAL_RESULTS_PATH: z.preprocess(emptyToUndefined, z.string().default('data/eval/results.json')),
+  KNOWN_OPS_DIR: z.preprocess(emptyToUndefined, z.string().default('data/known-ops')),
+  INCIDENTS_PATH: z.preprocess(emptyToUndefined, z.string().optional()),
+  // Liczba zaufanych proxy przed serwerem (np. 1 za Passengerem/nginx); 0 = X-Forwarded-For ignorowany.
+  TRUSTED_PROXY_HOPS: z.preprocess(emptyToUndefined, z.coerce.number().int().min(0).max(5).default(0)),
+  // Publiczny adres serwisu (np. https://mylik.example.pl) dla odsyłaczy na karcie SVG; pusty = względny.
+  PUBLIC_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
 });
 
 export interface AppConfig {
@@ -27,6 +35,14 @@ export interface AppConfig {
   port: number;
   rateLimitPerMin: number;
   retentionDays: number;
+  /** Plik wyników zestawu testowego (profil błędów); względny od katalogu projektu. */
+  evalResultsPath: string;
+  /** Katalog znanych operacji informacyjnych (EUvsDisinfo); względny od katalogu projektu. */
+  knownOpsDir: string;
+  /** Plik bazy incydentów; brak = wyszukiwanie domyślne (findIncidentsFile). */
+  incidentsPath?: string;
+  trustedProxyHops: number;
+  publicBaseUrl?: string;
 }
 
 /** Czyta konfigurację ze zmiennych środowiskowych. Nie czyta pliku `.env`. */
@@ -40,6 +56,11 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     PORT: env.PORT,
     RATE_LIMIT_PER_MIN: env.RATE_LIMIT_PER_MIN,
     RETENTION_DAYS: env.RETENTION_DAYS,
+    EVAL_RESULTS_PATH: env.EVAL_RESULTS_PATH,
+    KNOWN_OPS_DIR: env.KNOWN_OPS_DIR,
+    INCIDENTS_PATH: env.INCIDENTS_PATH,
+    TRUSTED_PROXY_HOPS: env.TRUSTED_PROXY_HOPS,
+    PUBLIC_BASE_URL: env.PUBLIC_BASE_URL,
   });
   return {
     llmProvider: c.LLM_PROVIDER,
@@ -50,6 +71,11 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     port: c.PORT,
     rateLimitPerMin: c.RATE_LIMIT_PER_MIN,
     retentionDays: c.RETENTION_DAYS,
+    evalResultsPath: c.EVAL_RESULTS_PATH,
+    knownOpsDir: c.KNOWN_OPS_DIR,
+    incidentsPath: c.INCIDENTS_PATH,
+    trustedProxyHops: c.TRUSTED_PROXY_HOPS,
+    publicBaseUrl: c.PUBLIC_BASE_URL,
   };
 }
 
@@ -64,5 +90,10 @@ export function redactedConfig(cfg: AppConfig): Record<string, string | number |
     port: cfg.port,
     rateLimitPerMin: cfg.rateLimitPerMin,
     retentionDays: cfg.retentionDays,
+    evalResultsPath: cfg.evalResultsPath,
+    knownOpsDir: cfg.knownOpsDir,
+    incidentsPath: cfg.incidentsPath ?? '[domyślnie]',
+    trustedProxyHops: cfg.trustedProxyHops,
+    publicBaseUrl: cfg.publicBaseUrl ?? '[względny]',
   };
 }

@@ -1,5 +1,11 @@
-// Aplikacja Hono (bez portu): nagłówki bezpieczeństwa, log żądań, trasy API, statyczny interfejs.
-import { Hono } from 'hono';
+// Aplikacja Hono (bez portu): log żądań, nagłówki bezpieczeństwa, limit żądań, trasy API,
+// podaplikacje (SMS, karta SVG, statystyki) i statyczny interfejs.
+import { createHash } from 'node:crypto';
+import { Hono, type MiddlewareHandler } from 'hono';
+import { createCardApp } from '../card/index';
+import { createStatsApp, requestLogger, type LogEventFn } from '../obs/index';
+import { RATE_LIMIT_MESSAGE_PL, rateLimit } from '../security/index';
+import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
 import { serverError } from './errors';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
@@ -9,6 +15,14 @@ export interface AppDeps extends RouteDeps {
   distDir: string;
   /** Jedna linia logu na żądanie; domyślnie console.log. `null` wyłącza. */
   log?: ((line: string) => void) | null;
+  /** Zapis zdarzeń kanału SMS (kanał `sms` w tabeli events). Domyślnie `logEvent`. */
+  logEventSms?: LogEventFn;
+  /** Limit zgłoszeń na minutę na klienta (POST /api/* i POST /sms/webhook osobno). 0 = bez limitu. */
+  rateLimitPerMin?: number;
+  /** Liczba zaufanych proxy przed serwerem (X-Forwarded-For). 0 = adres gniazda. */
+  trustedProxyHops?: number;
+  /** Publiczny adres serwisu dla odsyłaczy na karcie SVG. */
+  publicBaseUrl?: string;
 }
 
 const CSP = [
@@ -24,32 +38,77 @@ const CSP = [
   "frame-ancestors 'none'",
 ].join('; ');
 
+function inlineHashes(html: string, tag: 'script' | 'style'): string {
+  const re = new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, 'g');
+  return [...html.matchAll(re)]
+    .map((m) => `'sha256-${createHash('sha256').update(m[1] ?? '').digest('base64')}'`)
+    .join(' ');
+}
+
+/** Symulator SMS ma wbudowany skrypt i style: dopuszczamy dokładnie te treści (hash), nic więcej. */
+export const SMS_SIMULATOR_CSP = [
+  "default-src 'self'",
+  `script-src ${inlineHashes(SIMULATOR_HTML, 'script') || "'none'"}`,
+  `style-src ${inlineHashes(SIMULATOR_HTML, 'style') || "'none'"}`,
+  "connect-src 'self'",
+  "img-src 'self' data:",
+  "object-src 'none'",
+  "base-uri 'none'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join('; ');
+
+const isPost = (method: string) => method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS';
+
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
   const log = deps.log === undefined ? (line: string) => console.log(line) : deps.log;
 
-  // Log: metoda, ścieżka (bez query), status, czas. Bez treści zgłoszeń i bez nagłówków.
-  app.use('*', async (c, next) => {
-    const t0 = performance.now();
-    await next();
-    if (log) {
-      const ms = Math.round(performance.now() - t0);
-      log(`${c.req.method} ${c.req.path.slice(0, 200)} ${c.res.status} ${ms}ms`);
-    }
-  });
+  // Log: metoda, ścieżka (bez query), status, czas; zdarzenie http_request dla /api (statystyki).
+  // Bez treści zgłoszeń i bez nagłówków.
+  app.use('*', requestLogger({ log, logEvent: deps.logEvent }));
 
   app.use('*', async (c, next) => {
     await next();
     c.header('X-Content-Type-Options', 'nosniff');
     c.header('Referrer-Policy', 'no-referrer');
-    c.header('Content-Security-Policy', CSP);
+    // Podaplikacje mogą ustawić własną, węższą politykę (karta SVG); wtedy jej nie nadpisujemy.
+    if (!c.res.headers.has('Content-Security-Policy')) {
+      c.header('Content-Security-Policy', c.req.path === '/sms' ? SMS_SIMULATOR_CSP : CSP);
+    }
     c.header('X-Frame-Options', 'DENY');
     c.header('Cross-Origin-Opener-Policy', 'same-origin');
     c.header('Cross-Origin-Resource-Policy', 'same-origin');
     // Brak nagłówków CORS: API dostępne tylko z tego samego originu.
   });
 
-  // TODO(zad. 07): limit żądań (RATE_LIMIT_PER_MIN) i retencja rekordów/zdarzeń jako middleware tutaj.
+  const limit = deps.rateLimitPerMin ?? 0;
+  if (limit > 0) {
+    const trustedProxyHops = deps.trustedProxyHops ?? 0;
+    app.use('/api/*', rateLimit({ limit, trustedProxyHops }));
+    // Osobny licznik dla SMS; odpowiedź zwykłym tekstem, jak cały kanał SMS.
+    const smsLimiter = rateLimit({ limit, trustedProxyHops, appliesTo: (c) => isPost(c.req.method) });
+    const smsLimit: MiddlewareHandler = async (c, next) => {
+      const res = await smsLimiter(c, next);
+      if (res instanceof Response && res.status === 429) {
+        return new Response(RATE_LIMIT_MESSAGE_PL, {
+          status: 429,
+          headers: {
+            'content-type': 'text/plain; charset=utf-8',
+            'cache-control': 'no-store',
+            'retry-after': res.headers.get('Retry-After') ?? '60',
+          },
+        });
+      }
+      return res;
+    };
+    app.use('/sms/webhook', smsLimit);
+  }
+
+  // Podaplikacje przed trasami API: registerApiRoutes kończy się zbiorczym 404 dla /api/*.
+  app.route('/', createStatsApp({ db: deps.db }));
+  app.route('/', createCardApp({ engine: deps.engine, baseUrl: deps.publicBaseUrl }));
+  app.route('/', createSmsApp({ engine: deps.engine, logEvent: deps.logEventSms ?? deps.logEvent }));
 
   registerApiRoutes(app, deps);
 

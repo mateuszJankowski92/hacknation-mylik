@@ -9,7 +9,9 @@ import { HealthResponseSchema, SourcesResponseSchema } from '../../src/contracts
 import { VerificationRecordSchema, VerifyOutcomeSchema, type VerifyOutcome } from '../../src/contracts/index';
 import { ingestCatalog } from '../../src/corpus/index';
 import { openDb } from '../../src/db/open';
-import { bootstrap, type Bootstrapped } from '../../src/server/bootstrap';
+import type { AppConfig } from '../../src/config';
+import type { IncidentMatcher } from '../../src/engine/incidents';
+import { bootstrap, combineIncidentMatchers, type Bootstrapped } from '../../src/server/bootstrap';
 
 const TEXTS: Record<string, string> = {
   'park-1':
@@ -56,7 +58,9 @@ function makeCorpusFixture(): { root: string; catalogPath: string } {
   return { root, catalogPath };
 }
 
-function boot(opts: { ingest?: boolean; provider?: 'mock' | 'anthropic' } = {}): Bootstrapped {
+function boot(
+  opts: { ingest?: boolean; provider?: 'mock' | 'anthropic'; config?: Partial<AppConfig>; incidents?: IncidentMatcher | null } = {},
+): Bootstrapped {
   const db = openDb(':memory:');
   if (opts.ingest !== false) {
     const { root, catalogPath } = makeCorpusFixture();
@@ -65,7 +69,9 @@ function boot(opts: { ingest?: boolean; provider?: 'mock' | 'anthropic' } = {}):
   return bootstrap({
     env: {},
     db,
-    config: { llmProvider: opts.provider ?? 'mock', anthropicApiKey: undefined },
+    // Bez plików spoza repozytorium: brak bazy incydentów, chyba że test poda własną.
+    config: { llmProvider: opts.provider ?? 'mock', anthropicApiKey: undefined, incidentsPath: join(tmpdir(), 'mylik-e2e-brak-incydentow.json'), ...opts.config },
+    incidents: opts.incidents,
     distDir: join(tmpdir(), 'mylik-e2e-no-dist'),
     log: null,
     warn: () => {},
@@ -232,5 +238,123 @@ describe('serwer HTTP: stany techniczne', () => {
     expect(out).toMatchObject({ kind: 'state', state: 'awaria_techniczna' });
     const ev = b.db.prepare("SELECT COUNT(*) AS n FROM events WHERE type = 'server_error'").get() as { n: number };
     expect(ev.n).toBe(1);
+  });
+});
+
+async function sms(b: Bootstrapped, body: string, contentType = 'application/json') {
+  return b.app.request('/sms/webhook', { method: 'POST', headers: { 'content-type': contentType }, body });
+}
+
+describe('serwer HTTP: integracja fali 2 (SMS, karta, statystyki, limit, ostrzeżenia)', () => {
+  it('SMS: ten sam rekord co WWW, odpowiedź zwykłym tekstem, zdarzenia z kanałem sms', async () => {
+    const b = boot();
+    const text = 'Ogród botaniczny w Lipinach jest otwarty codziennie od ósmej rano.';
+    const res = await sms(b, JSON.stringify({ text }));
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toMatch(/^text\/plain/);
+    const answer = await res.text();
+    expect(answer).toContain('Stan na');
+    const www = VerifyOutcomeSchema.parse(await (await post(b, { text })).json());
+    if (www.kind !== 'record') throw new Error('oczekiwano rekordu');
+    expect(www.cached).toBe(true);
+    expect(www.record.shortAnswer).toBe(answer);
+    const channels = b.db.prepare("SELECT channel FROM events WHERE type = 'verify_start' ORDER BY id").all() as { channel: string }[];
+    expect(channels.map((r) => r.channel)).toEqual(['sms', 'www']);
+    const form = await sms(b, `tresc=${encodeURIComponent(text)}`, 'application/x-www-form-urlencoded');
+    expect(await form.text()).toBe(answer);
+  });
+
+  it('GET /sms: symulator z polityką CSP dopuszczającą tylko jego własny skrypt', async () => {
+    const b = boot();
+    const res = await b.app.request('/sms');
+    expect(res.status).toBe(200);
+    expect(await res.text()).toContain('<script>');
+    const csp = res.headers.get('content-security-policy') ?? '';
+    expect(csp).toMatch(/script-src 'sha256-[A-Za-z0-9+/=]+'/);
+    expect(csp).not.toContain('unsafe-inline');
+    expect(res.headers.get('x-frame-options')).toBe('DENY');
+  });
+
+  it('GET /api/records/:id/card.svg: karta SVG z własną CSP; nieznany rekord 404', async () => {
+    const b = boot({ config: { publicBaseUrl: 'https://mylik.example.pl' } });
+    const out = VerifyOutcomeSchema.parse(await (await post(b, { text: MATCHING })).json());
+    if (out.kind !== 'record') throw new Error('oczekiwano rekordu');
+    const res = await b.app.request(`/api/records/${out.record.id}/card.svg`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toMatch(/^image\/svg\+xml/);
+    expect(res.headers.get('content-security-policy')).toContain('sandbox');
+    const svg = await res.text();
+    expect(svg).toMatch(/^<svg|^<\?xml/);
+    expect(svg).toContain('https://mylik.example.pl/#/rekord/');
+    expect((await b.app.request(`/api/records/${'0'.repeat(64)}/card.svg`)).status).toBe(404);
+  });
+
+  it('GET /api/stats: agregaty bez treści zgłoszeń', async () => {
+    const b = boot();
+    await post(b, { text: MATCHING });
+    const res = await b.app.request('/api/stats');
+    expect(res.status).toBe(200);
+    const raw = await res.text();
+    expect(raw).not.toContain('Lipinach');
+    const st = JSON.parse(raw) as { requests: { verify: number }; records: { total: number }; verifications: { started: number } };
+    expect(st.requests.verify).toBe(1);
+    expect(st.records.total).toBe(1);
+    expect(st.verifications.started).toBe(1);
+  });
+
+  it('limit żądań: 429 po przekroczeniu (API JSON, SMS tekst), GET bez limitu', async () => {
+    const b = boot({ config: { rateLimitPerMin: 2 } });
+    for (let i = 0; i < 2; i++) expect((await post(b, { text: MATCHING })).status).toBe(200);
+    const over = await post(b, { text: MATCHING });
+    expect(over.status).toBe(429);
+    expect(over.headers.get('retry-after')).toBeTruthy();
+    expect(((await over.json()) as { error: string }).error).toBe('limit_zadan');
+    expect((await b.app.request('/api/health')).status).toBe(200);
+    for (let i = 0; i < 2; i++) expect((await sms(b, JSON.stringify({ text: MATCHING }))).status).toBe(200);
+    const smsOver = await sms(b, JSON.stringify({ text: MATCHING }));
+    expect(smsOver.status).toBe(429);
+    expect(smsOver.headers.get('content-type')).toMatch(/^text\/plain/);
+    expect(await smsOver.text()).toMatch(/Za dużo/);
+  });
+
+  it('limit za proxy: zaufany X-Forwarded-For rozróżnia klientów', async () => {
+    const b = boot({ config: { rateLimitPerMin: 1, trustedProxyHops: 1 } });
+    expect((await post(b, { text: MATCHING }, { 'x-forwarded-for': '203.0.113.1' })).status).toBe(200);
+    expect((await post(b, { text: MATCHING }, { 'x-forwarded-for': '203.0.113.1' })).status).toBe(429);
+    expect((await post(b, { text: MATCHING }, { 'x-forwarded-for': '203.0.113.2' })).status).toBe(200);
+  });
+
+  it('ostrzeżenia z bazy incydentów trafiają tylko do notices; awaria źródła ostrzeżeń nic nie psuje', async () => {
+    const plain = boot();
+    const base = VerifyOutcomeSchema.parse(await (await post(plain, { text: MATCHING })).json());
+    const failing: IncidentMatcher = {
+      match: () => {
+        throw new Error('awaria');
+      },
+    };
+    const warn: IncidentMatcher = { match: () => [{ text: 'Stan na 21.11.2026. Podobną treść opisano wcześniej.' }] };
+    const b = boot({ incidents: combineIncidentMatchers([failing, warn]) });
+    const out = VerifyOutcomeSchema.parse(await (await post(b, { text: MATCHING })).json());
+    if (out.kind !== 'record' || base.kind !== 'record') throw new Error('oczekiwano rekordu');
+    expect(out.record.notices.filter((n) => n.type === 'dopasowanie_incydentu').map((n) => n.text)).toContain(
+      'Stan na 21.11.2026. Podobną treść opisano wcześniej.',
+    );
+    expect(out.record.claims.map((c) => [c.verdict, c.strength.level])).toEqual(base.record.claims.map((c) => [c.verdict, c.strength.level]));
+  });
+
+  it('brak katalogu znanych operacji i pliku wyników testów nie wywraca serwera', async () => {
+    const b = boot({ config: { knownOpsDir: join(tmpdir(), 'mylik-brak-known-ops'), evalResultsPath: join(tmpdir(), 'mylik-brak-results.json') } });
+    expect(b.incidentSources).toEqual({ incidents: false, knownOps: 0 });
+    expect((await post(b, { text: MATCHING })).status).toBe(200);
+  });
+
+  it('profil błędów z EVAL_RESULTS_PATH trafia do rekordu', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'mylik-eval-'));
+    const path = join(dir, 'results.json');
+    writeFileSync(path, JSON.stringify({ wysoka: { errors: 1, total: 10 }, srednia: { errors: 2, total: 10 }, niska: { errors: 3, total: 10 }, brak: { errors: 0, total: 10 } }));
+    const b = boot({ config: { evalResultsPath: path } });
+    const out = VerifyOutcomeSchema.parse(await (await post(b, { text: MATCHING })).json());
+    if (out.kind !== 'record') throw new Error('oczekiwano rekordu');
+    expect(out.record.claims.some((c) => c.errorProfile !== undefined)).toBe(true);
   });
 });

@@ -72,6 +72,23 @@ N="$(curl -s "http://localhost:$PORT/" | grep -c 'lang="pl"' || true)"
 N2="$(curl -s "http://localhost:$PORT/zrodla" | grep -c 'lang="pl"' || true)"
 [ "$N2" = "1" ] || fail "fallback SPA nie działa"
 
+SMS="$(curl -sf -X POST "http://localhost:$PORT/sms/webhook" -H 'content-type: application/json' \
+  -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}')" || fail "/sms/webhook"
+echo "$SMS" | grep -q 'Stan na' || fail "SMS bez 'Stan na': $SMS"
+echo "SMOKE: sms $SMS"
+
+S1="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$PORT/sms")"
+[ "$S1" = "200" ] || fail "GET /sms: $S1"
+
+STATS="$(curl -sf "http://localhost:$PORT/api/stats")" || fail "/api/stats"
+node -e 'const s = JSON.parse(process.argv[1]); if (!(s.requests.verify >= 1)) throw new Error("stats bez verify");' "$STATS" || fail "stats niepoprawne"
+
+RID="$(node -e 'const o = JSON.parse(process.argv[1]); console.log(o.kind === "record" ? o.record.id : "")' "$OUT")"
+if [ -n "$RID" ]; then
+  CT="$(curl -s -o /dev/null -w '%{http_code} %{content_type}' "http://localhost:$PORT/api/records/$RID/card.svg")"
+  case "$CT" in "200 image/svg+xml"*) ;; *) fail "card.svg: $CT" ;; esac
+fi
+
 kill "$PID"
 wait "$PID" 2>/dev/null || true
 PID=""

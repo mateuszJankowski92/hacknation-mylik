@@ -1,10 +1,12 @@
 // E2E silnika: baza :memory:, prawdziwa wyszukiwarka (FTS5) i prawdziwe prepareInput,
 // fałszywy dostawca modelu (deterministyczny). Zdania i fragmenty są wymyślone i neutralne.
 import { describe, expect, it } from 'vitest';
-import { VerificationRecordSchema, type ExtractedClaim, type Stance, type Verdict } from '../../src/contracts/index';
+import { VERDICT_LABELS_PL, VerificationRecordSchema, type ExtractedClaim, type Stance, type Verdict } from '../../src/contracts/index';
 import { createSearcher } from '../../src/corpus/index';
 import { openDb } from '../../src/db/open';
 import { createEngine } from '../../src/engine/index';
+import { cardPath } from '../../src/engine/render';
+import { renderShortAnswer } from '../../src/render/index';
 import { ScriptedLlm, fixedNow, passage, seedCorpus } from './fakes';
 
 const CORPUS = [
@@ -153,7 +155,10 @@ describe('E2E silnika: wszystkie werdykty osiągalne', () => {
     expect(c.refutation.performed).toBe(true);
     expect(c.refutation.queries).toHaveLength(1);
     expect(c.refutation.found).toBe(0);
-    expect(out.record.shortAnswer).toMatch(/^Werdykt: potwierdzone\./);
+    // Tekst z modułu src/render (nie zapasowy szablon silnika), z etykietą wyniku i bez słowa "werdykt".
+    expect(out.record.shortAnswer).toBe(renderShortAnswer(out.record, cardPath(out.record.id)));
+    expect(out.record.shortAnswer).toContain(VERDICT_LABELS_PL.potwierdzone);
+    expect(out.record.shortAnswer).not.toMatch(/werdykt/i);
     expect(out.record.shortAnswer).toContain('Stan na');
     expect(c.explanation).toContain('Stan na');
   });
