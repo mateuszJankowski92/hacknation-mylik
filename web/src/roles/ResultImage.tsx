@@ -60,7 +60,7 @@ export function ResultImage({ role, resultKey }: { role: Role; resultKey: Result
 	if (!spec) return null;
 	return (
 		<figure className={`result-image result-image--${resultKey}`}>
-			<div className="result-image__stage illustration-frame">
+			<div className="result-image__stage stage">
 				<RoleArt owner={role} name={resultKey} alt={spec.caption} className="result-image__art" />
 				{clip && <ResultClip file={clip.file} poster={clip.poster} />}
 			</div>

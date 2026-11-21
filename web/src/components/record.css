@@ -208,3 +208,10 @@
 .record .notice {
 	margin: var(--space-3) 0;
 }
+
+.record-page > h2,
+.record-page .result > :not(.record),
+.record-page .record > :not(.record-claim),
+.record-page .record-claim > :not(.record-claim__lead) {
+	max-width: var(--measure);
+}

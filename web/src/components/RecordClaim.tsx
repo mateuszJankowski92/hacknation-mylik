@@ -166,26 +166,27 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 					{layout.headline}
 				</h3>
 				<ResultImage role={role} resultKey={result.verdict} />
-			</div>
+				<div className="record-claim__summary">
+					<div className={`verdict verdict--${presentation.tone}`}>
+						<p className="verdict__label">
+							<span className="verdict__icon" aria-hidden="true">
+								{presentation.icon}
+							</span>
+							<span className="visually-hidden">Ocena: </span>
+							<strong>{layout.label}</strong>
+						</p>
+						{certainty && <p className="verdict__certainty">{certainty}</p>}
+						{layout.uncertaintyNote && <p className="verdict__note">{layout.uncertaintyNote}</p>}
+					</div>
 
-			<div className={`verdict verdict--${presentation.tone}`}>
-				<p className="verdict__label">
-					<span className="verdict__icon" aria-hidden="true">
-						{presentation.icon}
-					</span>
-					<span className="visually-hidden">Ocena: </span>
-					<strong>{layout.label}</strong>
-				</p>
-				{certainty && <p className="verdict__certainty">{certainty}</p>}
-				{layout.uncertaintyNote && <p className="verdict__note">{layout.uncertaintyNote}</p>}
+					<p className="record-claim__asof">{layout.asOf}</p>
+					<p className="record-claim__evidence-link">
+						<button type="button" onClick={showDetails}>
+							{layout.evidenceLink}
+						</button>
+					</p>
+				</div>
 			</div>
-
-			<p className="record-claim__asof">{layout.asOf}</p>
-			<p className="record-claim__evidence-link">
-				<button type="button" onClick={showDetails}>
-					{layout.evidenceLink}
-				</button>
-			</p>
 
 			{primary && (
 				<section className="record-claim__primary" aria-label="Główne źródło">

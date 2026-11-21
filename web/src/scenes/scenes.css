@@ -1,6 +1,6 @@
 .scene {
 	position: relative;
-	width: min(100%, 288px);
+	width: 100%;
 	aspect-ratio: 4 / 5;
 	overflow: hidden;
 }
@@ -68,10 +68,14 @@
 }
 
 .scene-skip {
-	margin-top: var(--space-2, 0.5rem);
 	min-height: 44px;
-	padding: 0.5rem 1rem;
+	padding: 0 var(--space-1);
+	border: 0;
+	background: none;
+	color: var(--link);
 	font: inherit;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
 	cursor: pointer;
 }
 

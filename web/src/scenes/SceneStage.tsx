@@ -128,7 +128,7 @@ export function SceneStage({ scene, role, progress, onEnd }: SceneStageProps) {
 	}, [mode, onEnd]);
 
 	return (
-		<div className="scene illustration-frame" data-scene={scene.id} data-mode={mode}>
+		<div className="scene stage" data-scene={scene.id} data-mode={mode}>
 			{mode === 'video' && <VideoClip scene={scene} onEnd={onEnd} onFallback={() => setMode('poster')} />}
 			{mode === 'placeholder' && <PlaceholderClip scene={scene} role={role} onEnd={onEnd} />}
 			{mode === 'poster' && <ScenePoster scene={scene} role={role} />}
