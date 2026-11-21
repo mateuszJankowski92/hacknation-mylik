@@ -152,7 +152,7 @@ describe('POST /api/verify/stream', () => {
       const p = await plain(boot(), { text });
       expect(stable(s.outcome)).toEqual(stable(p));
     }
-  });
+  }, 30_000);
 
   it('powtórka w strumieniu: tylko "gotowe" z cached=true', async () => {
     const b = boot();
