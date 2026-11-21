@@ -1,7 +1,7 @@
 {
   "tlo": "#FFFFFF",
   "runda": 4,
-  "wygenerowano": "2026-11-21T20:49:09.208Z",
+  "wygenerowano": "2026-11-21T20:52:31.729Z",
   "uwaga": "Runda 4 (21.11.2026): obrazy Seedream 5.5 Edit z masterów ról, klipy Seedance 2.5 image-to-video. Wszystkie postacie męskie. Katalogi ról zachowują nazwy z interfejsu (pogodynka = pogodynek, bibliotekarka = bibliotekarz).",
   "pozycje": [
     {
@@ -24,6 +24,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__start__spoczynek__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:34:30.384Z"
     },
@@ -47,6 +48,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__start__master__v3",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:33:35.328Z"
     },
@@ -186,6 +188,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__master__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:23:47.768Z"
     },
@@ -209,6 +212,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__slonce__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:25:22.402Z"
     },
@@ -232,6 +236,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__przejasnienia__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:25:24.736Z"
     },
@@ -255,6 +260,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__deszcz__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:25:31.009Z"
     },
@@ -278,6 +284,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__mgla__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:25:55.675Z"
     },
@@ -301,6 +308,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__pusta__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:26:09.456Z"
     },
@@ -324,6 +332,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__pogodynek__zaklocenia__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:26:07.546Z"
     },
@@ -695,6 +704,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4__bibliotekarz__master__v1",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:28:37.911Z"
     },
@@ -834,6 +844,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4b__komentator__master",
       "koszt_usd": 0,
+      "przejety_z_rundy_3": true,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:24:22.672Z"
     },
@@ -915,6 +926,7 @@
       "model_id": "bytedance/seedream/v5.5/edit",
       "zrodlo": "r4b__pilka__master",
       "koszt_usd": 0.042,
+      "przejety_z_rundy_3": false,
       "runda": 4,
       "wygenerowano": "2026-11-21T19:24:55.053Z"
     },
