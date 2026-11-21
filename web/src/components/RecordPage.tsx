@@ -6,6 +6,8 @@ import { addToHistory } from '../history';
 import { isRecordId, navigate, PENDING_CONTENT_KEY, readPendingContent, recordUrlPath } from '../route';
 import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
 import { WaitingSteps } from '../visuals/WaitingSteps';
+import { currentRole } from '../roles/resolve';
+import { useScenePlayback } from '../scenes/useScenePlayback';
 import { Link } from './Link';
 import { OutcomeView } from './OutcomeView';
 import { ResultActions } from './ResultActions';
@@ -19,7 +21,7 @@ export const GONE_TEXTS = {
 type PageState =
 	| { status: 'loading' }
 	| { status: 'waiting'; progress: ProgressState; etaSeconds: number }
-	| { status: 'ready'; outcome: VerifyOutcome }
+	| { status: 'ready'; outcome: VerifyOutcome; progress?: ProgressState; etaSeconds?: number }
 	| { status: 'gone' }
 	| { status: 'error'; message: string };
 
@@ -44,6 +46,10 @@ function failureState(error: unknown): PageState {
 export function RecordPage({ id }: { id: string }) {
 	const [state, setState] = useState<PageState>(() => initialState(id));
 	const resultRef = useRef<HTMLDivElement>(null);
+	const playback = useScenePlayback(currentRole(), state.status === 'ready');
+	const { begin, reset, end } = playback;
+	const showResult = state.status === 'ready' && playback.released;
+	const holding = state.status === 'ready' && !playback.released;
 
 	useEffect(() => {
 		if (!isRecordId(id)) {
@@ -62,10 +68,16 @@ export function RecordPage({ id }: { id: string }) {
 				}
 			}
 			clearPending(id);
-			setState({ status: 'ready', outcome });
+			if (outcome.kind === 'record' && outcome.cached) end();
+			setState((current) =>
+				current.status === 'waiting'
+					? { status: 'ready', outcome, progress: current.progress, etaSeconds: current.etaSeconds }
+					: { status: 'ready', outcome },
+			);
 		}
 
 		if (pending) {
+			begin();
 			setState({ status: 'waiting', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS });
 			const onProgress = (event: VerifyProgressEvent) => {
 				if (controller.signal.aborted) return;
@@ -83,6 +95,7 @@ export function RecordPage({ id }: { id: string }) {
 				setState(failureState(error));
 			});
 		} else {
+			reset();
 			setState({ status: 'loading' });
 			fetchRecord(id, controller.signal).then(
 				(record) => {
@@ -97,11 +110,11 @@ export function RecordPage({ id }: { id: string }) {
 			);
 		}
 		return () => controller.abort();
-	}, [id]);
+	}, [id, begin, reset, end]);
 
 	useEffect(() => {
-		if (state.status === 'ready' || state.status === 'gone' || state.status === 'error') resultRef.current?.focus();
-	}, [state.status]);
+		if (showResult || state.status === 'gone' || state.status === 'error') resultRef.current?.focus();
+	}, [state.status, showResult]);
 
 	return (
 		<div className="record-page">
@@ -111,8 +124,21 @@ export function RecordPage({ id }: { id: string }) {
 					Wczytuję…
 				</p>
 			)}
-			{state.status === 'waiting' && <WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} />}
-			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
+			{(state.status === 'waiting' || holding) && (
+				<WaitingSteps
+					progress={'progress' in state ? (state.progress ?? INITIAL_PROGRESS) : INITIAL_PROGRESS}
+					etaSeconds={'etaSeconds' in state ? (state.etaSeconds ?? DEFAULT_ETA_SECONDS) : DEFAULT_ETA_SECONDS}
+					playback={playback}
+				/>
+			)}
+			<div
+				className="result"
+				ref={resultRef}
+				tabIndex={-1}
+				aria-live="polite"
+				data-engine-ms={showResult ? playback.timing?.engineMs : undefined}
+				data-shown-ms={showResult ? playback.timing?.shownMs : undefined}
+			>
 				{state.status === 'gone' && (
 					<section className="http-error" role="status">
 						<p>{GONE_TEXTS.body}</p>
@@ -129,7 +155,7 @@ export function RecordPage({ id }: { id: string }) {
 						</p>
 					</section>
 				)}
-				{state.status === 'ready' && (
+				{showResult && state.status === 'ready' && (
 					<>
 						<OutcomeView outcome={state.outcome} />
 						{state.outcome.kind === 'record' && <ResultActions id={state.outcome.record.id} />}

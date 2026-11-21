@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { VERDICT_LABELS_PL } from '../../src/contracts/verdict';
 import type { VerificationRecord } from '../../src/contracts/record';
 import { App } from './App';
@@ -9,9 +9,14 @@ import { GONE_TEXTS } from './components/RecordPage';
 import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
+import { writeSceneSkipped } from './scenes/preferences';
 
 const ID = 'a'.repeat(64);
 const potwierdzone = FIXTURE_OUTCOMES.potwierdzone as { kind: 'record'; record: VerificationRecord };
+
+beforeEach(() => {
+	writeSceneSkipped(true);
+});
 
 afterEach(() => {
 	cleanup();
@@ -37,6 +42,7 @@ const LATEST = { corpusVersion: 'x', documents: [] };
 
 describe('strona wyniku /r/<id>', () => {
 	it('po kliknięciu "Sprawdź" od razu przechodzi na /r/<id>, potem pokazuje wynik i przyciski', async () => {
+		writeSceneSkipped(true);
 		let release: (response: Response) => void = () => undefined;
 		const fetchMock = stubApi({
 			'/api/verify/key': () => ok({ recordId: ID }),

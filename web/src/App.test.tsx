@@ -1,10 +1,15 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { STATE_LABELS_PL, VERDICT_LABELS_PL, VERDICTS, STATES } from '../../src/contracts/verdict';
 import { App } from './App';
 import { OutcomeView } from './components/OutcomeView';
+import { writeSceneSkipped } from './scenes/preferences';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from './fixtures/outcomes';
+
+beforeEach(() => {
+	writeSceneSkipped(true);
+});
 
 afterEach(() => {
 	cleanup();

@@ -1,0 +1,66 @@
+import type { Role } from '../roles/config';
+
+export interface SceneSpec {
+	id: string;
+	file: string | null;
+	poster: string | null;
+	durationSec: number;
+	alt: string;
+}
+
+export const SCENE_BASE_PATH = '/postacie';
+export const SCENE_START_TIMEOUT_MS = 3000;
+
+export const SCENE_TEXTS = {
+	skip: 'Pomiń animację',
+	setting: 'Pokazuj animację podczas czekania',
+	settingHint: 'Możesz ją wyłączyć. Wynik pokaże się od razu po odpowiedzi.',
+	settingsLabel: 'Ustawienia strony',
+	marksLabel: 'Tyle źródeł znalazłem do tej pory',
+} as const;
+
+export function sceneFilePath(role: Role, name: string, extension: 'mp4' | 'webm' | 'webp' | 'png'): string {
+	return `${SCENE_BASE_PATH}/${role}/sceny/${name}.${extension}`;
+}
+
+const PLACEHOLDER_ALTS: Record<Role, string[]> = {
+	pogodynka: [
+		'Pogodynka przesuwa palec po mapie i sprawdza, co mówią źródła.',
+		'Pogodynka przegląda kartki z notatkami przy mapie.',
+		'Pogodynka porównuje dwie mapy.',
+	],
+	bibliotekarka: [
+		'Bibliotekarka przegląda książki na regale.',
+		'Bibliotekarka kartkuje grubą księgę.',
+		'Bibliotekarka niesie stos książek do stołu.',
+	],
+	sport: [
+		'Komentator sportowy przegląda wyniki meczów.',
+		'Komentator sportowy sprawdza tabelę wyników.',
+		'Komentator sportowy sprawdza notatki przy mikrofonie.',
+	],
+};
+
+const PLACEHOLDER_DURATIONS = [6, 7, 8];
+
+function placeholderScenes(role: Role): SceneSpec[] {
+	return PLACEHOLDER_ALTS[role].map((alt, index) => ({
+		id: `${role}-${index + 1}`,
+		file: null,
+		poster: null,
+		durationSec: PLACEHOLDER_DURATIONS[index] ?? 6,
+		alt,
+	}));
+}
+
+export const SCENES: Record<Role, SceneSpec[]> = {
+	pogodynka: placeholderScenes('pogodynka'),
+	bibliotekarka: placeholderScenes('bibliotekarka'),
+	sport: placeholderScenes('sport'),
+};
+
+export function pickScene(role: Role, random: () => number = Math.random): SceneSpec {
+	const variants = SCENES[role];
+	const index = Math.min(variants.length - 1, Math.floor(random() * variants.length));
+	return variants[index]!;
+}

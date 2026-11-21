@@ -9,13 +9,14 @@ import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
-import { currentForcedRole } from '../roles/resolve';
+import { currentForcedRole, currentRole } from '../roles/resolve';
+import { useScenePlayback } from '../scenes/useScenePlayback';
 import { OutcomeView } from './OutcomeView';
 
 type CheckState =
 	| { status: 'idle' }
 	| { status: 'loading'; progress: ProgressState; etaSeconds: number }
-	| { status: 'done'; outcome: VerifyOutcome }
+	| { status: 'done'; outcome: VerifyOutcome; progress: ProgressState; etaSeconds: number }
 	| { status: 'error'; message: string };
 
 type CheckAction =
@@ -34,7 +35,12 @@ function reducer(state: CheckState, action: CheckAction): CheckState {
 		case 'eta':
 			return state.status === 'loading' ? { ...state, etaSeconds: action.seconds } : state;
 		case 'done':
-			return { status: 'done', outcome: action.outcome };
+			return {
+				status: 'done',
+				outcome: action.outcome,
+				progress: state.status === 'loading' ? state.progress : INITIAL_PROGRESS,
+				etaSeconds: state.status === 'loading' ? state.etaSeconds : DEFAULT_ETA_SECONDS,
+			};
 		case 'error':
 			return { status: 'error', message: action.message };
 	}
@@ -44,6 +50,10 @@ export function CheckPage() {
 	const [state, dispatch] = useReducer(reducer, { status: 'idle' });
 	const controllerRef = useRef<AbortController | null>(null);
 	const resultRef = useRef<HTMLDivElement>(null);
+	const fromCheckRef = useRef(false);
+	const playback = useScenePlayback(currentRole(), state.status === 'done');
+	const showResult = state.status === 'done' && playback.released;
+	const waiting = state.status === 'loading' || (state.status === 'done' && !playback.released);
 
 	useEffect(() => {
 		if (!import.meta.env.DEV) return;
@@ -56,8 +66,15 @@ export function CheckPage() {
 	}, []);
 
 	useEffect(() => {
-		if (state.status === 'done' || state.status === 'error') resultRef.current?.focus();
-	}, [state]);
+		if (showResult || state.status === 'error') resultRef.current?.focus();
+	}, [state.status, showResult]);
+
+	useEffect(() => {
+		if (!showResult || state.status !== 'done' || !fromCheckRef.current) return;
+		if (state.outcome.kind !== 'record') return;
+		addToHistory(state.outcome.record);
+		navigate(recordUrlPath(state.outcome.record.id), { replace: true });
+	}, [showResult, state]);
 
 	useEffect(() => () => controllerRef.current?.abort(), []);
 
@@ -70,9 +87,11 @@ export function CheckPage() {
 
 	async function handleSubmit(content: string) {
 		controllerRef.current?.abort();
+		fromCheckRef.current = false;
 		const controller = new AbortController();
 		controllerRef.current = controller;
 		dispatch({ type: 'start' });
+		playback.begin();
 		try {
 			const recordId = await fetchRecordKey(content, controller.signal);
 			if (controllerRef.current !== controller) return;
@@ -87,11 +106,8 @@ export function CheckPage() {
 			});
 			const outcome = await pending;
 			if (controllerRef.current !== controller) return;
-			if (outcome.kind === 'record') {
-				addToHistory(outcome.record);
-				navigate(recordUrlPath(outcome.record.id), { replace: true });
-				return;
-			}
+			fromCheckRef.current = true;
+			if (outcome.kind === 'record' && outcome.cached) playback.end();
 			dispatch({ type: 'done', outcome });
 		} catch (error) {
 			if (controllerRef.current !== controller) return;
@@ -109,15 +125,24 @@ export function CheckPage() {
 			<Hero role={currentForcedRole() ?? undefined}>
 				<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
 			</Hero>
-			{state.status === 'loading' && <WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} />}
-			<div className="result" ref={resultRef} tabIndex={-1} aria-live="polite">
+			{(state.status === 'loading' || state.status === 'done') && waiting && (
+				<WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} playback={playback} />
+			)}
+			<div
+				className="result"
+				ref={resultRef}
+				tabIndex={-1}
+				aria-live="polite"
+				data-engine-ms={showResult ? playback.timing?.engineMs : undefined}
+				data-shown-ms={showResult ? playback.timing?.shownMs : undefined}
+			>
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">
 						<h2>Nie udało się sprawdzić</h2>
 						<p>{state.message}</p>
 					</section>
 				)}
-				{state.status === 'done' && (
+				{showResult && state.status === 'done' && !(fromCheckRef.current && state.outcome.kind === 'record') && (
 					<>
 						<h2>Wynik sprawdzenia</h2>
 						<OutcomeView outcome={state.outcome} />

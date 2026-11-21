@@ -1,0 +1,124 @@
+.scene {
+	position: relative;
+	width: min(100%, 320px);
+	aspect-ratio: 1;
+	overflow: hidden;
+	border-radius: var(--radius, 12px);
+	background: var(--surface, transparent);
+}
+
+.scene__video,
+.scene__poster,
+.scene__placeholder,
+.scene__figure {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.scene__placeholder {
+	position: relative;
+	animation: scene-work 3s ease-in-out infinite;
+}
+
+.scene__sweep {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 30%;
+	background: linear-gradient(90deg, transparent, var(--role-accent), transparent);
+	opacity: 0.25;
+	animation: scene-sweep 2.4s ease-in-out infinite;
+}
+
+.scene__placeholder[data-variant$='-2'] .scene__sweep {
+	animation-direction: reverse;
+}
+
+.scene__placeholder[data-variant$='-3'] {
+	animation-duration: 2s;
+}
+
+.scene__marks {
+	position: absolute;
+	inset: auto 0 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 0;
+	padding: 8px;
+	list-style: none;
+}
+
+.scene__mark {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: var(--role-accent);
+	border: 2px solid #fff;
+	animation: scene-pop 0.4s ease-out;
+}
+
+.scene__mark--co_innego {
+	border-radius: 3px;
+}
+
+.scene__mark--tlo,
+.scene__mark--inna_data_lub_miejsce {
+	opacity: 0.6;
+}
+
+.scene-skip {
+	margin-top: var(--space-2, 0.5rem);
+	min-height: 44px;
+	padding: 0.5rem 1rem;
+	font: inherit;
+	cursor: pointer;
+}
+
+.scene-setting {
+	margin: 0.5rem 0;
+}
+
+.scene-setting__label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.scene-setting__hint {
+	margin: 0.25rem 0 0;
+	color: var(--muted);
+}
+
+@keyframes scene-work {
+	50% {
+		transform: translateY(-6px) scale(1.02);
+	}
+}
+
+@keyframes scene-sweep {
+	from {
+		transform: translateX(-100%);
+	}
+	to {
+		transform: translateX(340%);
+	}
+}
+
+@keyframes scene-pop {
+	from {
+		transform: scale(0);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.scene__placeholder,
+	.scene__sweep,
+	.scene__mark {
+		animation: none;
+	}
+}

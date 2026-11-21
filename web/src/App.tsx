@@ -2,6 +2,7 @@ import { CheckPage } from './components/CheckPage';
 import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
+import { SceneSetting } from './scenes/SceneSetting';
 import { useRoute } from './route';
 
 export const PROTOTYPE_NOTE = 'To wczesna wersja próbna. Wyniki mogą mieć braki.';
@@ -38,6 +39,7 @@ export function App() {
 			</main>
 			<footer className="site-footer">
 				<p>{PROTOTYPE_NOTE}</p>
+				<SceneSetting />
 				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.</p>
 			</footer>
 		</>
