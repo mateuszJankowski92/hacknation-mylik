@@ -17,3 +17,5 @@ Scena w hero strony głównej: plakat widać od pierwszego ekranu, a wideo docho
 Sceny ról (`scena_czekania` i `scena_wyniku` pogodynka, bibliotekarza i sportu) nie grają w hero: pojawiają się dopiero po wpisaniu i wysłaniu wiadomości, w widoku czekania i wyniku.
 
 Format klipów: mp4 H.264 bez dźwięku w zwykłym `<video>` (sterowanie z kodu), 576 x 720 px, 24 kl./s, do 1,5 MB na klip (dziś ok. 0,2-0,9 MB), bez animowanych AVIF. Plakaty to pierwsza klatka klipu w WebP.
+
+Obraz wyniku (strona wyniku): słownik pogody pogodynka (słońce, deszcz, mgła itd.) pojawia się tylko przy temacie neutralnym. Przy temacie poważnym (lista wrażliwych słów z `src/roles/sensitive.ts`, dodatkowe słowa z `src/roles/live-words.ts`, dopasowanie znanej operacji, sygnał prompt injection, próba sterowania wyglądem) oraz w rolach bez własnego słownika wyniku jest jeden gest: postać wskazuje cytat i datę (obraz `praca__wskazuje` komentatora, `praca__wskaznik` pogodynka, w pozostałych rolach obraz `praca`), a cytat ze źródła dostaje akcent. Podpis pod obrazem to zawsze jedno proste zdanie.

@@ -189,5 +189,6 @@ function Static() {
 
 export function drawingFor(owner: ArtOwner, name: ArtName): ReactNode {
 	if (name === 'postac' || name === 'praca') return CHARACTERS[owner][name];
+	if (name === 'wskazuje') return CHARACTERS[owner].praca;
 	return RESULTS[name];
 }

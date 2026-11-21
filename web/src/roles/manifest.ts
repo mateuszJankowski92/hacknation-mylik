@@ -33,6 +33,11 @@ const START_STATE: Record<'postac' | 'praca', string> = {
 
 const ROLE_WORK_STATE = 'praca';
 
+const POINTING_STATE: Record<string, string> = {
+	pogodynka: 'wskaznik',
+	sport: 'wskazuje',
+};
+
 const RESULT_STATE: Record<ResultKey, string> = {
 	potwierdzone: 'slonce',
 	wprowadzajace_w_blad: 'slonce_za_chmura',
@@ -62,6 +67,10 @@ export function imageEntryFor(owner: ArtOwner, name: ArtName): ManifestEntry | n
 	if (name === 'postac' || name === 'praca') {
 		const state = owner === 'start' ? START_STATE[name] : ROLE_WORK_STATE;
 		return findEntry(directory, 'obraz_praca', state);
+	}
+	if (name === 'wskazuje') {
+		const pointing = POINTING_STATE[directory];
+		return (pointing ? findEntry(directory, 'obraz_praca', pointing) : null) ?? findEntry(directory, 'obraz_praca', ROLE_WORK_STATE);
 	}
 	return findEntry(directory, 'obraz_wyniku', RESULT_STATE[name]);
 }

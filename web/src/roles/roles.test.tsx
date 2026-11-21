@@ -9,6 +9,7 @@ import { VERDICTS } from '../../../src/contracts/verdict';
 import {
 	ART_EXTENSIONS,
 	DEFAULT_ROLE,
+	GESTURE_CAPTION,
 	RESULT_KEYS,
 	ROLES,
 	ROLE_SPECS,
@@ -16,7 +17,9 @@ import {
 	artCandidates,
 	resultImageFor,
 	topicNote,
+	usesGesture,
 } from './config';
+import { imageUrlFor } from './manifest';
 import { resolveRole } from './resolve';
 import { ResultImage } from './ResultImage';
 import { plain } from '../typography';
@@ -95,9 +98,17 @@ describe('dostępność obrazu wyniku', () => {
 		}
 	});
 
-	it('rola bez obrazu wyniku nic nie rysuje', () => {
+	it('rola bez słownika wyniku pokazuje gest wskazania cytatu i daty, a stan techniczny nic nie rysuje', () => {
 		const { container } = render(<ResultImage role="sport" resultKey="potwierdzone" />);
-		expect(container.firstChild).toBeNull();
+		const figure = container.querySelector('figure');
+		expect(figure?.getAttribute('data-gesture')).toBe('true');
+		expect(plain(figure?.querySelector('figcaption')?.textContent ?? '')).toBe(GESTURE_CAPTION);
+		expect(imageUrlFor('sport', 'wskazuje')).toBe('/postacie/sport/praca__wskazuje.webp');
+		expect(imageUrlFor('pogodynka', 'wskazuje')).toBe('/postacie/pogodynka/praca__wskaznik.webp');
+		expect(imageUrlFor('bibliotekarka', 'wskazuje')).toBe('/postacie/bibliotekarka/praca__praca.webp');
+		cleanup();
+		const state = render(<ResultImage role="sport" resultKey="awaria_techniczna" />);
+		expect(state.container.firstChild).toBeNull();
 	});
 
 	it('każdy obraz ma inny podpis lub inny kształt niż kolor (podpis zawsze jest tekstem)', () => {
@@ -129,15 +140,57 @@ describe('treść wyniku nie zależy od roli', () => {
 		for (const role of ROLES) expect(contentFor(role)).toBe(baseline);
 	});
 
-	it('obraz wyniku pojawia się obok zdania tylko w roli z tabelą obrazów', () => {
+	it('pogoda tylko w roli z tabelą obrazów przy temacie neutralnym, w innych przypadkach gest wskazania', () => {
 		const record = firstRecord();
 		const withRole = (role: string) => ({ ...record, role }) as VerificationRecord;
 		const weather = render(<RecordView record={withRole('pogodynka')} />);
-		expect(weather.container.querySelector('.record-claim__lead .result-image')).not.toBeNull();
+		const weatherFigure = weather.container.querySelector('.record-claim__lead .result-image');
+		expect(weatherFigure).not.toBeNull();
+		expect(weatherFigure?.getAttribute('data-gesture')).toBeNull();
+		expect(weather.container.querySelector('.record-claim--pointing')).toBeNull();
 		cleanup();
 		const library = render(<RecordView record={withRole('bibliotekarka')} />);
-		expect(library.container.querySelector('.result-image')).toBeNull();
+		expect(library.container.querySelector('.result-image')?.getAttribute('data-gesture')).toBe('true');
+		expect(library.container.querySelector('.record-claim--pointing .record-claim__primary')).not.toBeNull();
 		expect(screen.getByText('Widok dopasowany do tematu: przepisy i prawa obywatela.')).toBeTruthy();
+	});
+
+	it('temat wrażliwy w roli pogodynka: zamiast pogody gest wskazania, a treść wyniku bez zmian', () => {
+		const record = firstRecord();
+		const sensitive = {
+			...record,
+			maskedInput: 'Po wypadku w szkole zmarł uczeń.',
+			claims: record.claims.map((claim) => ({ ...claim, claim: { ...claim.claim, text: 'Po wypadku w szkole zmarł uczeń.' } })),
+		} as VerificationRecord;
+		const view = render(<RecordView record={sensitive} />);
+		expect(view.container.querySelector('.result-image')?.getAttribute('data-gesture')).toBe('true');
+		expect(view.container.querySelector('.result-image--potwierdzone')).toBeNull();
+		expect(view.container.querySelector('.result-image video')).toBeNull();
+		expect(plain(view.container.querySelector('.result-image figcaption')?.textContent ?? '')).toBe(GESTURE_CAPTION);
+		cleanup();
+		const forced = { ...record, appearance: { role: 'pogodynka', serious: true } } as unknown as VerificationRecord;
+		expect(render(<RecordView record={forced} />).container.querySelector('.result-image')?.getAttribute('data-gesture')).toBe('true');
+		cleanup();
+		const neutral = { ...record, appearance: { role: 'pogodynka', serious: false } } as unknown as VerificationRecord;
+		expect(render(<RecordView record={neutral} />).container.querySelector('.result-image')?.getAttribute('data-gesture')).toBeNull();
+	});
+
+	it('gest dotyczy tylko etykiet werdyktu, a podpis pod obrazem jest zawsze prostym zdaniem', () => {
+		for (const key of RESULT_KEYS) {
+			const isVerdict = (VERDICTS as readonly string[]).includes(key);
+			expect(usesGesture('sport', key, false)).toBe(isVerdict);
+			expect(usesGesture('pogodynka', key, true)).toBe(isVerdict);
+			expect(usesGesture('pogodynka', key, false)).toBe(false);
+		}
+		const captions = [GESTURE_CAPTION];
+		for (const role of ROLES) for (const key of RESULT_KEYS) {
+			const spec = resultImageFor(role, key);
+			if (spec) captions.push(spec.caption);
+		}
+		for (const caption of captions) {
+			expect(caption).toMatch(/^[A-ZĄĆĘŁŃÓŚŹŻ][^.!?]*[.]$/u);
+			expect(caption.split(/\s+/u).length).toBeLessThanOrEqual(8);
+		}
 	});
 });
 

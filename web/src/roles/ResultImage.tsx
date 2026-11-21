@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { SCENE_TEXTS } from '../scenes/config';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import type { ResultKey, Role } from './config';
-import { resultImageFor } from './config';
+import { GESTURE_CAPTION, resultImageFor, usesGesture } from './config';
 import { assetUrl, resultSceneFor } from './manifest';
 import { RoleArt } from './RoleArt';
 import { nb } from '../typography';
@@ -67,14 +67,21 @@ function useAfterFirstPaint(): boolean {
 	return afterFirstPaint;
 }
 
-export function ResultImage({ role, resultKey }: { role: Role; resultKey: ResultKey }) {
-	const spec = resultImageFor(role, resultKey);
+interface ResultImageProps {
+	role: Role;
+	resultKey: ResultKey;
+	serious?: boolean;
+}
+
+export function ResultImage({ role, resultKey, serious = false }: ResultImageProps) {
+	const gesture = usesGesture(role, resultKey, serious);
+	const spec = gesture ? { caption: GESTURE_CAPTION } : resultImageFor(role, resultKey);
 	const afterFirstPaint = useAfterFirstPaint();
 	const [stopped, setStopped] = useState(false);
 	const [finished, setFinished] = useState(false);
 	const [replayed, setReplayed] = useState(false);
 	const [playId, setPlayId] = useState(0);
-	const entry = resultSceneFor(role, resultKey);
+	const entry = gesture ? null : resultSceneFor(role, resultKey);
 	const mayPlay = animationStartsAutomatically() || replayed;
 	const mounted = Boolean(entry) && afterFirstPaint && mayPlay;
 	const running = Boolean(entry) && mayPlay && !stopped && !finished;
@@ -88,9 +95,9 @@ export function ResultImage({ role, resultKey }: { role: Role; resultKey: Result
 
 	if (!spec) return null;
 	return (
-		<figure className={`result-image result-image--${resultKey}`}>
+		<figure className={`result-image result-image--${gesture ? 'gest' : resultKey}`} data-gesture={gesture ? 'true' : undefined}>
 			<div className="result-image__stage stage">
-				<RoleArt owner={role} name={resultKey} alt={spec.caption} className="result-image__art" />
+				<RoleArt owner={role} name={gesture ? 'wskazuje' : resultKey} alt={spec.caption} className="result-image__art" />
 				{mounted && entry && (
 					<ResultClip
 						key={playId}

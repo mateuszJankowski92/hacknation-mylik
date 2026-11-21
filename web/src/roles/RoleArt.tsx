@@ -57,7 +57,7 @@ export function RoleArt({ owner, name, alt, className = '', decorative = false }
 	const file = useArtFile(owner, name);
 	const classes = `art ${className}`.trim();
 	if (file) {
-		const manifestAlt = name === 'praca' || name === 'postac' ? imageEntryFor(owner, name)?.alt : undefined;
+		const manifestAlt = name === 'praca' || name === 'postac' || name === 'wskazuje' ? imageEntryFor(owner, name)?.alt : undefined;
 		return <img className={classes} src={file} alt={decorative ? '' : (manifestAlt ?? alt)} />;
 	}
 	return (

@@ -8,7 +8,7 @@ export const DEFAULT_ROLE: Role = 'pogodynka';
 export type ArtOwner = Role | 'start';
 export type CharacterName = 'postac' | 'praca';
 export type ResultKey = Verdict | State;
-export type ArtName = CharacterName | ResultKey;
+export type ArtName = CharacterName | ResultKey | 'wskazuje';
 
 export const RESULT_KEYS: readonly ResultKey[] = [...VERDICTS, ...STATES];
 
@@ -37,6 +37,8 @@ const NO_RESULT_IMAGES: Record<ResultKey, null> = {
 	potrzeba_doprecyzowania: null,
 };
 
+export const GESTURE_CAPTION = 'Wskazuję cytat ze źródła i jego datę.';
+
 export const START_CHARACTER_ALT = 'Postać z papieru ze złożoną mapą czeka na wiadomość.';
 
 export const ROLE_SPECS: Record<Role, RoleSpec> = {
@@ -51,7 +53,7 @@ export const ROLE_SPECS: Record<Role, RoleSpec> = {
 			potwierdzone: { caption: 'Źródła mówią to samo.' },
 			wprowadzajace_w_blad: { caption: 'Zgadza się tylko część.' },
 			falszywe: { caption: 'Źródła mówią co innego.' },
-			brak_wystarczajacych_dowodow: { caption: 'Nie widać. Nie wiem.' },
+			brak_wystarczajacych_dowodow: { caption: 'Nie widać tego w źródłach.' },
 			nie_podlega_weryfikacji: { caption: 'Tego nie da się sprawdzić w źródłach.' },
 			awaria_techniczna: { caption: 'Spróbuj ponownie.' },
 			brak_mozliwosci_sprawdzenia: { caption: 'Spróbuj ponownie.' },
@@ -84,6 +86,15 @@ export function isRole(value: unknown): value is Role {
 
 export function resultImageFor(role: Role, key: ResultKey): ResultImageSpec | null {
 	return ROLE_SPECS[role].results[key];
+}
+
+export function hasResultDictionary(role: Role): boolean {
+	return RESULT_KEYS.some((key) => ROLE_SPECS[role].results[key] !== null);
+}
+
+export function usesGesture(role: Role, key: ResultKey, serious: boolean): boolean {
+	if (!(VERDICTS as readonly string[]).includes(key)) return false;
+	return serious || !hasResultDictionary(role);
 }
 
 export function artAlt(owner: ArtOwner, name: CharacterName): string {

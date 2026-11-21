@@ -11,7 +11,7 @@ import { countNoun } from '../../../src/render/plural';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
 import { ErrorDots } from '../visuals/ErrorDots';
-import type { Role } from '../roles/config';
+import { usesGesture, type Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
 import './record.css';
 import { nb } from '../typography';
@@ -145,12 +145,14 @@ interface RecordClaimProps {
 	asOf: string;
 	extraDetails?: ReactNode;
 	role: Role;
+	serious?: boolean;
 }
 
-export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimProps) {
+export function RecordClaim({ result, asOf, extraDetails, role, serious = false }: RecordClaimProps) {
 	const presentation = VERDICT_PRESENTATION[result.verdict];
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
+	const pointing = !isAbstain && usesGesture(role, result.verdict, serious);
 	const primary = pickLayoutEvidence(result);
 	const restEvidence = result.evidence.filter((item) => item !== primary);
 	const groups = groupEvidence(restEvidence);
@@ -174,7 +176,10 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 	}
 
 	return (
-		<article className={isAbstain ? 'record-claim record-claim--abstain' : 'record-claim'} aria-labelledby={headingId}>
+		<article
+			className={['record-claim', isAbstain ? 'record-claim--abstain' : '', pointing ? 'record-claim--pointing' : ''].filter(Boolean).join(' ')}
+			aria-labelledby={headingId}
+		>
 			<div className="record-claim__lead">
 				<h3
 					id={headingId}
@@ -183,7 +188,7 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 				>
 					{isAbstain ? ABSTAIN_WORDS : nb(layout.headline)}
 				</h3>
-				{!isAbstain && <ResultImage role={role} resultKey={result.verdict} />}
+				{!isAbstain && <ResultImage role={role} resultKey={result.verdict} serious={serious} />}
 				<div className="record-claim__summary">
 					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{nb(layout.headline)}</p>}
 					<div className={`verdict verdict--${presentation.tone}`}>

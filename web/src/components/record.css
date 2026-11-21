@@ -82,6 +82,15 @@
 	margin-top: var(--space-1);
 }
 
+.record-claim--pointing .record-claim__primary {
+	border-left: 8px solid var(--role-accent);
+}
+
+.record-claim--pointing .record-claim__primary .record-evidence__meta {
+	color: var(--text);
+	font-weight: 700;
+}
+
 @media (min-width: 760px) {
 	.record-claim__primary {
 		padding: var(--space-6);

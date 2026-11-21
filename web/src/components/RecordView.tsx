@@ -9,6 +9,7 @@ import { VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict'
 import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
+import { recordSerious } from '../roles/appearance';
 import { currentRole } from '../roles/resolve';
 import { nb } from '../typography';
 import { StageSlot } from '../stage/StageSlot';
@@ -84,6 +85,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 	const single = record.claims.length === 1;
 	const role = currentRole((record as { role?: unknown }).role);
 	const note = topicNote(role);
+	const serious = recordSerious(record);
 
 	return (
 		<div className="record" data-role={role}>
@@ -102,7 +104,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					<details className="record__claims-list">
 						<summary>Pokaż wszystkie sprawdzone zdania ({record.claims.length})</summary>
 						{record.claims.map((result) => (
-							<RecordClaim key={result.claim.id} role={role} result={result} asOf={record.asOf} />
+							<RecordClaim key={result.claim.id} role={role} serious={serious} result={result} asOf={record.asOf} />
 						))}
 					</details>
 				</>
@@ -110,6 +112,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 			{single && (
 				<RecordClaim
 					role={role}
+					serious={serious}
 					result={record.claims[0]}
 					asOf={record.asOf}
 					extraDetails={<RecordExtras record={record} />}
