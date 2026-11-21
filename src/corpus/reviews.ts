@@ -10,9 +10,9 @@ import { chunkText } from './chunk';
 
 const ReviewLineSchema = z.object({
   url: z.string().url(),
-  publisher: z.string().optional(),
-  kind: z.string().optional(),
-  title: z.string().optional(),
+  publisher: z.string().nullable().optional(),
+  kind: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
   claim: z.string().min(3),
   claimant: z.string().nullable().optional(),
   claimDate: z.string().nullable().optional(),

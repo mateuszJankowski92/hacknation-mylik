@@ -22,6 +22,7 @@ export const RATING_TABLE: Readonly<Record<string, ReviewLabel>> = {
   zmanipulowane: 'wprowadzajace_w_blad',
   nieweryfikowalne: 'brak_wystarczajacych_dowodow',
   'nie da sie zweryfikowac': 'brak_wystarczajacych_dowodow',
+  'niedajace sie zweryfikowac': 'brak_wystarczajacych_dowodow',
 };
 
 export function normalizeRating(rating: string): string {

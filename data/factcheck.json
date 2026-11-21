@@ -16,15 +16,17 @@
       "site": "demagog.org.pl",
       "enabled": true,
       "standard": "EFCSN: zweryfikowany członek od 25.05.2023 (members.efcsn.com/signatories, sprawdzone 21.11.2026); IFCN: lista renderowana skryptem, nie odczytano",
-      "added": "2026-11-21"
+      "added": "2026-11-21",
+      "harvest": true
     },
     {
       "id": "pravda",
       "name": "Pravda",
       "site": "pravda.org.pl",
-      "enabled": false,
-      "standard": "EFCSN: zweryfikowany członek od 23.02.2024 (members.efcsn.com/signatories, sprawdzone 21.11.2026); domena NIEPOTWIERDZONA, dlatego wyłączony do potwierdzenia",
-      "added": "2026-11-21"
+      "enabled": true,
+      "standard": "EFCSN: zweryfikowany członek od 23.02.2024 (members.efcsn.com/signatories, sprawdzone 21.11.2026); domena pravda.org.pl potwierdzona adresami wpisów w zbiorczym pliku ClaimReview Google (211 wpisów, 21.11.2026)",
+      "added": "2026-11-21",
+      "harvest": true
     },
     {
       "id": "afp-sprawdzam",
@@ -32,7 +34,26 @@
       "site": "sprawdzam.afp.com",
       "enabled": false,
       "standard": "EFCSN: na liście jest AFP (Francja), bez osobnego wpisu polskiej redakcji; IFCN: nie odczytano. Wyłączony do potwierdzenia",
-      "added": "2026-11-21"
+      "added": "2026-11-21",
+      "harvest": true
+    },
+    {
+      "id": "konkret24",
+      "name": "Konkret24",
+      "site": "konkret24.tvn24.pl",
+      "enabled": false,
+      "standard": "EFCSN: brak na liście (21.11.2026); IFCN: lista renderowana skryptem, nie odczytano. Pobierany z indeksu (decyzja PM), poza ścieżką dowodową do potwierdzenia statusu",
+      "added": "2026-11-21",
+      "harvest": true
+    },
+    {
+      "id": "fakenews-pl",
+      "name": "FakeNews.pl",
+      "site": "fakenews.pl",
+      "enabled": false,
+      "standard": "EFCSN: brak na liście (21.11.2026); IFCN: nie odczytano. Pobierany z indeksu (decyzja PM), poza ścieżką dowodową do potwierdzenia statusu",
+      "added": "2026-11-21",
+      "harvest": true
     }
   ],
   "corpusDirectFactcheck": {
@@ -43,5 +64,12 @@
       "demagog"
     ],
     "_opis": "Wyłącznik dokumentów redakcji sprawdzających fakty w zbiorze (sourceIds). use=true: dokumenty są w ścieżce dowodowej (decyzja PM po odpowiedzi mentora z 21.11, 23:15: indeks Google dopasowuje frazy dosłownie, więc weryfikacje redakcji szukamy też własnym wyszukiwaniem w zbiorze). use=false: wyszukiwanie je pomija. Pliki zostają na dysku."
+  },
+  "harvest": {
+    "_opis": "Masowe pobranie wpisów z indeksu (scripts/factcheck-index-pobierz.ts): claims:search z reviewPublisherSiteFilter (query wtedy niewymagane, dokumentacja 21.11.2026), languageCode, pageSize, pageToken. Grzecznie: odstęp między zapytaniami, limit zapytań na przebieg, wznawianie z pliku stanu.",
+    "dir": "data/raw/factcheck-index",
+    "pageSize": 50,
+    "delayMs": 1100,
+    "maxRequestsPerRun": 400
   }
 }

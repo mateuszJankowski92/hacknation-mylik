@@ -47,7 +47,8 @@ describe('katalog źródeł (data/sources.json)', () => {
 
 	it('źródła z ograniczoną licencją mają limit fragmentu', () => {
 		for (const source of catalog.sources) {
-			if (source.sourceType === 'factcheck') expect(source.discovery?.excerptChars, source.id).toBeLessThanOrEqual(1000);
+			// Weryfikacje z pliku wpisów (pola ClaimReview): limit dotyczy uzasadnienia (`reviews.excerptChars`).
+			if (source.sourceType === 'factcheck') expect(source.discovery?.excerptChars ?? source.reviews?.excerptChars, source.id).toBeLessThanOrEqual(1000);
 		}
 	});
 });

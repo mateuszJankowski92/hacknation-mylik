@@ -30,9 +30,19 @@ export const FactcheckConfigSchema = z.object({
         enabled: z.boolean(),
         standard: z.string().min(3),
         added: z.iso.date(),
+        /** Czy pobierać wpisy wydawcy masowo z indeksu (scripts/factcheck-index-pobierz.ts). */
+        harvest: z.boolean().optional(),
       }),
     )
     .min(1),
+  harvest: z
+    .object({
+      dir: z.string().min(1),
+      pageSize: z.number().int().min(1).max(100),
+      delayMs: z.number().int().min(500),
+      maxRequestsPerRun: z.number().int().min(1).max(5000),
+    })
+    .optional(),
   corpusDirectFactcheck: z.object({
     use: z.boolean(),
     sourceIds: z.array(z.string().min(1)),

@@ -87,7 +87,10 @@ export function ingestCatalog(db: DatabaseSync, catalogPath: string, rootDir: st
 		db.exec('DELETE FROM passages');
 		db.exec('DELETE FROM documents');
 		db.exec('DELETE FROM sources');
+		const reviewCount = new Map(reviewSets.map(({ source, reviews }) => [source.id, reviews.length]));
 		for (const { source, documents: docs } of prepared) {
+			// Źródło weryfikacji bez pliku (jeszcze nie pobrane): bez wpisu, żeby nie liczyć pustej domeny.
+			if (source.reviews && docs.length === 0 && !reviewCount.get(source.id)) continue;
 			insertSource.run(source.id, source.publisher, source.domain, source.sourceType, source.license, sourceNotes(source));
 			for (const { doc, content, fetchedAt, contentSha } of docs) {
 				insertDocument.run(doc.id, source.id, doc.title, doc.url, doc.publishedAt, doc.validUntil ?? null, fetchedAt, version, contentSha);

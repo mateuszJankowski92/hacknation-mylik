@@ -33,6 +33,17 @@ export interface IndexSearchRequest {
   signal?: AbortSignal;
 }
 
+export interface IndexListRequest {
+  /** Domena wydawcy (reviewPublisherSiteFilter); wtedy query jest niewymagane (dokumentacja claims:search). */
+  site: string;
+  languageCode: string;
+  pageSize: number;
+  pageToken?: string;
+  signal?: AbortSignal;
+}
+
+export type IndexListResult = { ok: true; claims: ApiClaim[]; nextPageToken: string | null } | { ok: false; code: IndexErrorCode; status?: number };
+
 export interface FactcheckIndex {
   readonly name: string;
   search(req: IndexSearchRequest): Promise<IndexSearchResult>;
@@ -63,12 +74,23 @@ export class GoogleFactCheckIndex implements FactcheckIndex {
   }
 
   async search(req: IndexSearchRequest): Promise<IndexSearchResult> {
+    const r = await this.call({ query: req.query, languageCode: req.languageCode, pageSize: String(req.pageSize) }, req.signal);
+    return r.ok ? { ok: true, claims: r.claims } : r;
+  }
+
+  /** Strona wyników jednego wydawcy (masowe pobranie spisu weryfikacji). */
+  async list(req: IndexListRequest): Promise<IndexListResult> {
+    const params: Record<string, string> = { reviewPublisherSiteFilter: req.site, languageCode: req.languageCode, pageSize: String(req.pageSize) };
+    if (req.pageToken) params.pageToken = req.pageToken;
+    return this.call(params, req.signal);
+  }
+
+  private async call(params: Record<string, string>, signal?: AbortSignal): Promise<IndexListResult> {
     if (!this.apiKey) return { ok: false, code: 'brak_klucza' };
     const u = new URL(this.endpoint);
-    u.searchParams.set('query', req.query);
-    u.searchParams.set('languageCode', req.languageCode);
-    u.searchParams.set('pageSize', String(req.pageSize));
+    for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
     u.searchParams.set('key', this.apiKey);
+    const req = { signal };
     let res: Awaited<ReturnType<FetchLike>>;
     try {
       res = await this.fetchImpl(u.toString(), { method: 'GET', signal: req.signal, headers: { accept: 'application/json' } });
@@ -89,6 +111,7 @@ export class GoogleFactCheckIndex implements FactcheckIndex {
     if (!body || typeof body !== 'object') return { ok: false, code: 'zla_odpowiedz' };
     const claims = (body as ApiSearchResponse).claims;
     if (claims !== undefined && !Array.isArray(claims)) return { ok: false, code: 'zla_odpowiedz' };
-    return { ok: true, claims: claims ?? [] };
+    const next = (body as ApiSearchResponse).nextPageToken;
+    return { ok: true, claims: claims ?? [], nextPageToken: typeof next === 'string' && next ? next : null };
   }
 }
