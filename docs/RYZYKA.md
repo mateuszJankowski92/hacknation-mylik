@@ -95,7 +95,7 @@ Zrobiono dwa przebiegi, razem ok. 0,009 USD.
 
 ## R1b. Oceny redakcji sprawdzających fakty: czego świadomie nie robimy
 
-Nie pobieramy stron Demagoga (blokada automatów, zastrzeżenie TDM, licencja wymagająca zgody) i nie budujemy bazy z treści indeksu Google Fact Check Tools (warunki API, pkt 5(e)); skrypt masowego pobrania jest wyłączony do pisemnej zgody. Oceny redakcji bierzemy na żywo z indeksu, krótkimi frazami, z pamięcią tylko w procesie i według nagłówków. Ryzyko: indeks dopasowuje frazy dosłownie, więc część weryfikacji nie zostanie znaleziona i system się wstrzyma. Droga docelowa: zgoda lub eksport od redakcji. Szczegóły: [ZRODLA.md](ZRODLA.md), warstwa 3.
+Nie pobieramy stron Demagoga (blokada automatów, zastrzeżenie TDM, licencja wymagająca zgody) i nie budujemy bazy z treści indeksu Google Fact Check Tools (warunki API, pkt 5(e)); skrypt masowego pobrania jest wyłączony do pisemnej zgody. Oceny redakcji bierzemy na żywo z indeksu, krótkimi frazami, z pamięcią tylko w procesie i według nagłówków; rekord z wpisem z indeksu żyje 24 godziny (`FACTCHECK_RECORD_TTL_HOURS`), potem jest usuwany przy odczycie i liczony od nowa. Ryzyko: indeks dopasowuje frazy dosłownie, więc część weryfikacji nie zostanie znaleziona i system się wstrzyma. Droga docelowa: zgoda lub eksport od redakcji. Szczegóły: [ZRODLA.md](ZRODLA.md), warstwa 3.
 
 ## R2. Źródła: znane operacje informacyjne (EUvsDisinfo, zadania 16 i 23)
 

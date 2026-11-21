@@ -13,7 +13,11 @@ export type EngineEventType =
   | 'incident_match'
   | 'claim_rejected'
   | 'role_steering_ignored'
-  | 'live_search';
+  | 'live_search'
+  | 'factcheck_search'
+  | 'factcheck_unavailable'
+  | 'review_selection'
+  | 'record_expired';
 
 /** Dozwolone wartości w `detail`: liczby, kody, wartości logiczne (bez tekstu użytkownika). */
 export type EventDetail = Record<string, string | number | boolean | null | string[]>;
@@ -25,8 +29,25 @@ export interface EngineStore {
   logEvent(type: EngineEventType, e: { recordId?: string | null; channel?: Channel; detail?: EventDetail }): void;
 }
 
-export function createStore(db: DatabaseSync, now: () => Date): EngineStore {
+/** Czy dowody rekordu zawierają wpis z indeksu Google Fact Check Tools (dokument `fc:...`). */
+export function hasIndexEvidence(record: VerificationRecord): boolean {
+  return record.claims.some((c) => c.evidence.some((e) => e.source.documentId.startsWith('fc:')));
+}
+
+export interface StoreOptions {
+  /**
+   * Czas życia rekordu z wpisem z indeksu Google (ms). Brak = jak inne rekordy (RETENTION_DAYS).
+   * 0 = taki rekord nie jest zapisywany. Wygasanie leniwe: przy odczycie starszy rekord jest usuwany
+   * i traktowany jak nieistniejący.
+   */
+  indexRecordTtlMs?: number;
+  onExpired?: (id: string) => void;
+}
+
+export function createStore(db: DatabaseSync, now: () => Date, opts: StoreOptions = {}): EngineStore {
+  const ttl = opts.indexRecordTtlMs;
   const selectRecord = db.prepare('SELECT json FROM records WHERE id = ?');
+  const deleteRecord = db.prepare('DELETE FROM records WHERE id = ?');
   const insertRecord = db.prepare(
     'INSERT OR IGNORE INTO records(id, input_hash, corpus_version, created_at, json) VALUES (?, ?, ?, ?, ?)',
   );
@@ -38,10 +59,21 @@ export function createStore(db: DatabaseSync, now: () => Date): EngineStore {
       const row = selectRecord.get(id) as { json: string } | undefined;
       if (!row) return null;
       const parsed = VerificationRecordSchema.safeParse(JSON.parse(row.json));
-      return parsed.success ? parsed.data : null;
+      if (!parsed.success) return null;
+      if (ttl !== undefined && hasIndexEvidence(parsed.data)) {
+        const age = now().getTime() - Date.parse(parsed.data.createdAt);
+        if (ttl <= 0 || !(age <= ttl)) {
+          deleteRecord.run(id);
+          opts.onExpired?.(id);
+          return null;
+        }
+      }
+      return parsed.data;
     },
     insertRecord(record) {
       const valid = VerificationRecordSchema.parse(record);
+      // TTL 0: rekord z wpisem z indeksu żyje tylko w czasie odpowiedzi (nie trafia do bazy).
+      if (ttl !== undefined && ttl <= 0 && hasIndexEvidence(valid)) return false;
       const res = insertRecord.run(
         valid.id,
         valid.inputHash,

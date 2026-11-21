@@ -141,6 +141,11 @@ export interface EngineOptions {
    * wchodzi do klucza, więc zapisany rekord jest trwały (ten sam adres = to samo), a po oknie powstaje nowy.
    */
   liveCacheWindowMs?: number;
+  /**
+   * Czas życia rekordu, którego dowody zawierają wpis z indeksu Google Fact Check Tools (ms). Brak = jak
+   * inne rekordy. 0 = taki rekord nie jest zapisywany. Produkcja: FACTCHECK_RECORD_TTL_HOURS (domyślnie 24).
+   */
+  indexRecordTtlMs?: number;
 }
 
 /** Zdarzenie śledzenia etapów potoku (tylko identyfikatory i stanowiska; bez metadanych źródeł). */
@@ -452,7 +457,16 @@ export function llmModelName(llm: { name: string }): string {
 
 export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const now = deps.now ?? (() => new Date());
-  const store: EngineStore = createStore(deps.db, now);
+  const store: EngineStore = createStore(deps.db, now, {
+    ...(deps.options?.indexRecordTtlMs !== undefined ? { indexRecordTtlMs: deps.options.indexRecordTtlMs } : {}),
+    onExpired: (id) => {
+      try {
+        store.logEvent('record_expired', { recordId: id, detail: { reason: 'wygasl', kind: 'indeks_weryfikacji' } });
+      } catch {
+        // log niedostępny
+      }
+    },
+  });
   const archivalMonths = deps.options?.archivalMonths ?? DEFAULT_ARCHIVAL_MONTHS;
   const errorTable: ErrorProfileTable | null =
     deps.options?.errorProfile !== undefined

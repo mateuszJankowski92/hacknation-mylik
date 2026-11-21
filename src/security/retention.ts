@@ -1,4 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite';
+import { factcheckRecordTtlHours } from '../factcheck/index';
 
 export interface PurgeResult {
 	records: number;
@@ -15,13 +16,24 @@ function purgeOrphanRoles(db: DatabaseSync): void {
 	}
 }
 
-export function purgeOlderThan(db: DatabaseSync, maxAgeDays: number, now: Date = new Date()): PurgeResult {
+/** Wzorzec rekordu z wpisem z indeksu Google (dokument `fc:...` w dowodach). */
+const INDEX_RECORD_LIKE = '%"documentId":"fc:%';
+
+export function purgeOlderThan(
+	db: DatabaseSync,
+	maxAgeDays: number,
+	now: Date = new Date(),
+	indexTtlHours: number = factcheckRecordTtlHours(),
+): PurgeResult {
 	if (!Number.isFinite(maxAgeDays) || maxAgeDays < 0) throw new RangeError('maxAgeDays musi być liczbą nieujemną');
 	const cutoff = new Date(now.getTime() - maxAgeDays * DAY_MS).toISOString();
 	const records = db.prepare('DELETE FROM records WHERE created_at < ?').run(cutoff);
+	// Rekordy z wpisami z indeksu Google: krótszy czas życia (domyślnie 24 h, warunki API).
+	const indexCutoff = new Date(now.getTime() - indexTtlHours * 3_600_000).toISOString();
+	const indexRecords = db.prepare('DELETE FROM records WHERE created_at < ? AND json LIKE ?').run(indexCutoff, INDEX_RECORD_LIKE);
 	const events = db.prepare('DELETE FROM events WHERE ts < ?').run(cutoff);
 	purgeOrphanRoles(db);
-	return { records: Number(records.changes), events: Number(events.changes) };
+	return { records: Number(records.changes) + Number(indexRecords.changes), events: Number(events.changes) };
 }
 
 export function purgeAllSessionData(db: DatabaseSync): PurgeResult {

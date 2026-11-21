@@ -39,3 +39,10 @@ export function createFactcheckFromEnv(opts: FactcheckFromEnvOptions = {}): Fact
   const index = opts.index ?? new GoogleFactCheckIndex({ endpoint: config.index.endpoint, apiKey: key });
   return createFactcheckLayer({ config, index });
 }
+
+/** Czas życia rekordu z wpisem z indeksu (godziny): FACTCHECK_RECORD_TTL_HOURS, domyślnie 24; 0 = bez zapisu. */
+export function factcheckRecordTtlHours(env: Record<string, string | undefined> = process.env): number {
+  const raw = env.FACTCHECK_RECORD_TTL_HOURS?.trim();
+  const v = raw ? Number(raw) : 24;
+  return Number.isFinite(v) && v >= 0 ? v : 24;
+}
