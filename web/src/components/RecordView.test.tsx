@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
+import { VERDICT_EXPLANATIONS_PL } from '../../../src/render/plain';
 import { VERDICT_LABELS_PL, VERDICTS } from '../../../src/contracts/verdict';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from '../fixtures/outcomes';
 import { plain } from '../typography';
@@ -21,7 +22,7 @@ function record(key: string) {
 describe('RecordView', () => {
 	for (const verdict of VERDICTS) {
 		it(`pokazuje etykietę z objaśnieniem i datą: ${verdict}`, () => {
-			const { container } = render(<RecordView record={record(verdict)} />);
+			const { container } = render(<RecordView record={record(verdict === 'brak_wystarczajacych_dowodow' ? 'brak_z_silnika' : verdict)} />);
 			expect(screen.getByText(VERDICT_LABELS_PL[verdict])).toBeTruthy();
 			const headline = container.querySelector('.record-claim__headline')?.textContent ?? '';
 			if (verdict === 'brak_wystarczajacych_dowodow') expect(plain(headline)).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: .+ Brak wyniku w moich źródłach nie oznacza, że to nieprawda\.$/u);
@@ -32,6 +33,11 @@ describe('RecordView', () => {
 			expect(screen.getAllByText('Stan na 10.01.2026, 09:30.').length).toBeGreaterThan(0);
 		});
 	}
+
+	it('rekord bez pola o brakującym dokumencie pokazuje duże zdanie z silnika, nie stały napis', () => {
+		const { container } = render(<RecordView record={record('brak_wystarczajacych_dowodow')} />);
+		expect(plain(container.querySelector('.record-claim__headline')?.textContent ?? '')).toBe(VERDICT_EXPLANATIONS_PL.brak_wystarczajacych_dowodow);
+	});
 
 	it('oddziela źródła od interpretacji Mylika i cytuje dosłownie', () => {
 		const { container } = render(<RecordView record={record('potwierdzone')} />);

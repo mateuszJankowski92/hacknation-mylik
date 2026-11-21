@@ -15,7 +15,7 @@ import { plain } from './typography';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const LONG = FIXTURE_OUTCOMES.potwierdzone_dlugie as { kind: 'record'; record: VerificationRecord };
 const MANY = FIXTURE_OUTCOMES.kilka_twierdzen as { kind: 'record'; record: VerificationRecord };
-const ABSTAIN = FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow as { kind: 'record'; record: VerificationRecord };
+const ABSTAIN = FIXTURE_OUTCOMES.brak_z_silnika as { kind: 'record'; record: VerificationRecord };
 const SHORT = FIXTURE_OUTCOMES.potwierdzone as { kind: 'record'; record: VerificationRecord };
 const LATEST = { corpusVersion: 'x', documents: [] };
 
@@ -134,9 +134,12 @@ describe('arkusz wyniku: układ od góry', () => {
 
 	it('kilka twierdzeń: zdanie o białej plamie tylko przy pierwszej, z każdym zdaniem z silnika', () => {
 		const record = structuredClone(MANY.record);
-		const abstain = structuredClone(record.claims.find((result) => result.verdict === 'brak_wystarczajacych_dowodow')!);
-		abstain.claim = { ...abstain.claim, id: 'c4' };
-		record.claims.push(abstain);
+		const abstain = ABSTAIN.record.claims[0]!;
+		record.claims = [
+			record.claims[0]!,
+			{ ...structuredClone(abstain), claim: { ...abstain.claim, id: 'c3' } },
+			{ ...structuredClone(abstain), claim: { ...abstain.claim, id: 'c4' } },
+		];
 		const { container } = render(<RecordView record={record} />);
 		const headlines = Array.from(container.querySelectorAll('.record-claim--abstain .record-claim__headline')).map((node) => plain(node.textContent ?? ''));
 		expect(headlines).toHaveLength(2);

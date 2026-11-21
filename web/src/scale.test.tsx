@@ -178,7 +178,7 @@ describe('wynik w skali: widok', () => {
 	});
 
 	it('"brak wystarczających dowodów": duże zdanie z silnika, bez obrazu wyniku, etykieta mała', () => {
-		const { container } = render(<RecordView record={record('brak_wystarczajacych_dowodow')} />);
+		const { container } = render(<RecordView record={record('brak_z_silnika')} />);
 		expect(container.querySelector('.record-claim--abstain')).not.toBeNull();
 		const headline = container.querySelector('.record-claim__headline');
 		expect(plain(headline?.textContent ?? '')).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: /u);
@@ -193,7 +193,7 @@ describe('wynik w skali: widok', () => {
 	});
 
 	it('sprzeczne źródła: duże zdanie z nazwami wydawców pochodzi z silnika', () => {
-		const base = structuredClone(record('brak_wystarczajacych_dowodow'));
+		const base = structuredClone(record('brak_z_silnika'));
 		const evidence = structuredClone(record('potwierdzone').claims[0]!.evidence[0]!);
 		base.claims[0]!.evidence = [
 			{ ...evidence, stance: 'potwierdza', source: { ...evidence.source, publisher: 'Urząd A' } },

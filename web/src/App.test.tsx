@@ -62,7 +62,7 @@ describe('warianty fixture', () => {
 	}
 
 	it('przy wstrzymaniu się pokazuje zdanie z silnika, a nie stały napis "Nie wiem."', () => {
-		render(<OutcomeView outcome={FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow} />);
+		render(<OutcomeView outcome={FIXTURE_OUTCOMES.brak_z_silnika} />);
 		expect(screen.getAllByText(/Nie udało mi się potwierdzić tej informacji/).length).toBeGreaterThan(0);
 		expect(screen.queryByText('Nie wiem.')).toBeNull();
 		expect(screen.getByText(/Szukaj dalej na stronie właściwego urzędu/)).toBeTruthy();
