@@ -37,6 +37,7 @@ const PAIRS: Array<[string, string]> = [
 	['text', 'sea-tint'],
 	['text', 'coral-tint'],
 	['muted', 'bg'],
+	['struck', 'bg'],
 	['muted', 'surface'],
 	['muted', 'paper-shade'],
 	['link', 'bg'],

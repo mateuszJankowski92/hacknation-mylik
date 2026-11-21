@@ -8,6 +8,7 @@ import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals
 import { WaitingSteps } from '../visuals/WaitingSteps';
 import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
+import { HERO_PAGE_TITLE } from './heroCopy';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
 import { predictedRole, recordRoleOf } from '../roles/appearance';
@@ -57,7 +58,7 @@ export function CheckPage() {
 	const waiting = state.status === 'loading';
 	const showsNotice = state.status === 'notice';
 	useShownMark(showsNotice);
-	useDocumentTitle(waiting ? WAITING_TITLE : BASE_TITLE);
+	useDocumentTitle(waiting ? WAITING_TITLE : HERO_PAGE_TITLE);
 
 	useEffect(() => {
 		if (!import.meta.env.DEV) return;

@@ -5,7 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BRAND_HEADLINE, BRAND_SUBHEAD, BRAND_TAGLINE } from '../../src/render/warning';
-import { nb } from './typography';
+import {
+	HERO_HEADLINE,
+	HERO_KICKER,
+	HERO_PAGE_TITLE,
+	HERO_STRUCK_WORD,
+	HERO_SUBHEAD,
+} from './components/heroCopy';
+import { nb, plain } from './typography';
 import { App } from './App';
 import { Hero, HeroIllustration } from './components/Hero';
 import { HeroStage } from './components/HeroStage';
@@ -56,12 +63,13 @@ function stubLatest(count: number) {
 }
 
 describe('pierwszy ekran strony głównej', () => {
-	it('ma hasło dosłownie, jedno pole, jeden przycisk i do 35 słów', () => {
+	it('ma nagłówek dosłownie, jedno pole, jeden przycisk i do 35 słów', () => {
 		stubLatest(0);
 		const { container } = render(<App />);
-		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(nb(BRAND_HEADLINE));
-		expect(container.querySelector('.hero__subtitle')?.textContent).toBe(nb(BRAND_SUBHEAD));
-		expect(`${BRAND_HEADLINE} ${BRAND_SUBHEAD}`).toBe(BRAND_TAGLINE);
+		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(nb(HERO_HEADLINE));
+		expect(container.querySelector('.hero__kicker')?.textContent).toBe(nb(HERO_KICKER));
+		expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+		expect(container.querySelector('.hero__subtitle .visually-hidden')?.textContent).toBe(nb(HERO_SUBHEAD));
 		expect(container.querySelectorAll('textarea')).toHaveLength(1);
 		const hero = container.querySelector('.hero') as HTMLElement;
 		const controls = within(hero).getAllByRole('button');
@@ -73,7 +81,7 @@ describe('pierwszy ekran strony głównej', () => {
 		const visible = [header, hero]
 			.map((node) => {
 				const clone = node.cloneNode(true) as HTMLElement;
-				clone.querySelectorAll('.visually-hidden, [aria-hidden="true"]').forEach((item) => item.remove());
+				clone.querySelectorAll('.visually-hidden, [aria-hidden="true"]:not(.hero__subtitle-visual)').forEach((item) => item.remove());
 				return clone.textContent ?? '';
 			})
 			.join(' ');
@@ -104,6 +112,73 @@ describe('pierwszy ekran strony głównej', () => {
 		expect(screen.queryByText(/Znaków:/)).toBeNull();
 		fireEvent.change(field, { target: { value: 'a'.repeat(1700) } });
 		expect(screen.getByText('Znaków: 1700 z 2000')).toBeTruthy();
+	});
+});
+
+describe('nagłówek strony głównej', () => {
+	it('mała linia nad h1 to zwykły tekst, a hasło marki w karcie i zgłoszeniu zostaje bez zmian', () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		const kicker = container.querySelector('.hero__kicker') as HTMLElement;
+		expect(kicker.tagName).toBe('P');
+		expect(plain(kicker.textContent ?? '')).toBe('Mapa to nie terytorium.');
+		expect(kicker.compareDocumentPosition(screen.getByRole('heading', { level: 1 })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+		expect(plain(screen.getByRole('heading', { level: 1 }).textContent ?? '')).toBe('Informacja to nie fakt.');
+		expect(BRAND_HEADLINE).toBe('Mapa to nie terytorium.');
+		expect(BRAND_SUBHEAD).toBe('Mylik sprawdza mapę, zanim w nią uwierzysz.');
+		expect(BRAND_TAGLINE).toBe(`${BRAND_HEADLINE} ${BRAND_SUBHEAD}`);
+	});
+
+	it('czytnik ekranu dostaje czyste zdanie, a przekreślone słowo jest ozdobą ukrytą przed czytnikiem', () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		const subtitle = container.querySelector('.hero__subtitle') as HTMLElement;
+		const readable = subtitle.cloneNode(true) as HTMLElement;
+		readable.querySelectorAll('[aria-hidden="true"]').forEach((node) => node.remove());
+		expect(plain(readable.textContent ?? '').trim()).toBe('Mylik sprawdza informację w źródłach, zanim w nią uwierzysz.');
+		expect(plain(readable.textContent ?? '')).not.toMatch(/mapę/u);
+		const struck = subtitle.querySelector('.hero__struck') as HTMLElement;
+		expect(struck.textContent).toBe(HERO_STRUCK_WORD);
+		expect(struck.closest('[aria-hidden="true"]')).not.toBeNull();
+		expect(subtitle.querySelector('del, s, strike')).toBeNull();
+	});
+
+	it('widoczny podtytuł czyta się "mapę informację", z nierozdzielną parą słów i bez jednoliterowych końcówek wierszy', () => {
+		stubLatest(0);
+		const { container } = render(<App />);
+		const visual = container.querySelector('.hero__subtitle-visual') as HTMLElement;
+		expect(plain(visual.textContent ?? '')).toBe('Mylik sprawdza mapę informację w źródłach, zanim w nią uwierzysz.');
+		const pair = container.querySelector('.hero__nowrap') as HTMLElement;
+		expect(pair.textContent).toBe(`${HERO_STRUCK_WORD}\u00a0informację`);
+		const lines = Array.from(container.querySelectorAll('.hero__subtitle-line')).map((line) => line.textContent ?? '');
+		expect(lines).toHaveLength(2);
+		expect(lines[1]).toMatch(/^w\u00a0źródłach,/u);
+		for (const line of lines) expect(line).not.toMatch(/\s[aiouwz]$/iu);
+		expect(lines[1]).toMatch(/w\u00a0nią/u);
+	});
+
+	it('przekreślenie to ołówkowa kreska w CSS, pod kątem, słowo szare z kontrastem AA', () => {
+		const css = readFileSync(join(HERE, 'components', 'hero.css'), 'utf8');
+		expect(css).toMatch(/\.hero__struck::after \{[^}]*height: 2px;[^}]*background: var\(--graphite\);[^}]*transform: rotate\(-[\d.]+deg\);/);
+		expect(css).toMatch(/\.hero__struck \{[^}]*color: var\(--struck\);/);
+		expect(css).toMatch(/@media \(min-width: 640px\) \{[\s\S]*?\.hero__subtitle-line \{\s*display: block;/);
+		expect(css).not.toMatch(/animation|transition: [^;]*hero__struck/);
+	});
+
+	it('mała linia ma 18 px na telefonie i 20-22 px na większych ekranach', () => {
+		const css = readFileSync(join(HERE, 'components', 'hero.css'), 'utf8');
+		const sizes = [...css.matchAll(/\.hero__kicker \{[^}]*font-size: (\d+)px;/g)].map((match) => Number(match[1]));
+		expect(sizes).toEqual([18, 20, 22]);
+	});
+
+	it('tytuł karty i opis w pliku HTML: "Mylik: informacja to nie fakt" i czyste zdanie bez przekreślenia', () => {
+		const html = readFileSync(join(HERE, '..', 'index.html'), 'utf8');
+		expect(HERO_PAGE_TITLE).toBe('Mylik: informacja to nie fakt');
+		expect(html).toContain(`<title>${HERO_PAGE_TITLE}</title>`);
+		expect(html).toContain(`<meta name="description" content="${HERO_SUBHEAD}" />`);
+		stubLatest(0);
+		render(<App />);
+		expect(document.title).toBe(HERO_PAGE_TITLE);
 	});
 });
 
