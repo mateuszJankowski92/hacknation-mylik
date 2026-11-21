@@ -134,6 +134,8 @@ const down = (l: StrengthLevel): StrengthLevel => (l === 'wysoka' ? 'srednia' : 
  * archiwalne lub po terminie obowiązywania (`validUntil`); którykolwiek zgodny dowód jest po terminie; żaden zgodny dowód nie ma daty (poza prawem); najlepszy zgodny dowód jest na pozycji
  * >= WEAK_MATCH_RANK w wynikach wyszukiwania (pozycja zamiast surowego `score`, bo skala score
  * zależy od wyszukiwarki).
+ * Na końcu: gdy WSZYSTKIE zgodne dowody pochodzą z drugiej warstwy (`layer: media_i_instytucje`),
+ * poziom najwyżej `srednia` i przesłanka `zrodlo_wtorne` (zad. 29).
  */
 export function computeStrength(decision: VerdictDecision): StrengthResult {
   const { verdict, abstain, aligned } = decision;
@@ -166,11 +168,15 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
   if (allUndated) level = down(level);
   if (weak) level = down(level);
   if (!LEVELS.includes(level)) level = 'niska';
+  // Zad. 29: podstawa wyłącznie z drugiej warstwy (media i instytucje) daje najwyżej `srednia`.
+  const secondaryOnly = aligned.every((e) => e.source.layer === 'media_i_instytucje');
+  if (secondaryOnly && level === 'wysoka') level = 'srednia';
 
   const reasons: StrengthReasonCode[] = [];
   if (official) reasons.push('zrodlo_urzedowe');
   reasons.push(domains.size >= 2 ? 'kilka_niezaleznych_zrodel' : 'jedno_zrodlo');
   if (anyArchival) reasons.push('zrodlo_archiwalne');
   if (weak) reasons.push('slabe_dopasowanie');
+  if (secondaryOnly) reasons.push('zrodlo_wtorne');
   return { level, reasons };
 }

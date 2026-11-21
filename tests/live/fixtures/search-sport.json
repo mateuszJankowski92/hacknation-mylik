@@ -1,0 +1,9 @@
+{
+  "hits": [
+    { "url": "https://www.pap.pl/aktualnosci/mecz-polska-holandia", "title": "Polska wygrała z Holandią", "pageAge": "2026-05-31" },
+    { "url": "https://evilpap.pl/fake", "title": "Podróbka", "pageAge": null },
+    { "url": "https://pap.pl.example.com/x", "title": "Podróbka 2", "pageAge": null },
+    { "url": "https://sport.tvp.pl/relacja-polska-holandia", "title": "Relacja", "pageAge": "1 day ago" },
+    { "url": "https://www.pzpn.pl/komunikat", "title": "Komunikat", "pageAge": null }
+  ]
+}

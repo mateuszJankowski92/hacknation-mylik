@@ -27,6 +27,7 @@ export const REASON_PLAIN_PL: Record<StrengthReasonCode, string> = {
 	sprzeczne_zrodla: 'źródła mówią co innego',
 	slabe_dopasowanie: 'źródła słabo pasują do twierdzenia',
 	brak_dowodow: 'brak informacji w sprawdzonych źródłach',
+	zrodlo_wtorne: 'źródło spoza urzędów',
 };
 
 export const STATE_MESSAGES_PL: Record<State, string> = {

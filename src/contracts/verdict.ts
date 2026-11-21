@@ -90,6 +90,8 @@ export const STRENGTH_REASON_CODES = [
   'sprzeczne_zrodla',
   'slabe_dopasowanie',
   'brak_dowodow',
+  /** Zad. 29: podstawa wyłącznie z drugiej warstwy (media i instytucje); siła najwyżej `srednia`. */
+  'zrodlo_wtorne',
 ] as const;
 export const StrengthReasonCodeSchema = z.enum(STRENGTH_REASON_CODES);
 export type StrengthReasonCode = z.infer<typeof StrengthReasonCodeSchema>;
@@ -102,4 +104,5 @@ export const STRENGTH_REASON_LABELS_PL: Record<StrengthReasonCode, string> = {
   sprzeczne_zrodla: 'źródła są ze sobą sprzeczne',
   slabe_dopasowanie: 'słabe dopasowanie źródeł do twierdzenia',
   brak_dowodow: 'brak dowodów w korpusie',
+  zrodlo_wtorne: 'źródło wtórne (media lub instytucja spoza zbioru urzędowego)',
 };

@@ -11,6 +11,7 @@ import { loadKnownOpsDir, matchKnownOps, type KnownOpRecord } from '../corpus/in
 import { MAX_INCIDENT_NOTICES, loadIncidentMatcher, type IncidentHit, type IncidentMatcher } from '../engine/incidents';
 import { createEngine } from '../engine/index';
 import { createLlmProvider } from '../llm/index';
+import { createProductionLiveLayer, type LiveLayer } from '../live/index';
 import { startRetention, type RetentionScheduler } from '../security/index';
 import { createApp } from './app';
 
@@ -135,11 +136,29 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
       ? { matcher: opts.incidents, incidents: opts.incidents !== null, knownOps: 0 }
       : loadIncidentSources(config, warn);
 
+  // Zad. 29: druga warstwa tylko przy LIVE_LAYER=on i dostawcy anthropic (wyszukiwarka web_search API).
+  let live: LiveLayer | null = null;
+  if (config.liveLayer === 'on') {
+    if (config.llmProvider !== 'anthropic' || !config.anthropicApiKey)
+      warn('Uwaga: LIVE_LAYER=on wymaga LLM_PROVIDER=anthropic i klucza; druga warstwa wyłączona.');
+    else
+      try {
+        live = createProductionLiveLayer({
+          sourcesPath: resolveProjectPath(config.liveSourcesPath),
+          apiKey: config.anthropicApiKey,
+          model: modelName,
+        });
+      } catch {
+        warn('Uwaga: nie udało się wczytać listy serwisów drugiej warstwy (LIVE_SOURCES_PATH); druga warstwa wyłączona.');
+      }
+  }
+
   // Profil błędów z EVAL_RESULTS_PATH (plik opcjonalny: brak = bez profilu).
   const engine = createEngine({
     db,
     searcher,
     llm,
+    live,
     incidents: sources.matcher,
     options: { errorProfilePath: resolveProjectPath(config.evalResultsPath) },
   });

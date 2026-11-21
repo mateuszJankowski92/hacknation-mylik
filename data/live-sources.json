@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "description": "Druga warstwa źródeł Mylika (zad. 29): zamknięta, jawna lista serwisów, w których wolno szukać na żywo, gdy zbiór urzędowy nie dał rozstrzygającej podstawy. Żadnych innych domen. Subdomena wpisanej domeny jest dozwolona (np. www.pap.pl dla pap.pl). Zasady kwalifikowania, aktualizowania i wykluczania: docs/ZRODLA.md.",
+  "kinds": {
+    "agencja_i_media_publiczne": {
+      "label": "agencje prasowe i media publiczne",
+      "sourceType": "media",
+      "qualification": "Krajowa agencja prasowa albo nadawca publiczny działający na podstawie ustawy, z redakcją odpowiadającą prawnie za treść (prawo prasowe), jawnym wydawcą i stałym adresem. Kwalifikują się tylko teksty redakcyjne (wiadomości, relacje). Nie: blogi, fora, komentarze czytelników, treści sponsorowane, serwisy społecznościowe."
+    },
+    "zwiazek_lub_instytucja": {
+      "label": "oficjalne związki i instytucje",
+      "sourceType": "organizacja",
+      "qualification": "Oficjalna strona związku sportowego, organizacji międzynarodowej, instytucji publicznej lub uczelni publicznej, wskazana przez tę instytucję jako jej własna. Kwalifikują się komunikaty i wyniki publikowane przez samą instytucję. Nie: fora kibiców, sklepy, strony partnerów, serwisy społecznościowe."
+    }
+  },
+  "sources": [
+    { "id": "pap", "domain": "pap.pl", "publisher": "Polska Agencja Prasowa", "kind": "agencja_i_media_publiczne", "addedAt": "2026-11-21" },
+    { "id": "polskieradio", "domain": "polskieradio.pl", "publisher": "Polskie Radio", "kind": "agencja_i_media_publiczne", "addedAt": "2026-11-21" },
+    { "id": "polskieradio24", "domain": "polskieradio24.pl", "publisher": "Polskie Radio (portal informacyjny)", "kind": "agencja_i_media_publiczne", "addedAt": "2026-11-21" },
+    { "id": "tvpinfo", "domain": "tvp.info", "publisher": "TVP Info (Telewizja Polska)", "kind": "agencja_i_media_publiczne", "addedAt": "2026-11-21" },
+    { "id": "tvpsport", "domain": "sport.tvp.pl", "publisher": "TVP Sport (Telewizja Polska)", "kind": "agencja_i_media_publiczne", "addedAt": "2026-11-21" },
+    { "id": "pzpn", "domain": "pzpn.pl", "publisher": "Polski Związek Piłki Nożnej", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "laczynaspilka", "domain": "laczynaspilka.pl", "publisher": "Łączy nas piłka (serwis PZPN)", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "uefa", "domain": "uefa.com", "publisher": "UEFA", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "fifa", "domain": "fifa.com", "publisher": "FIFA", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "pkol", "domain": "olimpijski.pl", "publisher": "Polski Komitet Olimpijski", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "gus", "domain": "stat.gov.pl", "publisher": "Główny Urząd Statystyczny", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "nbp", "domain": "nbp.pl", "publisher": "Narodowy Bank Polski", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "pan", "domain": "pan.pl", "publisher": "Polska Akademia Nauk", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "uw", "domain": "uw.edu.pl", "publisher": "Uniwersytet Warszawski", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" },
+    { "id": "uj", "domain": "uj.edu.pl", "publisher": "Uniwersytet Jagielloński", "kind": "zwiazek_lub_instytucja", "addedAt": "2026-11-21" }
+  ]
+}

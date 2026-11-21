@@ -66,6 +66,16 @@ import {
 import { createStore, type EngineStore } from './store';
 import { forQueries, fuseRankings, isPassageRanker, orderByRanking, type PassageRanker } from './ranker';
 import { chooseRole, detectRoleSteering } from '../roles/index';
+import type { LiveLayer } from '../live/layer';
+import {
+  LIVE_FAILED_NOTICE,
+  LIVE_INJECTION_NOTICE,
+  LIVE_NOT_FOUND_LIMITATION,
+  LIVE_SOURCE_SENTENCE,
+  LIVE_TIMEOUT_NOTICE,
+  LIVE_USED_LIMITATION,
+  liveSourceNotice,
+} from '../live/text';
 
 export { buildShortAnswer };
 
@@ -86,6 +96,14 @@ export const ASSESS_CHUNK = 6;
 /** Limit czasu na jedno zgłoszenie; po nim stan techniczny, nigdy werdykt. */
 export const DEFAULT_DEADLINE_MS = 22_000;
 /** Słowa dodawane do zapytania "przeciw", gdy model nie podał `counterTerms`. */
+/** Zad. 29: limit czasu zgłoszenia przy włączonej drugiej warstwie (całość poniżej 25 s). */
+export const LIVE_DEADLINE_MS = 24_000;
+/** Czas zostawiany po drugiej warstwie na reguły, zdania i zapis. */
+export const LIVE_RESERVE_MS = 1_500;
+/** Poniżej tego budżetu druga warstwa nie startuje (uczciwe "nie zdążyłem"). */
+export const LIVE_MIN_BUDGET_MS = 3_000;
+/** Okno ponownego użycia rekordu przy włączonej drugiej warstwie (6 h): potem nowe sprawdzenie, nowy adres. */
+export const DEFAULT_LIVE_CACHE_WINDOW_MS = 6 * 60 * 60 * 1000;
 export const DEFAULT_COUNTER_MARKERS = ['nieprawda', 'zaprzecza', 'dementuje', 'sprostowanie', 'nieprawdziwe'];
 
 export type PrepareFn = (i: VerifyInput) => PreparedInput | NeedsClarification;
@@ -107,6 +125,11 @@ export interface EngineOptions {
   trace?: (event: EngineTraceEvent) => void;
   /** Limit czasu na zgłoszenie w ms (domyślnie DEFAULT_DEADLINE_MS); po nim stan `awaria_techniczna`. */
   deadlineMs?: number;
+  /**
+   * Zad. 29: okno ponownego użycia rekordu przy włączonej drugiej warstwie (domyślnie 6 h). Numer okna
+   * wchodzi do klucza, więc zapisany rekord jest trwały (ten sam adres = to samo), a po oknie powstaje nowy.
+   */
+  liveCacheWindowMs?: number;
 }
 
 /** Zdarzenie śledzenia etapów potoku (tylko identyfikatory i stanowiska; bez metadanych źródeł). */
@@ -142,6 +165,11 @@ export interface EngineExtraDeps {
    * jeśli sam go implementuje (`rankPassages`); `null` = kolejność z wyszukiwania.
    */
   ranker?: PassageRanker | null;
+  /**
+   * Druga warstwa źródeł (zad. 29, src/live): szukanie na żywo na jawnej liście serwisów, tylko gdy korpus
+   * nie dał rozstrzygającego dowodu dla twierdzenia. Brak lub `null` = wyłączona (jak dotąd).
+   */
+  live?: LiveLayer | null;
 }
 
 export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
@@ -223,6 +251,8 @@ export class DeadlineExceeded extends Error {
 interface Deadline {
   /** Rzuca DeadlineExceeded po przekroczeniu limitu (między etapami potoku). */
   check(): void;
+  /** Ile ms zostało do limitu. */
+  remaining(): number;
   /** Rozstrzyga się stanem technicznym, gdy limit minie. */
   expired: Promise<VerifyOutcome>;
   clear(): void;
@@ -238,6 +268,9 @@ function createDeadline(ms: number): Deadline {
   return {
     check() {
       if (Date.now() >= at) throw new DeadlineExceeded();
+    },
+    remaining() {
+      return at - Date.now();
     },
     expired,
     clear() {
@@ -392,7 +425,9 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const supportGate: SupportGate | null =
     deps.supportGate !== undefined ? deps.supportGate : isSupportGate(llm) ? llm : null;
   const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
-  const deadlineMs = deps.options?.deadlineMs ?? DEFAULT_DEADLINE_MS;
+  const live: LiveLayer | null = deps.live ?? null;
+  const deadlineMs = deps.options?.deadlineMs ?? (live ? LIVE_DEADLINE_MS : DEFAULT_DEADLINE_MS);
+  const liveWindowMs = Math.max(60_000, deps.options?.liveCacheWindowMs ?? DEFAULT_LIVE_CACHE_WINDOW_MS);
 
   async function search(query: string, limit: number): Promise<Passage[]> {
     try {
@@ -479,6 +514,9 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       keyInput = `${prepared.normalizedInput}\n#tresc:${sha256Hex(analysisText)}`;
     }
 
+    // Zad. 29: przy drugiej warstwie numer okna czasu wchodzi do klucza (świeże wiadomości po oknie).
+    if (live) keyInput = `${keyInput}\n#warstwa2:${Math.floor(started / liveWindowMs)}`;
+
     // (2) klucz rekordu i cache
     const recordId = computeRecordKey(keyInput, corpusVersion);
     const cached = store.getRecord(recordId);
@@ -551,7 +589,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     progress.claimsRead(checkable.length);
 
     const createdAt = new Date(started).toISOString();
-    const asOf = resolveAsOf(searcher, createdAt);
+    let asOf = resolveAsOf(searcher, createdAt);
     const abstainCodes = new Map<string, string>();
     const nowDate = now();
     const scope = scopeLimitation(corpusVersion, documents);
@@ -562,6 +600,104 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       notices: Notice[];
       signals: string[];
       injectionEvents: number;
+    }
+
+    type AssessFn = (groups: Passage[][], sentList: Passage[]) => Promise<{ accepted: AcceptedEvidence[]; rejected: number }>;
+    interface LiveOutcome {
+      accepted: AcceptedEvidence[];
+      rejected: number;
+      flagged: number;
+      /** Czy druga warstwa w ogóle przeszukała listę (dla ograniczenia "nic nie znalazłem"). */
+      searched: boolean;
+    }
+
+    /**
+     * Druga warstwa dla jednego twierdzenia (zad. 29): wyszukanie i pobranie (src/live), potem ten sam
+     * przebieg oceny i bramek co dla korpusu. Własny limit czasu; po nim uczciwe "nic nie dodałem".
+     * Błąd wyszukiwania, sieci albo oceny daje ostrzeżenie, nigdy werdykt z domysłu.
+     */
+    async function runLive(claim: ExtractedClaim, side: ClaimSide, assess: AssessFn): Promise<LiveOutcome> {
+      const none: LiveOutcome = { accepted: [], rejected: 0, flagged: 0, searched: false };
+      const layer = live!;
+      const budget = Math.min(layer.budgetMs, deadline.remaining() - LIVE_RESERVE_MS);
+      if (budget < LIVE_MIN_BUDGET_MS) {
+        store.logEvent('live_search', { recordId, channel, detail: { claimId: claim.id, status: 'brak_czasu', budgetMs: Math.max(0, budget) } });
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_TIMEOUT_NOTICE });
+        return none;
+      }
+      const t0 = Date.now();
+      const found = await layer.find(claim, { budgetMs: budget, now: nowDate });
+      if (found.usage) addUsage(usage, found.usage);
+      usage.estimatedCostUsd += Math.max(0, found.searchFeeUsd || 0);
+      for (const f of found.flagged) {
+        for (const sig of f.signals) side.signals.push(`fragment:${f.passageId}:${sig}`);
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_INJECTION_NOTICE, passageId: f.passageId });
+        store.logEvent('injection_signal', {
+          recordId,
+          channel,
+          detail: { where: 'fragment_warstwa2', passageId: f.passageId, claimId: claim.id, signals: f.signals },
+        });
+        side.injectionEvents++;
+      }
+      // Koszt wyszukiwania osobno (opłata za wyszukiwania i tokeny), bez treści zgłoszenia i stron.
+      store.logEvent('live_search', {
+        recordId,
+        channel,
+        detail: {
+          claimId: claim.id,
+          status: found.status,
+          hits: found.hits,
+          rejectedDomains: [...new Set(found.rejectedDomains)].slice(0, 10),
+          robotsBlocked: found.robotsBlocked,
+          fetchFailed: found.fetchFailed,
+          pages: found.pages,
+          passages: found.passages.length,
+          flagged: found.flagged.length,
+          searches: found.searches,
+          searchFeeUsd: found.searchFeeUsd,
+          tokenCostUsd: found.usage?.estimatedCostUsd ?? 0,
+          ms: found.ms,
+          ...(found.errorCode ? { code: found.errorCode } : {}),
+        },
+      });
+      const out: LiveOutcome = { ...none, flagged: found.flagged.length, searched: true };
+      if (found.status === 'blad_wyszukiwania') {
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_FAILED_NOTICE });
+        return { ...out, searched: false };
+      }
+      if (found.status === 'przekroczony_czas') {
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_TIMEOUT_NOTICE });
+        return { ...out, searched: false };
+      }
+      if (found.passages.length === 0) return out;
+      const left = budget - (Date.now() - t0);
+      if (left < 1_000) {
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_TIMEOUT_NOTICE });
+        return { ...out, searched: false };
+      }
+      const assessing = assess(splitEven(found.passages, ASSESS_CHUNK), found.passages);
+      assessing.catch(() => {});
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const late = new Promise<'late'>((resolve) => {
+        timer = setTimeout(() => resolve('late'), left);
+        (timer as { unref?: () => void }).unref?.();
+      });
+      try {
+        const r = await Promise.race([assessing, late]);
+        if (r === 'late') {
+          store.logEvent('live_search', { recordId, channel, detail: { claimId: claim.id, status: 'przekroczony_czas', stage: 'ocena' } });
+          side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_TIMEOUT_NOTICE });
+          return { ...out, searched: false };
+        }
+        return { ...out, accepted: r.accepted, rejected: r.rejected };
+      } catch (e) {
+        if (e instanceof DeadlineExceeded) throw e;
+        store.logEvent('live_search', { recordId, channel, detail: { claimId: claim.id, status: 'blad_oceny', code: technicalDetail(e) } });
+        side.notices.push({ type: 'ograniczenie_techniczne', text: LIVE_FAILED_NOTICE });
+        return { ...out, searched: false };
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
     }
 
     async function checkClaim(claim: ExtractedClaim, claimIndex: number, side: ClaimSide): Promise<ClaimResult> {
@@ -663,16 +799,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       progress.counterSearchStart(claimIndex);
       progress.counterSearchDone(claimIndex, counterSel.length);
       const sent = [...forSel, ...counterSel];
-      const sentIds = new Set(sent.map((p) => p.id));
       const considered = sent.length + flagged.size;
       trace({ type: 'candidates', claimId: claim.id, passageIds: sent.map((p) => p.id), documentIds: sent.map((p) => p.documentId) });
 
-      // (5) ocena stanowisk (model, porcje "za" i "przeciw" równolegle) i (6) bramka cytatów (kod)
-      let accepted: AcceptedEvidence[] = [];
-      let rejectedCount = 0;
+      // (5) ocena stanowisk (model, porcje równolegle) i (6) bramka cytatów (kod); ten sam przebieg
+      // dla fragmentów korpusu i dla fragmentów drugiej warstwy (zad. 29).
       const modelFlagged = new Set<string>();
-      if (sent.length > 0) {
-        const groups = [...splitEven(forSel, ASSESS_CHUNK), ...splitEven(counterSel, ASSESS_CHUNK)];
+      async function assessAndGate(groups: Passage[][], sentList: Passage[]): Promise<{ accepted: AcceptedEvidence[]; rejected: number }> {
+        const sentIdSet = new Set(sentList.map((p) => p.id));
         const assessedAll = await Promise.all(
           groups.map((g) => llm.assessPassages({ claim, passages: g.map((p) => ({ id: p.id, text: p.text })) })),
         );
@@ -684,10 +818,10 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         trace({
           type: 'assess',
           claimId: claim.id,
-          items: assessments.map((a) => ({ passageId: a.passageId, documentId: sent.find((p) => p.id === a.passageId)?.documentId ?? '', stance: a.stance })),
+          items: assessments.map((a) => ({ passageId: a.passageId, documentId: sentList.find((p) => p.id === a.passageId)?.documentId ?? '', stance: a.stance })),
         });
         for (const a of assessments)
-          if (a?.injectionSuspected === true && sentIds.has(a.passageId) && !modelFlagged.has(a.passageId)) {
+          if (a?.injectionSuspected === true && sentIdSet.has(a.passageId) && !modelFlagged.has(a.passageId)) {
             modelFlagged.add(a.passageId);
             side.signals.push(`fragment:${a.passageId}:zgloszone_przez_model`);
             side.notices.push({ type: 'ograniczenie_techniczne', text: MODEL_INJECTION_NOTICE, passageId: a.passageId });
@@ -698,30 +832,51 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
             });
             side.injectionEvents++;
           }
-        const gate = validateCitations(assessments, sent, { flaggedPassageIds: modelFlagged, claimText: claim.text });
-        accepted = gate.accepted;
-        rejectedCount = gate.rejected.length;
+        const gate = validateCitations(assessments, sentList, { flaggedPassageIds: modelFlagged, claimText: claim.text });
+        let acc = gate.accepted;
+        let rejected = gate.rejected.length;
         if (supportGate) {
-          const checked = await applySupportGate(supportGate, claim.text, accepted, (u) => addUsage(usage, u));
+          const checked = await applySupportGate(supportGate, claim.text, acc, (u) => addUsage(usage, u));
           deadline.check();
-          trace({ type: 'gate', claimId: claim.id, before: evView(accepted), after: evView(checked.accepted) });
-          accepted = checked.accepted;
-          rejectedCount += checked.stats.dropped;
+          trace({ type: 'gate', claimId: claim.id, before: evView(acc), after: evView(checked.accepted) });
+          acc = checked.accepted;
+          rejected += checked.stats.dropped;
           if (checked.stats.checked > 0)
             store.logEvent('support_gate', { recordId, channel, detail: { claimId: claim.id, gate: supportGate.name, ...checked.stats } });
         }
-        for (const a of accepted) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
+        for (const a of acc) progress.passageAssessed(claimIndex, a.passage.meta, a.stance);
         const unknown = gate.rejected.filter((r) => r.reason === 'nieznany_fragment').length;
         if (unknown > 0) store.logEvent('llm_unknown_passage', { recordId, channel, detail: { claimId: claim.id, count: unknown } });
-        if (rejectedCount > 0) {
+        if (rejected > 0) {
           const byReason: Record<string, number> = {};
           for (const r of gate.rejected) byReason[r.reason] = (byReason[r.reason] ?? 0) + 1;
           store.logEvent('citation_rejected', {
             recordId,
             channel,
-            detail: { claimId: claim.id, count: rejectedCount, ...byReason },
+            detail: { claimId: claim.id, count: rejected, ...byReason },
           });
         }
+        return { accepted: acc, rejected };
+      }
+      let accepted: AcceptedEvidence[] = [];
+      let rejectedCount = 0;
+      if (sent.length > 0) {
+        const r = await assessAndGate([...splitEven(forSel, ASSESS_CHUNK), ...splitEven(counterSel, ASSESS_CHUNK)], sent);
+        accepted = r.accepted;
+        rejectedCount = r.rejected;
+      }
+
+      // (6b) druga warstwa (zad. 29): tylko gdy korpus nie dał żadnego rozstrzygającego dowodu.
+      let liveFlagged = 0;
+      let liveUsed = false;
+      let liveNothing = false;
+      if (live && !accepted.some((a) => DECISIVE.has(a.stance))) {
+        const lr = await runLive(claim, side, assessAndGate);
+        liveFlagged = lr.flagged;
+        liveUsed = lr.accepted.some((a) => DECISIVE.has(a.stance));
+        liveNothing = lr.searched && !liveUsed;
+        accepted = [...accepted, ...lr.accepted];
+        rejectedCount += lr.rejected;
       }
 
       // Próba obalenia: ile dowodów przeciwnych przyniósł przebieg "przeciw".
@@ -770,7 +925,13 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       }
       if (decision.aligned.some((e) => e.source.sourceType !== 'prawo' && !e.source.publishedAt))
         limitations.push(UNDATED_LIMITATION);
-      const flaggedHere = flagged.size + rankFlagged.size + modelFlagged.size;
+      if (liveUsed) {
+        limitations.push(LIVE_USED_LIMITATION);
+        for (const e of ruleEvidence)
+          if (e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance))
+            side.notices.push({ type: 'status_zrodla', text: liveSourceNotice(e.source.publisher), passageId: e.passageId });
+      } else if (liveNothing) limitations.push(LIVE_NOT_FOUND_LIMITATION);
+      const flaggedHere = flagged.size + rankFlagged.size + modelFlagged.size + liveFlagged;
       if (flaggedHere > 0) limitations.push(injectionLimitation(flaggedHere));
 
       const mismatchKinds = accepted
@@ -860,8 +1021,18 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       injectionSignals: injectionSignals.size,
     });
 
+    // Zad. 29: gdy podstawa pochodzi z drugiej warstwy, "stan na" to czas pobrania strony.
+    const liveDecisive = (r: ClaimResult) =>
+      r.evidence.filter((e) => e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance));
+    const liveFetched = results.flatMap((r) => liveDecisive(r).map((e) => e.source.fetchedAt)).sort();
+    if (liveFetched.length) asOf = new Date(liveFetched[liveFetched.length - 1]!).toISOString();
+
     // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
     if (renderer) for (const r of results) r.explanation = safeExplanation(renderer, r, asOf);
+    // Zad. 29: proste zdanie, że źródło pochodzi spoza zbioru urzędowego.
+    for (const r of results)
+      if (liveDecisive(r).length && !r.explanation.includes(LIVE_SOURCE_SENTENCE))
+        r.explanation = `${r.explanation.trim()} ${LIVE_SOURCE_SENTENCE}`;
 
     // (8c) zapis rekordu
     const record: VerificationRecord = {

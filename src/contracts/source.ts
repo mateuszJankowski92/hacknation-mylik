@@ -12,6 +12,19 @@ export const SOURCE_TYPE_LABELS_PL: Record<SourceType, string> = {
   organizacja: 'organizacja',
 };
 
+/**
+ * Warstwa źródła (zad. 29): `urzedowe` = zamknięty zbiór urzędowy (korpus), `media_i_instytucje` =
+ * druga warstwa, szukana na żywo wyłącznie na jawnej liście serwisów (data/live-sources.json).
+ * Wpływa tylko na siłę podstawy (z samej drugiej warstwy najwyżej `srednia`), nigdy na werdykt.
+ */
+export const SOURCE_LAYERS = ['urzedowe', 'media_i_instytucje'] as const;
+export const SourceLayerSchema = z.enum(SOURCE_LAYERS);
+export type SourceLayer = z.infer<typeof SourceLayerSchema>;
+export const SOURCE_LAYER_LABELS_PL: Record<SourceLayer, string> = {
+  urzedowe: 'źródło urzędowe',
+  media_i_instytucje: 'media i instytucje',
+};
+
 export const SourceMetaSchema = z.object({
   documentId: z.string().min(1),
   sourceId: z.string().min(1),
@@ -27,6 +40,8 @@ export const SourceMetaSchema = z.object({
   validUntil: z.iso.date().nullable().optional(),
   sourceType: SourceTypeSchema,
   license: z.string(),
+  /** Warstwa źródła (zad. 29); brak = `urzedowe` (zgodność ze starszymi rekordami v2). */
+  layer: SourceLayerSchema.optional(),
 });
 export type SourceMeta = z.infer<typeof SourceMetaSchema>;
 
