@@ -36,7 +36,7 @@ const PATTERNS: Pattern[] = [
   {
     code: 'ignorowanie_instrukcji',
     re: re(
-      `${B}(?:z?ignoruj(?:cie)?|pomi[nń](?:cie)?|zapomnij(?:cie)?|nie\\s+stosuj(?:cie)?|nie\\s+s[łl]uchaj(?:cie)?|porzu[cć]|uniewa[żz]nij)${E}\\s+(?:\\p{L}+\\s+){0,3}?(?:instrukcj\\p{L}*|regu[łl]\\p{L}*|polece\\p{L}*|zasad\\p{L}*|wytyczn\\p{L}*|ogranicze\\p{L}*)`,
+      `${B}(?:z?ignoruj(?:cie)?|pomi[nń](?:cie)?|omi[nń](?:cie)?|zapomnij(?:cie)?|nie\\s+stosuj(?:cie)?|nie\\s+s[łl]uchaj(?:cie)?|porzu[cć]|uniewa[żz]nij|wy[łl][ąa]cz)${E}\\s+(?:\\p{L}+\\s+){0,3}?(?:instrukcj\\p{L}*|regu[łl]\\p{L}*|polece\\p{L}*|zasad\\p{L}*|wytyczn\\p{L}*|ogranicze\\p{L}*|sprawdzan\\p{L}*|sprawdzeni\\p{L}*|weryfikacj\\p{L}*|kontrol\\p{L}*|ocenian\\p{L}*|bramk\\p{L}*)|${B}nie\\s+(?:sprawdzaj|weryfikuj|kontroluj)(?:cie)?${E}`,
     ),
   },
   {
@@ -81,6 +81,18 @@ const PATTERNS: Pattern[] = [
     re: /\b(?:say|state|confirm|declare)\s+(?:that\s+)?(?:this|it|the\s+claim)\s+is\s+(?:true|confirmed|verified|correct)\b|(?:napisz|powiedz|stwierd[źz]|potwierd[źz]|przyznaj),?\s+[żz]e\s+(?:to|ta\s+informacja|to\s+twierdzenie|twierdzenie)\s+(?:jest\s+)?(?:prawd\p{L}*|potwierdz\p{L}*)/iu,
   },
   {
+    // Narzucona etykieta w zapisie "pole: wartość" (np. w ukrytej wstawce), po polsku i po angielsku.
+    code: 'narzucony_werdykt',
+    re: re(
+      `${B}(?:ocena|status|etykieta|klasyfikacja|wynik|kategoria|label|rating|result|classification)\\s*[:=]\\s*["„'“]?\\s*(?:potwierdz\\p{L}*|prawd\\p{L}*|fa[łl]szyw\\p{L}*|obala\\p{L}*|true|false|confirmed|verified)`,
+    ),
+  },
+  {
+    // Komentarz znaczników (HTML/XML): niewidoczny dla czytelnika wpisu, więc nie jest treścią do sprawdzenia.
+    code: 'znacznik_wstrzykniecia',
+    re: /(?:<|&lt;|＜)!--|--\s*(?:>|&gt;|＞)/u,
+  },
+  {
     // Fragment JSON w kształcie wyjścia modelu (próba podsunięcia gotowej odpowiedzi).
     code: 'narzucony_werdykt',
     re: /["'„“]\s*(?:stance|verdict|injectionSuspected|passageId|assessments|claims)\s*["'”]\s*:/iu,
@@ -88,7 +100,7 @@ const PATTERNS: Pattern[] = [
   {
     code: 'ujawnienie_instrukcji',
     re: re(
-      `${B}(?:ujawnij|poka[żz]|wypisz|podaj|wy[śs]wietl|powt[óo]rz|przytocz|zdrad[źz]|wklej|zacytuj)\\s+(?:\\p{L}+\\s+){0,4}?(?:(?:swoje|twoje|systemow\\p{L}*|ukryt\\p{L}*|pocz[ąa]tkow\\p{L}*)\\s+(?:\\p{L}+\\s+)?instrukcj\\p{L}*|prompt\\p{L}*|klucz\\p{L}*\\s+(?:api|dost[ęe]pu|systemu)|api\\s*key|has[łl]\\p{L}*\\s+(?:administratora|systemu)|konfiguracj\\p{L}*\\s+systemu)`,
+      `${B}(?:ujawnij|poka[żz]|wypisz|podaj|wy[śs]wietl|powt[óo]rz|przytocz|zdrad[źz]|wklej|zacytuj)\\s+(?:\\p{L}+\\s+){0,4}?(?:(?:swo(?:j|i|ich|im|imi|je|ja|ją|jej)|two(?:j|i|ich|im|imi|je|ja|ją|jej)|wasz\\p{L}*|systemow\\p{L}*|ukryt\\p{L}*|pocz[ąa]tkow\\p{L}*|wewn[ęe]trzn\\p{L}*)\\s+(?:\\p{L}+\\s+)?instrukcj\\p{L}*|prompt\\p{L}*|klucz\\p{L}*\\s+(?:api|dost[ęe]pu|systemu)|api\\s*key|has[łl]\\p{L}*\\s+(?:administratora|systemu)|konfiguracj\\p{L}*\\s+systemu)`,
     ),
   },
   {
@@ -284,7 +296,24 @@ function stripClauses(sentence: string): string {
  * nie trafiły do modelu. Sprawdza też cały tekst (wzorce mogą przekraczać granice zdań); gdy sygnał
  * zostaje w całości po usunięciu, zwraca pusty tekst (nie wiemy, który fragment usunąć).
  */
-export function stripInjectedSegments(text: string): StrippedText {
+/** Komentarze znaczników (zamknięte albo urwane do końca wiersza); usuwane w miejscu, reszta zdania zostaje. */
+const HIDDEN_COMMENT = /(?:<|&lt;|＜)!--[\s\S]*?(?:--\s*(?:>|&gt;|＞)|$)/gmu;
+
+export function stripInjectedSegments(input: string): StrippedText {
+  // Ukryte wstawki (komentarze) wycinamy w miejscu: polecenie znika, a twierdzenie obok zostaje.
+  let hidden = 0;
+  const hiddenSignals = new Set<InjectionSignalCode>();
+  const text = input.replace(HIDDEN_COMMENT, (m) => {
+    hidden++;
+    for (const sig of detectInjectionSignals(m)) hiddenSignals.add(sig);
+    return ' ';
+  }).replace(/[^\S\n]{2,}/gu, ' ').trim();
+  if (hidden > 0) {
+    hiddenSignals.add('znacznik_wstrzykniecia');
+    const rest = stripInjectedSegments(text);
+    for (const sig of rest.signals) hiddenSignals.add(sig);
+    return { text: rest.text, signals: [...hiddenSignals].sort(), removed: rest.removed + hidden };
+  }
   const whole = detectInjectionSignals(text);
   if (whole.length === 0) return { text, signals: [], removed: 0 };
   const signals = new Set<InjectionSignalCode>();
