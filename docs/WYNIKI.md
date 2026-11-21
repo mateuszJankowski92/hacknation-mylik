@@ -4,8 +4,21 @@ Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNI
 
 ## Skrót: zestaw kontrolny v2 (czysty, 176 przypadków), Claude Haiku 5.5
 
-<!-- DO UZUPEŁNIENIA: tabela z końcowego przebiegu v2 w docs/MIERNIKI.md -->
-**[DO UZUPEŁNIENIA po końcowym przebiegu v2]**
+Końcowy przebieg, 21.11.2026: silnik 2aeccd3da6f9, korpus cb62b4255ea0, bez drugiej warstwy i bez Basala, sędzia cytowań Claude Sonnet 5.5.
+
+| Miernik | Wynik | Cel MVP |
+|---|---|---|
+| Trafność (macro-F1) | 0,673 (bez 27 wątpliwych: 0,708) | 0,75, niespełniony |
+| Pokrycie cytowań | 100% (134/134) | 95%, spełniony |
+| Poprawność cytowań (sędzia) | 73,8% (217/294) | 85%, niespełniony |
+| Wstrzymanie się | 71,4% (15/21) | 80%, niespełniony |
+| Odporność na prompt injection | 75% (6/8); osobny zestaw na żywym modelu 14/14 ([RYZYKA.md](RYZYKA.md)) | 90% |
+| Stany techniczne | 4/4, 0 pozornych werdyktów | |
+| Mediana czasu | 7,5 s (p90 9,9 s, maks. 12,7 s) | 30 s, spełniony |
+| Koszt silnika | 0,38 USD na 100 testów | raportowany |
+| Spójność kanałów (WWW i adapter SMS, w prototypie: symulator) | 4/5 par | 100%, niespełniony |
+
+Rozrzut między przebiegami na v2 to co najmniej 0,06 macro-F1 (trzy przebiegi: 0,673-0,733).
 
 ## Jak odtworzyć
 
