@@ -10,7 +10,7 @@ Mylik (zespół Iteracja7) opiera odpowiedź na źródłach z jawnych list. Są 
 - Odtwarzalność: migawka tekstów (`data/raw/`, 733 dokumenty) jest w repozytorium, razem z sumami kontrolnymi `data/raw/SHA256SUMS`. Czysty klon buduje bez sieci ten sam korpus (`npm run corpus:ingest` wypisuje `version=cb62b4255ea0`). W repozytorium są tylko treści, które wolno przechowywać: informacja publiczna organów władzy, akty prawne, licencje otwarte (CC BY 4.0, EEAS); źródła bez licencji otwartej mają tylko krótki początek tekstu (`discovery.excerptChars`). Alternatywa (odtwarzanie z sieci) odrzucona jako metoda główna, bo strony się zmieniają, a wynik dla jury ma być powtarzalny. Odświeżenie z sieci (`npm run corpus:fetch`) jest opcjonalne, szanuje `robots.txt` i odstęp co najmniej 1,1 s na serwis; po nim sumy i wersja korpusu się zmieniają, a treści mogły się zmienić od migawki.
 - Zbiór EUvsDisinfo (znane operacje informacyjne) nie jest w repozytorium (licencja niepotwierdzona, `data/known-ops/_terms.json`); bez niego system działa bez ostrzeżeń o znanych operacjach i bez błędu.
 
-## Warstwa 2: media i instytucje (szukanie na żywo, zad. 29) — EKSPERYMENTALNA
+## Warstwa 2: media i instytucje (szukanie na żywo, zad. 29): EKSPERYMENTALNA
 
 Włączana zmienną `LIVE_LAYER=on`. Domyślnie `off` w publicznej instancji i w pomiarach podstawowych; wtedy system działa jak dotąd. Wymaga dostawcy `anthropic`. Warstwę wolno włączyć tylko, gdy pomiar na zestawie kontrolnym v2 z nią ma trafność nie niższą niż bez niej, nie dodaje żadnego błędnego „fałszywe”, a mediana czasu jest poniżej 15 s (wyniki pomiarów: sekcja „Pomiary” niżej).
 
@@ -73,12 +73,14 @@ Odrzucone dowody są liczone w logu (`live_search`, `status: odrzucone_regulami`
 |---|---|---|---|---|---|---|
 | zad. 29 | 8fbcebd776c7 | bez warstwy 2 | 0,733 | 72,4% | 7,8 s | |
 | zad. 29 | 8fbcebd776c7 | z warstwą 2 (bez reguł doboru) | 0,706 | 68,4% | 8,1 s | 2 błędne werdykty z warstwy 2 (rozbieżność kontekstu → „wprowadzające w błąd”, „fałszywe”); 3 przekroczenia 24 s |
-| zad. 29b | 2aeccd3da6f9 | bez warstwy 2 | 0,691 | 67,2% | 7,4 s | |
+| zad. 29b | 2aeccd3da6f9 | bez warstwy 2 | 0,691 | 67,2% | 7,4 s | pomiar pośredni, nie końcowy |
 | zad. 29b | 9b706cde662a | z warstwą 2 i regułami doboru | 0,716 | 71,3% | 8,0 s | 0 błędnych „fałszywe” z warstwy 2; warstwa 2 dała tylko dowody tła; sędzia cytowań: atrapa (oszczędność budżetu) |
+
+Te przebiegi są historyczne (silniki sprzed zamrożenia). Końcowy silnik dd6f303f5e02 (zad. 35) mierzono tylko z wyłączoną warstwą 2 (v2: macro-F1 0,701, poprawność cytowań 79,7%, [MIERNIKI.md](MIERNIKI.md)); z warstwą 2 nie liczono go ponownie, a warstwa pozostaje wyłączona.
 
 Ręczny test (mecz reprezentacji, 21.11.2026): przed regułami „fałszywe” na podstawie wcześniejszego, wrześniowego meczu (błąd); po regułach dowód przeciwny z warstwy 2 odpada i wynik to wstrzymanie się (11,7 s, 0,015 USD).
 
-Wnioski: różnice F1 między przebiegami (0,69–0,73) mieszczą się w zmienności modelu między przebiegami; zestaw v2 dotyczy dokumentów korpusu, więc prawie nie sprawdza warstwy 2. Przekroczenia 24 s w pierwszym przebiegu (C03–C05) wynikały z zawieszonych wywołań modelu w kroku wyodrębniania twierdzeń (0–2 zakończone wywołania w 24 s; ten sam przypadek bez obciążenia: 8–17 s), nie z warstwy 2, która w nich nie wystartowała. Warstwa 2 zostaje domyślnie wyłączona do decyzji prowadzącego.
+Wnioski: różnice F1 między przebiegami (0,69-0,73) mieszczą się w zmienności modelu między przebiegami; zestaw v2 dotyczy dokumentów korpusu, więc prawie nie sprawdza warstwy 2. Przekroczenia 24 s w pierwszym przebiegu (C03-C05) wynikały z zawieszonych wywołań modelu w kroku wyodrębniania twierdzeń (0-2 zakończone wywołania w 24 s; ten sam przypadek bez obciążenia: 8-17 s), nie z warstwy 2, która w nich nie wystartowała. Warstwa 2 zostaje domyślnie wyłączona do decyzji prowadzącego.
 
 ### Zestawy testowe
 

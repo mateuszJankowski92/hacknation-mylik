@@ -8,7 +8,7 @@
 |---|---|---|
 | strojeniowy | data/eval/cases.json (71 przypadków; 60 pierwotnych + 11 pytań Q01-Q11 z zad. 35) | rozwój silnika i promptów; wyniki są "na danych strojeniowych" |
 | kontrolny v1 | data/eval/control/cases.json (30 przypadków) | pisany osobno jako niezależny pomiar. **Od zadania 25 (21.11.2026) nie jest czysty**: posłużył do diagnozy etapów (liczby zbiorcze), na jej podstawie zmieniono ogólne reguły silnika i promptów. Wyniki na nim są odtąd "na danych użytych do diagnozy". Niezależny pomiar: zestaw kontrolny v2 (zad. 26). |
-| kontrolny v2 | data/eval/control_v2/cases.json (176 przypadków, 27 oznaczonych `doubtful`) | pisany po zad. 25 bez wglądu w silnik, prompty i wyniki (rozkład: data/eval/control_v2/rozklad.md). Czysty pomiar: uruchomiony raz, bez strojenia. Źródło profilu omylności. |
+| kontrolny v2 | data/eval/control_v2/cases.json (176 przypadków, 27 oznaczonych `doubtful`) | pisany po zad. 25 bez wglądu w silnik, prompty i wyniki (rozkład: data/eval/control_v2/rozklad.md). Pomiar kontrolny: nie służył do strojenia silnika ani promptów; uruchamiany trzy razy (zad. 26, 29, 35), a w zad. 35 użyty do jednej decyzji o progu wstrzymania (sekcja "Przebieg zadania 35"). Źródło profilu omylności. |
 
 `npm run eval -- --part strojeniowy|kontrolny|kontrolny_v2|oba|wszystkie` (domyślnie oba = strojeniowy i kontrolny v1; v2 tylko jawnie: `kontrolny_v2` albo `wszystkie`). W pliku wyników: `runs` (strojeniowy), `controlRuns` (kontrolny v1) i `controlV2Runs` (kontrolny v2), klucz to model. Przy przypadkach z polem `doubtful: true` przebieg zapisuje `doubtful` (lista, które błędne, mierniki i profil bez nich). `--corpus-root <katalog>` pozwala liczyć na zamrożonej kopii korpusu.
 
@@ -125,7 +125,7 @@ Zmiana 8fbcebd776c7 -> 2aeccd3da6f9 dotyczy tylko punktu doboru dowodów drugiej
 - **Poprawność cytowań: cel 85% niespełniony.** 73-76% na wszystkich zestawach. Pokrycie cytowań (100%) i cytat dosłowny (100%) spełnione z konstrukcji silnika.
 - Wstrzymanie się 71% (cel 80%) i odporność 75% (cel 90%) na v2 też poniżej celu; na mniejszych zestawach liczby są zbyt małe (4-8 przypadków), żeby je oceniać.
 - Mediana czasu 7-9 s mieści się w celu 30 s; koszt silnika $0,38-0,51 na 100 testów.
-- v2 był uruchamiany trzy razy (zad. 26, 29, 35), ale nie służył do zmian silnika ani promptów; nadal jest pomiarem czystym. v1 nie jest czysty (diagnoza w zad. 25).
+- v2 był uruchamiany trzy razy (zad. 26, 29, 35), ale nie służył do zmian silnika ani promptów; do zad. 35 był pomiarem czystym, a w zad. 35 posłużył do jednej decyzji o progu (sekcja niżej). v1 nie jest czysty (diagnoza w zad. 25).
 - Etykiety v2 pisał jeden autor; sędzia cytowań to model (Sonnet), nie człowiek; ręczna próbka review_sample.md bez ocen ludzkich.
 - Profil jest ważny tylko dla silnika 2aeccd3da6f9 i claude-haiku-5-5; każda zmiana src/engine, src/llm lub src/contracts go unieważni.
 

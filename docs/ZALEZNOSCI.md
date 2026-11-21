@@ -7,7 +7,7 @@ Usługi spoza serwera Mylika, co do nich trafia i jak je wymienić. Każda jest 
 | Anthropic API (Claude Haiku 5.5) | ekstrakcja twierdzeń, wybór kandydatów, ocena stanowisk, bramka wsparcia | tekst zgłoszenia po maskowaniu danych osobowych, fragmenty źródeł z korpusu | `src/llm/anthropic.ts` (interfejs `LlmProvider`, `SupportGate`) | włączone przy `LLM_PROVIDER=anthropic` |
 | Basal na wynajętej maszynie GPU (RunPod) | bramka wsparcia; opcjonalnie ocena stanowisk | twierdzenie po maskowaniu i jeden cytat (przy ocenie: jeden fragment źródła) | `src/llm/basal.ts`, `src/llm/basalAssess.ts` | wyłączone |
 | Anthropic API, wyszukiwarka `web_search` | druga warstwa źródeł (zad. 29) | zob. dokumentacja zad. 29 | `src/live/` | wyłączone (`LIVE_LAYER`) |
-| EUvsDisinfo (MCP) | znane operacje informacyjne, tylko ostrzeżenia | nic ze zgłoszeń; pobieranie migawki skryptem | `scripts/fetch-euvsdisinfo.ts` | migawka w `data/known-ops` |
+| EUvsDisinfo (MCP) | znane operacje informacyjne, tylko ostrzeżenia | nic ze zgłoszeń; pobieranie migawki skryptem | `scripts/fetch-euvsdisinfo.ts` | brak migawki w repozytorium (licencja niepotwierdzona); bez niej brak ostrzeżeń, bez błędu |
 
 ## Basal (zad. 30)
 

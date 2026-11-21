@@ -8,31 +8,43 @@ Prototyp weryfikacji doniesień (HackNation 2026). Obywatel wysyła tekst lub ad
 
 ## Uruchomienie krok po kroku
 
-Wymagania: Node.js 24 lub nowszy (wbudowany `node:sqlite`), npm. Bez Dockera, bez bazy zewnętrznej.
+Wymagania: Node.js 24 lub nowszy (wbudowany `node:sqlite`; instrukcję sprawdzono na Node 26), npm. Bez Dockera, bez bazy zewnętrznej, bez klucza i bez sieci poza `localhost`.
 
 ```bash
 git clone <adres-repozytorium> mylik && cd mylik
 npm ci
-cp .env.example .env          # w trybie bez klucza ustaw w .env: LLM_PROVIDER=mock
-npm run corpus:ingest         # buduje korpus w data/mylik.sqlite z data/sources.json i data/raw/
-npm run build                 # buduje interfejs do dist/web (i sprawdza typy)
-npm start                     # serwer: http://localhost:8787
+npm run corpus:ingest         # buduje korpus w data/mylik.sqlite z data/sources.json i data/raw/ (ok. 1 s)
+                              # oczekiwane: documents=733 passages=3543 version=cb62b4255ea0
+npm run build                 # buduje interfejs do dist/web (i sprawdza typy; ostrzeżenie o "node:crypto" jest nieszkodliwe)
+LLM_PROVIDER=mock npm start   # serwer w tym oknie terminala: http://localhost:8787 (zatrzymanie: Ctrl+C)
 ```
 
-Sprawdzenie, że działa:
+Plik `.env` jest opcjonalny: bez niego domyślnym dostawcą modelu jest atrapa `mock` (zob. "Tryb bez klucza"). `.env.example` (kopia: `cp .env.example .env`) też ma `LLM_PROVIDER=mock`; prawdziwy model wymaga `LLM_PROVIDER=anthropic` i `ANTHROPIC_API_KEY` w `.env`. Gdy port 8787 jest zajęty (błąd `EADDRINUSE`), uruchom z innym: `PORT=8799 LLM_PROVIDER=mock npm start` i podmień port w poleceniach niżej.
+
+Sprawdzenie, że działa (w drugim oknie terminala):
 
 ```bash
-curl -s localhost:8787/api/health
+curl -s localhost:8787/api/health     # {"ok":true,"provider":"mock",...,"corpusVersion":"cb62b4255ea0","documents":733}
 curl -s -X POST localhost:8787/api/verify -H 'content-type: application/json' \
   -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}'
+                                      # {"kind":"record","record":{"id":"<id>",...}}: werdykt "potwierdzone" z cytatem
 curl -s -X POST localhost:8787/sms/webhook -H 'content-type: application/json' \
   -d '{"text":"Obywatele Unii Europejskiej mogą podróżować w strefie Schengen bez kontroli granicznych."}'
+                                      # odpowiedź zwykłym tekstem, ten sam rekord (odsyłacz /r/<id>)
 curl -s localhost:8787/api/stats
 ```
 
+W przeglądarce: strona główna `http://localhost:8787/`, wynik `http://localhost:8787/r/<id>` (id z odpowiedzi `/api/verify`) i symulator SMS `http://localhost:8787/sms`.
+
 Adapter SMS (w prototypie: symulator) jest w przeglądarce pod `http://localhost:8787/sms`. Prototyp nie ma bramki operatora: SMS nie działa pod prawdziwym numerem, a `POST /sms/webhook` jest tylko punktem, do którego bramka mogłaby kiedyś wysyłać wiadomości (koszt: `src/sms/KOSZT.md`). Odsyłacz w odpowiedzi SMS wskazuje stronę wyniku `/r/<id>` (z `PUBLIC_BASE_URL`, jeśli ustawiony). Godzina w odpowiedziach jest podawana w czasie polskim (Europe/Warsaw).
 
-Pozostałe polecenia: `npm test` (testy, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
+Pozostałe polecenia: `npm test` (61 plików, ok. 910 testów, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
+
+## Wyniki w skrócie
+
+Silnik dd6f303f5e02 (zamrożony), zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5, bez drugiej warstwy źródeł: macro-F1 0,701, poprawność cytowań 79,7% (sędzia: model), wstrzymanie się 15/21, odporność na prompt injection 8/8, spójność kanałów WWW i SMS 5/5, mediana czasu 7,5 s, koszt silnika ok. 0,0034 USD na zgłoszenie. Trafność, poprawność cytowań i wstrzymanie się są **poniżej celów MVP** (0,75, 85%, 80%); to jeden przebieg z rozrzutem co najmniej 0,06 macro-F1, a v2 posłużył do jednej decyzji o progu. Profil omylności pokazywany obywatelowi: 14/58, 12/43, 28/70 (siła średnia, niska, brak). Szczegóły i ograniczenia: [docs/WYNIKI.md](docs/WYNIKI.md), [docs/MIERNIKI.md](docs/MIERNIKI.md).
+
+Co jest wyłączone domyślnie: druga warstwa źródeł (media i instytucje, eksperymentalna, `LIVE_LAYER=off`) i Basal (`SUPPORT_GATE_PROVIDER` pusty; pomiar na żywo niewykonany). Zbioru EUvsDisinfo nie ma w repozytorium (licencja niepotwierdzona).
 
 ## Skąd bierze się korpus (odtwarzalność)
 
@@ -85,7 +97,7 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 
 `LLM_PROVIDER=mock` uruchamia deterministyczną atrapę modelu (`src/llm/mock.ts`): bez sieci, bez klucza, ten sam wynik dla tego samego wejścia. Atrapa stosuje proste reguły leksykalne i służy do testów oraz pokazu przepływu; nie jest prawdziwą oceną. Cała reszta (wyszukiwanie w korpusie, bramka cytatów, reguły werdyktu, zapis rekordu) działa tak samo jak z prawdziwym modelem.
 
-Uwaga: `.env.example` ma `LLM_PROVIDER=anthropic`. Bez klucza zmień to w `.env` na `mock` albo uruchom `LLM_PROVIDER=mock npm start`.
+Uwaga: przy `LLM_PROVIDER=anthropic` bez klucza każde zgłoszenie kończy się stanem "awaria techniczna", nigdy werdyktem. Do pokazu bez klucza zostaw `mock`.
 
 ## Architektura w skrócie
 

@@ -4,9 +4,9 @@ Stan na 21.11.2026. Ceny modelu: `src/llm/pricing.ts` (cennik Anthropic z 03.11.
 
 ## Koszt 1 000 zapytań (model)
 
-Zmierzone (końcowy przebieg v2, 21.11.2026, [MIERNIKI.md](MIERNIKI.md)): koszt silnika 0,651 USD za 176 zgłoszeń, czyli ok. 0,0037 USD na zgłoszenie.
+Zmierzone (końcowy przebieg v2, silnik dd6f303f5e02, 21.11.2026, [MIERNIKI.md](MIERNIKI.md), "Przebieg zadania 35"): koszt silnika 0,607 USD za 176 zgłoszeń, czyli ok. 0,0034 USD na zgłoszenie (0,36 USD na 100 testów). Sędzia cytowań dodał 0,626 USD, ale działa tylko w pomiarach; cały przebieg v2 kosztował 1,23 USD, a wszystkie trzy zestawy ok. 2,00 USD.
 
-**1 000 zapytań: ok. 3,70 USD** (0,0037 USD × 1 000). Inne zestawy dały 0,38-0,51 USD na 100 testów, więc zakres to ok. 3,8-5,1 USD na 1 000.
+**1 000 zapytań: ok. 3,45 USD** (0,607 USD / 176 × 1 000). Zestawy strojeniowy i v1 wypadły drożej na przypadek (0,204 USD za 71 przypadków, 0,164 USD za 30), więc rozsądny zakres to ok. 2,9-5,5 USD na 1 000, zależnie od długości i liczby twierdzeń.
 
 Założenia (jawne):
 - Claude Haiku 5.5, druga warstwa wyłączona (`LIVE_LAYER=off`), Basal wyłączony.

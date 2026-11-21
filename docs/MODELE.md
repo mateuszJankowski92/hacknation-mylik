@@ -6,7 +6,7 @@ Stan na 21.11.2026. Szczegóły zależności (klucze, co trafia, awaria, wymiana
 |---|---|---|---|
 | Claude Haiku 5.5 (`claude-haiku-5-5`, API Anthropic) | wszystkie kroki modelu: twierdzenia, kandydaci, ocena, bramka wsparcia | **tak** | `LLM_PROVIDER=anthropic`, `ANTHROPIC_MODEL` pusty |
 | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | to samo, dokładniej i drożej; w pomiarach także sędzia cytowań | nie | `ANTHROPIC_MODEL=claude-sonnet-5-5` |
-| Atrapa (`mock`) | testy i pokaz bez klucza i sieci; proste reguły, nie prawdziwa ocena | wartość domyślna w `src/config.ts`; `.env.example` ustawia `anthropic` | `LLM_PROVIDER=mock` |
+| Atrapa (`mock`) | testy i pokaz bez klucza i sieci; proste reguły, nie prawdziwa ocena | wartość domyślna w `src/config.ts`; `.env.example` też ustawia `mock` | `LLM_PROVIDER=mock` |
 | Druga warstwa źródeł (Haiku + narzędzie `web_search`) | szukanie na zamkniętej liście serwisów, gdy korpus nic nie rozstrzyga | nie (**eksperymentalna**) | `LIVE_LAYER=on` (opis: [ZRODLA.md](ZRODLA.md)) |
 | Basal (polski model decyzyjny, Apache-2.0, własna maszyna GPU) | bramka wsparcia; opcjonalnie ocena stanowisk | nie | `SUPPORT_GATE_PROVIDER=basal`, `BASAL_URL`, `BASAL_TOKEN` |
 
@@ -14,7 +14,7 @@ Ceny (USD za 1 mln tokenów wejścia / wyjścia, `src/llm/pricing.ts`, cennik z 
 
 ## Dlaczego Haiku
 
-Najtańszy, mieści się w limicie czasu. W pomiarze zad. 25 na zestawie kontrolnym v1 Sonnet miał lepsze cytowania (97,9% wobec 71,6%), ale koszt około 20 razy wyższy i dłuższy czas ([MIERNIKI.md](MIERNIKI.md)). Wybór modelu to jedna zmienna, bez zmian w kodzie.
+Najtańszy, mieści się w limicie czasu. W pomiarze zad. 25 na zestawie kontrolnym v1 Sonnet miał lepsze cytowania (97,9% wobec 71,6% u Haiku), ale koszt około 20 razy wyższy i dłuższy czas. Po poprawce bramki wsparcia (zad. 35, silnik dd6f303f5e02) Haiku ma na v1 84,8%, a na v2 79,7% poprawności cytowań, macro-F1 0,701 i mediana czasu 7,5 s ([MIERNIKI.md](MIERNIKI.md)); to nadal poniżej celów MVP (0,75 i 85%). Wybór modelu to jedna zmienna, bez zmian w kodzie.
 
 ## Basal: stan uczciwie
 
