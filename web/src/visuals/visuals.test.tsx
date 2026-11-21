@@ -78,34 +78,25 @@ describe('postęp', () => {
 });
 
 describe('WaitingSteps', () => {
-	const stepTexts = (container: HTMLElement) =>
-		[...container.querySelectorAll('.waiting-steps__step')].map((node) => node.textContent?.replace(/^[✓…·]/u, ''));
-
-	it('na starcie czyta wiadomość, potem pokazuje prawdziwe kroki', () => {
-		const { container, rerender } = render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={12} elapsedSeconds={2} />);
+	it('pokazuje postać przy pracy, jedno zdanie o postępie i czas', () => {
+		const { container, rerender } = render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={12} elapsedSeconds={2} role="pogodynka" />);
 		expect(screen.getByText('Sprawdzam. Zwykle trwa to około 12 sekund.')).toBeTruthy();
 		expect(screen.getByText('Minęło: 2 s')).toBeTruthy();
-		expect(stepTexts(container)).toEqual(['Czytam wiadomość', 'Szukam źródeł', 'Szukam źródeł, które mówią co innego', 'Składam odpowiedź']);
+		expect(screen.getByText('Czytam Twoje zgłoszenie.')).toBeTruthy();
+		expect(container.querySelector('ol')).toBeNull();
+		expect(container.querySelector('svg')).not.toBeNull();
 		const middle = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 2 },
 			judged('GIS', 'to_samo'),
-			judged('Portal', 'co_innego'),
-			judged('Blog', 'tlo'),
-			{ type: 'szukanie_przeciw_start', claim: 0 },
 		]);
-		rerender(<WaitingSteps progress={middle} etaSeconds={12} elapsedSeconds={3} />);
-		expect(stepTexts(container)).toEqual([
-			'Przeczytałem wiadomość',
-			'Szukałem źródeł. Znalazłem 3 źródła',
-			'Szukam źródeł, które mówią co innego',
-			'Składam odpowiedź',
-		]);
-		expect(container.querySelector('[aria-current="step"]')?.textContent).toContain('Szukam źródeł, które mówią co innego');
-		expect(container.querySelector('svg')).toBeNull();
+		rerender(<WaitingSteps progress={middle} etaSeconds={12} elapsedSeconds={3} role="sport" />);
+		expect(container.querySelector('.waiting-steps')?.getAttribute('data-role')).toBe('sport');
+		expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe('Komentator sportowy przegląda wyniki meczów.');
+		expect(container.querySelector('[role="status"]')?.textContent).toBe(describeProgress(middle));
 	});
 
-	it('bez źródeł: mówi, że nic nie znalazł', () => {
+	it('kroki w stanie postępu zostają dostępne jako dane', () => {
 		const done = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 0 },
@@ -114,15 +105,13 @@ describe('WaitingSteps', () => {
 		const steps = progressSteps(done);
 		expect(steps.map((step) => step.status)).toEqual(['done', 'done', 'done', 'current']);
 		expect(steps[1]!.text).toBe('Szukałem źródeł. Nic nie znalazłem');
-	});
-
-	it('bez twierdzeń do sprawdzenia kończy na jednym kroku', () => {
 		expect(progressSteps(play([{ type: 'zgloszenie_przeczytane', claims: 0 }]))).toHaveLength(1);
 	});
 
-	it('teksty kroków nie zawierają zakazanych form', () => {
+	it('teksty postępu nie zawierają zakazanych form', () => {
 		const states = [INITIAL_PROGRESS, play([{ type: 'zgloszenie_przeczytane', claims: 1 }, judged('GIS', 'to_samo')])];
 		for (const state of states) {
+			expect(findForbiddenForms(describeProgress(state))).toEqual([]);
 			for (const step of progressSteps(state)) expect(findForbiddenForms(step.text)).toEqual([]);
 		}
 	});

@@ -5,6 +5,8 @@ import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { KnownOpWarnings } from './KnownOpWarning';
 import { isKnownOpNotice } from '../../../src/render/warning';
+import { topicNote } from '../roles/config';
+import { currentRole } from '../roles/resolve';
 import './record.css';
 
 function RecordExtras({ record }: { record: VerificationRecord }) {
@@ -59,9 +61,12 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 
 export function RecordView({ record }: { record: VerificationRecord }) {
 	const single = record.claims.length === 1;
+	const role = currentRole((record as { role?: unknown }).role);
+	const note = topicNote(role);
 
 	return (
-		<div className="record">
+		<div className="record" data-role={role}>
+			{note && <p className="role-note">{note}</p>}
 			{record.claims.length === 0 && (
 				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
 			)}
@@ -69,6 +74,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 			{record.claims.map((result) => (
 				<RecordClaim
 					key={result.claim.id}
+					role={role}
 					result={result}
 					asOf={record.asOf}
 					extraDetails={single ? <RecordExtras record={record} /> : undefined}

@@ -9,9 +9,7 @@
 }
 
 .waiting-steps__eta {
-	margin: 0;
-	font-size: 1.2rem;
-	font-weight: 700;
+	margin: 0.5rem 0 0;
 }
 
 .waiting-steps__elapsed {
@@ -19,37 +17,28 @@
 	color: var(--muted);
 }
 
-.waiting-steps__list {
-	margin: 1rem 0 0;
-	padding: 0;
-	list-style: none;
-}
-
-.waiting-steps__step {
+.waiting-steps {
 	display: flex;
-	gap: 0.5rem;
-	padding: 0.25rem 0;
-	color: var(--muted);
-	transition: color 0.3s ease-in-out;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-3);
 }
 
-.waiting-steps__step--done {
-	color: var(--text);
+.waiting-steps__scene {
+	flex: 0 0 auto;
+	width: 140px;
+	height: 140px;
+	animation: waiting-bob 2.4s ease-in-out infinite;
 }
 
-.waiting-steps__step--current {
-	color: var(--text);
-	font-weight: 700;
-}
-
-.waiting-steps__mark {
-	flex: 0 0 1.25rem;
-	text-align: center;
+.waiting-steps__text {
+	flex: 1 1 16rem;
 }
 
 .waiting-steps__status {
-	margin: 0.75rem 0 0;
-	font-size: 1.1rem;
+	margin: 0.5rem 0 0;
+	font-size: 1.2rem;
+	font-weight: 700;
 }
 
 .confidence {
@@ -161,8 +150,14 @@
 	margin: 0;
 }
 
+@keyframes waiting-bob {
+	50% {
+		transform: translateY(-6px);
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
-	.waiting-steps__step {
-		transition: none;
+	.waiting-steps__scene {
+		animation: none;
 	}
 }

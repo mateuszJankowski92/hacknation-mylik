@@ -57,7 +57,7 @@ describe('warianty fixture', () => {
 
 	it('pokazuje uczciwe "Nie wiem" przy wstrzymaniu się', () => {
 		render(<OutcomeView outcome={FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow} />);
-		expect(screen.getByText(/Nie wiem/)).toBeTruthy();
+		expect(screen.getAllByText(/Nie wiem/).length).toBeGreaterThan(0);
 		expect(screen.getByText(/oficjalnym źródle/)).toBeTruthy();
 	});
 

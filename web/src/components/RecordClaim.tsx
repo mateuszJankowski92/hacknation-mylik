@@ -10,6 +10,8 @@ import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
 import { EmptyCertainty, EMPTY_CERTAINTY_HEADING, EMPTY_CERTAINTY_TITLE } from '../visuals/EmptyCertainty';
 import { ErrorDots } from '../visuals/ErrorDots';
+import type { Role } from '../roles/config';
+import { ResultImage } from '../roles/ResultImage';
 import './record.css';
 
 const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
@@ -140,9 +142,10 @@ interface RecordClaimProps {
 	result: ClaimResult;
 	asOf: string;
 	extraDetails?: ReactNode;
+	role: Role;
 }
 
-export function RecordClaim({ result, asOf, extraDetails }: RecordClaimProps) {
+export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimProps) {
 	const presentation = VERDICT_PRESENTATION[result.verdict];
 	const isAbstain = result.verdict === 'brak_wystarczajacych_dowodow';
 	const headingId = `record-claim-${result.claim.id}`;
@@ -167,9 +170,12 @@ export function RecordClaim({ result, asOf, extraDetails }: RecordClaimProps) {
 
 	return (
 		<article className="record-claim" aria-labelledby={headingId}>
-			<h3 id={headingId} className="record-claim__headline">
-				{layout.headline}
-			</h3>
+			<div className="record-claim__lead">
+				<h3 id={headingId} className="record-claim__headline">
+					{layout.headline}
+				</h3>
+				<ResultImage role={role} resultKey={result.verdict} />
+			</div>
 
 			<div className={`verdict verdict--${presentation.tone}`}>
 				<p className="verdict__label">

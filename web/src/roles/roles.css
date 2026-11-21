@@ -1,0 +1,147 @@
+[data-role='pogodynka'],
+:root {
+	--role-accent: #1f6f9f;
+}
+
+[data-role='bibliotekarka'] {
+	--role-accent: #7a3b8f;
+}
+
+[data-role='sport'] {
+	--role-accent: #1d7a46;
+}
+
+@media (prefers-color-scheme: dark) {
+	[data-role='pogodynka'],
+	:root {
+		--role-accent: #6cb8e6;
+	}
+
+	[data-role='bibliotekarka'] {
+		--role-accent: #d3a0e6;
+	}
+
+	[data-role='sport'] {
+		--role-accent: #7fd6a2;
+	}
+}
+
+.art {
+	display: block;
+	height: 100%;
+	width: auto;
+	max-width: 100%;
+	stroke: var(--text);
+	stroke-width: 3;
+	stroke-linejoin: round;
+	stroke-linecap: round;
+	fill: none;
+}
+
+.art__body,
+.art__panel,
+.art__paper {
+	fill: var(--surface);
+}
+
+.art__panel--light {
+	fill: var(--bg);
+}
+
+.art__skin,
+.art__cloud,
+.art__noise--light {
+	fill: var(--bg);
+}
+
+.art__hair,
+.art__noise,
+.art__mic,
+.art__ball,
+.art__book {
+	fill: var(--role-accent);
+}
+
+.art__book--b {
+	fill: var(--muted);
+}
+
+.art__lens,
+.art__stroke-only {
+	fill: none;
+}
+
+.art__sun {
+	fill: var(--role-accent);
+}
+
+.art__ray,
+.art__rain,
+.art__fog,
+.art__route {
+	stroke: var(--role-accent);
+	stroke-width: 5;
+}
+
+.art__route {
+	fill: none;
+	stroke-dasharray: 2 10;
+}
+
+.art__pin {
+	fill: var(--role-accent);
+	stroke: none;
+}
+
+.result-image {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	margin: 0;
+}
+
+.result-image__art {
+	flex: 0 0 auto;
+	width: 72px;
+	height: 72px;
+	padding: 4px;
+	border: 2px solid var(--role-accent);
+	border-radius: var(--space-1);
+	background: var(--bg);
+}
+
+.result-image__caption {
+	font-size: 0.95rem;
+	color: var(--muted);
+}
+
+.role-note {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--muted);
+}
+
+.record-claim__lead {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	margin: 0 0 var(--space-2);
+}
+
+.record-claim__lead .record-claim__headline {
+	margin: 0;
+}
+
+@media (min-width: 640px) {
+	.record-claim__lead {
+		flex-direction: row;
+		align-items: flex-start;
+		justify-content: space-between;
+	}
+
+	.record-claim__lead .result-image {
+		flex: 0 0 160px;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}

@@ -9,6 +9,7 @@ import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { CheckForm } from './CheckForm';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
+import { currentForcedRole } from '../roles/resolve';
 import { OutcomeView } from './OutcomeView';
 
 type CheckState =
@@ -105,7 +106,7 @@ export function CheckPage() {
 
 	return (
 		<>
-			<Hero>
+			<Hero role={currentForcedRole() ?? undefined}>
 				<CheckForm loading={state.status === 'loading'} onSubmit={handleSubmit} onCancel={handleCancel} />
 			</Hero>
 			{state.status === 'loading' && <WaitingSteps progress={state.progress} etaSeconds={state.etaSeconds} />}
