@@ -272,13 +272,16 @@ describe('duża scena roli', () => {
 		expect(screen.getByRole('button', { name: SCENE_TEXTS.skip })).toBeTruthy();
 	});
 
-	it('obraz wyniku stoi obok nagłówka i oceny, a nie jako miniatura', () => {
+	it('obraz wyniku ma 240-320 px na dużym ekranie i ok. 160 px na telefonie', () => {
 		const css = readFileSync(join(HERE, 'roles', 'roles.css'), 'utf8');
-		const widths = [...css.matchAll(/\.result-image\s*\{[^}]*?\n\twidth:\s*(\d+)px/g)].map((match) => Number(match[1]));
+		const phone = css.match(/\n\.result-image \{[^}]*?\n\twidth:\s*(\d+)px/);
+		expect(Number(phone?.[1])).toBe(160);
+		const widths = [...css.matchAll(/\.record-claim__lead \.result-image \{[^}]*?\n\t\twidth:\s*(\d+)px/g)].map((match) => Number(match[1]));
 		expect(widths.length).toBeGreaterThan(0);
-		for (const width of widths) expect(width).toBeGreaterThanOrEqual(240);
+		for (const width of widths) {
+			expect(width).toBeGreaterThanOrEqual(240);
+			expect(width).toBeLessThanOrEqual(320);
+		}
 		expect(css).toMatch(/\.stage \{[^}]*background:\s*#ffffff;/);
-		const wide = css.match(/\.record-claim__lead \.result-image \{[^}]*?width:\s*(\d+)px/);
-		expect(Number(wide?.[1])).toBeGreaterThanOrEqual(320);
 	});
 });

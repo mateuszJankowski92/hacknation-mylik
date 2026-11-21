@@ -9,6 +9,7 @@ import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
 import { currentRole } from '../roles/resolve';
+import { ResultCorner } from '../roles/ResultCorner';
 import './record.css';
 
 function RecordExtras({ record }: { record: VerificationRecord }) {
@@ -83,6 +84,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 
 	return (
 		<div className="record" data-role={role}>
+			{record.claims.length > 0 && <ResultCorner role={role} />}
 			{note && <p className="role-note">{note}</p>}
 			{record.claims.length === 0 && (
 				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>

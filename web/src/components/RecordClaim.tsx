@@ -41,6 +41,15 @@ const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
 export const ABSTAIN_ONE_SENTENCE =
 	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
 export const NO_QUOTE_TEXT = 'Nie ma cytatu z tego źródła.';
+export const ABSTAIN_WORDS = 'Nie wiem.';
+
+const MEDIUM_HEADLINE_CHARS = 90;
+const LONG_HEADLINE_CHARS = 180;
+
+export function headlineLength(headline: string): 'short' | 'medium' | 'long' {
+	if (headline.length > LONG_HEADLINE_CHARS) return 'long';
+	return headline.length > MEDIUM_HEADLINE_CHARS ? 'medium' : 'short';
+}
 
 interface EvidenceGroup {
 	key: string;
@@ -149,6 +158,8 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const certainty = layout.certainty;
+	const hasConflict =
+		result.evidence.some((item) => item.stance === 'potwierdza') && result.evidence.some((item) => item.stance === 'obala');
 	const detailsRef = useRef<HTMLDetailsElement>(null);
 
 	function showDetails() {
@@ -160,13 +171,18 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 	}
 
 	return (
-		<article className="record-claim" aria-labelledby={headingId}>
+		<article className={isAbstain ? 'record-claim record-claim--abstain' : 'record-claim'} aria-labelledby={headingId}>
 			<div className="record-claim__lead">
-				<h3 id={headingId} className="record-claim__headline">
-					{layout.headline}
+				<h3
+					id={headingId}
+					className="record-claim__headline"
+					data-length={isAbstain ? 'abstain' : headlineLength(layout.headline)}
+				>
+					{isAbstain ? ABSTAIN_WORDS : layout.headline}
 				</h3>
-				<ResultImage role={role} resultKey={result.verdict} />
+				{!isAbstain && <ResultImage role={role} resultKey={result.verdict} />}
 				<div className="record-claim__summary">
+					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{layout.headline}</p>}
 					<div className={`verdict verdict--${presentation.tone}`}>
 						<p className="verdict__label">
 							<span className="verdict__icon" aria-hidden="true">

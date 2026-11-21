@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { VERDICT_LABELS_PL, VERDICTS } from '../../../src/contracts/verdict';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from '../fixtures/outcomes';
+import { ABSTAIN_WORDS } from './RecordClaim';
 import { RecordView } from './RecordView';
 
 afterEach(cleanup);
@@ -22,7 +23,9 @@ describe('RecordView', () => {
 		it(`pokazuje etykietę z objaśnieniem i datą: ${verdict}`, () => {
 			const { container } = render(<RecordView record={record(verdict)} />);
 			expect(screen.getByText(VERDICT_LABELS_PL[verdict])).toBeTruthy();
-			expect(container.querySelector('.record-claim__headline')?.textContent?.length).toBeGreaterThan(10);
+			const headline = container.querySelector('.record-claim__headline')?.textContent ?? '';
+			if (verdict === 'brak_wystarczajacych_dowodow') expect(headline).toBe(ABSTAIN_WORDS);
+			else expect(headline.length).toBeGreaterThan(10);
 			expect(container.querySelector('.verdict__certainty') !== null).toBe(
 				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',
 			);
@@ -124,17 +127,21 @@ describe('RecordView', () => {
 	});
 
 	it('rozmiar czcionki etykiety jest mniejszy niż zdania głównego', () => {
-		const css = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'record.css'), 'utf8');
-		const sizeOf = (selector: string) => {
-			const block = new RegExp(`${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`).exec(css);
-			const size = /font-size:\s*([\d.]+)rem/.exec(block?.[1] ?? '');
-			if (!size) throw new Error(`brak font-size: ${selector}`);
-			return Number(size[1]);
-		};
-		const headline = sizeOf('.record-claim__headline');
-		expect(sizeOf('.record-claim .verdict__label')).toBeLessThan(headline);
-		expect(sizeOf('.record-claim .verdict__certainty')).toBeLessThan(headline);
-		expect(headline).toBeGreaterThan(1.5);
+		const here = dirname(fileURLToPath(import.meta.url));
+		const record = readFileSync(join(here, 'record.css'), 'utf8');
+		const roles = readFileSync(join(here, '..', 'roles', 'roles.css'), 'utf8');
+		const styles = readFileSync(join(here, '..', 'styles.css'), 'utf8');
+		const headlineSizes = [...roles.matchAll(/--headline-size:\s*(\d+)px/g)].map((match) => Number(match[1]));
+		const smallText = Number(/--text-small:\s*(\d+)px/.exec(styles)?.[1]);
+		expect(smallText).toBeGreaterThanOrEqual(16);
+		expect(headlineSizes.length).toBeGreaterThan(0);
+		for (const size of headlineSizes) expect(size).toBeGreaterThan(smallText);
+		expect(Math.min(...headlineSizes)).toBeGreaterThanOrEqual(28);
+		expect(Math.max(...headlineSizes)).toBeLessThanOrEqual(48);
+		for (const selector of ['.record-claim .verdict__label', '.record-claim .verdict__certainty']) {
+			const block = new RegExp(`${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`).exec(record);
+			expect(block?.[1]).toContain('font-size: var(--text-small)');
+		}
 	});
 
 	it('dodaje kartę do pobrania z adresem SVG', () => {

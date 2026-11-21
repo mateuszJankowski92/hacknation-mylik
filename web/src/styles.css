@@ -100,7 +100,8 @@ body {
 	}
 }
 
-.app[data-page='check'] {
+.app[data-page='check'],
+.app[data-page='record'] {
 	max-width: 1280px;
 }
 

@@ -21,18 +21,23 @@
 }
 
 .record-claim .verdict__label {
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 }
 
 .record-claim .verdict__certainty {
 	margin: 0;
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 	color: var(--text);
+}
+
+.record-claim .verdict__note {
+	margin: 0;
+	font-size: var(--text-small);
 }
 
 .record-claim__asof {
 	margin: 0;
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 	color: var(--muted);
 }
 
@@ -41,7 +46,7 @@
 }
 
 .record-claim__evidence-link button {
-	min-height: 44px;
+	min-height: 48px;
 	padding: 0;
 	border: 0;
 	background: none;
@@ -53,15 +58,38 @@
 }
 
 .record-claim__primary {
-	margin: 0 0 var(--space-4);
-	padding: var(--space-3);
-	border: 2px solid var(--border);
+	margin: var(--space-6) 0 var(--section-gap);
+	padding: var(--space-4) var(--space-3);
 	border-radius: var(--space-1);
 	background: var(--surface);
 }
 
 .record-claim__primary .record-evidence__quote {
 	margin-top: 0;
+	padding-left: var(--space-3);
+}
+
+.record-claim__primary .record-evidence__quote p {
+	font-size: 20px;
+	line-height: 1.55;
+}
+
+.record-claim__primary .record-evidence__meta {
+	margin-top: var(--space-2);
+}
+
+.record-claim__primary .record-evidence__link {
+	margin-top: var(--space-1);
+}
+
+@media (min-width: 760px) {
+	.record-claim__primary {
+		padding: var(--space-6);
+	}
+
+	.record-claim__primary .record-evidence__quote p {
+		font-size: 22px;
+	}
 }
 
 .record-claim__details {
@@ -95,7 +123,7 @@
 
 .record-claim__note {
 	margin: 0 0 var(--space-1);
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 	color: var(--muted);
 }
 
@@ -156,10 +184,74 @@
 	margin: 0;
 }
 
+.record-claim--abstain {
+	margin: var(--space-6) 0 var(--space-8);
+}
+
+.record-claim--abstain .record-claim__lead {
+	margin-bottom: var(--space-4);
+}
+
+.record-claim--abstain .record-claim__lead .record-claim__headline,
+.record-claim--abstain .record-claim__lead .record-claim__headline[data-length] {
+	--headline-size: 44px;
+	margin: var(--space-6) 0 var(--space-3);
+	font-weight: 800;
+	line-height: 1;
+	letter-spacing: -0.02em;
+}
+
+.record-claim--abstain .record-claim__summary {
+	max-width: var(--measure);
+}
+
+.record-claim--abstain .verdict {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--space-2);
+	padding: 0;
+	border: 0;
+	background: none;
+	color: var(--text);
+}
+
+.record-claim--abstain .verdict__label {
+	padding: 2px var(--space-2);
+	border: 2px solid var(--info-fg);
+	border-radius: var(--space-1);
+	background: var(--info-bg);
+	color: var(--info-fg);
+}
+
+.record-claim--abstain .verdict .verdict__note,
+.record-claim__abstain-sentence {
+	margin: 0 0 var(--space-2);
+	font-size: 20px;
+	line-height: 1.5;
+}
+
+@media (min-width: 760px) {
+	.record-claim--abstain {
+		margin: var(--space-10) 0;
+	}
+
+	.record-claim--abstain .record-claim__lead .record-claim__headline,
+	.record-claim--abstain .record-claim__lead .record-claim__headline[data-length] {
+		--headline-size: clamp(56px, 6vw, 72px);
+		margin: var(--space-8) 0 var(--space-4);
+	}
+
+	.record-claim--abstain .verdict .verdict__note,
+	.record-claim__abstain-sentence {
+		font-size: 22px;
+	}
+}
+
 .record-evidence__meta {
 	margin: 0;
 	color: var(--muted);
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 }
 
 .record-evidence__link {
@@ -190,14 +282,14 @@
 .record-card__download {
 	display: inline-flex;
 	align-items: center;
-	min-height: 44px;
+	min-height: 48px;
 	font-weight: 700;
 }
 
 .record__footer p {
 	margin: 0 0 var(--space-1);
 	color: var(--muted);
-	font-size: 0.9rem;
+	font-size: var(--text-small);
 }
 
 .record__notices ul {
@@ -211,7 +303,11 @@
 
 .record-page > h2,
 .record-page .result > :not(.record),
-.record-page .record > :not(.record-claim),
+.record-page .record > :not(.record-claim):not(.result-corner),
 .record-page .record-claim > :not(.record-claim__lead) {
 	max-width: var(--measure);
+}
+
+.record-page .record-claim > .record-claim__primary {
+	max-width: 760px;
 }
