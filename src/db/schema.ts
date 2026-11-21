@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS sources (
@@ -77,6 +77,33 @@ CREATE TABLE IF NOT EXISTS events (
   detail TEXT
 );
 CREATE INDEX IF NOT EXISTS events_ts_idx ON events(ts);
+
+CREATE TABLE IF NOT EXISTS cases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  claim_text TEXT NOT NULL,
+  normalized TEXT NOT NULL,
+  signature TEXT NOT NULL,
+  first_seen TEXT NOT NULL,
+  last_seen TEXT NOT NULL,
+  report_count INTEGER NOT NULL DEFAULT 1,
+  channels TEXT NOT NULL DEFAULT '{}',
+  state TEXT NOT NULL DEFAULT 'nowa' CHECK (state IN ('nowa', 'w_toku', 'zamknieta')),
+  note TEXT NOT NULL DEFAULT '',
+  search_info TEXT NOT NULL DEFAULT '{}',
+  forwarded_to TEXT NULL,
+  forwarded_at TEXT NULL,
+  forwarded_report_count INTEGER NULL
+);
+CREATE INDEX IF NOT EXISTS cases_state_idx ON cases(state);
+CREATE INDEX IF NOT EXISTS cases_last_seen_idx ON cases(last_seen);
+
+CREATE TABLE IF NOT EXISTS case_records (
+  case_id INTEGER NOT NULL REFERENCES cases(id) ON DELETE CASCADE,
+  record_id TEXT NOT NULL,
+  linked_at TEXT NOT NULL,
+  PRIMARY KEY (case_id, record_id)
+);
+CREATE INDEX IF NOT EXISTS case_records_record_idx ON case_records(record_id);
 `;
 
 /** Typy zdarzeń w logu (rozszerzalne). */

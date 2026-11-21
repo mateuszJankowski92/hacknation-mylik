@@ -26,6 +26,10 @@ const ConfigSchema = z.object({
   // Zad. 29: druga warstwa źródeł (szukanie na żywo na jawnej liście serwisów). Domyślnie wyłączona.
   LIVE_LAYER: z.preprocess(emptyToUndefined, z.enum(['off', 'on']).default('off')),
   LIVE_SOURCES_PATH: z.preprocess(emptyToUndefined, z.string().default('data/live-sources.json')),
+  URZEDNIK_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
+  URZEDNIK_OSOBA: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
+  URZEDNIK_ADRES_POWIADOMIEN: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
+  CASE_RETENTION_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(365)),
 });
 
 export interface AppConfig {
@@ -50,6 +54,10 @@ export interface AppConfig {
   liveLayer: 'off' | 'on';
   /** Lista serwisów drugiej warstwy; względna od katalogu projektu. */
   liveSourcesPath: string;
+  clerkToken?: string;
+  clerkPerson?: string;
+  clerkNotifyAddress?: string;
+  caseRetentionDays: number;
 }
 
 /** Czyta konfigurację ze zmiennych środowiskowych. Nie czyta pliku `.env`. */
@@ -70,6 +78,10 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     PUBLIC_BASE_URL: env.PUBLIC_BASE_URL,
     LIVE_LAYER: env.LIVE_LAYER,
     LIVE_SOURCES_PATH: env.LIVE_SOURCES_PATH,
+    URZEDNIK_TOKEN: env.URZEDNIK_TOKEN,
+    URZEDNIK_OSOBA: env.URZEDNIK_OSOBA,
+    URZEDNIK_ADRES_POWIADOMIEN: env.URZEDNIK_ADRES_POWIADOMIEN,
+    CASE_RETENTION_DAYS: env.CASE_RETENTION_DAYS,
   });
   return {
     llmProvider: c.LLM_PROVIDER,
@@ -87,6 +99,10 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     publicBaseUrl: c.PUBLIC_BASE_URL,
     liveLayer: c.LIVE_LAYER,
     liveSourcesPath: c.LIVE_SOURCES_PATH,
+    clerkToken: c.URZEDNIK_TOKEN,
+    clerkPerson: c.URZEDNIK_OSOBA,
+    clerkNotifyAddress: c.URZEDNIK_ADRES_POWIADOMIEN,
+    caseRetentionDays: c.CASE_RETENTION_DAYS,
   };
 }
 
@@ -108,5 +124,9 @@ export function redactedConfig(cfg: AppConfig): Record<string, string | number |
     publicBaseUrl: cfg.publicBaseUrl ?? '[względny]',
     liveLayer: cfg.liveLayer,
     liveSourcesPath: cfg.liveSourcesPath,
+    clerkToken: cfg.clerkToken ? '[ustawiony]' : '[brak]',
+    clerkPerson: cfg.clerkPerson ?? '[brak]',
+    clerkNotifyAddress: cfg.clerkNotifyAddress ? '[ustawiony]' : '[brak]',
+    caseRetentionDays: cfg.caseRetentionDays,
   };
 }
