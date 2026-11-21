@@ -1,7 +1,9 @@
 import type { Notice } from '../contracts/index';
 import { formatDate } from './templates';
 
-export const BRAND_TAGLINE = 'Mapa to nie terytorium. Mylik sprawdza mapę, zanim w nią uwierzysz.';
+export const BRAND_HEADLINE = 'Mapa to nie terytorium.';
+export const BRAND_SUBHEAD = 'Mylik sprawdza mapę, zanim w nią uwierzysz.';
+export const BRAND_TAGLINE = `${BRAND_HEADLINE} ${BRAND_SUBHEAD}`;
 
 export const KNOWN_OP_INTRO = 'Uwaga: podobna wiadomość krążyła już wcześniej.';
 export const KNOWN_OP_LINK_TEXT = 'Zobacz opis';

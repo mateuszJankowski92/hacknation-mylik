@@ -10,6 +10,7 @@ import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
 import { currentRole } from '../roles/resolve';
+import { nb } from '../typography';
 import { ResultCorner } from '../roles/ResultCorner';
 import './record.css';
 
@@ -21,7 +22,7 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 		<>
 			<section className="record-claim__group-block record-shortanswer" aria-label="Krótka odpowiedź">
 				<h4>Krótka odpowiedź</h4>
-				<p>{record.shortAnswer}</p>
+				<p>{nb(record.shortAnswer)}</p>
 			</section>
 
 			{otherNotices.length > 0 && (
@@ -29,7 +30,7 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 					<h4>Dodatkowe uwagi</h4>
 					<ul>
 						{otherNotices.map((notice, index) => (
-							<li key={`${notice.type}-${index}`}>{notice.text}</li>
+							<li key={`${notice.type}-${index}`}>{nb(notice.text)}</li>
 						))}
 					</ul>
 				</section>
@@ -50,12 +51,13 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 				<p>Stan zbioru źródeł: {record.corpusVersion}</p>
 				<p>Czas sprawdzenia: {formatDateTime(record.createdAt)}</p>
 				{maskedTotal > 0 && (
-					<p>Dla Twojej prywatności zamaskowałem dane osobowe w treści (ukryte dane: {maskedTotal}).</p>
+					<p>{nb(`Dla Twojej prywatności zamaskowałem dane osobowe w treści (ukryte dane: ${maskedTotal}).`)}</p>
 				)}
 				{record.injectionSignals.length > 0 && (
 					<p>
-						W treści wykryłem teksty, które wyglądają na próbę wpłynięcia na działanie systemu. Potraktowałem
-						je jako zwykły tekst i zignorowałem.
+						{nb(
+							'W treści wykryłem teksty, które wyglądają na próbę wpłynięcia na działanie systemu. Potraktowałem je jako zwykły tekst i zignorowałem.',
+						)}
 					</p>
 				)}
 			</section>
@@ -86,15 +88,16 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 	return (
 		<div className="record" data-role={role}>
 			{record.claims.length > 0 && <ResultCorner role={role} />}
-			{note && <p className="role-note">{note}</p>}
+			{note && <p className="role-note">{nb(note)}</p>}
 			{record.claims.length === 0 && (
-				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
+				<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>
 			)}
 			{record.claims.length > 1 && (
 				<>
 					<p className="record__summary">
-						Sprawdziłem {countNoun(record.claims.length, 'zdanie')} z tej strony:{' '}
-						{summarizeVerdicts(record.claims.map((result) => result.verdict))}.
+						{nb(
+							`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony: ${summarizeVerdicts(record.claims.map((result) => result.verdict))}.`,
+						)}
 					</p>
 					<details className="record__claims-list">
 						<summary>Pokaż wszystkie sprawdzone zdania ({record.claims.length})</summary>

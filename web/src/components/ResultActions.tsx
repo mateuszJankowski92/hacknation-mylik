@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { recordUrlPath } from '../route';
 import { cardImagePath } from './RecordCardImage';
 import './home.css';
+import { nb } from '../typography';
 
 type CopyStatus = 'idle' | 'copied' | 'failed';
 
@@ -42,7 +43,7 @@ export function ResultActions({ id }: { id: string }) {
 
 	return (
 		<section className="result-actions" aria-label="Udostępnianie wyniku">
-			<h3>Pokaż to innym</h3>
+			<h3>{nb('Pokaż to innym')}</h3>
 			<div className="result-actions__buttons">
 				<button type="button" className="button button--primary" onClick={copyLink}>
 					Kopiuj link
@@ -58,8 +59,8 @@ export function ResultActions({ id }: { id: string }) {
 			</div>
 			<p className="result-actions__status" role="status" aria-live="polite">
 				{copyStatus === 'copied' && 'Link skopiowany.'}
-				{copyStatus === 'failed' && 'Nie udało się skopiować. Zaznacz adres poniżej i skopiuj go ręcznie.'}
-				{shareFailed && 'Nie udało się wysłać. Skopiuj link i wyślij go sam.'}
+				{copyStatus === 'failed' && nb('Nie udało się skopiować. Zaznacz adres poniżej i skopiuj go ręcznie.')}
+				{shareFailed && nb('Nie udało się wysłać. Skopiuj link i wyślij go sam.')}
 			</p>
 			<p className="result-actions__link">
 				<label htmlFor="result-link" className="visually-hidden">

@@ -6,6 +6,7 @@ import { App } from './App';
 import { OutcomeView } from './components/OutcomeView';
 import { writeSceneSkipped } from './scenes/preferences';
 import { FIXTURE_OUTCOMES, FIXTURE_QUOTE_TEXT } from './fixtures/outcomes';
+import { plain } from './typography';
 
 beforeEach(() => {
 	writeSceneSkipped(true);
@@ -143,7 +144,7 @@ describe('formularz', () => {
 		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'Jakaś informacja' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		const alert = await screen.findByRole('alert');
-		expect(alert.textContent).toMatch(/połączenie z internetem/);
+		expect(plain(alert.textContent ?? '')).toMatch(/połączenie z internetem/);
 	});
 
 	it('pokazuje stan ładowania i pozwala anulować', async () => {

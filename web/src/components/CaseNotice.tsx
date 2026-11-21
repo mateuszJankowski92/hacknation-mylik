@@ -3,6 +3,7 @@ import { casePublicSentencePl } from '../../../src/cases/texts';
 import type { VerificationRecord } from '../../../src/contracts/record';
 import { fetchCaseStatus } from '../api';
 import { formatDate } from '../format';
+import { nb } from '../typography';
 
 export function hasNoEvidenceClaim(record: VerificationRecord): boolean {
 	return record.claims.some((result) => result.verdict === 'brak_wystarczajacych_dowodow');
@@ -28,7 +29,7 @@ export function CaseNotice({ record }: { record: VerificationRecord }) {
 	if (!relevant || !sentence) return null;
 	return (
 		<p className="case-notice" role="status">
-			{sentence}
+			{nb(sentence)}
 		</p>
 	);
 }

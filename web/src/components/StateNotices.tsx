@@ -2,6 +2,7 @@ import type { State } from '../../../src/contracts/verdict';
 import { STATE_LABELS_PL } from '../../../src/contracts/verdict';
 import { ResultImage } from '../roles/ResultImage';
 import { currentRole } from '../roles/resolve';
+import { nb } from '../typography';
 
 interface StateNoticeProps {
 	message: string;
@@ -22,13 +23,13 @@ function StateShell({
 		<section className={`state state--${state}`} aria-labelledby={`state-${state}`} data-role={currentRole()}>
 			<p className="state__kicker">
 				<span aria-hidden="true">{icon} </span>
-				To nie jest ocena zgłoszenia
+				{nb('To nie jest ocena zgłoszenia')}
 			</p>
-			<h3 id={`state-${state}`}>{STATE_LABELS_PL[state]}</h3>
+			<h3 id={`state-${state}`}>{nb(STATE_LABELS_PL[state])}</h3>
 			<ResultImage role={currentRole()} resultKey={state} />
-			<p>{message}</p>
+			<p>{nb(message)}</p>
 			<p className="state__advice">
-				<strong>Co możesz zrobić:</strong> {advice}
+				<strong>{nb('Co możesz zrobić:')}</strong> {nb(advice)}
 			</p>
 		</section>
 	);

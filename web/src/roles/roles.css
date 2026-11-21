@@ -11,21 +11,6 @@
 	--role-accent: #1d7a46;
 }
 
-@media (prefers-color-scheme: dark) {
-	[data-role='pogodynka'],
-	:root {
-		--role-accent: #6cb8e6;
-	}
-
-	[data-role='bibliotekarka'] {
-		--role-accent: #d3a0e6;
-	}
-
-	[data-role='sport'] {
-		--role-accent: #7fd6a2;
-	}
-}
-
 .art {
 	display: block;
 	height: 100%;
@@ -40,7 +25,6 @@
 
 img.art {
 	background: #ffffff;
-	border-radius: var(--space-1);
 }
 
 .art__body,
@@ -99,16 +83,9 @@ img.art {
 }
 
 .stage {
-	--bg: #ffffff;
-	--surface: #f4f6f8;
-	--text: #1b1f23;
-	--muted: #4b5563;
-	--link: #1d3557;
-	--focus: #b45309;
 	position: relative;
 	overflow: hidden;
 	background: #ffffff;
-	border-radius: var(--radius, 12px);
 }
 
 .stage img,

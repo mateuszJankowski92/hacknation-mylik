@@ -5,6 +5,7 @@ import type { ClaimResult, VerificationRecord } from '../../../src/contracts/rec
 import { FORBIDDEN_CITIZEN_WORDS } from '../../../src/render/citizen';
 import { FIXTURE_OUTCOMES } from '../fixtures/outcomes';
 import { RecordView } from './RecordView';
+import { plain } from '../typography';
 
 afterEach(cleanup);
 
@@ -31,7 +32,7 @@ const JARGON_SCOPE =
 describe('jedno podsumowanie i jedna karta na stronę', () => {
 	it('dla 5 twierdzeń: jedno podsumowanie, jedna karta, lista zwinięta', () => {
 		const { container } = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 5)} />);
-		expect(container.querySelector('.record__summary')?.textContent).toMatch(/^Sprawdziłem 5 zdań z tej strony: /);
+		expect(plain(container.querySelector('.record__summary')?.textContent ?? '')).toMatch(/^Sprawdziłem 5 zdań z tej strony: /);
 		expect(container.querySelectorAll('.record-card')).toHaveLength(1);
 		expect(container.querySelectorAll('img.record-card__image')).toHaveLength(1);
 		const list = container.querySelector('details.record__claims-list') as HTMLDetailsElement;
@@ -63,7 +64,7 @@ describe('brak pustych cudzysłowów', () => {
 		const { container } = render(<RecordView record={record} />);
 		expect(container.querySelector('blockquote')).toBeNull();
 		expect(container.textContent).not.toMatch(/„\s*”|""/);
-		expect(container.textContent).toContain('Nie ma cytatu z tego źródła.');
+		expect(plain(container.textContent ?? '')).toContain('Nie ma cytatu z tego źródła.');
 	});
 
 	it('puste zapytania obalające nie dają pustych cudzysłowów', () => {

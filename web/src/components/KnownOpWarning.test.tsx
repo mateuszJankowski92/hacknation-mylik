@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { BRAND_TAGLINE } from '../../../src/render/warning';
+import { BRAND_HEADLINE, BRAND_SUBHEAD } from '../../../src/render/warning';
 import { formatDate, formatDateTime } from '../format';
 import { FIXTURE_OUTCOMES } from '../fixtures/outcomes';
 import { App } from '../App';
@@ -45,8 +45,9 @@ describe('ostrzeżenie EUvsDisinfo w WWW', () => {
 		expect(formatDateTime('2026-01-10T09:30:00+01:00')).toBe('10.01.2026, 09:30');
 	});
 
-	it('strona główna pokazuje podtytuł marki', () => {
+	it('strona główna pokazuje hasło dwupoziomowe', () => {
 		render(<App />);
-		expect(screen.getByText(BRAND_TAGLINE)).toBeTruthy();
+		expect(screen.getByText(BRAND_HEADLINE)).toBeTruthy();
+		expect(screen.getByText(BRAND_SUBHEAD)).toBeTruthy();
 	});
 });

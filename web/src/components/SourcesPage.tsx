@@ -3,6 +3,7 @@ import type { SourcesResponse } from '../../../src/contracts/api';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import { ApiFailure, fetchSources } from '../api';
 import { formatDate } from '../format';
+import { nb } from '../typography';
 
 type SourcesState =
 	| { status: 'loading' }
@@ -27,14 +28,14 @@ export function SourcesPage() {
 
 	return (
 		<div>
-			<h2>Źródła, z których korzystam</h2>
-			<p>Sprawdzam tylko w tych źródłach. Poniżej cała lista.</p>
+			<h2>{nb('Źródła, z których korzystam')}</h2>
+			<p>{nb('Sprawdzam tylko w tych źródłach. Poniżej cała lista.')}</p>
 			<div role="status" aria-live="polite">
 				{state.status === 'loading' && <p>Wczytuję…</p>}
 			</div>
 			{state.status === 'error' && (
 				<section className="http-error" role="alert">
-					<p>{state.message}</p>
+					<p>{nb(state.message)}</p>
 				</section>
 			)}
 			{state.status === 'ready' && (

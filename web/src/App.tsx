@@ -4,6 +4,7 @@ import { SourcesPage } from './components/SourcesPage';
 import { Link } from './components/Link';
 import { SceneSetting } from './scenes/SceneSetting';
 import { useRoute } from './route';
+import { nb } from './typography';
 
 export const PROTOTYPE_NOTE = 'To wczesna wersja próbna. Wyniki mogą mieć braki.';
 
@@ -38,9 +39,9 @@ export function App() {
 				{route.page === 'sources' && <SourcesPage />}
 			</main>
 			<footer className="site-footer">
-				<p>{PROTOTYPE_NOTE}</p>
+				<p>{nb(PROTOTYPE_NOTE)}</p>
 				<SceneSetting />
-				<p>Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.</p>
+				<p>{nb('Pokazuję, co o informacji mówią wiarygodne źródła. Nie oceniam, kto ma rację.')}</p>
 			</footer>
 		</div>
 	);

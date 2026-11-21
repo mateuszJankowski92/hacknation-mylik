@@ -19,6 +19,7 @@ import {
 } from './config';
 import { resolveRole } from './resolve';
 import { ResultImage } from './ResultImage';
+import { plain } from '../typography';
 
 afterEach(cleanup);
 
@@ -89,7 +90,7 @@ describe('dostępność obrazu wyniku', () => {
 			if (!spec) continue;
 			const { container } = render(<ResultImage role="pogodynka" resultKey={key} />);
 			expect(container.querySelector('svg')?.getAttribute('aria-label')).toBe(spec.caption);
-			expect(container.querySelector('figcaption')?.textContent).toBe(spec.caption);
+			expect(plain(container.querySelector('figcaption')?.textContent ?? '')).toBe(spec.caption);
 			cleanup();
 		}
 	});

@@ -5,10 +5,11 @@ import { fetchLatestSources } from '../api';
 import { formatDate, formatDateTime } from '../format';
 import { clearHistory, loadHistory, type HistoryEntry } from '../history';
 import { recordUrlPath } from '../route';
+import { nb } from '../typography';
 import { Link } from './Link';
 import './home.css';
 
-export const HOME_TEXTS = {
+const HOME_TEXTS_RAW = {
 	recentTitle: 'Twoje ostatnie sprawdzenia',
 	recentEmpty: 'Na razie nic tu nie ma.',
 	showMore: 'Pokaż więcej',
@@ -19,6 +20,10 @@ export const HOME_TEXTS = {
 	latestEmpty: 'Nie mam jeszcze żadnych dokumentów do pokazania.',
 	latestFailed: 'Nie udało się wczytać najnowszych dokumentów. Spróbuj odświeżyć stronę.',
 } as const;
+
+export const HOME_TEXTS = Object.fromEntries(
+	Object.entries(HOME_TEXTS_RAW).map(([key, value]) => [key, nb(value)]),
+) as typeof HOME_TEXTS_RAW;
 
 const VISIBLE_ITEMS = 3;
 
@@ -43,7 +48,7 @@ export function RecentChecks() {
 					<ul className="home-list">
 						{(expanded ? entries : entries.slice(0, VISIBLE_ITEMS)).map((entry) => (
 							<li key={entry.id} className="home-list__item">
-								<Link to={recordUrlPath(entry.id)}>{entry.text}</Link>
+								<Link to={recordUrlPath(entry.id)}>{nb(entry.text)}</Link>
 								<span className="home-list__meta">
 									{entry.label}, {formatDateTime(entry.checkedAt)}
 								</span>

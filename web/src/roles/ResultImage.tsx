@@ -4,6 +4,7 @@ import type { ResultKey, Role } from './config';
 import { resultImageFor } from './config';
 import { assetUrl, resultSceneFor } from './manifest';
 import { RoleArt } from './RoleArt';
+import { nb } from '../typography';
 
 function ResultClip({ file, poster }: { file: string; poster: string | null }) {
 	const videoRef = useRef<HTMLVideoElement>(null);
@@ -64,7 +65,7 @@ export function ResultImage({ role, resultKey }: { role: Role; resultKey: Result
 				<RoleArt owner={role} name={resultKey} alt={spec.caption} className="result-image__art" />
 				{clip && <ResultClip file={clip.file} poster={clip.poster} />}
 			</div>
-			<figcaption className="result-image__caption">{spec.caption}</figcaption>
+			<figcaption className="result-image__caption">{nb(spec.caption)}</figcaption>
 		</figure>
 	);
 }

@@ -4,7 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { BRAND_TAGLINE } from '../../src/render/warning';
+import { BRAND_HEADLINE, BRAND_SUBHEAD, BRAND_TAGLINE } from '../../src/render/warning';
+import { nb } from './typography';
 import { App } from './App';
 import { Hero, HeroIllustration } from './components/Hero';
 import { HeroStage } from './components/HeroStage';
@@ -59,7 +60,9 @@ describe('pierwszy ekran strony głównej', () => {
 	it('ma hasło dosłownie, jedno pole, jeden przycisk i do 35 słów', () => {
 		stubLatest(0);
 		const { container } = render(<App />);
-		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(BRAND_TAGLINE);
+		expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(nb(BRAND_HEADLINE));
+		expect(container.querySelector('.hero__subtitle')?.textContent).toBe(nb(BRAND_SUBHEAD));
+		expect(`${BRAND_HEADLINE} ${BRAND_SUBHEAD}`).toBe(BRAND_TAGLINE);
 		expect(container.querySelectorAll('textarea')).toHaveLength(1);
 		const hero = container.querySelector('.hero') as HTMLElement;
 		const controls = within(hero).getAllByRole('button');

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { MAX_INPUT_LENGTH, validateContent } from '../api';
+import { nb } from '../typography';
 
 const COUNTER_THRESHOLD = Math.floor(MAX_INPUT_LENGTH * 0.8);
 
@@ -38,10 +39,10 @@ export function CheckForm({ loading, onSubmit, onCancel }: CheckFormProps) {
 				autoComplete="off"
 			/>
 			<p id="content-counter" className={tooLong ? 'check-form__counter check-form__counter--over' : 'check-form__counter'}>
-				{showCounter && `Znaków: ${content.length} z ${MAX_INPUT_LENGTH}`}
+				{showCounter && nb(`Znaków: ${content.length} z ${MAX_INPUT_LENGTH}`)}
 			</p>
 			<p id="content-error" className="check-form__error" role={tooLong ? 'alert' : undefined}>
-				{tooLong && `Treść jest za długa. Skróć ją o ${content.length - MAX_INPUT_LENGTH} znaków.`}
+				{tooLong && nb(`Treść jest za długa. Skróć ją o ${content.length - MAX_INPUT_LENGTH} znaków.`)}
 			</p>
 			<div className="check-form__actions">
 				<button type="submit" className="button button--primary" disabled={blocked}>

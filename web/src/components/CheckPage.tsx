@@ -12,6 +12,7 @@ import { HomeSections } from './HomeSections';
 import { currentForcedRole, currentRole } from '../roles/resolve';
 import { useScenePlayback } from '../scenes/useScenePlayback';
 import { OutcomeView } from './OutcomeView';
+import { nb } from '../typography';
 
 type CheckState =
 	| { status: 'idle' }
@@ -141,7 +142,7 @@ export function CheckPage() {
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">
 						<h2>Nie udało się sprawdzić</h2>
-						<p>{state.message}</p>
+						<p>{nb(state.message)}</p>
 					</section>
 				)}
 				{showResult && state.status === 'done' && !(fromCheckRef.current && state.outcome.kind === 'record') && (

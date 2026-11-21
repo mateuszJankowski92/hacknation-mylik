@@ -10,6 +10,7 @@ import { HOME_TEXTS } from './components/HomeSections';
 import { HISTORY_KEY } from './history';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
 import { writeSceneSkipped } from './scenes/preferences';
+import { plain } from './typography';
 
 const ID = 'a'.repeat(64);
 const potwierdzone = FIXTURE_OUTCOMES.potwierdzone as { kind: 'record'; record: VerificationRecord };
@@ -163,7 +164,7 @@ describe('strona główna', () => {
 		);
 		stubApi({ '/api/sources/latest': () => ok(LATEST) });
 		render(<App />);
-		const link = screen.getByRole('link', { name: 'Woda w kranie jest zdatna do picia.' });
+		const link = screen.getByRole('link', { name: /Woda w.kranie jest zdatna do picia\./ });
 		expect(link.getAttribute('href')).toBe(`/r/${ID}`);
 		fireEvent.click(screen.getByRole('button', { name: HOME_TEXTS.recentClear }));
 		expect(screen.getByText(HOME_TEXTS.recentEmpty)).toBeTruthy();

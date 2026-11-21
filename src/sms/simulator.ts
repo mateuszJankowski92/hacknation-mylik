@@ -5,19 +5,20 @@ export const SIMULATOR_HTML = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MYLIK: symulator SMS</title>
 <style>
+	:root { color-scheme: only light; }
 	* { box-sizing: border-box; }
-	body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #e8ecf1; font-family: system-ui, sans-serif; color: #1b2430; }
-	.phone { width: 360px; max-width: 100%; height: 640px; max-height: 100vh; background: #fff; border-radius: 28px; box-shadow: 0 10px 40px rgba(0, 0, 0, .25); display: flex; flex-direction: column; overflow: hidden; border: 8px solid #1b2430; }
+	body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #ffffff; font-family: system-ui, sans-serif; color: #1b2430; }
+	.phone { width: 360px; max-width: 100%; height: 640px; max-height: 100vh; background: #fff; border-radius: 28px; display: flex; flex-direction: column; overflow: hidden; border: 8px solid #1b2430; }
 	.phone__header { padding: 14px 16px; background: #1b2430; color: #fff; }
 	.phone__title { font-size: 16px; font-weight: 600; }
 	.phone__note { font-size: 12px; opacity: .75; margin-top: 2px; }
 	.phone__thread { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: #f4f6f9; }
 	.bubble { max-width: 82%; padding: 8px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
-	.bubble--out { align-self: flex-end; background: #2f6fed; color: #fff; border-bottom-right-radius: 4px; }
+	.bubble--out { align-self: flex-end; background: #2a5fd0; color: #fff; border-bottom-right-radius: 4px; }
 	.bubble--in { align-self: flex-start; background: #fff; border: 1px solid #d5dbe3; border-bottom-left-radius: 4px; }
 	.phone__form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #d5dbe3; background: #fff; }
 	.phone__input { flex: 1; resize: none; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid #b9c2cf; border-radius: 12px; }
-	.phone__send { font: inherit; font-weight: 600; padding: 0 16px; border: 0; border-radius: 12px; background: #2f6fed; color: #fff; cursor: pointer; }
+	.phone__send { font: inherit; font-weight: 600; padding: 0 16px; border: 0; border-radius: 12px; background: #2a5fd0; color: #fff; cursor: pointer; }
 	.phone__send:disabled { opacity: .5; cursor: default; }
 	.phone__counter { font-size: 11px; color: #5b6675; padding: 0 12px 8px; text-align: right; background: #fff; }
 </style>

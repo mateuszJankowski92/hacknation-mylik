@@ -14,6 +14,7 @@ import { ErrorDots } from '../visuals/ErrorDots';
 import type { Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
 import './record.css';
+import { nb } from '../typography';
 
 const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
 	potwierdzone: {
@@ -85,7 +86,7 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 			{item.archival && (
 				<p className="record-evidence__archival" role="note">
 					<span aria-hidden="true">⚠ </span>
-					<strong>Uwaga, to stary materiał.</strong> Informacja mogła się zmienić.
+					<strong>{nb('Uwaga, to stary materiał.')}</strong> {nb('Informacja mogła się zmienić.')}
 				</p>
 			)}
 			{item.stance === 'rozbieznosc_kontekstu' && item.mismatch && (
@@ -98,7 +99,7 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 					<p>{item.quote}</p>
 				</blockquote>
 			) : (
-				<p className="record-evidence__no-quote">{NO_QUOTE_TEXT}</p>
+				<p className="record-evidence__no-quote">{nb(NO_QUOTE_TEXT)}</p>
 			)}
 			<p className="record-evidence__meta">
 				{source.publisher}, {formatDate(source.publishedAt)}, {SOURCE_TYPE_LABELS_PL[source.sourceType]}. Pobrano{' '}
@@ -106,7 +107,7 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 			</p>
 			<p className="record-evidence__link">
 				<a href={source.url} target="_blank" rel="noopener noreferrer">
-					Otwórz źródło: {source.title}
+					{nb(`Otwórz źródło: ${source.title}`)}
 					<span className="visually-hidden"> (otworzy się w nowej karcie)</span>
 				</a>
 			</p>
@@ -117,14 +118,16 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 function Refutation({ result }: { result: ClaimResult }) {
 	const { refutation } = result;
 	if (!refutation.performed) {
-		return <p>Nie szukałem osobno źródeł, które przeczą temu twierdzeniu.</p>;
+		return <p>{nb('Nie szukałem osobno źródeł, które przeczą temu twierdzeniu.')}</p>;
 	}
 	return (
 		<>
 			<p>
-				{refutation.found === 0
-					? 'Szukałem też źródeł, które przeczą twierdzeniu. Nie znalazłem żadnego.'
-					: `Szukałem też źródeł, które przeczą twierdzeniu. Znalazłem ${countNoun(refutation.found, 'zrodlo')}.`}
+				{nb(
+					refutation.found === 0
+						? 'Szukałem też źródeł, które przeczą twierdzeniu. Nie znalazłem żadnego.'
+						: `Szukałem też źródeł, które przeczą twierdzeniu. Znalazłem ${countNoun(refutation.found, 'zrodlo')}.`,
+				)}
 			</p>
 			{refutation.queries.some((query) => query.trim()) && (
 				<p className="record-claim__queries">
@@ -178,27 +181,27 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 					className="record-claim__headline"
 					data-length={isAbstain ? 'abstain' : headlineLength(layout.headline)}
 				>
-					{isAbstain ? ABSTAIN_WORDS : layout.headline}
+					{isAbstain ? ABSTAIN_WORDS : nb(layout.headline)}
 				</h3>
 				{!isAbstain && <ResultImage role={role} resultKey={result.verdict} />}
 				<div className="record-claim__summary">
-					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{layout.headline}</p>}
+					{isAbstain && hasConflict && <p className="record-claim__abstain-sentence">{nb(layout.headline)}</p>}
 					<div className={`verdict verdict--${presentation.tone}`}>
 						<p className="verdict__label">
 							<span className="verdict__icon" aria-hidden="true">
 								{presentation.icon}
 							</span>
 							<span className="visually-hidden">Ocena: </span>
-							<strong>{layout.label}</strong>
+							<strong>{nb(layout.label)}</strong>
 						</p>
-						{certainty && <p className="verdict__certainty">{certainty}</p>}
-						{layout.uncertaintyNote && <p className="verdict__note">{layout.uncertaintyNote}</p>}
+						{certainty && <p className="verdict__certainty">{nb(certainty)}</p>}
+						{layout.uncertaintyNote && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
 					</div>
 
-					<p className="record-claim__asof">{layout.asOf}</p>
+					<p className="record-claim__asof">{nb(layout.asOf)}</p>
 					<p className="record-claim__evidence-link">
 						<button type="button" onClick={showDetails}>
-							{layout.evidenceLink}
+							{nb(layout.evidenceLink)}
 						</button>
 					</p>
 				</div>
@@ -215,20 +218,20 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 
 				{isAbstain ? (
 					<section className="record-claim__group-block record-claim__abstain" aria-label="Co sprawdziłem">
-						<p>{ABSTAIN_ONE_SENTENCE}</p>
+						<p>{nb(ABSTAIN_ONE_SENTENCE)}</p>
 					</section>
 				) : (
 					<>
 						<section className="record-claim__group-block" aria-label="Twierdzenie i ocena Mylika">
 							<h4>Co ustalił Mylik</h4>
-							<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
+							<p className="record-claim__note">{nb('To nasze wyjaśnienie, a nie cytat ze źródła.')}</p>
 							{result.claim.text.trim() && (
 								<p className="record-claim__claim">
 									<span className="record-claim__label">Sprawdzane twierdzenie: </span>
 									<q>{result.claim.text}</q>
 								</p>
 							)}
-							<p>{citizenText(result.explanation)}</p>
+							<p>{nb(citizenText(result.explanation))}</p>
 							{layout.certainty && <ConfidenceGauge strength={result.strength} />}
 							<Refutation result={result} />
 							{profile && profile.total > 0 && <ErrorDots profile={profile} />}
@@ -237,10 +240,10 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 						{groups.length > 0 && (
 							<section className="record-claim__sources" aria-label="Co mówią źródła">
 								<h4>Co mówią źródła</h4>
-								<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
+								<p className="record-claim__note">{nb('Cytaty pochodzą ze źródeł i podajemy je bez zmian.')}</p>
 								{groups.map((group) => (
 									<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
-										<h5>{group.title}</h5>
+										<h5>{nb(group.title)}</h5>
 										<ul className="record-evidence-list">
 											{group.items.map((item) => (
 												<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
@@ -256,7 +259,7 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 								<h4>Czego nie udało się ustalić</h4>
 								<ul>
 									{limitations.map((text) => (
-										<li key={text}>{text}</li>
+										<li key={text}>{nb(text)}</li>
 									))}
 								</ul>
 							</section>

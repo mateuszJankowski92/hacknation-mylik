@@ -12,7 +12,7 @@ function parseTokens(block: string): Record<string, string> {
 }
 
 const blocks = [...css.matchAll(/:root\s*\{([^}]*)\}/g)].map((match) => parseTokens(match[1]));
-const themes = { jasny: blocks[0], ciemny: blocks[1] };
+const themes = { jasny: blocks[0] };
 
 function luminance(hex: string): number {
 	const channels = [1, 3, 5].map((index) => {
@@ -36,6 +36,9 @@ const PAIRS: Array<[string, string]> = [
 	['link', 'surface'],
 	['on-primary', 'primary'],
 	['primary', 'bg'],
+	['on-accent', 'accent'],
+	['on-accent', 'accent-hover'],
+	['on-accent-disabled', 'accent-disabled'],
 	['ok-fg', 'ok-bg'],
 	['danger-fg', 'danger-bg'],
 	['danger-fg', 'bg'],
@@ -44,12 +47,22 @@ const PAIRS: Array<[string, string]> = [
 	['info-fg', 'info-bg'],
 	['neutral-fg', 'neutral-bg'],
 	['state-fg', 'state-bg'],
+	['state-fg', 'bg'],
 ];
 
 describe('kontrast kolorów (WCAG AA, min. 4,5:1)', () => {
-	it('wykrywa oba motywy w styles.css', () => {
+	it('ma jeden, jasny motyw: tło dokładnie #FFFFFF i brak reakcji na systemowy tryb ciemny', () => {
+		expect(blocks).toHaveLength(1);
 		expect(Object.keys(themes.jasny).length).toBeGreaterThan(10);
-		expect(Object.keys(themes.ciemny).length).toBe(Object.keys(themes.jasny).length);
+		expect(themes.jasny.bg.toLowerCase()).toBe('#ffffff');
+		expect(css).not.toMatch(/prefers-color-scheme/);
+		expect(css).toMatch(/color-scheme:\s*only light/);
+	});
+
+	it('wszystkie arkusze interfejsu obywatela pomijają tryb ciemny', () => {
+		for (const file of ['roles/roles.css', 'scenes/scenes.css', 'visuals/visuals.css', 'components/hero.css', 'components/home.css', 'components/record.css']) {
+			expect(readFileSync(join(dirname(fileURLToPath(import.meta.url)), file), 'utf8')).not.toMatch(/prefers-color-scheme/);
+		}
 	});
 
 	for (const [themeName, tokens] of Object.entries(themes)) {

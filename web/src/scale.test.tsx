@@ -8,6 +8,7 @@ import type { VerificationRecord } from '../../src/contracts/record';
 import { ABSTAIN_WORDS, headlineLength } from './components/RecordClaim';
 import { RecordView } from './components/RecordView';
 import { FIXTURE_OUTCOMES } from './fixtures/outcomes';
+import { plain } from './typography';
 
 afterEach(cleanup);
 
@@ -72,7 +73,7 @@ describe('minima skali', () => {
 			['styles.css', '.text-button'],
 			['styles.css', '.button'],
 			['scenes/scenes.css', '.scene-skip'],
-			['components/hero.css', '.hero__skip'],
+			['components/hero.css', '.hero .hero__skip'],
 			['components/record.css', '.record-claim__evidence-link button'],
 			['components/record.css', '.record-card__download'],
 		];
@@ -93,9 +94,11 @@ describe('minima skali', () => {
 describe('strona główna w skali', () => {
 	const hero = readCss('components/hero.css');
 
-	it('hasło: 32-36 px na telefonie, 56-72 px na dużym ekranie, logotyp 24-28 px', () => {
-		expect(block(hero, '.hero__title')).toContain('font-size: clamp(32px, 8.4vw, 36px)');
-		expect(hero).toContain('font-size: clamp(56px, 4vw, 72px)');
+	it('hasło: 56-72 px (clamp), podtytuł 20-22 px na telefonie i 28-32 px na dużym ekranie, logotyp 24-28 px', () => {
+		expect(block(hero, '.hero__title')).toContain('font-size: clamp(56px, 5vw, 72px)');
+		expect(block(hero, '.hero__subtitle')).toContain('font-size: clamp(20px, 5.5vw, 22px)');
+		expect(hero).toMatch(/\.hero__subtitle \{\s*font-size: 28px;/);
+		expect(hero).toContain('font-size: clamp(28px, 2.2vw, 32px)');
 		const brand = Number(/font-size:\s*(\d+)px/.exec(block(readCss('styles.css'), '.site-header__brand'))?.[1]);
 		expect(brand).toBeGreaterThanOrEqual(24);
 		expect(brand).toBeLessThanOrEqual(28);
@@ -176,8 +179,8 @@ describe('wynik w skali: widok', () => {
 		expect(headline?.textContent).toBe(ABSTAIN_WORDS);
 		expect(ABSTAIN_WORDS.split(' ')).toHaveLength(2);
 		const note = container.querySelector('.record-claim__summary .verdict__note');
-		expect(note?.textContent).toMatch(/Nie znalazłem tego w sprawdzonych źródłach/);
-		expect(note?.textContent).toMatch(/zajrzyj na stronę właściwego urzędu/);
+		expect(plain(note?.textContent ?? '')).toMatch(/Nie znalazłem tego w sprawdzonych źródłach/);
+		expect(plain(note?.textContent ?? '')).toMatch(/zajrzyj na stronę właściwego urzędu/);
 		expect(container.querySelector('.result-image')).toBeNull();
 		expect(container.querySelector('.record-claim__abstain-sentence')).toBeNull();
 		expect(container.querySelector('.record-claim__primary')).toBeNull();
@@ -192,6 +195,6 @@ describe('wynik w skali: widok', () => {
 		];
 		const { container } = render(<RecordView record={base} />);
 		expect(container.querySelector('.record-claim__headline')?.textContent).toBe(ABSTAIN_WORDS);
-		expect(container.querySelector('.record-claim__abstain-sentence')?.textContent).toMatch(/Urząd A i Urząd B podają sprzeczne informacje/);
+		expect(plain(container.querySelector('.record-claim__abstain-sentence')?.textContent ?? '')).toMatch(/Urząd A i Urząd B podają sprzeczne informacje/);
 	});
 });

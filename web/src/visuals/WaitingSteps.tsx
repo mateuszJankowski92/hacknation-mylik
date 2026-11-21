@@ -5,6 +5,7 @@ import { currentRole } from '../roles/resolve';
 import { RoleArt } from '../roles/RoleArt';
 import { SCENE_TEXTS } from '../scenes/config';
 import { SceneStage, ScenePoster } from '../scenes/SceneStage';
+import { nb } from '../typography';
 import type { ScenePlayback } from '../scenes/useScenePlayback';
 import { INITIAL_PROGRESS, describeProgress, type ProgressState } from './progress';
 import './visuals.css';
@@ -61,9 +62,9 @@ export function WaitingSteps({
 			</div>
 			<div className="waiting-steps__text">
 				<p className="waiting-steps__status" role="status" aria-live="polite">
-					{describeProgress(progress)}
+					{nb(describeProgress(progress))}
 				</p>
-				<p className="waiting-steps__eta">{overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds)}</p>
+				<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
 				<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
 				{playback?.scene && playback.enabled && (
 					<button type="button" className="scene-skip" onClick={playback.skip}>

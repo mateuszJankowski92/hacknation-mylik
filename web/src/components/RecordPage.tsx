@@ -11,6 +11,7 @@ import { useScenePlayback } from '../scenes/useScenePlayback';
 import { Link } from './Link';
 import { OutcomeView } from './OutcomeView';
 import { ResultActions } from './ResultActions';
+import { nb } from '../typography';
 
 export const GONE_TEXTS = {
 	title: 'Tego sprawdzenia już nie ma',
@@ -118,7 +119,7 @@ export function RecordPage({ id }: { id: string }) {
 
 	return (
 		<div className="record-page">
-			<h2>{state.status === 'gone' ? GONE_TEXTS.title : 'Wynik sprawdzenia'}</h2>
+			<h2>{nb(state.status === 'gone' ? GONE_TEXTS.title : 'Wynik sprawdzenia')}</h2>
 			{state.status === 'loading' && (
 				<p role="status" aria-live="polite">
 					Wczytuję…
@@ -141,7 +142,7 @@ export function RecordPage({ id }: { id: string }) {
 			>
 				{state.status === 'gone' && (
 					<section className="http-error" role="status">
-						<p>{GONE_TEXTS.body}</p>
+						<p>{nb(GONE_TEXTS.body)}</p>
 						<p>
 							<Link to="/">{GONE_TEXTS.back}</Link>
 						</p>
@@ -149,7 +150,7 @@ export function RecordPage({ id }: { id: string }) {
 				)}
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">
-						<p>{state.message}</p>
+						<p>{nb(state.message)}</p>
 						<p>
 							<Link to="/">{GONE_TEXTS.back}</Link>
 						</p>
