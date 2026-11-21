@@ -27,14 +27,14 @@ export function sceneFilePath(role: Role, name: string, extension: 'mp4' | 'webm
 
 const PLACEHOLDER_ALTS: Record<Role, string[]> = {
 	pogodynka: [
-		'Pogodynka przesuwa palec po mapie i sprawdza, co mówią źródła.',
-		'Pogodynka przegląda kartki z notatkami przy mapie.',
-		'Pogodynka porównuje dwie mapy.',
+		'Pogodynek przesuwa palec po mapie i sprawdza, co mówią źródła.',
+		'Pogodynek przegląda kartki z notatkami przy mapie.',
+		'Pogodynek porównuje dwie mapy.',
 	],
 	bibliotekarka: [
-		'Bibliotekarka przegląda książki na regale.',
-		'Bibliotekarka kartkuje grubą księgę.',
-		'Bibliotekarka niesie stos książek do stołu.',
+		'Bibliotekarz przegląda książki na regale.',
+		'Bibliotekarz kartkuje grubą księgę.',
+		'Bibliotekarz niesie stos książek do stołu.',
 	],
 	sport: [
 		'Komentator sportowy przegląda wyniki meczów.',

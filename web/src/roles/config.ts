@@ -37,15 +37,15 @@ const NO_RESULT_IMAGES: Record<ResultKey, null> = {
 	potrzeba_doprecyzowania: null,
 };
 
-export const START_CHARACTER_ALT = 'Postać z mapą i lupą czeka na wiadomość.';
+export const START_CHARACTER_ALT = 'Postać z papieru ze złożoną mapą czeka na wiadomość.';
 
 export const ROLE_SPECS: Record<Role, RoleSpec> = {
 	pogodynka: {
-		name: 'Pogodynka',
+		name: 'Pogodynek',
 		topic: 'różne tematy',
 		character: {
-			postac: 'Pogodynka stoi przy mapie z chmurką i słońcem.',
-			praca: 'Pogodynka sprawdza mapę i notatki.',
+			postac: 'Pogodynek stoi przy mapie z chmurką i słońcem.',
+			praca: 'Pogodynek sprawdza mapę i notatki.',
 		},
 		results: {
 			potwierdzone: { caption: 'Źródła mówią to samo.' },
@@ -59,11 +59,11 @@ export const ROLE_SPECS: Record<Role, RoleSpec> = {
 		},
 	},
 	bibliotekarka: {
-		name: 'Bibliotekarka',
+		name: 'Bibliotekarz',
 		topic: 'przepisy i prawa obywatela',
 		character: {
-			postac: 'Bibliotekarka trzyma otwartą książkę.',
-			praca: 'Bibliotekarka szuka w książkach na regale.',
+			postac: 'Bibliotekarz trzyma otwartą książkę.',
+			praca: 'Bibliotekarz szuka w książkach na regale.',
 		},
 		results: NO_RESULT_IMAGES,
 	},
