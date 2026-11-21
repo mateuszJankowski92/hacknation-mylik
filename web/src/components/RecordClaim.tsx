@@ -6,6 +6,8 @@ import {
 	type Verdict,
 } from '../../../src/contracts/verdict';
 import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layout';
+import { citizenText, extractCheckStats } from '../../../src/render/citizen';
+import { countNoun } from '../../../src/render/plural';
 import { formatDate } from '../format';
 import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
 import { EmptyCertainty, EMPTY_CERTAINTY_HEADING, EMPTY_CERTAINTY_TITLE } from '../visuals/EmptyCertainty';
@@ -37,8 +39,9 @@ const VERDICT_PRESENTATION: Record<Verdict, { icon: string; tone: string }> = {
 	},
 };
 
-const ABSTAIN_SUGGESTION =
-	'Nie traktuj tego jako potwierdzenia ani zaprzeczenia. Sprawdź informację w oficjalnym źródle, na przykład na stronie właściwego urzędu.';
+export const ABSTAIN_ONE_SENTENCE =
+	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
+export const NO_QUOTE_TEXT = 'Nie ma cytatu z tego źródła.';
 
 interface EvidenceGroup {
 	key: string;
@@ -82,9 +85,13 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 					Źródło opisuje to samo, ale w innym kontekście: {MISMATCH_LABELS_PL[item.mismatch]}.
 				</p>
 			)}
-			<blockquote className="record-evidence__quote">
-				<p>{item.quote}</p>
-			</blockquote>
+			{item.quote.trim() ? (
+				<blockquote className="record-evidence__quote">
+					<p>{item.quote}</p>
+				</blockquote>
+			) : (
+				<p className="record-evidence__no-quote">{NO_QUOTE_TEXT}</p>
+			)}
 			<p className="record-evidence__meta">
 				{source.publisher}, {formatDate(source.publishedAt)}, {SOURCE_TYPE_LABELS_PL[source.sourceType]}. Pobrano{' '}
 				<time dateTime={source.fetchedAt}>{formatDate(source.fetchedAt)}</time>.
@@ -109,11 +116,11 @@ function Refutation({ result }: { result: ClaimResult }) {
 			<p>
 				{refutation.found === 0
 					? 'Szukałem też źródeł, które przeczą twierdzeniu. Nie znalazłem żadnego.'
-					: `Szukałem też źródeł, które przeczą twierdzeniu. Znalazłem: ${refutation.found}.`}
+					: `Szukałem też źródeł, które przeczą twierdzeniu. Znalazłem ${countNoun(refutation.found, 'zrodlo')}.`}
 			</p>
-			{refutation.queries.length > 0 && (
+			{refutation.queries.some((query) => query.trim()) && (
 				<p className="record-claim__queries">
-					Czego szukałem: {refutation.queries.map((query) => `„${query}”`).join(', ')}.
+					Czego szukałem: {refutation.queries.filter((query) => query.trim()).map((query) => `„${query}”`).join(', ')}.
 				</p>
 			)}
 		</>
@@ -129,7 +136,7 @@ export function emptyCertaintySentence(result: ClaimResult): string {
 		return 'Nie znalazłem w sprawdzonych źródłach nic, co mówi to samo, ani nic, co mówi co innego.';
 	}
 	if (same > 0 && other > 0) {
-		return `Źródła mówią różne rzeczy: to samo ${same}, co innego ${other}. Dlatego nie da się ocenić, na ile to pewne.`;
+		return `Źródła mówią różne rzeczy: to samo ${countNoun(same, 'zrodlo')}, co innego ${countNoun(other, 'zrodlo')}. Dlatego nie da się ocenić, na ile to pewne.`;
 	}
 	return 'Znalazłem za mało, żeby ocenić, na ile to pewne.';
 }
@@ -152,8 +159,10 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 	const primary = pickLayoutEvidence(result);
 	const restEvidence = result.evidence.filter((item) => item !== primary);
 	const groups = groupEvidence(restEvidence);
-	const limitations = [...result.limitations];
-	if (result.abstainReason) limitations.unshift(result.abstainReason);
+	const rawLimitations = [...result.limitations];
+	if (result.abstainReason) rawLimitations.unshift(result.abstainReason);
+	const stats = result.abstainReason ? extractCheckStats(result.abstainReason) : null;
+	const limitations = rawLimitations.map(citizenText).filter(Boolean);
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const unmeasurable = isUnmeasurable(result);
@@ -204,50 +213,65 @@ export function RecordClaim({ result, asOf, extraDetails, role }: RecordClaimPro
 			<details className="record-claim__details" ref={detailsRef}>
 				<summary>Pokaż szczegóły</summary>
 
-				<section className="record-claim__group-block" aria-label="Twierdzenie i ocena Mylika">
-					<h4>Co ustalił Mylik</h4>
-					<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
-					<p className="record-claim__claim">
-						<span className="record-claim__label">Sprawdzane twierdzenie: </span>
-						<q>{result.claim.text}</q>
-					</p>
-					<p>{result.explanation}</p>
-					{layout.certainty && unmeasurable && <EmptyCertainty sentence={emptyCertaintySentence(result)} />}
-					{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
-					<Refutation result={result} />
-					{profile && profile.total > 0 && <ErrorDots profile={profile} />}
-				</section>
+				{isAbstain ? (
+					<section className="record-claim__group-block record-claim__abstain" aria-label="Co sprawdziłem">
+						<p>{ABSTAIN_ONE_SENTENCE}</p>
+					</section>
+				) : (
+					<>
+						<section className="record-claim__group-block" aria-label="Twierdzenie i ocena Mylika">
+							<h4>Co ustalił Mylik</h4>
+							<p className="record-claim__note">To nasze wyjaśnienie, a nie cytat ze źródła.</p>
+							{result.claim.text.trim() && (
+								<p className="record-claim__claim">
+									<span className="record-claim__label">Sprawdzane twierdzenie: </span>
+									<q>{result.claim.text}</q>
+								</p>
+							)}
+							<p>{citizenText(result.explanation)}</p>
+							{layout.certainty && unmeasurable && <EmptyCertainty sentence={emptyCertaintySentence(result)} />}
+							{layout.certainty && !unmeasurable && <ConfidenceGauge strength={result.strength} />}
+							<Refutation result={result} />
+							{profile && profile.total > 0 && <ErrorDots profile={profile} />}
+						</section>
 
-				{(groups.length > 0 || !primary) && (
-					<section className="record-claim__sources" aria-label="Co mówią źródła">
-						<h4>Co mówią źródła</h4>
-						<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
-						{groups.length === 0 && <p>Nie mam żadnego cytatu ze źródeł do tego twierdzenia.</p>}
-						{groups.map((group) => (
-							<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
-								<h5>{group.title}</h5>
-								<ul className="record-evidence-list">
-									{group.items.map((item) => (
-										<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
+						{groups.length > 0 && (
+							<section className="record-claim__sources" aria-label="Co mówią źródła">
+								<h4>Co mówią źródła</h4>
+								<p className="record-claim__note">Cytaty pochodzą ze źródeł i podajemy je bez zmian.</p>
+								{groups.map((group) => (
+									<div key={group.key} className={`record-claim__group record-claim__group--${group.key}`}>
+										<h5>{group.title}</h5>
+										<ul className="record-evidence-list">
+											{group.items.map((item) => (
+												<SourceEvidence key={`${item.passageId}-${item.quote}`} item={item} />
+											))}
+										</ul>
+									</div>
+								))}
+							</section>
+						)}
+
+						{limitations.length > 0 && (
+							<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">
+								<h4>Czego nie udało się ustalić</h4>
+								<ul>
+									{limitations.map((text) => (
+										<li key={text}>{text}</li>
 									))}
 								</ul>
-							</div>
-						))}
-					</section>
+							</section>
+						)}
+					</>
 				)}
 
-				{(limitations.length > 0 || isAbstain) && (
-					<section aria-label="Czego nie udało się ustalić" className="record-claim__limits">
-						<h4>Czego nie udało się ustalić</h4>
-						{limitations.length > 0 && (
-							<ul>
-								{limitations.map((text) => (
-									<li key={text}>{text}</li>
-								))}
-							</ul>
-						)}
-						{isAbstain && <p>{ABSTAIN_SUGGESTION}</p>}
-					</section>
+				{stats && (
+					<details className="record-claim__technical">
+						<summary>Dla dociekliwych</summary>
+						<p>
+							Sprawdzone teksty ze źródeł: {stats.checked}. Odrzucone dowody: {stats.rejected}.
+						</p>
+					</details>
 				)}
 
 				{extraDetails}

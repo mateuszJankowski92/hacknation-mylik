@@ -96,7 +96,7 @@ describe('RecordView', () => {
 
 	it('wstrzymanie się: uczciwe wyjaśnienie bez cytatów', () => {
 		const { container } = render(<RecordView record={record('brak_wystarczajacych_dowodow')} />);
-		expect(screen.getByText(/oficjalnym źródle/)).toBeTruthy();
+		expect(screen.getByText(/Szukaj dalej na stronie właściwego urzędu/)).toBeTruthy();
 		expect(container.querySelector('blockquote')).toBeNull();
 	});
 

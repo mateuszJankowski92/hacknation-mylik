@@ -134,12 +134,9 @@ describe('wynik "brak wystarczających dowodów"', () => {
 	it('pokazuje samo zdanie, czego nie znaleziono, zamiast wskazówki', () => {
 		const outcome = FIXTURE_OUTCOMES.brak_wystarczajacych_dowodow as { kind: 'record'; record: VerificationRecord };
 		const { container } = render(<RecordView record={outcome.record} />);
-		expect(container.querySelector('.confidence--empty')).not.toBeNull();
-		expect(container.querySelector('.confidence--empty svg')).toBeNull();
 		expect(container.querySelector('.confidence__needle')).toBeNull();
-		expect(container.textContent).toContain('tego nie da się ocenić');
-		expect(container.textContent).not.toContain('wcale');
-		expect(container.textContent).toMatch(/Nie znalazłem w sprawdzonych źródłach nic/);
+		expect(container.querySelector('.verdict__certainty')?.textContent).toContain('tego nie da się ocenić');
+		expect(container.querySelector('.record-claim__abstain p')?.textContent).toMatch(/Sprawdziłem zbiór źródeł/);
 	});
 
 	it('dla werdyktu z dowodami nadal pokazuje wskaźnik ze wskazówką', () => {

@@ -4,6 +4,8 @@ import { recordUrlPath } from '../route';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { KnownOpWarnings } from './KnownOpWarning';
+import { VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict';
+import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
 import { currentRole } from '../roles/resolve';
@@ -31,9 +33,9 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 				</section>
 			)}
 
-			{record.claims.map((result, index) => (
-				<RecordCardImage key={result.claim.id} id={record.id} claimNumber={index + 1} verdict={result.verdict} />
-			))}
+			{record.claims.length > 0 && (
+				<RecordCardImage id={record.id} claimNumber={1} verdict={record.claims[0].verdict} />
+			)}
 
 			<section className="record-claim__group-block record__footer" aria-label="Dane sprawdzenia">
 				<h4>Dane sprawdzenia</h4>
@@ -43,20 +45,35 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 				<p>
 					<a href={recordUrlPath(record.id)}>Trwały adres tego sprawdzenia</a>
 				</p>
-				<p>Wersja zbioru źródeł: {record.corpusVersion}</p>
+				<p>Stan zbioru źródeł: {record.corpusVersion}</p>
 				<p>Czas sprawdzenia: {formatDateTime(record.createdAt)}</p>
 				{maskedTotal > 0 && (
-					<p>Dla Twojej prywatności zamaskowałem dane osobowe w treści (liczba ukrytych fragmentów: {maskedTotal}).</p>
+					<p>Dla Twojej prywatności zamaskowałem dane osobowe w treści (ukryte dane: {maskedTotal}).</p>
 				)}
 				{record.injectionSignals.length > 0 && (
 					<p>
-						W treści wykryłem fragmenty, które wyglądają na próbę wpłynięcia na działanie systemu. Potraktowałem
+						W treści wykryłem teksty, które wyglądają na próbę wpłynięcia na działanie systemu. Potraktowałem
 						je jako zwykły tekst i zignorowałem.
 					</p>
 				)}
 			</section>
 		</>
 	);
+}
+
+export function summarizeVerdicts(verdicts: Verdict[]): string {
+	const order: Verdict[] = [
+		'potwierdzone',
+		'falszywe',
+		'wprowadzajace_w_blad',
+		'brak_wystarczajacych_dowodow',
+		'nie_podlega_weryfikacji',
+	];
+	return order
+		.map((verdict) => ({ verdict, count: verdicts.filter((item) => item === verdict).length }))
+		.filter((entry) => entry.count > 0)
+		.map((entry) => `${VERDICT_LABELS_PL[entry.verdict].toLowerCase()}: ${entry.count}`)
+		.join(', ');
 }
 
 export function RecordView({ record }: { record: VerificationRecord }) {
@@ -70,16 +87,28 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 			{record.claims.length === 0 && (
 				<p className="notice">Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.</p>
 			)}
-			{record.claims.length > 1 && <p>Znalazłem w tej treści {record.claims.length} twierdzenia. Oceniam każde osobno.</p>}
-			{record.claims.map((result) => (
+			{record.claims.length > 1 && (
+				<>
+					<p className="record__summary">
+						Sprawdziłem {countNoun(record.claims.length, 'zdanie')} z tej strony:{' '}
+						{summarizeVerdicts(record.claims.map((result) => result.verdict))}.
+					</p>
+					<details className="record__claims-list">
+						<summary>Pokaż wszystkie sprawdzone zdania ({record.claims.length})</summary>
+						{record.claims.map((result) => (
+							<RecordClaim key={result.claim.id} role={role} result={result} asOf={record.asOf} />
+						))}
+					</details>
+				</>
+			)}
+			{single && (
 				<RecordClaim
-					key={result.claim.id}
 					role={role}
-					result={result}
+					result={record.claims[0]}
 					asOf={record.asOf}
-					extraDetails={single ? <RecordExtras record={record} /> : undefined}
+					extraDetails={<RecordExtras record={record} />}
 				/>
-			))}
+			)}
 
 			<KnownOpWarnings notices={record.notices} />
 
