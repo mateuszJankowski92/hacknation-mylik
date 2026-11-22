@@ -6,7 +6,7 @@ Stan na 22.11.2026. Szczegóły zależności (klucze, co trafia, awaria, wymiana
 |---|---|---|---|
 | Claude Haiku 5.5 (`claude-haiku-5-5`, API Anthropic) | wszystkie kroki modelu: twierdzenia, kandydaci, ocena, bramka wsparcia | **tak** | `LLM_PROVIDER=anthropic`, `ANTHROPIC_MODEL` pusty |
 | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | to samo, dokładniej i drożej; w pomiarach także sędzia cytowań | nie | `ANTHROPIC_MODEL=claude-sonnet-5-5` |
-| Claude Opus 5.5 (`claude-opus-5-5`) | tylko pomiary: sędzia cytowań w przebiegu P1 i próba parowana; nie jest używany w produkcji | nie | `ANTHROPIC_MODEL=claude-opus-5-5` (cennik w `src/llm/pricing.ts`) |
+| Claude Opus 5.5 (`claude-opus-5-5`) | model instancji pokazowej od 22.11.2026 (ustawienie w `deploy/app.js`; pełny przebieg zestawu v2 w WYNIKI.md); wcześniej sędzia cytowań w przebiegu P1 i próba parowana | nie | `ANTHROPIC_MODEL=claude-opus-5-5` (cennik w `src/llm/pricing.ts`) |
 | Atrapa (`mock`) | testy i pokaz bez klucza i sieci; proste reguły, nie prawdziwa ocena | wartość domyślna w `src/config.ts`; `.env.example` też ustawia `mock` | `LLM_PROVIDER=mock` |
 | Druga warstwa źródeł (Haiku + narzędzie `web_search`) | szukanie na zamkniętej liście serwisów, gdy korpus nic nie rozstrzyga | nie (**eksperymentalna**) | `LIVE_LAYER=on` (opis: [ZRODLA.md](ZRODLA.md)) |
 | Basal (polski model decyzyjny, Apache-2.0, własna maszyna GPU) | bramka wsparcia; opcjonalnie ocena stanowisk | nie | `SUPPORT_GATE_PROVIDER=basal`, `BASAL_URL`, `BASAL_TOKEN` |
