@@ -78,6 +78,7 @@
 
 html {
 	font-size: calc(18px * var(--ts));
+	scroll-padding-top: 72px;
 }
 
 body {
@@ -195,16 +196,32 @@ a:hover {
 }
 
 .site-header {
+	position: sticky;
+	top: 0;
+	z-index: 5;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--space-2);
 	min-height: 48px;
+	margin: 0 calc(var(--space-2) * -1);
+	padding: 0 var(--space-2);
+	background: rgba(255, 255, 255, 0.92);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+	.site-header {
+		background: rgba(255, 255, 255, 0.76);
+		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(10px);
+	}
 }
 
 @media (min-width: 640px) {
 	.site-header {
 		min-height: var(--space-8);
+		margin: 0 calc(var(--space-3) * -1);
+		padding: 0 var(--space-3);
 	}
 }
 
@@ -326,21 +343,16 @@ main:focus {
 }
 
 .check-form__field:focus-within {
-	border-color: var(--focus-field-edge);
 	background: #ffffff;
-	box-shadow:
-		0 1px 0 0 var(--focus-field-edge),
-		var(--shadow-focus);
+	box-shadow: var(--shadow-lift);
 	transform: translateY(-1px);
 }
 
 .check-form__field:focus-within::after {
-	border-left-color: var(--focus-field-edge);
-	border-bottom-color: var(--focus-field-edge);
 	background: linear-gradient(
 		225deg,
 		var(--bg) 0 calc(50% - var(--outline) / 2),
-		var(--focus-field-edge) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
 		var(--focus-field-fold) calc(50% + var(--outline) / 2) 100%
 	);
 }
@@ -579,6 +591,7 @@ textarea::placeholder {
 }
 
 .button--primary:disabled {
+	--scarf-waves-faded: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='64' viewBox='0 0 144 64' fill='none' stroke-linecap='round'%3E%3Cpath d='M0 9Q18 1 36 9T72 9T108 9T144 9' stroke='%23fff4e3' stroke-width='1.5'/%3E%3Cpath d='M0 16Q18 22 36 16T72 16T108 16T144 16' stroke='%23fff4e3' stroke-width='1.2'/%3E%3Cpath d='M0 50Q12 44 24 50T48 50T72 50T96 50T120 50T144 50' stroke='%23e8cba3' stroke-width='1.2'/%3E%3Cpath d='M0 57Q18 49 36 57T72 57T108 57T144 57' stroke='%23fff4e3' stroke-width='1.4'/%3E%3C/svg%3E");
 	--scarf-base: var(--accent-disabled);
 	--scarf-end: var(--accent-disabled);
 	border-color: transparent;
@@ -593,7 +606,9 @@ textarea::placeholder {
 }
 
 .button--primary:disabled::after {
-	background: var(--accent-disabled);
+	background:
+		var(--scarf-waves-faded) 0 center / 144px 64px repeat-x,
+		var(--accent-disabled);
 }
 
 .result {
@@ -779,7 +794,6 @@ thead th {
 	margin: var(--space-3) 0;
 	padding: var(--space-1) var(--space-2);
 	border: var(--outline) solid var(--graphite);
-	border-left: 8px solid var(--coral-mid);
 	border-radius: var(--radius-paper);
 	background: var(--paper);
 	box-shadow: var(--shadow-paper);

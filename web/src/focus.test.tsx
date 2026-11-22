@@ -53,22 +53,18 @@ describe('fokus klawiatury w stylu papieru', () => {
 		expect(block(css, 'textarea:focus-visible')).toContain('outline: none');
 		const field = block(css, '.check-form__field:focus-within');
 		expect(field).not.toMatch(/outline:\s*\d/);
-		expect(field).toContain('border-color: var(--focus-field-edge)');
-		expect(field).toContain('0 1px 0 0 var(--focus-field-edge)');
-		expect(field).toContain('var(--shadow-focus)');
+		expect(field).not.toContain('border-color');
+		expect(field).not.toContain('0 1px 0 0');
+		expect(field).not.toContain('var(--shadow-focus)');
+		expect(field).toContain('box-shadow: var(--shadow-lift)');
 		expect(field).toContain('translateY(-1px)');
 		expect(css).toMatch(/\.check-form__field:focus-within::after \{[^}]*var\(--focus-field-fold\)/);
 	});
 
-	it('cień fokusu pola jest dłuższy od cienia uniesienia o 2-3 px, krawędź pola ciemniejsza od grafitu', () => {
-		const offsets = (name: string) => [...new RegExp(`--${name}:\\s*([^;]+);`).exec(css)![1].matchAll(/0 (\d+)px (\d+)px/g)].map((m) => Number(m[1]));
-		const lift = offsets('shadow-lift');
-		const focus = offsets('shadow-focus');
-		expect(focus[0] - lift[0]).toBeGreaterThanOrEqual(2);
-		expect(focus[0] - lift[0]).toBeLessThanOrEqual(3);
-		expect(luminance(tokens['focus-field-edge'])).toBeLessThan(luminance(tokens.graphite));
-		expect(contrastRatio(tokens['focus-field-edge'], tokens.bg)).toBeGreaterThanOrEqual(3);
-		expect(contrastRatio(tokens['focus-field-edge'], tokens['paper-light'])).toBeGreaterThanOrEqual(3);
+	it('fokus pola nie dokłada grubej dolnej krawędzi ani większego cienia niż unoszenie', () => {
+		const field = block(css, '.check-form__field:focus-within');
+		expect(field).not.toMatch(/box-shadow:[^;]*\b1px 0 0\b/);
+		expect(field).not.toContain('--focus-field-edge');
 	});
 });
 
@@ -129,8 +125,10 @@ describe('przycisk główny jak pas apaszki', () => {
 		expect(active).toContain('filter: none');
 		const disabled = block(css, '.button--primary:disabled');
 		expect(disabled).toContain('filter: none');
-		expect(block(css, '.button--primary:disabled::after')).toMatch(/background: var\(--accent-disabled\);/);
-		expect(block(css, '.button--primary:disabled::after')).not.toContain('scarf-waves');
+		const disabledFace = block(css, '.button--primary:disabled::after');
+		expect(disabledFace).toContain('var(--scarf-waves-faded)');
+		expect(disabledFace).toContain('var(--accent-disabled)');
+		expect(disabledFace).not.toContain('var(--scarf-waves)');
 	});
 
 	it('przy ograniczeniu ruchu nic się nie animuje, a drugorzędne przyciski zostają kremowym papierem z konturem', () => {

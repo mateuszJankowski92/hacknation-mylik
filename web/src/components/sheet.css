@@ -44,7 +44,7 @@
 		var(--paper);
 	box-shadow: var(--shadow-paper);
 	transform-origin: 50% 0;
-	animation: sheet-unfold var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	animation: sheet-unfold var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 .sheet__plane::after {
@@ -66,7 +66,7 @@
 
 .sheet__body {
 	padding: var(--space-3) var(--space-2) var(--space-4);
-	animation: sheet-reveal var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) both;
+	animation: sheet-reveal var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 @keyframes sheet-unfold {
@@ -97,10 +97,6 @@
 	padding-right: calc(96px + var(--space-2));
 }
 
-.app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .sheet__top {
-	min-height: 168px;
-}
-
 .sheet__asof {
 	justify-self: start;
 	margin: 0;
@@ -114,13 +110,18 @@
 	white-space: nowrap;
 }
 
+@media (max-width: 759px) {
+	.sheet__asof {
+		white-space: normal;
+	}
+}
+
 .sheet-question {
 	display: grid;
 	gap: 2px;
 	justify-items: start;
 	padding: var(--space-1) var(--space-2);
 	border: var(--outline) solid var(--graphite);
-	border-left: 8px solid var(--sea-mid);
 	border-radius: var(--radius-paper);
 	background: var(--paper-light);
 }
@@ -147,6 +148,18 @@
 .sheet-question__text[data-expanded='true'] {
 	display: block;
 	overflow: visible;
+}
+
+.sheet-question__domain {
+	margin: 0;
+	font-weight: 700;
+}
+
+.sheet-question__text--address {
+	display: block;
+	max-height: none;
+	color: var(--muted);
+	font-size: var(--text-small);
 }
 
 .sheet-question__toggle {
@@ -291,9 +304,23 @@
 }
 
 .sheet .result-image__stage {
-	border: var(--outline) solid var(--graphite);
-	border-radius: var(--radius-paper);
-	box-shadow: var(--shadow-paper);
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.sheet .result-image__stage img,
+.sheet .result-image__stage video {
+	background: transparent;
+	filter: none;
+	mix-blend-mode: multiply;
+}
+
+@supports not (mix-blend-mode: multiply) {
+	.sheet .result-image__stage {
+		-webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 62%, transparent 100%);
+		mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 62%, transparent 100%);
+	}
 }
 
 .sheet .record__details {
@@ -313,10 +340,6 @@
 		min-height: 150px;
 		margin-bottom: var(--space-4);
 		padding-right: calc(120px + var(--space-6));
-	}
-
-	.app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .sheet__top {
-		min-height: 198px;
 	}
 
 	.sheet .record-claim {

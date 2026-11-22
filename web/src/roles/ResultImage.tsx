@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useMotionSetting } from '../a11y/settings';
 import { SCENE_TEXTS } from '../scenes/config';
+import { PlaybackButton } from '../scenes/PlaybackButton';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import type { ResultKey, Role } from './config';
 import { GESTURE_CAPTION, resultImageFor, usesGesture } from './config';
@@ -114,19 +115,16 @@ export function ResultImage({ role, resultKey, serious = false }: ResultImagePro
 						onEnded={() => setFinished(true)}
 					/>
 				)}
+				{entry && (
+					<PlaybackButton
+						className="result-image__control"
+						running={running}
+						accessibleName={`${running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay} ${RESULT_CONTROL_SUFFIX}`}
+						onClick={running ? () => setStopped(true) : handleReplay}
+					/>
+				)}
 			</div>
 			<figcaption className="result-image__caption">{nb(spec.caption)}</figcaption>
-			{entry && (
-				<button
-					type="button"
-					className="result-image__control text-button"
-					data-playback={running ? 'skip' : 'replay'}
-					aria-label={`${running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay} ${RESULT_CONTROL_SUFFIX}`}
-					onClick={running ? () => setStopped(true) : handleReplay}
-				>
-					{running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay}
-				</button>
-			)}
 		</figure>
 	);
 }

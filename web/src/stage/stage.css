@@ -32,6 +32,17 @@
 	background: #ffffff;
 }
 
+.character-stage[data-mode='corner'] {
+	mix-blend-mode: multiply;
+}
+
+@supports not (mix-blend-mode: multiply) {
+	.character-stage[data-mode='corner'] .character-stage__frame {
+		-webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 62%, transparent 100%);
+		mask-image: radial-gradient(ellipse 62% 62% at 50% 50%, #000 62%, transparent 100%);
+	}
+}
+
 .character-stage .character-stage__clip {
 	opacity: 1;
 	transition: opacity 500ms ease-out;
@@ -42,22 +53,11 @@
 }
 
 .character-stage__skip {
-	position: absolute;
-	top: 100%;
 	right: 0;
+	bottom: 0;
 	min-height: 48px;
 	min-width: 48px;
-	padding: 0 var(--space-1);
-	color: var(--muted);
-	font-size: var(--text-small);
-	white-space: nowrap;
 	pointer-events: auto;
-}
-
-.character-stage[data-mode='foreground'] .character-stage__skip {
-	right: auto;
-	left: 50%;
-	transform: translateX(-50%);
 }
 
 .stage-slot {
@@ -69,10 +69,6 @@
 	float: right;
 	width: 96px;
 	margin: 0 0 var(--space-1) var(--space-2);
-}
-
-.app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .stage-slot--corner {
-	margin-bottom: 56px;
 }
 
 .sheet > .stage-slot--corner {

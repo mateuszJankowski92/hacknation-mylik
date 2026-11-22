@@ -99,7 +99,7 @@
 }
 
 .record-claim--pointing .record-claim__primary {
-	border-left: 8px solid var(--role-accent);
+	border-left: 8px solid var(--graphite);
 }
 
 .record-claim--pointing .record-claim__primary .record-evidence__meta {
@@ -195,7 +195,7 @@
 .record-evidence__quote {
 	margin: var(--space-1) 0;
 	padding: 0 var(--space-2);
-	border-left: 4px solid var(--sea-mid);
+	border-left: 4px solid var(--graphite);
 }
 
 .record-evidence__quote p {
@@ -212,9 +212,6 @@
 
 .record-claim--abstain .record-claim__lead .record-claim__headline {
 	margin: var(--space-6) 0 var(--space-2);
-	font-weight: 800;
-	line-height: 1.1;
-	letter-spacing: -0.02em;
 }
 
 .record-claim__blank-spot {
@@ -281,7 +278,7 @@
 .record-claim__limits {
 	margin: var(--space-4) 0 0;
 	padding-left: var(--space-2);
-	border-left: 4px solid var(--coral-mid);
+	border-left: 4px solid var(--graphite);
 }
 
 .record-claim__limits ul {
@@ -326,7 +323,6 @@
 	margin: var(--space-3) 0;
 	padding: var(--space-2) var(--space-3);
 	border: var(--outline) solid var(--graphite);
-	border-left: 8px solid var(--sea-mid);
 	border-radius: var(--radius-paper);
 	background: var(--paper);
 	box-shadow: var(--shadow-paper);

@@ -11,22 +11,7 @@ html[data-text-size='xlarge'] .sheet__asof {
 	white-space: normal;
 }
 
-html[data-text-size='large'] .character-stage[data-mode='corner'] .character-stage__skip,
-html[data-text-size='xlarge'] .character-stage[data-mode='corner'] .character-stage__skip {
-	max-width: 140px;
-	overflow-wrap: normal;
-	padding: 0;
-	line-height: 1.2;
-	text-align: right;
-	white-space: normal;
-}
-
 @media (max-width: 759px) {
-	html[data-text-size='large'] .app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .sheet__top,
-	html[data-text-size='xlarge'] .app:has(.character-stage[data-mode='corner']:not([data-control='none'])) .sheet__top {
-		min-height: 232px;
-	}
-
 	html[data-text-size='large'] .sheet__top,
 	html[data-text-size='xlarge'] .sheet__top {
 		padding-right: 156px;
@@ -258,6 +243,17 @@ html[data-contrast='high'] *::after {
 	text-shadow: none !important;
 }
 
+html[data-contrast='high'] .site-header {
+	background: var(--bg);
+	-webkit-backdrop-filter: none;
+	backdrop-filter: none;
+}
+
+html[data-contrast='high'] .check-form__field:focus-within {
+	outline: 3px solid #ffff00;
+	outline-offset: 2px;
+}
+
 html[data-contrast='high'] .check-form__field:hover,
 html[data-contrast='high'] .check-form__field:focus-within {
 	background: #000000;
@@ -304,7 +300,19 @@ html[data-contrast='high'] .stage {
 
 html[data-contrast='high'] .stage img,
 html[data-contrast='high'] .stage video {
-	filter: none;
+	background: #ffffff !important;
+	filter: none !important;
+	mix-blend-mode: normal !important;
+}
+
+html[data-contrast='high'] .character-stage {
+	mix-blend-mode: normal !important;
+}
+
+html[data-contrast='high'] .stage {
+	background: #ffffff !important;
+	-webkit-mask-image: none !important;
+	mask-image: none !important;
 }
 
 html[data-contrast='high'] .record-card__image {

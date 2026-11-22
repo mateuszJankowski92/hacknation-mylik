@@ -102,15 +102,10 @@
 }
 
 .hero .hero__skip {
-	position: absolute;
 	right: 0;
 	bottom: 0;
-	z-index: 1;
 	min-height: 48px;
 	min-width: 48px;
-	padding: 0 var(--space-1);
-	color: var(--muted);
-	font-size: var(--text-small);
 }
 
 .hero__panel {
@@ -245,13 +240,13 @@
 }
 
 .hero .waiting-steps--hero {
-	--waiting-scene-width: min(100%, clamp(160px, calc((100svh - 600px) * 0.8), 360px));
+	--waiting-scene-width: min(100%, max(220px, calc((100svh - 330px) * 0.8)), 520px);
 	align-items: center;
 }
 
 .hero .waiting-steps--hero .waiting-steps__scene {
 	min-width: 0;
-	margin-bottom: var(--space-6);
+	margin-bottom: var(--space-1);
 }
 
 .hero .waiting-steps--hero .waiting-steps__text {
@@ -283,12 +278,25 @@
 }
 
 @media (min-width: 1024px) {
+	.hero:has(.waiting-steps):not(.hero--compact) .hero__main {
+		grid-template-columns: minmax(0, 1fr) min(calc((100svh - 140px) * 0.8), 640px);
+	}
+
+	.hero:has(.waiting-steps) .hero__art {
+		margin-top: -48px;
+	}
+
 	.hero .waiting-steps--hero {
-		--waiting-scene-width: min(100%, calc((100svh - 400px) * 0.8), 420px);
+		--waiting-scene-width: 100%;
+	}
+
+	.hero .waiting-steps--hero .waiting-steps__scene {
+		width: 100%;
+		margin-bottom: 0;
 	}
 
 	.hero .waiting-steps--hero .waiting-steps__text {
-		padding: var(--space-2) var(--space-3);
+		padding: var(--space-1) var(--space-3);
 		border: var(--outline) solid var(--graphite);
 		background: var(--paper);
 		box-shadow: var(--shadow-paper);

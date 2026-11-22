@@ -14,7 +14,7 @@ export const SCENE_BASE_PATH = '/postacie';
 export const SCENE_START_TIMEOUT_MS = 3000;
 
 export const SCENE_TEXTS = {
-	skip: 'Pomiń animację',
+	skip: 'Zatrzymaj animację',
 	replay: 'Odtwórz animację',
 	marksLabel: 'Tyle źródeł znalazłem do tej pory',
 } as const;

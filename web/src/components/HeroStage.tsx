@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { HERO_SCENES, SCENE_START_TIMEOUT_MS, SCENE_TEXTS, type SceneSpec } from '../scenes/config';
+import { HERO_SCENES, SCENE_START_TIMEOUT_MS, type SceneSpec } from '../scenes/config';
+import { PlaybackButton } from '../scenes/PlaybackButton';
 import { useMotionSetting } from '../a11y/settings';
 import { animationStartsAutomatically, prefersReducedMotion } from '../scenes/preferences';
 import { useAfterFirstScreen } from '../scenes/useAfterFirstScreen';
@@ -144,16 +145,7 @@ export function HeroStage({ illustration, scenes = HERO_SCENES }: { illustration
 				)}
 				{!animated && poster && <img className="hero__image" src={poster.poster ?? undefined} alt={poster.alt} />}
 				{!animated && !poster && <HeroIllustration {...illustration} />}
-				{hasClip && (
-					<button
-						type="button"
-						className="hero__skip text-button"
-						data-playback={running ? 'skip' : 'replay'}
-						onClick={running ? handleSkip : handleReplay}
-					>
-						{running ? SCENE_TEXTS.skip : SCENE_TEXTS.replay}
-					</button>
-				)}
+				{hasClip && <PlaybackButton className="hero__skip" running={running} onClick={running ? handleSkip : handleReplay} />}
 			</div>
 		</div>
 	);

@@ -177,12 +177,10 @@ svg.result-image__art {
 }
 
 .result-image__control {
-	align-self: flex-start;
+	right: 0;
+	bottom: 0;
 	min-height: 48px;
 	min-width: 48px;
-	padding: 0;
-	color: var(--muted);
-	font-size: var(--text-small);
 }
 
 .role-note {
@@ -198,10 +196,48 @@ svg.result-image__art {
 .record-claim__lead .record-claim__headline {
 	--headline-size: calc(32px * var(--ts));
 	margin: 0 0 var(--space-2);
+	font-size: calc(22px * var(--ts));
+	font-weight: 600;
+	line-height: 1.35;
+}
+
+.record-claim__sentence {
+	display: block;
+	max-width: var(--measure);
+}
+
+.record-claim__sentence--lead {
+	max-width: none;
+	margin: 0 0 var(--space-2);
 	font-size: var(--headline-size);
-	line-height: 1.15;
-	letter-spacing: -0.01em;
+	font-weight: 800;
+	line-height: 1.1;
+	letter-spacing: -0.02em;
 	animation: result-sentence-grow var(--resize-duration) cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.record-claim__sentence--assessment {
+	margin: 0 0 var(--space-1);
+}
+
+.record-claim__sentence--plain,
+.record-claim__sentence--needed {
+	margin: 0 0 var(--space-1);
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.55;
+}
+
+.record-claim__needed-label {
+	font-weight: 700;
+}
+
+.record-claim__sentence--caveat {
+	margin: var(--space-1) 0 0;
+	color: var(--muted);
+	font-size: var(--text-small);
+	font-weight: 400;
+	line-height: 1.5;
 }
 
 .record-claim__lead .record-claim__headline[data-length='medium'] {

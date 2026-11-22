@@ -99,7 +99,7 @@
 
 .confidence__zone--active {
 	stroke-width: 22;
-	stroke: var(--sea);
+	stroke: var(--graphite);
 }
 
 .confidence__zone-label {
@@ -166,7 +166,7 @@
 }
 
 .error-dots__miss {
-	stroke: var(--coral);
+	stroke: var(--graphite);
 	stroke-width: 3.5;
 	stroke-linecap: round;
 }

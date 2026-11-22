@@ -2,7 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObje
 import { useMotionSetting } from '../a11y/settings';
 import { artAlt, type Role } from '../roles/config';
 import { RoleArt } from '../roles/RoleArt';
-import { SCENE_START_TIMEOUT_MS, SCENE_TEXTS, type SceneSpec } from '../scenes/config';
+import { SCENE_START_TIMEOUT_MS, type SceneSpec } from '../scenes/config';
+import { PlaybackButton } from '../scenes/PlaybackButton';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import { SceneMarks } from '../scenes/SceneStage';
 import { useStage, type StageSlotInfo } from './StageContext';
@@ -248,16 +249,8 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 				)}
 				{stage.phase === 'working' && <SceneMarks progress={stage.progress} />}
 			</div>
-			{control === 'skip' && (
-				<button type="button" className="character-stage__skip text-button" onClick={() => setStopped(true)}>
-					{SCENE_TEXTS.skip}
-				</button>
-			)}
-			{control === 'replay' && (
-				<button type="button" className="character-stage__skip text-button" onClick={handleReplay}>
-					{SCENE_TEXTS.replay}
-				</button>
-			)}
+			{control === 'skip' && <PlaybackButton className="character-stage__skip" running onClick={() => setStopped(true)} />}
+			{control === 'replay' && <PlaybackButton className="character-stage__skip" running={false} onClick={handleReplay} />}
 		</div>
 	);
 }
