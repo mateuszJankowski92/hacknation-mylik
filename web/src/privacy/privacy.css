@@ -17,24 +17,6 @@
 	line-height: 1.35;
 }
 
-.consent-banner::after {
-	content: '';
-	position: absolute;
-	top: calc(var(--outline) * -1);
-	right: calc(var(--outline) * -1);
-	width: var(--fold-size);
-	height: var(--fold-size);
-	border-left: var(--outline) solid var(--graphite);
-	border-bottom: var(--outline) solid var(--graphite);
-	background: linear-gradient(
-		225deg,
-		var(--bg) 0 calc(50% - var(--outline) / 2),
-		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
-		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
-	);
-	pointer-events: none;
-}
-
 .consent-banner__text {
 	margin: 0;
 }

@@ -266,6 +266,7 @@ describe('sceny czekania', () => {
 		submit();
 		await screen.findByLabelText('Postęp sprawdzania');
 		const video = document.querySelector('.character-stage video');
+		fireEvent.click(await screen.findByRole('button', { name: 'Pokaż wynik teraz' }));
 		await waitFor(() => expect(window.location.pathname).toMatch(/^\/r\/[0-9a-f]{64}$/), { timeout: 3000 });
 		await waitFor(() => expect(document.querySelector('.record')).not.toBeNull());
 		expect(fetchMock.mock.calls.some((call) => String(call[0]).startsWith('/api/records/') && !String(call[0]).endsWith('/obieg'))).toBe(false);

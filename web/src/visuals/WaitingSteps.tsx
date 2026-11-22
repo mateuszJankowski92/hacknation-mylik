@@ -10,6 +10,8 @@ import './visuals.css';
 
 export const WAITING_TEXTS = {
 	overtime: 'To trwa dłużej niż zwykle. Jeszcze chwila.',
+	ready: 'Wynik gotowy.',
+	showNow: 'Pokaż wynik teraz',
 } as const;
 
 export function etaSentence(etaSeconds: number): string {
@@ -32,6 +34,8 @@ export interface WaitingStepsProps {
 	elapsedSeconds?: number;
 	role?: Role;
 	layout?: 'page' | 'hero';
+	ready?: boolean;
+	onShowNow?: () => void;
 }
 
 export function WaitingSteps({
@@ -40,6 +44,8 @@ export function WaitingSteps({
 	elapsedSeconds,
 	role = currentRole(),
 	layout = 'page',
+	ready = false,
+	onShowNow,
 }: WaitingStepsProps) {
 	const { setProgress } = useStage();
 	const clock = useElapsedSeconds();
@@ -58,11 +64,17 @@ export function WaitingSteps({
 			<div className="waiting-steps__text">
 				<div className="waiting-steps__row">
 					<p className="waiting-steps__status" role="status" aria-live="polite">
-						{nb(describeProgress(progress))}
+						{nb(ready ? WAITING_TEXTS.ready : describeProgress(progress))}
 					</p>
 					<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
 				</div>
-				<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
+				{ready ? (
+					<button type="button" className="button button--primary waiting-steps__show-now" onClick={onShowNow}>
+						{WAITING_TEXTS.showNow}
+					</button>
+				) : (
+					<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
+				)}
 			</div>
 		</section>
 	);

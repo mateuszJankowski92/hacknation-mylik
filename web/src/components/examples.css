@@ -74,24 +74,6 @@
 		background-color 120ms ease-out;
 }
 
-.examples__note::after {
-	content: '';
-	position: absolute;
-	top: calc(var(--outline) * -1);
-	right: calc(var(--outline) * -1);
-	width: 12px;
-	height: 12px;
-	border-left: var(--outline) solid var(--graphite);
-	border-bottom: var(--outline) solid var(--graphite);
-	background: linear-gradient(
-		225deg,
-		var(--bg) 0 calc(50% - var(--outline) / 2),
-		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
-		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
-	);
-	pointer-events: none;
-}
-
 .examples__note:hover {
 	background: var(--paper-light);
 	box-shadow: var(--shadow-lift);

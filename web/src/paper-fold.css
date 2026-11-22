@@ -1,0 +1,83 @@
+:root {
+	--fold-cover: var(--bg);
+	--fold-fill: var(--paper-fold);
+}
+
+html[data-contrast='high'] {
+	--fold-fill: var(--bg);
+}
+
+.sheet,
+.a11y-panel,
+.consent-banner {
+	--fold-cover: var(--paper);
+}
+
+:where(
+	.paper-fold,
+	.paper-fold--small,
+	.paper-fold--large,
+	.paper-fold--sheet,
+	.sheet__plane,
+	.sheet-question,
+	.sheet__asof,
+	.waiting-steps__text,
+	.examples__note,
+	.button:not(.button--primary),
+	.home-list__item,
+	.consent-banner,
+	.a11y-panel,
+	.a11y-option,
+	.record-claim__primary,
+	.record-claim__thesis,
+	.case-notice,
+	.known-op,
+	.state,
+	.http-error,
+	.claim-card,
+	.check-form__field,
+	.doc__key,
+	.doc__settings,
+	.sources__stat,
+	.sources__group,
+	.sources__pills li,
+	.result-actions__link
+) {
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: calc(var(--outline) * -1);
+		right: calc(var(--outline) * -1);
+		width: min(var(--fold-max, 16px), 34%);
+		aspect-ratio: 1;
+		border-left: var(--outline) solid var(--graphite);
+		border-bottom: var(--outline) solid var(--graphite);
+		background: linear-gradient(
+			225deg,
+			var(--fold-cover) 0 calc(50% - var(--outline) / 2),
+			var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+			var(--fold-fill) calc(50% + var(--outline) / 2) 100%
+		);
+		pointer-events: none;
+	}
+}
+
+:where(.paper-fold--small, .button:not(.button--primary), .examples__note, .sheet__asof, .a11y-option, .sources__pills li, .home-list__item) {
+	--fold-max: 11px;
+}
+
+:where(.paper-fold--large, .record-claim__primary, .state, .http-error, .check-form__field, .doc__settings, .consent-banner) {
+	--fold-max: 20px;
+}
+
+:where(.paper-fold--sheet, .sheet__plane) {
+	--fold-max: 32px;
+}
+
+.sheet__plane::after,
+.a11y-panel::after,
+.consent-banner::after {
+	--fold-cover: var(--bg);
+}

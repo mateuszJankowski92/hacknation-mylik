@@ -4,6 +4,7 @@ import { getSettings } from './a11y/settings';
 import { App } from './App';
 import { clearLegacySceneChoice } from './scenes/preferences';
 import './styles.css';
+import './paper-fold.css';
 
 clearLegacySceneChoice();
 getSettings();

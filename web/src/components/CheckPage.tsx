@@ -15,15 +15,18 @@ import { ExampleQueries } from './ExampleQueries';
 import { predictedRole, recordRoleOf } from '../roles/appearance';
 import { currentForcedRole, currentRole } from '../roles/resolve';
 import { rememberRecord } from '../recordCache';
+import { WAITING_SCENE_MIN_MS } from '../scenes/config';
+import { animationStartsAutomatically } from '../scenes/preferences';
 import { useShownMark, useStage } from '../stage/StageContext';
 import { OutcomeView } from './OutcomeView';
 import { nb } from '../typography';
 
 export const WAITING_TITLE = `Sprawdzam… - ${BASE_TITLE}`;
+export const READY_TITLE = `Wynik gotowy - ${BASE_TITLE}`;
 
 type CheckState =
 	| { status: 'idle' }
-	| { status: 'loading'; progress: ProgressState; etaSeconds: number }
+	| { status: 'loading'; progress: ProgressState; etaSeconds: number; ready: boolean }
 	| { status: 'notice'; outcome: VerifyOutcome }
 	| { status: 'error'; message: string };
 
@@ -31,17 +34,20 @@ type CheckAction =
 	| { type: 'start' }
 	| { type: 'progress'; event: VerifyProgressEvent }
 	| { type: 'eta'; seconds: number }
+	| { type: 'ready' }
 	| { type: 'notice'; outcome: VerifyOutcome }
 	| { type: 'error'; message: string };
 
 function reducer(state: CheckState, action: CheckAction): CheckState {
 	switch (action.type) {
 		case 'start':
-			return { status: 'loading', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS };
+			return { status: 'loading', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS, ready: false };
 		case 'progress':
 			return state.status === 'loading' ? { ...state, progress: reduceProgress(state.progress, action.event) } : state;
 		case 'eta':
 			return state.status === 'loading' ? { ...state, etaSeconds: action.seconds } : state;
+		case 'ready':
+			return state.status === 'loading' ? { ...state, ready: true } : state;
 		case 'notice':
 			return { status: 'notice', outcome: action.outcome };
 		case 'error':
@@ -56,11 +62,13 @@ export function CheckPage() {
 	const [fill, setFill] = useState<{ id: number; text: string } | null>(null);
 	const controllerRef = useRef<AbortController | null>(null);
 	const resultRef = useRef<HTMLDivElement>(null);
+	const holdTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const showReadyRef = useRef<(() => void) | null>(null);
 	const stage = useStage();
 	const waiting = state.status === 'loading';
 	const showsNotice = state.status === 'notice';
 	useShownMark(showsNotice);
-	useDocumentTitle(waiting ? WAITING_TITLE : HERO_PAGE_TITLE);
+	useDocumentTitle(waiting ? (state.ready ? READY_TITLE : WAITING_TITLE) : HERO_PAGE_TITLE);
 
 	useEffect(() => {
 		if (!import.meta.env.DEV) return;
@@ -89,7 +97,19 @@ export function CheckPage() {
 		(heading ?? container).focus();
 	}, [state.status, showsNotice]);
 
-	useEffect(() => () => controllerRef.current?.abort(), []);
+	useEffect(
+		() => () => {
+			clearTimeout(holdTimerRef.current);
+			controllerRef.current?.abort();
+		},
+		[],
+	);
+
+	function clearHold() {
+		clearTimeout(holdTimerRef.current);
+		holdTimerRef.current = undefined;
+		showReadyRef.current = null;
+	}
 
 	function verifyWithProgress(content: string, controller: AbortController): Promise<VerifyOutcome> {
 		const onProgress = (event: VerifyProgressEvent) => {
@@ -100,8 +120,10 @@ export function CheckPage() {
 
 	async function handleSubmit(content: string) {
 		controllerRef.current?.abort();
+		clearHold();
 		const controller = new AbortController();
 		controllerRef.current = controller;
+		const startedAt = Date.now();
 		dispatch({ type: 'start' });
 		stage.begin(currentForcedRole() ?? predictedRole(content));
 		try {
@@ -112,11 +134,25 @@ export function CheckPage() {
 			const outcome = await pending;
 			if (controllerRef.current !== controller) return;
 			if (outcome.kind === 'record') {
-				rememberRecord(outcome.record);
-				addToHistory(outcome.record);
-				stage.resolve(currentRole(recordRoleOf(outcome.record)), outcome.record.id);
-				rememberDraft(content);
-				navigate(recordUrlPath(outcome.record.id));
+				const record = outcome.record;
+				const readyAt = Date.now();
+				const showRecord = () => {
+					if (controllerRef.current !== controller) return;
+					clearHold();
+					rememberRecord(record);
+					addToHistory(record);
+					stage.resolve(currentRole(recordRoleOf(record)), record.id, readyAt);
+					rememberDraft(content);
+					navigate(recordUrlPath(record.id));
+				};
+				const remainingMs = WAITING_SCENE_MIN_MS - (readyAt - startedAt);
+				if (remainingMs <= 0 || !animationStartsAutomatically()) {
+					showRecord();
+					return;
+				}
+				showReadyRef.current = showRecord;
+				holdTimerRef.current = setTimeout(showRecord, remainingMs);
+				dispatch({ type: 'ready' });
 				return;
 			}
 			stage.resolve(null, null);
@@ -129,11 +165,28 @@ export function CheckPage() {
 	}
 
 	function handleCancel() {
+		const holding = showReadyRef.current !== null;
+		clearHold();
 		controllerRef.current?.abort();
+		if (holding) dispatch({ type: 'error', message: new ApiFailure('cancelled').message });
+	}
+
+	function handleShowNow() {
+		showReadyRef.current?.();
 	}
 
 	let heroArt: ReactNode | null | undefined;
-	if (state.status === 'loading') heroArt = <WaitingSteps layout="hero" role={stage.waitingRole} progress={state.progress} etaSeconds={state.etaSeconds} />;
+	if (state.status === 'loading')
+		heroArt = (
+			<WaitingSteps
+				layout="hero"
+				role={stage.waitingRole}
+				progress={state.progress}
+				etaSeconds={state.etaSeconds}
+				ready={state.ready}
+				onShowNow={handleShowNow}
+			/>
+		);
 	else if (state.status === 'notice') heroArt = null;
 
 	return (

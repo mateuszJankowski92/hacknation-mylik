@@ -10,7 +10,7 @@
 	position: relative;
 	isolation: isolate;
 	max-width: 1080px;
-	margin: var(--space-2) auto var(--space-6);
+	margin: calc(var(--space-6) + var(--space-1)) auto var(--space-6);
 }
 
 .sheet__plane {
@@ -47,23 +47,6 @@
 	animation: sheet-unfold var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
-.sheet__plane::after {
-	content: '';
-	position: absolute;
-	right: calc(var(--outline) * -1);
-	bottom: calc(var(--outline) * -1);
-	width: var(--sheet-corner);
-	height: var(--sheet-corner);
-	border-top: var(--outline) solid var(--graphite);
-	border-left: var(--outline) solid var(--graphite);
-	background: linear-gradient(
-		315deg,
-		var(--bg) 0 calc(50% - var(--outline) / 2),
-		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
-		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
-	);
-}
-
 .sheet__body {
 	padding: var(--space-3) var(--space-2) var(--space-4);
 	animation: sheet-reveal var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
@@ -94,7 +77,7 @@
 	align-content: start;
 	min-height: 120px;
 	margin: 0 0 var(--space-3);
-	padding-right: calc(96px + var(--space-2));
+	padding-right: calc(var(--figure-width) + var(--space-5) - var(--space-2) + var(--space-1));
 }
 
 .sheet__asof {
@@ -359,6 +342,15 @@
 		margin-top: var(--space-3);
 	}
 
+	.sheet .result-image {
+		justify-content: flex-end;
+		min-height: calc(var(--figure-width) * 1.25 + 56px);
+	}
+
+	.sheet .result-image__stage {
+		display: none;
+	}
+
 	.sheet__body {
 		padding: var(--space-4) var(--space-6) var(--space-6);
 	}
@@ -366,11 +358,11 @@
 	.sheet__top {
 		min-height: 150px;
 		margin-bottom: var(--space-4);
-		padding-right: calc(120px + var(--space-6));
+		padding-right: 0;
 	}
 
 	.sheet .record-claim {
-		grid-template-columns: minmax(0, 1fr) 240px;
+		grid-template-columns: minmax(0, 1fr) var(--figure-room);
 		grid-template-areas:
 			'lead art'
 			'primary art'
@@ -414,6 +406,16 @@
 		column-gap: 0;
 	}
 
+	.sheet__body > .record-claim:not(:has(> .result-image)),
+	.sheet .record__claims-list > .record-claim:first-child:not(:has(> .result-image)) {
+		min-height: calc(var(--figure-width) * 1.25 - 20px);
+		padding-right: calc(var(--figure-room) + var(--space-4));
+	}
+
+	.sheet .record-claim > .result-image {
+		width: 100%;
+	}
+
 	.sheet .record-claim__certainty .confidence__picture {
 		width: 10rem;
 	}
@@ -427,12 +429,7 @@
 
 @media (min-width: 1024px) {
 	.sheet .record-claim {
-		grid-template-columns: minmax(0, 1fr) 300px;
-		column-gap: var(--space-8);
-	}
-
-	.sheet .record-claim:not(:has(> .result-image)) {
-		grid-template-columns: minmax(0, 1fr);
+		column-gap: var(--space-6);
 	}
 }
 

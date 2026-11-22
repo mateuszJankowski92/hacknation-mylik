@@ -28,7 +28,7 @@ export interface StageValue {
 	foregroundSlot: StageSlotInfo | null;
 	cornerSlot: StageSlotInfo | null;
 	begin: (role?: Role, options?: { keep?: boolean }) => void;
-	resolve: (role?: Role | null, id?: string | null) => void;
+	resolve: (role?: Role | null, id?: string | null, readyAt?: number) => void;
 	reset: () => void;
 	markShown: () => void;
 	setProgress: (progress: ProgressState) => void;
@@ -100,9 +100,9 @@ export function StageProvider({ children }: { children: ReactNode }) {
 	);
 
 	const resolve = useCallback(
-		(role?: Role | null, id?: string | null) => {
+		(role?: Role | null, id?: string | null, readyAt?: number) => {
 			if (phaseRef.current !== 'working') return;
-			marks.current.ready = Date.now();
+			marks.current.ready = readyAt ?? Date.now();
 			if (role) setResultRole(role);
 			setResultId(id ?? null);
 			changePhase('result');

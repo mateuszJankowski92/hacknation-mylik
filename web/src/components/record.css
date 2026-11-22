@@ -62,24 +62,6 @@
 	box-shadow: var(--shadow-paper);
 }
 
-.record-claim__primary::after {
-	content: '';
-	position: absolute;
-	top: calc(var(--outline) * -1);
-	right: calc(var(--outline) * -1);
-	width: var(--fold-size);
-	height: var(--fold-size);
-	border-left: var(--outline) solid var(--graphite);
-	border-bottom: var(--outline) solid var(--graphite);
-	background: linear-gradient(
-		225deg,
-		var(--bg) 0 calc(50% - var(--outline) / 2),
-		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
-		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
-	);
-	pointer-events: none;
-}
-
 .record-claim__primary .record-evidence__quote {
 	margin-top: 0;
 	padding-left: var(--space-3);

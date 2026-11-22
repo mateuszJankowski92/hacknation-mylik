@@ -257,6 +257,10 @@
 	box-shadow: none;
 }
 
+.hero .waiting-steps--hero .waiting-steps__text::after {
+	display: none;
+}
+
 .hero .waiting-steps--hero .waiting-steps__status {
 	font-size: calc(18px * var(--ts));
 }
@@ -342,6 +346,10 @@
 		border: var(--outline) solid var(--graphite);
 		background: var(--paper);
 		box-shadow: var(--shadow-paper);
+	}
+
+	.hero .waiting-steps--hero .waiting-steps__text::after {
+		display: block;
 	}
 
 	.hero:has(.waiting-steps) .hero__art {

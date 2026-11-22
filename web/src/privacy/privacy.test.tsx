@@ -203,7 +203,7 @@ describe('baner prywatności', () => {
 		expect(css).toMatch(/\.consent-banner \{\s*position: fixed;[^}]*bottom: var\(--space-2\);/);
 		expect(css).toMatch(/html\[data-text-size='large'\] \.consent-banner,[^{]*\{\s*position: relative;/);
 		expect(css).toMatch(/@media \(max-height: 829px\) \{\s*\.consent-banner \{\s*position: relative;/);
-		expect(css).toContain('.consent-banner::after');
+		expect(readFileSync(join(HERE, '..', 'paper-fold.css'), 'utf8')).toContain('.consent-banner');
 	});
 });
 

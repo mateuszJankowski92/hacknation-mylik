@@ -135,13 +135,14 @@ describe('czekanie i wynik w skali', () => {
 		expect(block(visuals, '.waiting-steps__scene')).toContain('width: var(--waiting-scene-width)');
 	});
 
-	it('postać w rogu wyniku ma 96 px na telefonie i 120 px na dużym ekranie, a miejsce na nią jest zarezerwowane', () => {
+	it('postać w rogu wyniku ma 104 px na telefonie, 288 px na dużym ekranie i przebija prawą krawędź arkusza, a miejsce na nią jest zarezerwowane', () => {
 		const stageCss = readCss('stage/stage.css');
-		expect(block(stageCss, '.stage-slot--corner')).toContain('width: 96px');
-		expect(stageCss).toMatch(/\.record \.stage-slot--corner \{\s*position: absolute;[^}]*width: 120px;/);
+		expect(stageCss).toMatch(/\.sheet \{[^}]*--figure-width: 104px;/);
+		expect(stageCss).toMatch(/@media \(min-width: 1024px\) \{\s*\.sheet \{[^}]*--figure-width: 288px;/);
+		expect(stageCss).toMatch(/\.sheet > \.stage-slot--corner \{[^}]*right: calc\(var\(--figure-reach\) \* -1\);/);
 		const sheet = readCss('components/sheet.css');
 		expect(block(sheet, '.sheet')).toContain('position: relative');
-		expect(sheet).toMatch(/@media \(min-width: 760px\) \{[\s\S]*?\.sheet__top \{[^}]*padding-right: calc\(120px \+ var\(--space-6\)\);/);
+		expect(sheet).toContain('padding-right: calc(var(--figure-room) + var(--space-4));');
 	});
 
 	it('zdanie wyniku: 28-32 px na telefonie, 40-48 px na dużym ekranie, biała plama w tej samej skali', () => {
