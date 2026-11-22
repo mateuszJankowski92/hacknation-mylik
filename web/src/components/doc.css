@@ -81,3 +81,52 @@
 .doc__choice[aria-pressed='true']::before {
 	content: '\2713\00a0';
 }
+
+.app[data-page='accessibility'],
+.app[data-page='privacy'] {
+	max-width: 1280px;
+}
+
+main > .doc {
+	max-width: none;
+	padding-block: var(--space-4) var(--space-8);
+}
+
+.doc > .page-title {
+	margin-top: 0;
+}
+
+.doc__body > * {
+	max-width: 70ch;
+}
+
+.doc__body > h2:first-child {
+	margin-top: 0;
+}
+
+.doc__body h2 {
+	margin-top: var(--space-6);
+}
+
+.doc__body > p {
+	margin: 0 0 var(--space-2);
+}
+
+@media (min-width: 1024px) {
+	main > .doc {
+		display: grid;
+		grid-template-columns: minmax(240px, 1fr) minmax(0, 70ch) minmax(0, 1fr);
+		gap: var(--space-10);
+		align-items: start;
+		padding-block: var(--space-8) var(--space-10);
+	}
+
+	.doc > .page-title {
+		position: sticky;
+		top: var(--space-4);
+	}
+
+	.doc__body {
+		grid-column: 2;
+	}
+}

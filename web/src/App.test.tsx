@@ -173,13 +173,13 @@ describe('strony', () => {
 		expect(screen.getByText(/Numer sprawdzenia/)).toBeTruthy();
 	});
 
-	it('wyświetla tabelę źródeł pod #/zrodla', async () => {
+	it('wyświetla listę źródeł pod #/zrodla', async () => {
 		const record = FIXTURE_OUTCOMES.potwierdzone as { kind: 'record'; record: { claims: Array<{ evidence: Array<{ source: unknown }> }> } };
 		mockFetchJson(200, { corpusVersion: 'fixture-1', documents: [record.record.claims[0].evidence[0].source] });
 		window.location.hash = '#/zrodla';
 		render(<App />);
-		await screen.findByRole('table');
+		await screen.findByRole('heading', { name: 'Lista źródeł' });
 		expect(screen.getByText(/fixture-1/)).toBeTruthy();
-		expect(screen.getByText('Przykładowy Urząd Miasta')).toBeTruthy();
+		expect(screen.getByRole('button', { name: /Przykładowy Urząd Miasta/ })).toBeTruthy();
 	});
 });

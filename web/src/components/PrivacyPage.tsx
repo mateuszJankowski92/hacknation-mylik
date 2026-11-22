@@ -139,31 +139,33 @@ export function PrivacyPage() {
 	return (
 		<div className="doc">
 			<h1 className="page-title">Prywatność</h1>
-			<p>{nb('Mylik nie śledzi i nie używa plików cookie do reklam ani statystyk. To prototyp z hackathonu HackNation 2026, a nie oficjalna usługa administracji publicznej. Poniżej prostym językiem opisujemy, co się dzieje z tym, co wpiszesz.')}</p>
-			<p>
-				<strong>Stan na:</strong> <time dateTime="2026-11-22">{PRIVACY_DATE}</time>
-			</p>
+			<div className="doc__body">
+				<p>{nb('Mylik nie śledzi i nie używa plików cookie do reklam ani statystyk. To prototyp z hackathonu HackNation 2026, a nie oficjalna usługa administracji publicznej. Poniżej prostym językiem opisujemy, co się dzieje z tym, co wpiszesz.')}</p>
+				<p>
+					<strong>Stan na:</strong> <time dateTime="2026-11-22">{PRIVACY_DATE}</time>
+				</p>
 
-			<PrivacySettings />
+				<PrivacySettings />
 
-			<h2>Co trafia na serwer</h2>
-			<List items={SERVER_STORES} />
+				<h2>Co trafia na serwer</h2>
+				<List items={SERVER_STORES} />
 
-			<h2>Co trafia do dostawców modeli</h2>
-			<List items={PROVIDERS} />
+				<h2>Co trafia do dostawców modeli</h2>
+				<List items={PROVIDERS} />
 
-			<h2>Czego nie zbieramy</h2>
-			<List items={NOT_COLLECTED} />
+				<h2>Czego nie zbieramy</h2>
+				<List items={NOT_COLLECTED} />
 
-			<h2>Co zostaje tylko w Twojej przeglądarce</h2>
-			<List items={BROWSER_ONLY} />
+				<h2>Co zostaje tylko w Twojej przeglądarce</h2>
+				<List items={BROWSER_ONLY} />
 
-			<h2>Jak to wyczyścić</h2>
-			<List items={HOW_TO_CLEAR} />
+				<h2>Jak to wyczyścić</h2>
+				<List items={HOW_TO_CLEAR} />
 
-			<p>
-				<Link to="/dostepnosc">Dostępność</Link>
-			</p>
+				<p>
+					<Link to="/dostepnosc">Dostępność</Link>
+				</p>
+			</div>
 		</div>
 	);
 }
