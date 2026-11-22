@@ -302,3 +302,7 @@ Claude Haiku 5.5, sędzia Claude Sonnet 5.5, korpus cb62b4255ea0, `FACTCHECK_LAY
 | koszt silnika na 1000 zapytań | ok. $3,6 | ok. $3,6 | ok. $3,6 |
 
 Profil omylności (results.json): średnia 7/48, niska 18/45, brak 35/75 (wysoka 1/6, za mały koszyk). Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1 (0,673-0,733 w pięciu przebiegach), więc różnice w tabeli nie są rozstrzygające; fałszywe wstrzymania rosną od zad. 35 (ostrzejsze reguły dla ocen redakcji nie działają przy wyłączonym indeksie, więc wzrost to głównie rozrzut).
+
+### Blok „podobna sprawa” tylko przy zgodnych nazwach własnych (wiz_46)
+
+Reguła w `src/factcheck/layer.ts` (`sharesProperNames`): tło z oceną redakcji, pokazywane bez „Tak/Nie”, zostaje tylko wtedy, gdy każda nazwa własna z twierdzenia (rdzeń jak w regułach nazw, z pominięciem różnic w znakach diakrytycznych) występuje w tezie lub tytule wpisu; inne miasto, instytucja lub osoba kończy się odrzuceniem wpisu (powód `podobna_inne_nazwy`). Bez nazw własnych w twierdzeniu zachowanie bez zmian. Reguły bezpośrednich odpowiedzi nie zostały poluzowane; zmiana może tylko ukryć tło. Testy bez sieci: `tests/factcheck/similar-names.test.ts`. Próba na żywo (6 zapytań, jeden przebieg, sygnał, nie pomiar): 2 odpowiedzi wprost bez zmian („Nie.” dla Warszawy i dla Orlenu), 2 pułapki z innym miastem (Kraków, Poznań; wpis o Wrocławiu lub Warszawie już się nie pokazuje), 2 bez pokrycia (wstrzymanie bez bloku). Znane ograniczenie: różne końcówki rdzenia (np. „w Polsce” i „Polska”) ukrywają blok, czyli błąd w stronę ostrożności.
