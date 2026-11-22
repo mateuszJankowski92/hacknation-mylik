@@ -62,9 +62,9 @@ export function registerStreamRoutes(app: Hono, deps: RouteDeps): void {
         });
       };
       const outcome = await safeVerify(deps, input, {
-        // Zdarzenia szczegółowe (zad. 45) pod osobną nazwą: interfejs, który ich nie zna, je pomija.
-        onProgress: (e: EngineProgressEvent) =>
-          write(e.type === 'twierdzenie_ocenione' || e.type === 'druga_kontrola' ? VERIFY_STREAM_EVENTS.progressDetail : VERIFY_STREAM_EVENTS.progress, e),
+        // Wszystkie zdarzenia postępu (także szczegółowe z zad. 45) pod nazwą `progress`; interfejs sprawdza
+        // każde schematem i pomija typy, których nie zna.
+        onProgress: (e: EngineProgressEvent) => write(VERIFY_STREAM_EVENTS.progress, e),
       });
       write(VERIFY_STREAM_EVENTS.result, outcome);
       await chain;

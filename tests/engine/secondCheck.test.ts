@@ -76,7 +76,7 @@ describe('druga kontrola w potoku', () => {
     expect(r.claims[0]!.verdict).toBe('potwierdzone');
     expect(r.secondCheck).toMatchObject({ model: 'drugi-model', checked: 2, agreed: 2, status: 'ok' });
     const ev = events.find((e) => e.type === 'druga_kontrola');
-    expect(ev).toEqual({ type: 'druga_kontrola', claim: 0, checked: 2, agreed: 2, ok: true });
+    expect(ev).toEqual({ type: 'druga_kontrola', claim: 0, checked: 2, total: 2, agreed: 2, ok: true });
     expect(VerifyProgressDetailEventSchema.safeParse(ev).success).toBe(true);
     // Każda para osobno, tylko twierdzenie i cytat (bez fragmentu, źródła i oceny pierwszego modelu).
     expect(g.calls).toHaveLength(2);
@@ -186,5 +186,76 @@ describe('konfiguracja', () => {
     const out = await runSecondCheck(check(g), []);
     expect(out).toMatchObject({ ok: true, answers: [] });
     expect(g.calls).toHaveLength(0);
+  });
+});
+
+describe('etapy postępu z zad. 45 (bez treści, liczby zgodne z rekordem)', () => {
+  it('przeszukano: liczba dokumentów zbioru; gotowe z czasem sprawdzenia, przy pamięci czas pierwotny', async () => {
+    const { engine } = setup({});
+    const first = await run(engine);
+    const searched = first.events.find((e) => e.type === 'przeszukano');
+    expect(searched).toMatchObject({ type: 'przeszukano', claim: 0 });
+    expect((searched as { documents: number }).documents).toBeGreaterThan(0);
+    expect(first.events.at(-1)).toEqual({ type: 'gotowe', recordId: first.r.id, cached: false, checkedAt: first.r.createdAt });
+    const again = await run(engine);
+    expect(again.events).toEqual([{ type: 'gotowe', recordId: first.r.id, cached: true, checkedAt: first.r.createdAt }]);
+  });
+
+  it('indeks_redakcji tylko gdy indeks odpowiedział; awaria: indeks_redakcji_blad', async () => {
+    const layer = (status: 'ok' | 'blad_sieci') => ({
+      budgetMs: 5000,
+      maxQueriesPerRequest: 4,
+      find: async () => ({ status, passages: [], flagged: [], hits: 0, otherPublishers: 0, queries: status === 'ok' ? 3 : 1, ms: 5 }),
+      select: (_c: unknown, accepted: unknown[]) => ({ accepted }),
+    });
+    for (const status of ['ok', 'blad_sieci'] as const) {
+      const llm = new ScriptedLlm(() => [claim('Otwarto nową bibliotekę publiczną przy rynku.')], stanceTable({ 'lib#0': 'potwierdza' }));
+      const engine = createEngineCore({ db: openDb(':memory:'), searcher: new FakeSearcher([P1]), llm, now: fixedNow, prepare: fakePrepare, supportGate: null, ranker: null, renderer: defaultRenderer, factcheck: layer(status) as never });
+      const { events } = await run(engine);
+      if (status === 'ok') {
+        expect(events.find((e) => e.type === 'indeks_redakcji')).toEqual({ type: 'indeks_redakcji', claim: 0, queries: 3, candidates: 0 });
+        expect(events.some((e) => e.type === 'indeks_redakcji_blad')).toBe(false);
+      } else {
+        expect(events.find((e) => e.type === 'indeks_redakcji_blad')).toEqual({ type: 'indeks_redakcji_blad', claim: 0, reason: 'blad_sieci' });
+        expect(events.some((e) => e.type === 'indeks_redakcji')).toBe(false);
+      }
+      for (const e of events) expect(JSON.stringify(e)).not.toContain('bibliotek');
+    }
+  });
+
+  it('strona_urzedu: wydawca, cytaty i zdania potwierdzone jak w rekordzie', async () => {
+    const url = 'https://www.zus.pl/aktualnosci/komunikat-testowy';
+    const text = 'Komunikat\n\nOd 3 czerwca wszystkie oddziały przyjmują wnioski o zasiłek w godzinach od 8 do 18.\n\nInformacje o kolejnych etapach przekażemy w osobnym komunikacie dla klientów.';
+    const llm = new ScriptedLlm(
+      () => [claim('Oddziały przyjmują wnioski w godzinach od 8 do 18.', 'faktograficzna', 'c1'), claim('Oddziały są otwarte w soboty.', 'faktograficzna', 'c2')],
+      (req) =>
+        req.passages.map((p) => {
+          const m = /[^.\n]*od 8 do 18\./.exec(p.text);
+          return m && req.claim.text.includes('od 8 do 18')
+            ? { passageId: p.id, stance: 'potwierdza' as const, quote: m[0].trim(), injectionSuspected: false }
+            : { passageId: p.id, stance: 'bez_zwiazku' as const, quote: '', injectionSuspected: false };
+        }),
+    );
+    const { loadOfficialHosts } = await import('../../src/engine/officialHosts');
+    const { prepareInput } = await import('../../src/input/index');
+    const engine = createEngineCore({
+      db: openDb(':memory:'),
+      searcher: new FakeSearcher([P1]),
+      llm,
+      now: fixedNow,
+      prepare: prepareInput,
+      fetchPage: async (u: string) => ({ ok: true, finalUrl: u, contentType: 'text/html', title: 'Komunikat - ZUS', text, truncated: false, redirects: 0, publishedAt: '2026-05-20' }),
+      supportGate: null,
+      ranker: null,
+      renderer: defaultRenderer,
+      officialHosts: loadOfficialHosts('data/official-hosts.json'),
+    });
+    const events: EngineProgressEvent[] = [];
+    const out = await engine.verify({ url, channel: 'www' }, { onProgress: (e) => events.push(e) });
+    if (out.kind !== 'record') throw new Error('rekord');
+    const ev = events.find((e) => e.type === 'strona_urzedu');
+    expect(ev).toEqual({ type: 'strona_urzedu', publisher: 'Zakład Ubezpieczeń Społecznych', quotes: 1, confirmedClaims: 1, claims: 2 });
+    expect(VerifyProgressDetailEventSchema.safeParse(ev).success).toBe(true);
+    expect(out.record.shortAnswer).toContain('potwierdzone: 1 z 2 zdań z cytatem');
   });
 });

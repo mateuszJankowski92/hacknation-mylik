@@ -84,13 +84,19 @@ export const VerifyProgressEventSchema = z.discriminatedUnion('type', [
     stance: ProgressStanceSchema,
   }),
   /** Gotowe: identyfikator rekordu (`cached`: rekord z pamięci, bez ponownej oceny). */
-  z.object({ type: z.literal('gotowe'), recordId: z.string().regex(/^[0-9a-f]{64}$/), cached: z.boolean() }),
+  z.object({
+    type: z.literal('gotowe'),
+    recordId: z.string().regex(/^[0-9a-f]{64}$/),
+    cached: z.boolean(),
+    /** Zad. 45: czas sprawdzenia, które dało rekord (przy `cached: true` to pierwotne sprawdzenie). */
+    checkedAt: z.iso.datetime({ offset: true }).optional(),
+  }),
 ]);
 export type VerifyProgressEvent = z.infer<typeof VerifyProgressEventSchema>;
 
 /**
- * Zad. 45: zdarzenia szczegółowe, wysyłane w strumieniu pod osobną nazwą (`progress_detail`), żeby
- * interfejs, który ich nie zna, działał bez zmian.
+ * Zad. 45: zdarzenia szczegółowe; w strumieniu pod tą samą nazwą `progress` co zwykłe (interfejs sprawdza
+ * każde zdarzenie schematem i pomija typy, których nie zna).
  */
 export const VerifyProgressDetailEventSchema = z.discriminatedUnion('type', [
   /**
@@ -101,7 +107,18 @@ export const VerifyProgressDetailEventSchema = z.discriminatedUnion('type', [
    */
   z.object({ type: z.literal('twierdzenie_ocenione'), claim: claimIndex, candidates: count, passed: count, decisive: count, sources: count }),
   /** Zad. 45: druga kontrola innym modelem dla twierdzenia: ile par sprawdzono, ile uznano (`ok: false` = niedostępna). */
-  z.object({ type: z.literal('druga_kontrola'), claim: claimIndex, checked: count, agreed: count, ok: z.boolean() })
+  z.object({ type: z.literal('druga_kontrola'), claim: claimIndex, checked: count, total: count, agreed: count, ok: z.boolean() }),
+  /** Przeszukano zbiór dla twierdzenia: `documents` = liczba dokumentów zbioru objętych wyszukiwaniem. */
+  z.object({ type: z.literal('przeszukano'), claim: claimIndex, documents: count }),
+  /** Indeks ocen redakcji odpytany: liczba zapytań i kandydatów do oceny (tylko gdy indeks odpowiedział). */
+  z.object({ type: z.literal('indeks_redakcji'), claim: claimIndex, queries: count, candidates: count }),
+  /** Indeks ocen redakcji niedostępny albo bez czasu (kod, bez treści). */
+  z.object({ type: z.literal('indeks_redakcji_blad'), claim: claimIndex, reason: z.string().max(40) }),
+  /**
+   * Strona urzędu z listy: wydawca, liczba dosłownych cytatów ze strony, które potwierdzają, i liczba zdań
+   * potwierdzonych cytatem (`confirmedClaims` z `claims`, jak etykieta zbiorcza w odpowiedzi).
+   */
+  z.object({ type: z.literal('strona_urzedu'), publisher: z.string().max(60), quotes: count, confirmedClaims: count, claims: count }),
 ]);
 export type VerifyProgressDetailEvent = z.infer<typeof VerifyProgressDetailEventSchema>;
 /** Wszystkie zdarzenia postępu silnika (zwykłe i szczegółowe). */
@@ -112,7 +129,7 @@ export type EngineProgressEvent = VerifyProgressEvent | VerifyProgressDetailEven
  * (dane: VerifyProgressEvent), na końcu dokładnie jedno `event: result` (dane: VerifyOutcome,
  * ten sam co z POST /api/verify). Błędy wejścia: zwykła odpowiedź JSON ApiError jak w /api/verify.
  */
-export const VERIFY_STREAM_EVENTS = { progress: 'progress', progressDetail: 'progress_detail', result: 'result' } as const;
+export const VERIFY_STREAM_EVENTS = { progress: 'progress', result: 'result' } as const;
 
 /** GET /api/verify/eta: 200. Mediana czasu ostatnich pełnych sprawdzeń (bez odpowiedzi z pamięci). */
 export const VerifyEtaResponseSchema = z.object({

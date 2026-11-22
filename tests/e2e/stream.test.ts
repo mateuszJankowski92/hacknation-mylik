@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { VerifyEtaResponseSchema, VerifyProgressEventSchema, type VerifyProgressEvent } from '../../src/contracts/api';
+import { VerifyEtaResponseSchema, VerifyProgressDetailEventSchema, VerifyProgressEventSchema, type VerifyProgressEvent } from '../../src/contracts/api';
 import { VerifyOutcomeSchema, type VerifyOutcome } from '../../src/contracts/index';
 import { ingestCatalog } from '../../src/corpus/index';
 import { openDb } from '../../src/db/open';
@@ -81,11 +81,15 @@ async function stream(b: Bootstrapped, body: unknown) {
   expect(res.status).toBe(200);
   expect(res.headers.get('content-type')).toContain('text/event-stream');
   const msgs = parseSse(await res.text());
-  const progress = msgs.filter((m) => m.event === 'progress').map((m) => VerifyProgressEventSchema.parse(m.data));
+  // Zdarzenia szczegółowe (zad. 45) idą tym samym kanałem; każde musi pasować do jednego ze schematów.
+  const all = msgs.filter((m) => m.event === 'progress');
+  for (const m of all) expect(VerifyProgressEventSchema.safeParse(m.data).success || VerifyProgressDetailEventSchema.safeParse(m.data).success).toBe(true);
+  const details = all.filter((m) => VerifyProgressDetailEventSchema.safeParse(m.data).success).map((m) => VerifyProgressDetailEventSchema.parse(m.data));
+  const progress = all.filter((m) => VerifyProgressEventSchema.safeParse(m.data).success).map((m) => VerifyProgressEventSchema.parse(m.data));
   const results = msgs.filter((m) => m.event === 'result');
   expect(results).toHaveLength(1);
   expect(msgs.at(-1)!.event).toBe('result');
-  return { res, progress, outcome: VerifyOutcomeSchema.parse(results[0]!.data) };
+  return { res, progress, details, outcome: VerifyOutcomeSchema.parse(results[0]!.data) };
 }
 
 async function plain(b: Bootstrapped, body: unknown): Promise<VerifyOutcome> {
@@ -126,7 +130,15 @@ describe('POST /api/verify/stream', () => {
     expect(types).toContain('szukanie_przeciw_start');
     expect(types).toContain('szukanie_przeciw_koniec');
     expect(types.at(-1)).toBe('gotowe');
-    expect(s.progress.at(-1)).toEqual({ type: 'gotowe', recordId: s.outcome.record.id, cached: false });
+    // Zad. 45: etapy szczegółowe w tym samym strumieniu, liczby zgodne z rekordem.
+    if (s.outcome.kind === 'record' && s.outcome.record.claims.length > 0) {
+      const searched = s.details.filter((e) => e.type === 'przeszukano');
+      expect(searched.length).toBeGreaterThan(0);
+      for (const e of searched) expect((e as { documents: number }).documents).toBeGreaterThan(0);
+      const judged = s.details.filter((e) => e.type === 'twierdzenie_ocenione') as { claim: number; passed: number }[];
+      for (const e of judged) expect(e.passed).toBe(s.outcome.record.claims[e.claim]!.evidence.length);
+    }
+    expect(s.progress.at(-1)).toEqual({ type: 'gotowe', recordId: s.outcome.record.id, cached: false, checkedAt: s.outcome.record.createdAt });
     const assessed = s.progress.filter((e): e is Extract<VerifyProgressEvent, { type: 'fragment_oceniony' }> => e.type === 'fragment_oceniony');
     expect(assessed.length).toBe(s.outcome.record.claims.flatMap((c) => c.evidence).length);
     expect(assessed.map((e) => e.publisher)).toContain('Zarząd Zieleni');

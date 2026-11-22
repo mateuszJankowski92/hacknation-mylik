@@ -694,7 +694,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     const cached = store.getRecord(recordId);
     if (cached) {
       store.logEvent('cache_hit', { recordId, channel });
-      progress.done(recordId, true);
+      progress.done(recordId, true, cached.createdAt);
       return { kind: 'record', record: cached, cached: true };
     }
 
@@ -705,7 +705,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const shared = await pending;
       if (shared.kind !== 'record') return shared;
       store.logEvent('cache_hit', { recordId, channel, detail: { inflight: true } });
-      progress.done(recordId, true);
+      progress.done(recordId, true, shared.record.createdAt);
       return { kind: 'record', record: shared.record, cached: true };
     }
     const ready: PreparedInput = prepared;
@@ -967,12 +967,15 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         const budget = Math.min(layer.budgetMs, deadline.remaining() - LIVE_RESERVE_MS);
         if (budget < 1_000) {
           store.logEvent('factcheck_search', { recordId, channel, detail: { claimId: c.id, status: 'przekroczony_czas', stage: 'start' } });
+          progress.indexFailed(claimIndex, 'przekroczony_czas');
           return { accepted: [], rejected: 0, status: 'przekroczony_czas', flagged: 0 };
         }
         // Wspólny limit zapytań na zgłoszenie, dzielony równo między twierdzenia faktograficzne (co najmniej 1).
         const factual = checkable.filter((x) => x.kind === 'faktograficzna').length || 1;
         const perClaim = Math.max(1, Math.floor(layer.maxQueriesPerRequest / factual));
         const found = await layer.find(c, { budgetMs: budget, now: nowDate, maxQueries: perClaim });
+        if (isFactcheckFailure(found.status)) progress.indexFailed(claimIndex, found.status);
+        else progress.indexQueried(claimIndex, found.queries, found.passages.length);
         for (const f of found.flagged) {
           for (const sig of f.signals) sd.signals.push(`fragment:${f.passageId}:${sig}`);
           sd.notices.push({ type: 'ograniczenie_techniczne', text: FACTCHECK_INJECTION_NOTICE, passageId: f.passageId });
@@ -1163,6 +1166,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         }
         deadline.check();
       }
+      progress.searched(claimIndex, documents);
       progress.forPassages(claimIndex, forSel.length);
       progress.counterSearchStart(claimIndex);
       progress.counterSearchDone(claimIndex, counterSel.length);
@@ -1471,6 +1475,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     const liveFetched = results.flatMap((r) => [...liveDecisive(r), ...pageDecisive(r)].map((e) => e.source.fetchedAt)).sort();
     if (liveFetched.length) asOf = new Date(liveFetched[liveFetched.length - 1]!).toISOString();
 
+    // Zad. 45: etap strony urzędu (wydawca z listy lub tytułu, liczba dosłownych cytatów ze strony, które
+    // potwierdzają, i zdań nimi potwierdzonych; te same liczby co etykieta zbiorcza w odpowiedzi).
+    if (pageDocument && pageInfo) {
+      const pageQuotes = results.flatMap((r) => r.evidence.filter((e) => e.source.layer === 'strona_urzedu' && e.stance === 'potwierdza'));
+      const confirmed = results.filter((r) => r.verdict === 'potwierdzone' && r.evidence.some((e) => e.source.layer === 'strona_urzedu' && e.stance === 'potwierdza')).length;
+      progress.officialPage(pageInfo.publisher ?? pageInfo.domain, pageQuotes.length, confirmed, results.length);
+    }
+
     // (8b') forma odpowiedzi (src/render/answer.ts, szablony): pytanie rozstrzygające dostaje na początku
     // bezpośrednią odpowiedź zgodną z wynikiem; przy braku dowodów opis brakującego dokumentu.
     const mode = answerMode(prepared.kind === 'tekst' ? prepared.maskedInput : '');
@@ -1543,7 +1555,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const existing = store.getRecord(recordId);
       if (existing) {
         store.logEvent('cache_hit', { recordId, channel, detail: { race: true } });
-        progress.done(recordId, true);
+        progress.done(recordId, true, existing.createdAt);
         return { kind: 'record', record: existing, cached: true };
       }
     }
@@ -1563,7 +1575,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         ms: latencyMs,
       },
     });
-    progress.done(recordId, false);
+    progress.done(recordId, false, record.createdAt);
     return { kind: 'record', record, cached: false };
     }
   }

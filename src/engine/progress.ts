@@ -49,7 +49,11 @@ export interface ProgressEmitter {
   passageAssessed(claim: number, meta: SourceMeta, stance: Exclude<Stance, 'bez_zwiazku'>): void;
   claimChecked(claim: number, counts: { candidates: number; passed: number; decisive: number; sources: number }): void;
   secondCheck(claim: number, checked: number, agreed: number, ok: boolean): void;
-  done(recordId: string, cached: boolean): void;
+  searched(claim: number, documents: number): void;
+  indexQueried(claim: number, queries: number, candidates: number): void;
+  indexFailed(claim: number, reason: string): void;
+  officialPage(publisher: string, quotes: number, confirmedClaims: number, claims: number): void;
+  done(recordId: string, cached: boolean, checkedAt?: string): void;
 }
 
 /** Bezpieczny nadajnik: brak callbacku = nic; wyjątek z callbacku jest połykany. */
@@ -77,7 +81,12 @@ export function createProgressEmitter(onProgress?: ProgressFn): ProgressEmitter 
         stance: progressStance(stance),
       }),
     claimChecked: (claim, c) => emit({ type: 'twierdzenie_ocenione', claim, ...c }),
-    secondCheck: (claim, checked, agreed, ok) => emit({ type: 'druga_kontrola', claim, checked, agreed, ok }),
-    done: (recordId, cached) => emit({ type: 'gotowe', recordId, cached }),
+    secondCheck: (claim, checked, agreed, ok) => emit({ type: 'druga_kontrola', claim, checked, total: checked, agreed, ok }),
+    searched: (claim, documents) => emit({ type: 'przeszukano', claim, documents }),
+    indexQueried: (claim, queries, candidates) => emit({ type: 'indeks_redakcji', claim, queries, candidates }),
+    indexFailed: (claim, reason) => emit({ type: 'indeks_redakcji_blad', claim, reason: reason.slice(0, 40) }),
+    officialPage: (publisher, quotes, confirmedClaims, claims) =>
+      emit({ type: 'strona_urzedu', publisher: shortPublisher(publisher), quotes, confirmedClaims, claims }),
+    done: (recordId, cached, checkedAt) => emit({ type: 'gotowe', recordId, cached, ...(checkedAt ? { checkedAt } : {}) }),
   };
 }

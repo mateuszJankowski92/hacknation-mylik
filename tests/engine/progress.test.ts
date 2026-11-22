@@ -36,7 +36,8 @@ async function collect(engine: ReturnType<typeof setup>['engine'], text = INPUT)
   const out = await engine.verify({ text, channel: 'www' }, {
     // Zdarzenia szczegółowe (zad. 45) mają osobny test (tests/engine/secondCheck.test.ts).
     onProgress: (e) => {
-      if (e.type !== 'twierdzenie_ocenione' && e.type !== 'druga_kontrola') seen.push(e);
+      const base = VerifyProgressEventSchema.safeParse(e);
+      if (base.success && e.type === base.data.type) seen.push(e as VerifyProgressEvent);
     },
   });
   return { out, seen };
@@ -57,7 +58,7 @@ describe('zdarzenia postępu silnika', () => {
       'gotowe',
     ]);
     expect(seen[0]).toEqual({ type: 'zgloszenie_przeczytane', claims: 1 });
-    expect(seen.at(-1)).toEqual({ type: 'gotowe', recordId: out.record.id, cached: false });
+    expect(seen.at(-1)).toEqual({ type: 'gotowe', recordId: out.record.id, cached: false, checkedAt: out.record.createdAt });
     const assessed = seen.filter((e) => e.type === 'fragment_oceniony');
     expect(assessed.length).toBe(out.record.claims[0]!.evidence.length);
     expect(assessed.length).toBeGreaterThan(0);
@@ -89,7 +90,7 @@ describe('zdarzenia postępu silnika', () => {
     const first = await collect(engine);
     const second = await collect(engine);
     if (first.out.kind !== 'record') throw new Error('oczekiwano rekordu');
-    expect(second.seen).toEqual([{ type: 'gotowe', recordId: first.out.record.id, cached: true }]);
+    expect(second.seen).toEqual([{ type: 'gotowe', recordId: first.out.record.id, cached: true, checkedAt: first.out.record.createdAt }]);
   });
 
   it('stan (brak twierdzeń): bez zdarzeń', async () => {
