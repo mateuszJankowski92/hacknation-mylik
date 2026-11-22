@@ -35,6 +35,14 @@
 	text-align: center;
 }
 
+.waiting-steps__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	justify-content: center;
+	gap: 0 var(--space-2);
+}
+
 .waiting-steps__status {
 	margin: 0;
 	font-size: calc(22px * var(--ts));

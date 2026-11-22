@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { App } from './App';
 import { summarizeVerdicts } from './components/RecordView';
-import { EXAMPLE_QUERIES } from './components/exampleSubmissions';
+import { EXAMPLES_SHOWN, EXAMPLE_POOL, REQUIRED_EXAMPLE_KINDS, pickExamples } from './components/exampleSubmissions';
 import { SCENE_TEXTS } from './scenes/config';
 import { stubReducedMotion } from './testing/motion';
 
@@ -31,30 +31,76 @@ afterEach(() => {
 	window.localStorage.clear();
 });
 
+function seededRandom(seed: number): () => number {
+	let state = seed >>> 0;
+	return () => {
+		state = (state * 1664525 + 1013904223) >>> 0;
+		return state / 2 ** 32;
+	};
+}
+
+function exampleById(id: string | null) {
+	return EXAMPLE_POOL.find((example) => example.id === id)!;
+}
+
 describe('podpowiedzi zgłoszeń na stronie głównej', () => {
-	it('to 3-4 gotowe zgłoszenia z jednego pliku, bez zapisanych odpowiedzi', () => {
-		expect(EXAMPLE_QUERIES.length).toBeGreaterThanOrEqual(3);
-		expect(EXAMPLE_QUERIES.length).toBeLessThanOrEqual(4);
-		for (const example of EXAMPLE_QUERIES) {
-			expect(Object.keys(example).sort()).toEqual(['id', 'label', 'text']);
+	it('to jawna lista co najmniej 16 zgłoszeń z kategorią doboru, bez zapisanych odpowiedzi', () => {
+		expect(EXAMPLE_POOL.length).toBeGreaterThanOrEqual(16);
+		expect(new Set(EXAMPLE_POOL.map((example) => example.id)).size).toBe(EXAMPLE_POOL.length);
+		for (const example of EXAMPLE_POOL) {
+			expect(Object.keys(example).sort()).toEqual(['id', 'kind', 'label', 'text']);
+			expect(['redakcja', 'urzad', 'biala_plama', 'link']).toContain(example.kind);
 			expect(example.text.trim().length).toBeGreaterThan(10);
 		}
-		expect(EXAMPLE_QUERIES.some((example) => /^https?:\/\//u.test(example.text))).toBe(true);
+		for (const kind of REQUIRED_EXAMPLE_KINDS) expect(EXAMPLE_POOL.some((example) => example.kind === kind)).toBe(true);
+		expect(EXAMPLE_POOL.some((example) => /^https?:\/\//u.test(example.text))).toBe(true);
 	});
 
-	it('kliknięcie wkleja tekst do pola i ustawia fokus, ale niczego nie wysyła', () => {
+	it('losowanie zawsze daje 4 różne karteczki, w tym białą plamę, ocenę redakcji i źródło urzędowe', () => {
+		for (let seed = 1; seed <= 300; seed++) {
+			const picked = pickExamples(EXAMPLE_POOL, seededRandom(seed));
+			expect(picked).toHaveLength(EXAMPLES_SHOWN);
+			expect(new Set(picked.map((example) => example.id)).size).toBe(EXAMPLES_SHOWN);
+			for (const kind of REQUIRED_EXAMPLE_KINDS) expect(picked.some((example) => example.kind === kind)).toBe(true);
+		}
+	});
+
+	it('kolejne losowanie unika karteczek, które już widać', () => {
+		const first = pickExamples(EXAMPLE_POOL, seededRandom(7));
+		const second = pickExamples(EXAMPLE_POOL, seededRandom(8), first.map((example) => example.id));
+		const repeated = second.filter((example) => first.some((other) => other.id === example.id));
+		expect(repeated.length).toBeLessThanOrEqual(1);
+	});
+
+	it('kliknięcie wkleja pełną treść do pola i ustawia fokus, ale niczego nie wysyła', () => {
 		const fetchMock = vi.mocked(fetch);
 		render(<App />);
 		const region = screen.getByRole('region', { name: 'Przykładowe zgłoszenia' });
-		const buttons = region.querySelectorAll('button');
-		expect(buttons).toHaveLength(EXAMPLE_QUERIES.length);
-		fireEvent.click(buttons[1]!);
+		const buttons = region.querySelectorAll('.examples__note');
+		expect(buttons).toHaveLength(EXAMPLES_SHOWN);
+		const first = buttons[1] as HTMLElement;
+		fireEvent.click(first);
 		const field = document.getElementById('content') as HTMLTextAreaElement;
-		expect(field.value).toBe(EXAMPLE_QUERIES[1]!.text);
+		expect(field.value).toBe(exampleById(first.getAttribute('data-example')).text);
 		expect(document.activeElement).toBe(field);
 		expect(fetchMock.mock.calls.some((call) => String(call[0]).startsWith('/api/verify'))).toBe(false);
-		fireEvent.click(buttons[3]!);
-		expect(field.value).toBe(EXAMPLE_QUERIES[3]!.text);
+		const last = buttons[3] as HTMLElement;
+		fireEvent.click(last);
+		expect(field.value).toBe(exampleById(last.getAttribute('data-example')).text);
+	});
+
+	it('zestaw jest stabilny między renderami, a "Inne przykłady" losuje ponownie', () => {
+		const { rerender } = render(<App />);
+		const ids = () => [...screen.getByRole('region', { name: 'Przykładowe zgłoszenia' }).querySelectorAll('.examples__note')].map((node) => node.getAttribute('data-example'));
+		const before = ids();
+		rerender(<App />);
+		expect(ids()).toEqual(before);
+		fireEvent.click(screen.getByRole('button', { name: 'Inne przykłady' }));
+		const after = ids();
+		expect(after).toHaveLength(EXAMPLES_SHOWN);
+		expect(after).not.toEqual(before);
+		const field = document.getElementById('content') as HTMLTextAreaElement;
+		expect(field.value).toBe('');
 	});
 
 	it('karteczki mają cel dotyku 48 px i stoją pod przyciskiem "Sprawdź"', () => {

@@ -13,6 +13,7 @@ import { ResultImage } from '../roles/ResultImage';
 import './record.css';
 import { nb } from '../typography';
 import { classifyAnswer, splitNeeded, type AnswerSentence } from './answerText';
+import { linkifyAddresses, parseReviewAssessment, type ReviewAssessment } from './reviewParts';
 
 export const ABSTAIN_ONE_SENTENCE =
 	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
@@ -115,23 +116,65 @@ function Refutation({ result }: { result: ClaimResult }) {
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
 
-function AnswerParts({ sentences }: { sentences: AnswerSentence[] }) {
+function LinkedText({ text }: { text: string }) {
 	return (
 		<>
-			{sentences.map((sentence, index) => (
-				<Fragment key={`${sentence.level}-${index}`}>
-					{index > 0 && ' '}
-					<span className={`record-claim__sentence record-claim__sentence--${sentence.level}`}>
-						{sentence.level === 'needed' ? (
-							<>
-								<span className="record-claim__needed-label">{splitNeeded(sentence.text).label}</span> {nb(splitNeeded(sentence.text).body)}
-							</>
-						) : (
-							nb(sentence.text)
-						)}
-					</span>
-				</Fragment>
-			))}
+			{linkifyAddresses(text).map((piece, index) =>
+				piece.kind === 'link' ? (
+					<PublicationLink key={index} href={piece.href ?? ''} label={piece.text} />
+				) : (
+					<Fragment key={index}>{nb(piece.text)}</Fragment>
+				),
+			)}
+		</>
+	);
+}
+
+function PublicationLink({ href, label }: { href: string; label: string }) {
+	return (
+		<a className="record-claim__publication" href={href} target="_blank" rel="noopener noreferrer">
+			{label}
+			<span className="visually-hidden"> (otworzy się w nowej karcie)</span>
+		</a>
+	);
+}
+
+function ReviewAssessmentView({ assessment }: { assessment: ReviewAssessment }) {
+	return (
+		<>
+			<span className="record-claim__attribution">{nb(assessment.attribution)}</span>
+			<span className="record-claim__thesis">
+				<span className="record-claim__thesis-text">{nb(`„${assessment.thesis}”`)}</span>
+				{assessment.claimant && <span className="record-claim__thesis-author">{nb(`Autor wypowiedzi: ${assessment.claimant}`)}</span>}
+			</span>
+			{assessment.link && <PublicationLink href={assessment.link.href} label={assessment.link.label} />}
+		</>
+	);
+}
+
+function AnswerParts({ sentences, evidence }: { sentences: AnswerSentence[]; evidence: EvidenceItem[] }) {
+	return (
+		<>
+			{sentences.map((sentence, index) => {
+				const assessment = sentence.level === 'assessment' ? parseReviewAssessment(sentence.text, evidence) : null;
+				return (
+					<Fragment key={`${sentence.level}-${index}`}>
+						{index > 0 && ' '}
+						<span className={`record-claim__sentence record-claim__sentence--${sentence.level}`}>
+							{assessment ? (
+								<ReviewAssessmentView assessment={assessment} />
+							) : sentence.level === 'needed' ? (
+								<>
+									<span className="record-claim__needed-label">{splitNeeded(sentence.text).label}</span>{' '}
+									<LinkedText text={splitNeeded(sentence.text).body} />
+								</>
+							) : (
+								<LinkedText text={sentence.text} />
+							)}
+						</span>
+					</Fragment>
+				);
+			})}
 		</>
 	);
 }
@@ -187,7 +230,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 					data-result-heading={leading ? '' : undefined}
 					tabIndex={-1}
 				>
-					<AnswerParts sentences={answerParts} />
+					<AnswerParts sentences={answerParts} evidence={result.evidence} />
 				</h2>
 				{isAbstain && blankSpotNote && <p className="record-claim__blank-spot">{nb(BLANK_SPOT_NOTE)}</p>}
 				<div className="record-claim__summary">

@@ -56,11 +56,13 @@ export function WaitingSteps({
 				<StageSlot kind="foreground" />
 			</div>
 			<div className="waiting-steps__text">
-				<p className="waiting-steps__status" role="status" aria-live="polite">
-					{nb(describeProgress(progress))}
-				</p>
+				<div className="waiting-steps__row">
+					<p className="waiting-steps__status" role="status" aria-live="polite">
+						{nb(describeProgress(progress))}
+					</p>
+					<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
+				</div>
 				<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
-				<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
 			</div>
 		</section>
 	);

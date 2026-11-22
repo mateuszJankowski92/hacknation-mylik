@@ -166,10 +166,37 @@
 	padding: 0;
 }
 
-.sheet .role-note,
 .sheet .notice,
 .sheet .record__summary {
 	max-width: var(--measure);
+}
+
+.sheet__top .role-note {
+	margin: 2px 0 0;
+	color: var(--muted);
+	font-size: var(--text-small);
+	line-height: 1.4;
+}
+
+.sheet .record-claim__sentence--assessment,
+.sheet .record-claim__sentence--plain,
+.sheet .record-claim__sentence--needed,
+.sheet .record-claim__sentence--caveat,
+.sheet .record-claim__blank-spot {
+	background: var(--paper);
+	box-shadow: 0 0 0 6px var(--paper);
+}
+
+.sheet .record-claim__sentence--assessment {
+	width: fit-content;
+	max-width: 100%;
+}
+
+.sheet .record-claim__blank-spot {
+	width: fit-content;
+	margin: var(--space-2) 0 var(--space-2);
+	font-size: var(--text-small);
+	line-height: 1.5;
 }
 
 .sheet .record__summary {

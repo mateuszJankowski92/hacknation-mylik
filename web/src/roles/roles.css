@@ -217,11 +217,54 @@ svg.result-image__art {
 }
 
 .record-claim__sentence--assessment {
+	margin: 0 0 var(--space-2);
+	font-size: 1.0625rem;
+	font-weight: 400;
+	line-height: 1.5;
+	letter-spacing: 0;
+}
+
+.record-claim__attribution {
+	display: block;
 	margin: 0 0 var(--space-1);
+}
+
+.record-claim__thesis {
+	display: block;
+	max-width: 100%;
+	margin: 0 0 var(--space-1) var(--space-2);
+	padding: var(--space-1) var(--space-2);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper-light);
+	color: var(--text);
+	font-size: 1rem;
+	font-weight: 400;
+	line-height: 1.5;
+}
+
+.record-claim__thesis-text {
+	display: block;
+}
+
+.record-claim__thesis-author {
+	display: block;
+	margin: 4px 0 0;
+	color: var(--muted);
+	font-size: var(--text-small);
+}
+
+.record-claim__publication {
+	display: inline-block;
+	margin: 0 0 var(--space-1);
+	font-size: var(--text-small);
+	font-weight: 400;
+	line-height: 1.5;
 }
 
 .record-claim__sentence--plain,
 .record-claim__sentence--needed {
+	width: fit-content;
 	margin: 0 0 var(--space-1);
 	font-size: 1rem;
 	font-weight: 400;
@@ -229,10 +272,11 @@ svg.result-image__art {
 }
 
 .record-claim__needed-label {
-	font-weight: 700;
+	font-weight: 400;
 }
 
 .record-claim__sentence--caveat {
+	width: fit-content;
 	margin: var(--space-1) 0 0;
 	color: var(--muted);
 	font-size: var(--text-small);

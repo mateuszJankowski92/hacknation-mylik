@@ -118,8 +118,8 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					<header className="sheet__top">
 						<p className="sheet__asof">{asOfStamp(record.asOf, record.createdAt)}</p>
 						<SheetQuestion text={record.maskedInput} />
+						{note && <p className="role-note">{nb(note)}</p>}
 					</header>
-					{note && <p className="role-note">{nb(note)}</p>}
 					{record.claims.length === 0 && (
 						<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>
 					)}
