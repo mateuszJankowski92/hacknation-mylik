@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createCardApp } from '../../src/card/index';
-import { escapeXml, renderCardSvg, wrapText } from '../../src/card/svg';
+import { escapeXml, renderCardSvg, shortAddress, wrapText } from '../../src/card/svg';
 import { VERDICT_LABELS_PL, VERDICTS, type EvidenceItem, type VerificationRecord } from '../../src/contracts/index';
 import { FIXTURE_OUTCOMES } from '../../web/src/fixtures/outcomes';
 
@@ -100,14 +100,14 @@ describe('układ karty', () => {
 		return Number(match[1]);
 	}
 
-	it('zdanie główne jest największe, etykieta mała i obok niej pewność', () => {
+	it('zdanie główne jest największe, etykieta mała, bez pewności', () => {
 		const svg = renderCardSvg(fixtureRecord('falszywe'), { cardUrl: CARD_URL });
 		const headline = sizeOf(svg, 'Przykładowy Urząd Miasta podał');
 		const label = sizeOf(svg, VERDICT_LABELS_PL.falszywe);
 		expect(label).toBeLessThan(headline);
 		const sizes = [...svg.matchAll(/font-size="(\d+)"/g)].map((m) => Number(m[1]));
 		expect(Math.max(...sizes)).toBe(headline);
-		expect(svg).toContain('Na ile to pewne: średnio');
+		expect(svg).not.toContain('Na ile to pewne');
 		expect(svg).toContain('Zobacz, skąd to wiem: ');
 		const drawn = svg.slice(svg.indexOf('</desc>'));
 		expect(drawn.indexOf('Przykładowy Urząd Miasta podał')).toBeLessThan(drawn.indexOf(VERDICT_LABELS_PL.falszywe));
@@ -134,7 +134,8 @@ describe('createCardApp', () => {
 		expect(res.headers.get('content-disposition')).toContain('inline');
 		expect(res.headers.get('content-security-policy')).toContain("default-src 'none'");
 		const body = await res.text();
-		expect(body).toContain(`https://mylik.example/r/${record.id}`.slice(0, 40));
+		expect(body).toContain(`mylik.example/r/${record.id.slice(0, 12)}…`);
+		expect(body).not.toContain(record.id);
 	});
 
 	it('wymusza pobranie z ?download=1', async () => {
@@ -148,11 +149,17 @@ describe('createCardApp', () => {
 	});
 });
 
-describe('wskaźnik pewności na karcie', () => {
-	it('karta ma trzy strefy i nie ma ich dla opinii', () => {
+describe('styl papierowy karty', () => {
+	it('nie ma wskaźnika ani zdania o pewności, jest hasło i krótki adres', () => {
 		const svg = renderCardSvg(fixtureRecord('potwierdzone'), { cardUrl: CARD_URL });
-		for (const word of ['mało', 'średnio', 'dużo']) expect(svg).toContain(`>${word}</text>`);
-		const opinion = renderCardSvg(fixtureRecord('nie_podlega_weryfikacji'), { cardUrl: CARD_URL });
-		expect(opinion).not.toContain('>średnio</text>');
+		for (const word of ['mało', 'średnio', 'dużo']) expect(svg).not.toContain(`>${word}</text>`);
+		expect(svg).not.toContain('Na ile to pewne');
+		expect(svg).toContain('Mylik. Informacja to nie fakt.');
+		expect(svg).toContain('stroke-linejoin="round"');
+	});
+
+	it('shortAddress skraca identyfikator do 12 znaków', () => {
+		expect(shortAddress('https://mylik.example/r/abcdef0123456789abcdef')).toBe('mylik.example/r/abcdef012345…');
+		expect(shortAddress('https://mylik.example/r/abc')).toBe('mylik.example/r/abc');
 	});
 });

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { VerifyOutcome } from '../../../src/contracts/record';
 import { ApiFailure, fetchRecord } from '../api';
 import { BASE_TITLE, resultTitle, useDocumentTitle } from '../documentTitle';
-import { addToHistory } from '../history';
+import { addToHistory, removeFromHistory } from '../history';
 import { isRecordId } from '../route';
 import { recallRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
@@ -60,6 +60,11 @@ export function RecordPage({ id }: { id: string }) {
 	const { reset } = stage;
 	const stageRef = useRef(stage);
 	stageRef.current = stage;
+	useEffect(() => {
+		// Stary wpis w „Twoich ostatnich sprawdzeniach” prowadzi donikąd: sprzątamy go przy pierwszym trafieniu.
+		if (state.status === 'gone' && isRecordId(id)) removeFromHistory(id);
+	}, [state.status, id]);
+
 	const showResult = state.status === 'ready';
 	useShownMark(showResult);
 	useDocumentTitle(pageTitle(state));

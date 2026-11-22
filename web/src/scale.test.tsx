@@ -135,10 +135,10 @@ describe('czekanie i wynik w skali', () => {
 		expect(block(waiting, '.waiting-steps__line')).toContain('font-size: 17px');
 	});
 
-	it('postać w rogu wyniku ma 104 px na telefonie, 288 px na dużym ekranie i przebija prawą krawędź arkusza, a miejsce na nią jest zarezerwowane', () => {
+	it('postać w rogu wyniku ma 144 px na telefonie, 380-760 px na dużym ekranie i przebija prawą krawędź arkusza, a miejsce na nią jest zarezerwowane', () => {
 		const stageCss = readCss('stage/stage.css');
 		expect(stageCss).toMatch(/\.sheet \{[^}]*--figure-width: 144px;/);
-		expect(stageCss).toMatch(/@media \(min-width: 1024px\) \{\s*\.sheet \{[^}]*--figure-width: clamp\(300px, min\(48vh, 30vw\), 480px\);/);
+		expect(stageCss).toMatch(/@media \(min-width: 1024px\) \{\s*\.sheet \{[^}]*--figure-width: clamp\(380px, min\(66vh, 42vw\), 760px\);/);
 		expect(stageCss).toMatch(/\.sheet > \.stage-slot--corner \{[^}]*right: calc\(var\(--figure-reach\) \* -1\);/);
 		const sheet = readCss('components/sheet.css');
 		expect(block(sheet, '.sheet')).toContain('position: relative');

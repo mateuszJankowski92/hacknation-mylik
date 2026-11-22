@@ -60,6 +60,9 @@ html[data-contrast='high'] {
 			var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
 			var(--fold-fill) calc(50% + var(--outline) / 2) 100%
 		);
+		/* Zakrywa cień i kontur „obciętego” narożnika: poza zagięciem nie może wystawać żadna kreska ani cień. */
+		box-shadow: 5px -5px 0 5px var(--fold-cover);
+		clip-path: inset(-12px -12px 0 0);
 		pointer-events: none;
 	}
 }

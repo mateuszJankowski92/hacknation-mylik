@@ -28,9 +28,8 @@ describe('RecordView', () => {
 			const headline = container.querySelector('.record-claim__headline')?.textContent ?? '';
 			if (verdict === 'brak_wystarczajacych_dowodow') expect(plain(headline)).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: .+ Brak wyniku w moich źródłach nie oznacza, że to nieprawda\.$/u);
 			else expect(headline.length).toBeGreaterThan(10);
-			expect(container.querySelector('.record-claim__certainty') !== null).toBe(
-				verdict !== 'nie_podlega_weryfikacji' && verdict !== 'brak_wystarczajacych_dowodow',
-			);
+			expect(container.querySelector('.confidence')).toBeNull();
+			expect(container.querySelectorAll('.other-verdicts__item')).toHaveLength(4);
 			expect(screen.getAllByText('Stan źródeł na 10.01.2026. Sprawdzono 10.01.2026, 10:00.').length).toBeGreaterThan(0);
 		});
 	}
@@ -80,9 +79,10 @@ describe('RecordView', () => {
 			const node = container.querySelector(selector);
 			if (node) expect(details[0]!.contains(node)).toBe(true);
 		}
-		const gauge = container.querySelector('.confidence');
-		expect(gauge).not.toBeNull();
-		expect(details[0]!.contains(gauge)).toBe(false);
+		expect(container.querySelector('.confidence')).toBeNull();
+		const others = container.querySelector('.other-verdicts');
+		expect(others).not.toBeNull();
+		expect(details[0]!.contains(others)).toBe(false);
 		expect(details[0]!.querySelector('summary')?.matches(':focus-visible, summary')).toBe(true);
 		expect(container.querySelector('.record-claim__primary')?.textContent).toContain('Przykładowy Urząd Miasta');
 	});
@@ -115,16 +115,16 @@ describe('RecordView', () => {
 		expect(container.querySelector('blockquote')).toBeNull();
 	});
 
-	it('układ: zdanie główne, duża etykieta, wskaźnik pewności, odsyłacz, a niżej cytat ze źródłem', () => {
+	it('układ: zdanie główne, duża etykieta, pozostałe oceny, odsyłacz, a niżej cytat ze źródłem', () => {
 		const { container } = render(<RecordView record={record('falszywe')} />);
-		const order = ['.record-claim__headline', '.verdict__label', '.record-claim__certainty', '.record-claim__evidence-link', '.record-claim__primary']
+		const order = ['.record-claim__headline', '.verdict__label', '.other-verdicts', '.record-claim__evidence-link', '.record-claim__primary']
 			.map((selector) => container.querySelector(selector));
 		expect(order.every(Boolean)).toBe(true);
 		for (let i = 1; i < order.length; i++) {
 			expect(order[i - 1]!.compareDocumentPosition(order[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 		}
 		expect(container.querySelector('.record-claim__headline')?.textContent).toMatch(/podał .* co innego: „/);
-		expect(container.querySelector('.confidence__word')?.textContent).toBe('Na ile to pewne: średnio');
+		expect(container.querySelector('.confidence__word')).toBeNull();
 		expect(container.querySelector('.verdict__label')?.closest('h1,h2,h3,h4,h5,h6')).toBeNull();
 	});
 

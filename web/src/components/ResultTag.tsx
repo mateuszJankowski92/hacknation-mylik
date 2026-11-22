@@ -93,6 +93,35 @@ export function ResultTag({ kind, size = 'md', count }: ResultTagProps) {
 	);
 }
 
+/** Pięć wyników z wytycznych w stałej kolejności; aktywny pokazuje duża metka, pozostałe są wyszarzone. */
+export const VERDICT_ORDER: Verdict[] = [
+	'potwierdzone',
+	'wprowadzajace_w_blad',
+	'falszywe',
+	'brak_wystarczajacych_dowodow',
+	'nie_podlega_weryfikacji',
+];
+
+/** Wyszarzone, nieaktywne metki pozostałych wyników: widać, jakie oceny były możliwe. Dla czytnika jedno zdanie. */
+export function OtherVerdicts({ active }: { active: Verdict }) {
+	const others = VERDICT_ORDER.filter((kind) => kind !== active);
+	return (
+		<div className="other-verdicts">
+			<p className="visually-hidden">
+				Inne możliwe oceny, tutaj nieprzyznane: {others.map((kind) => RESULT_TAG_LOOK[kind].label).join(', ')}.
+			</p>
+			<ul className="other-verdicts__list" aria-hidden="true">
+				{others.map((kind) => (
+					<li key={kind} className="other-verdicts__item" data-kind={kind}>
+						<ResultTagIcon name={RESULT_TAG_LOOK[kind].icon} />
+						<span>{nb(RESULT_TAG_LOOK[kind].label)}</span>
+					</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
 export function StanceTag({ stance, size = 'sm' }: { stance: Stance; size?: ResultTagSize }) {
 	const look = STANCE_TAG_LOOK[stance];
 	if (!look) return null;

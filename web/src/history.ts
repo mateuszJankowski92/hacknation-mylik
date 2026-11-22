@@ -74,6 +74,17 @@ export function addToHistory(record: VerificationRecord): void {
 	}
 }
 
+/** Usuwa z listy wpis, którego wynik już nie istnieje na serwerze (wygasł albo został usunięty). */
+export function removeFromHistory(id: string): void {
+	try {
+		const rest = loadHistory().filter((item) => item.id !== id);
+		if (rest.length === 0) window.localStorage.removeItem(HISTORY_KEY);
+		else save(rest);
+	} catch {
+		return;
+	}
+}
+
 export function clearHistory(): void {
 	try {
 		window.localStorage.removeItem(HISTORY_KEY);

@@ -1,13 +1,5 @@
-import { useId } from 'react';
-import {
-	GAUGE_CENTER_POINT,
-	GAUGE_VIEWBOX,
-	buildGaugeZones,
-	gaugeNeedle,
-	zoneForStrength,
-} from '../../../src/card/visuals';
 import type { Strength } from '../../../src/contracts/record';
-import { REASON_PLAIN_PL, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL } from '../../../src/render/plain';
+import { REASON_PLAIN_PL } from '../../../src/render/plain';
 import './visuals.css';
 
 export function ConfidenceReasons({ strength }: { strength: Strength }) {
@@ -21,48 +13,5 @@ export function ConfidenceReasons({ strength }: { strength: Strength }) {
 				))}
 			</ul>
 		</div>
-	);
-}
-
-export function ConfidenceGauge({ strength, showReasons = true }: { strength: Strength; showReasons?: boolean }) {
-	const titleId = useId();
-	const zone = zoneForStrength(strength.level);
-	const word = STRENGTH_PLAIN_PL[strength.level];
-	const needle = gaugeNeedle(zone);
-	const description = `${STRENGTH_TITLE_PL}: ${word}. Wskaźnik ma trzy strefy: mało, średnio, dużo.`;
-
-	return (
-		<section className="confidence" data-compact={showReasons ? undefined : 'true'} aria-labelledby={titleId}>
-			<svg
-				className="confidence__picture"
-				viewBox={`0 0 ${GAUGE_VIEWBOX.width} ${GAUGE_VIEWBOX.height}`}
-				role="img"
-				aria-label={description}
-			>
-				{buildGaugeZones().map((item) => {
-					const active = item.id === zone;
-					return (
-						<g key={item.id}>
-							<path className={active ? 'confidence__zone confidence__zone--active' : 'confidence__zone'} d={item.path} />
-							<text
-								className={active ? 'confidence__zone-label confidence__zone-label--active' : 'confidence__zone-label'}
-								x={item.labelX}
-								y={item.labelY}
-							>
-								{item.label}
-							</text>
-						</g>
-					);
-				})}
-				<line className="confidence__needle" x1={needle.x1} y1={needle.y1} x2={needle.x2} y2={needle.y2} />
-				<circle className="confidence__hub" cx={GAUGE_CENTER_POINT.x} cy={GAUGE_CENTER_POINT.y} r="8" />
-			</svg>
-			<div className="confidence__text">
-				<h3 id={titleId} className="confidence__word">
-					{STRENGTH_TITLE_PL}: <strong>{word}</strong>
-				</h3>
-				{showReasons && <ConfidenceReasons strength={strength} />}
-			</div>
-		</section>
 	);
 }

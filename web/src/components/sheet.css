@@ -208,10 +208,6 @@
 	background: var(--paper-light);
 }
 
-.sheet .record-claim__certainty {
-	margin: 0;
-}
-
 .sheet .record-claim > .result-image {
 	order: 4;
 	margin: 0 0 var(--space-3);
@@ -220,41 +216,6 @@
 .sheet .record-claim__details {
 	order: 5;
 	margin: 0;
-}
-
-.sheet .record-claim__certainty .confidence {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: none;
-	box-shadow: none;
-	gap: var(--space-1);
-	flex-direction: column;
-	align-items: flex-start;
-}
-
-.sheet .record-claim__certainty .confidence__picture {
-	width: 10rem;
-}
-
-.sheet .record-claim__certainty .confidence__text {
-	flex: 0 0 auto;
-}
-
-.sheet .record-claim__certainty .confidence__word {
-	margin: 0 0 4px;
-	font-size: 1rem;
-	font-weight: 400;
-}
-
-.sheet .record-claim__certainty .confidence__why-title {
-	display: none;
-}
-
-.sheet .record-claim__certainty .confidence__why {
-	padding-left: var(--space-3);
-	color: var(--muted);
-	font-size: var(--text-small);
 }
 
 .sheet .record-claim__details > summary {
@@ -409,10 +370,6 @@
 
 	.sheet .record-claim > .result-image {
 		width: 100%;
-	}
-
-	.sheet .record-claim__certainty .confidence__picture {
-		width: 11rem;
 	}
 
 	.sheet .record-claim--abstain::before {

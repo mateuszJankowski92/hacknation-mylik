@@ -159,10 +159,11 @@ describe('wynik "brak wystarczających dowodów"', () => {
 		expect(container.querySelector('.record-claim__abstain p')?.textContent).toMatch(/Sprawdziłem zbiór źródeł/);
 	});
 
-	it('dla werdyktu z dowodami nadal pokazuje wskaźnik ze wskazówką', () => {
+	it('dla werdyktu z dowodami nie rysuje wskaźnika, a przesłanki są w szczegółach', () => {
 		const { container } = render(<RecordView record={potwierdzone.record} />);
-		expect(container.querySelector('.confidence__needle')).not.toBeNull();
+		expect(container.querySelector('.confidence__needle')).toBeNull();
 		expect(container.querySelector('.confidence--empty')).toBeNull();
+		expect(container.querySelector('details .confidence__why')).not.toBeNull();
 	});
 });
 

@@ -286,7 +286,7 @@ describe('serwer HTTP: integracja fali 2 (SMS, karta, statystyki, limit, ostrze≈
     expect(res.headers.get('content-security-policy')).toContain('sandbox');
     const svg = await res.text();
     expect(svg).toMatch(/^<svg|^<\?xml/);
-    expect(svg).toContain('https://mylik.example.pl/r/');
+    expect(svg).toContain('mylik.example.pl/r/');
     expect((await b.app.request(`/api/records/${'0'.repeat(64)}/card.svg`)).status).toBe(404);
   });
 

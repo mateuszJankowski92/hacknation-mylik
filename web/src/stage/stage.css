@@ -167,13 +167,22 @@
 
 @media (min-width: 1024px) {
 	.sheet {
-		--figure-width: clamp(300px, min(48vh, 30vw), 480px);
-		--figure-reach: max(0px, min(calc(var(--figure-width) / 3), calc(max((100vw - 1080px) / 2, 24px) - 8px)));
-		--figure-room: calc(var(--figure-width) - var(--figure-reach) - 72px);
+		/* Duża figura: ok. 80% wysokości okna (proporcje kadru 4:5), wyraźnie wystaje poza prawą krawędź arkusza. */
+		--figure-width: clamp(380px, min(66vh, 42vw), 760px);
+		--figure-height: calc(var(--figure-width) * 1.25);
+		--figure-reach: max(0px, min(calc(var(--figure-width) * 0.42), calc(max((100vw - 1080px) / 2, 24px) - 8px)));
+		--figure-room: calc(var(--figure-width) - var(--figure-reach) - 96px);
 	}
 
 	.sheet > .stage-slot--corner {
-		top: 150px;
+		top: 132px;
+		/* Figura stoi PRZED ramą: łatka tła zakrywa kontur arkusza w jej obrysie. */
+		z-index: 3;
+	}
+
+	/* Arkusz nie może być niższy niż figura, żeby nie nachodziła na przyciski pod arkuszem. */
+	.app .sheet:has(> .stage-slot--corner) {
+		min-height: calc(132px + var(--figure-height) + var(--space-4));
 	}
 }
 

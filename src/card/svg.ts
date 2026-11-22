@@ -6,8 +6,7 @@ import {
 } from '../contracts/index';
 import { EVIDENCE_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
 import { asOfStamp, formatDate } from '../render/templates';
-import { BRAND_TAGLINE, KNOWN_OP_INTRO, knownOpDescription, selectKnownOpWarnings } from '../render/warning';
-import { renderGaugeMarkup, zoneForStrength } from './visuals';
+import { KNOWN_OP_INTRO, knownOpDescription, selectKnownOpWarnings } from '../render/warning';
 
 export const CARD_WIDTH = 1200;
 export const CARD_HEIGHT = 630;
@@ -19,16 +18,20 @@ interface Palette {
 }
 
 export const VERDICT_PALETTE: Record<Verdict, Palette> = {
-	potwierdzone: { fg: '#14532d', bg: '#e7f6ec', icon: '✔' },
-	falszywe: { fg: '#8a1c1c', bg: '#fdecec', icon: '✘' },
-	wprowadzajace_w_blad: { fg: '#7a4100', bg: '#fff3df', icon: '▲' },
-	brak_wystarczajacych_dowodow: { fg: '#1e3a8a', bg: '#e8eefc', icon: '?' },
-	nie_podlega_weryfikacji: { fg: '#374151', bg: '#eef0f3', icon: '○' },
+	// Te same stonowane pastele co metki wyniku w interfejsie (web/src/styles.css, --tag-*).
+	potwierdzone: { fg: '#1e3a22', bg: '#ddebd8', icon: '✔' },
+	falszywe: { fg: '#5a1f16', bg: '#f3d6cf', icon: '✘' },
+	wprowadzajace_w_blad: { fg: '#4a2e08', bg: '#f6e3c4', icon: '▲' },
+	brak_wystarczajacych_dowodow: { fg: '#26221f', bg: '#ece7de', icon: '?' },
+	nie_podlega_weryfikacji: { fg: '#1f2c36', bg: '#e3e8ec', icon: '○' },
 };
 
-const TEXT = '#1b1f23';
-const MUTED = '#4b5563';
-const PAGE = '#ffffff';
+// Papierowy styl strony: kremowy arkusz, grafitowy kontur, zagięty róg.
+const TEXT = '#2b2725';
+const MUTED = '#5a524c';
+const PAGE = '#fbf6ec';
+const FOLD = '#e2d2b9';
+const CARD_TAGLINE = 'Mylik. Informacja to nie fakt.';
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
 const MAX_CLAIM_CHARS = 170;
@@ -51,6 +54,14 @@ export function truncate(text: string, limit: number): string {
 	const clean = text.replace(/\s+/g, ' ').trim();
 	if (clean.length <= limit) return clean;
 	return `${clean.slice(0, limit - 1).trimEnd()}…`;
+}
+
+/** Krótki adres wyniku do druku na karcie: domena i początek identyfikatora (pełny adres jest w odnośniku). */
+export function shortAddress(url: string): string {
+	const match = /^(https?:\/\/)?([^/]+)(\/r\/)([A-Za-z0-9]+)/.exec(url);
+	if (!match) return truncate(url, 80);
+	const id = match[4] ?? '';
+	return `${match[2]}${match[3]}${id.length > 12 ? `${id.slice(0, 12)}…` : id}`;
 }
 
 export function wrapText(text: string, maxChars: number, maxLines: number): string[] {
@@ -109,7 +120,6 @@ function textLines(
 export const CARD_FONT_SIZES = {
 	headline: 42,
 	label: 24,
-	certainty: 24,
 	detail: 20,
 	footer: 20,
 } as const;
@@ -122,7 +132,7 @@ const LABEL_CHAR_WIDTH = 14;
 export function renderCardSvg(record: VerificationRecord, options: CardOptions): string {
 	const index = Math.min(Math.max(options.claimIndex ?? 0, 0), Math.max(record.claims.length - 1, 0));
 	const claim = record.claims[index];
-	const address = truncate(options.cardUrl, 110);
+	const address = shortAddress(options.cardUrl);
 	const parts: string[] = [];
 	const palette = claim ? VERDICT_PALETTE[claim.verdict] : VERDICT_PALETTE.nie_podlega_weryfikacji;
 	const item = claim ? pickCardEvidence(claim) : undefined;
@@ -140,23 +150,28 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 	const countNote = record.claims.length > 1 ? ` To twierdzenie ${index + 1} z ${record.claims.length}.` : '';
 	const chipText = `${palette.icon} ${layout.label}`;
 	const chipWidth = Math.min(1104, Math.round(chipText.length * LABEL_CHAR_WIDTH + 40));
-	const certaintyX = 48 + chipWidth + 24;
 
 	parts.push(
 		`<svg xmlns="http://www.w3.org/2000/svg" width="${CARD_WIDTH}" height="${CARD_HEIGHT}" viewBox="0 0 ${CARD_WIDTH} ${CARD_HEIGHT}" role="img" aria-labelledby="card-title card-desc" font-family="${escapeXml(FONT)}">`,
 	);
 	parts.push(`<title id="card-title">${escapeXml(`Mylik: ${layout.label}`)}</title>`);
 	parts.push(
-		`<desc id="card-desc">${escapeXml(`${layout.headline} Ocena: ${layout.label}.${layout.certainty ? ` ${layout.certainty}.` : ''} ${layout.asOf}`)}</desc>`,
+		`<desc id="card-desc">${escapeXml(`${layout.headline} Ocena: ${layout.label}. ${layout.asOf}`)}</desc>`,
 	);
-	parts.push(`<rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="${PAGE}"/>`);
-	parts.push(`<rect x="8" y="8" width="${CARD_WIDTH - 16}" height="${CARD_HEIGHT - 16}" rx="18" fill="none" stroke="${palette.fg}" stroke-width="4"/>`);
+	parts.push(`<rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" fill="#ffffff"/>`);
+	// Arkusz z zagiętym prawym górnym rogiem.
+	parts.push(
+		`<path d="M10 10 H${CARD_WIDTH - 66} L${CARD_WIDTH - 10} 66 V${CARD_HEIGHT - 10} H10 Z" fill="${PAGE}" stroke="${TEXT}" stroke-width="3" stroke-linejoin="round"/>`,
+	);
+	parts.push(
+		`<path d="M${CARD_WIDTH - 66} 10 V66 H${CARD_WIDTH - 10} Z" fill="${FOLD}" stroke="${TEXT}" stroke-width="3" stroke-linejoin="round"/>`,
+	);
 
 	parts.push(
 		textLines(
 			wrapText(layout.headline, HEADLINE_CHARS, HEADLINE_LINES),
 			48,
-			96,
+			118,
 			CARD_FONT_SIZES.headline,
 			54,
 			TEXT,
@@ -164,25 +179,10 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 		),
 	);
 
-	parts.push(`<rect x="48" y="326" width="${chipWidth}" height="46" rx="23" fill="${palette.bg}" stroke="${palette.fg}" stroke-width="2"/>`);
+	parts.push(`<rect x="48" y="326" width="${chipWidth}" height="46" rx="3" fill="${palette.bg}" stroke="${palette.fg}" stroke-width="2"/>`);
 	parts.push(
 		`<text x="68" y="358" font-size="${CARD_FONT_SIZES.label}" font-weight="600" fill="${palette.fg}">${escapeXml(chipText)}</text>`,
 	);
-	if (layout.certainty) {
-		parts.push(
-			`<text x="${certaintyX}" y="358" font-size="${CARD_FONT_SIZES.certainty}" fill="${TEXT}">${escapeXml(layout.certainty)}</text>`,
-		);
-	}
-
-	if (claim && layout.certainty) {
-		const gauge = renderGaugeMarkup(zoneForStrength(claim.strength.level), {
-			ink: TEXT,
-			muted: MUTED,
-			active: palette.fg,
-		});
-		parts.push(`<g transform="translate(912 278)" role="presentation">${gauge}</g>`);
-	}
-
 	if (claimText) {
 		parts.push(
 			textLines(wrapText(`Sprawdzane twierdzenie: „${claimText}”`, 100, 2), 48, 416, CARD_FONT_SIZES.detail, 28, MUTED),
@@ -203,7 +203,7 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 	parts.push(
 		textLines([`${layout.evidenceLink}: ${address}`], 48, 604, CARD_FONT_SIZES.footer, 26, MUTED),
 	);
-	parts.push(`<text x="1152" y="30" font-size="16" text-anchor="end" fill="${MUTED}">${escapeXml(`Mylik. ${BRAND_TAGLINE}`)}</text>`);
+	parts.push(`<text x="48" y="52" font-size="20" font-weight="700" fill="${TEXT}">${escapeXml(CARD_TAGLINE)}</text>`);
 	parts.push('</svg>');
 	return parts.filter(Boolean).join('\n');
 }

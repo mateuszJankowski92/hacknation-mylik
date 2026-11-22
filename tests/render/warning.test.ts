@@ -5,7 +5,6 @@ import { findForbiddenForms } from '../../src/render/metrics';
 import { renderCardSvg } from '../../src/card/svg';
 import { FIXTURE_OUTCOMES } from '../../web/src/fixtures/outcomes';
 import {
-	BRAND_TAGLINE,
 	knownOpWarningLines,
 	parseKnownOpNotice,
 	selectKnownOpWarnings,
@@ -70,7 +69,7 @@ describe('ostrzeżenie EUvsDisinfo', () => {
 		const withWarning = renderCardSvg(record, { cardUrl: 'https://mylik.example/k/1' });
 		const without = renderCardSvg({ ...record, notices: [] }, { cardUrl: 'https://mylik.example/k/1' });
 		expect(withWarning).toContain('opisała ją 30.06.2025 jako dezinformację');
-		expect(withWarning).toContain(BRAND_TAGLINE);
+		expect(withWarning).toContain('Mylik. Informacja to nie fakt.');
 		expect(withWarning).toContain('Stan źródeł na 10.01.2026.');
 		const label = (svg: string) => /<title id="card-title">([^<]*)</.exec(svg)?.[1];
 		expect(label(withWarning)).toBe(label(without));

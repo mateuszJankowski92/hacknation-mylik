@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { buildDotMatrix, buildGaugeZones, gaugeNeedle, zoneForStrength } from '../../../src/card/visuals';
+import { buildDotMatrix } from '../../../src/card/visuals';
 import type { VerifyProgressEvent } from '../../../src/contracts/api';
 import { STRENGTH_LEVELS } from '../../../src/contracts/verdict';
 import { findForbiddenForms } from '../../../src/render/metrics';
 import { parseSseBlock } from '../api';
-import { ConfidenceGauge } from './ConfidenceGauge';
+import { ConfidenceReasons } from './ConfidenceGauge';
 import { ErrorDots } from './ErrorDots';
 import { ExtraProgressEventSchema, INITIAL_PROGRESS, reduceProgress, sourcesWord, type ProgressState, type WaitingEvent } from './progress';
 import { WaitingSteps } from './WaitingSteps';
@@ -27,18 +27,6 @@ const judged = (publisher: string, stance: 'to_samo' | 'co_innego' | 'inna_data_
 });
 
 describe('geometria wspólna', () => {
-	it('wskazówka zawsze na środku jednej z trzech stref', () => {
-		const zones = buildGaugeZones();
-		expect(zones.map((zone) => zone.label)).toEqual(['mało', 'średnio', 'dużo']);
-		for (const level of STRENGTH_LEVELS) {
-			const zone = zones.find((item) => item.id === zoneForStrength(level))!;
-			const needle = gaugeNeedle(zone.id);
-			expect(needle.x1).toBe(120);
-			expect(zone.needleAngle % 30).toBe(0);
-		}
-		expect(gaugeNeedle('średnio').x2).toBeCloseTo(120, 1);
-	});
-
 	it('matryca ma dokładnie total kropek i errors zaznaczonych', () => {
 		const matrix = buildDotMatrix(2, 31)!;
 		expect(matrix.cells).toHaveLength(31);
@@ -131,18 +119,12 @@ describe('druga_kontrola', () => {
 	});
 });
 
-describe('ConfidenceGauge i ErrorDots', () => {
-	it('pokazuje trzy strefy, słowo i przesłanki bez liczb', () => {
-		const { container } = render(
-			<ConfidenceGauge strength={{ level: 'srednia', reasons: ['zrodlo_urzedowe', 'jedno_zrodlo'] }} />,
-		);
-		const labels = [...container.querySelectorAll('.confidence__zone-label')].map((node) => node.textContent);
-		expect(labels).toEqual(['mało', 'średnio', 'dużo']);
-		expect(container.querySelectorAll('.confidence__zone--active')).toHaveLength(1);
-		expect(container.querySelector('.confidence__word')?.textContent).toBe('Na ile to pewne: średnio');
+describe('ConfidenceReasons i ErrorDots', () => {
+	it('przesłanki pewności: lista bez liczb', () => {
+		const { container } = render(<ConfidenceReasons strength={{ level: 'srednia', reasons: ['zrodlo_urzedowe', 'jedno_zrodlo'] }} />);
 		expect(screen.getByText('urzędowe źródło')).toBeTruthy();
 		expect(screen.getByText('tylko jedno źródło')).toBeTruthy();
-		expect(container.querySelector('svg')?.getAttribute('aria-label')).toContain('średnio');
+		expect(container.querySelector('.confidence__zone')).toBeNull();
 		expect(container.textContent).not.toMatch(/\d/);
 	});
 

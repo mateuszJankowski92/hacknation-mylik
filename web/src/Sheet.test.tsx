@@ -61,7 +61,7 @@ function precedes(first: Element | null, second: Element | null): boolean {
 }
 
 describe('arkusz wyniku: układ od góry', () => {
-	it('pasek z pytaniem, "Stan źródeł na", zdanie wyniku, etykieta i pewność, cytat ze źródłem, a ostrzeżenie na samym dole', () => {
+	it('pasek z pytaniem, "Stan źródeł na", zdanie wyniku, etykieta i pozostałe oceny, cytat ze źródłem, a ostrzeżenie na samym dole', () => {
 		const { container } = render(<RecordView record={LONG.record} />);
 		const sheet = container.querySelector('.sheet')!;
 		const parts = [
@@ -69,7 +69,7 @@ describe('arkusz wyniku: układ od góry', () => {
 			'.sheet-question',
 			'.record-claim__headline',
 			'.verdict__label',
-			'.record-claim__certainty',
+			'.other-verdicts',
 			'.record-claim__primary',
 			'details.record-claim__details',
 			'.known-op',
@@ -81,7 +81,7 @@ describe('arkusz wyniku: układ od góry', () => {
 		expect(lastBlock?.classList.contains('known-op')).toBe(true);
 	});
 
-	it('pytanie jest wiernie, a pewność jest mniejsza niż cytat', () => {
+	it('pytanie jest wiernie, a cytat ma 20 px', () => {
 		const { container } = render(<RecordView record={LONG.record} />);
 		expect(plain(container.querySelector('.sheet-question__text')?.textContent ?? '')).toBe(LONG.record.maskedInput);
 		expect(container.querySelector('.sheet-question')?.getAttribute('aria-labelledby')).toBeTruthy();
@@ -89,7 +89,7 @@ describe('arkusz wyniku: układ od góry', () => {
 		const recordCss = readUnscaled(join(HERE, 'components', 'record.css'), 'utf8');
 		expect(sheetCss).toMatch(/\.sheet-question__text \{[^}]*-webkit-line-clamp: 2;/);
 		expect(recordCss).toMatch(/\.record-claim__primary \.record-evidence__quote p \{\s*font-size: 20px;/);
-		expect(sheetCss).toMatch(/\.confidence__word \{[^}]*font-size: 1rem;/);
+		expect(sheetCss).not.toMatch(/\.confidence__word/);
 	});
 
 	it('długie pytanie ma przycisk rozwijania, krótkie nie', () => {

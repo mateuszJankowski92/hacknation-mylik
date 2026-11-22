@@ -6,8 +6,8 @@ import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layou
 import { citizenText, extractCheckStats } from '../../../src/render/citizen';
 import { countNoun } from '../../../src/render/plural';
 import { formatDate } from '../format';
-import { ConfidenceGauge, ConfidenceReasons } from '../visuals/ConfidenceGauge';
-import { ResultTag, StanceTag } from './ResultTag';
+import { ConfidenceReasons } from '../visuals/ConfidenceGauge';
+import { OtherVerdicts, ResultTag, StanceTag } from './ResultTag';
 import { ErrorDots } from '../visuals/ErrorDots';
 import { usesGesture, type Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
@@ -249,11 +249,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 							</p>
 							{layout.uncertaintyNote && !repeatsCaveat && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
 						</div>
-						{certainty && (
-							<div className="record-claim__certainty">
-								<ConfidenceGauge strength={result.strength} showReasons={false} />
-							</div>
-						)}
+						<OtherVerdicts active={result.verdict} />
 					</div>
 
 					{!isAbstain && (

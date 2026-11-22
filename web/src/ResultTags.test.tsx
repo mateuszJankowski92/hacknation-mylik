@@ -156,11 +156,14 @@ function recordOf(key: string): VerificationRecord {
 }
 
 describe('arkusz: etykieta wysoko, podsumowanie, fragmenty', () => {
-	it('duża metka stoi w bloku zdania, przed odsyłaczem do źródeł, razem ze wskaźnikiem pewności', () => {
+	it('duża metka stoi w bloku zdania, przed odsyłaczem do źródeł, razem z czterema wyszarzonymi ocenami, bez wskaźnika pewności', () => {
 		const { container } = render(<RecordView record={recordOf('potwierdzone')} />);
 		const lead = container.querySelector('.record-claim__lead')!;
 		expect(lead.querySelector('.result-tag[data-size="lg"][data-kind="potwierdzone"]')).not.toBeNull();
-		expect(lead.querySelector('.record-claim__certainty .confidence__picture')).not.toBeNull();
+		expect(lead.querySelector('.confidence')).toBeNull();
+		expect(lead.querySelectorAll('.other-verdicts__item')).toHaveLength(4);
+		expect(lead.querySelector('.other-verdicts__item[data-kind="potwierdzone"]')).toBeNull();
+		expect(lead.querySelector('.other-verdicts .visually-hidden')?.textContent).toMatch(/^Inne możliwe oceny, tutaj nieprzyznane: .+\.$/);
 		expect(lead.querySelector('.confidence__why')).toBeNull();
 		expect(container.querySelector('details .confidence__why')).not.toBeNull();
 	});
