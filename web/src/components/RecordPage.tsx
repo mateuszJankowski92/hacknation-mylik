@@ -102,10 +102,13 @@ export function RecordPage({ id }: { id: string }) {
 		if (!container) return;
 		if (showResult) {
 			const heading = container.querySelector<HTMLElement>('[data-result-heading]');
-			(heading ?? container).focus();
+			// Fokus dla czytników ekranu bez przewijania: nagłówek bywa niżej na stronie (kilka twierdzeń, strona urzędu),
+			// a wynik ma się zawsze otwierać od góry.
+			(heading ?? container).focus({ preventScroll: true });
+			if (!window.location.hash) window.scrollTo?.(0, 0);
 			return;
 		}
-		if (state.status === 'error') container.focus();
+		if (state.status === 'error') container.focus({ preventScroll: true });
 	}, [state.status, showResult]);
 
 	const question = state.status === 'ready' && state.outcome.kind === 'record' ? state.outcome.record.maskedInput : '';
