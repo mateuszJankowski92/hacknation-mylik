@@ -13,9 +13,11 @@ import * as https from 'node:https';
 import { isIP } from 'node:net';
 import { extractTitle, htmlToText } from '../../corpus/html';
 import { stripHiddenHtml } from './hidden';
+import { extractPageDate } from './meta';
 import { isBlockedHostname, isBlockedIp } from './ip';
 
 export { isHiddenElement, stripHiddenHtml } from './hidden';
+export { extractPageDate } from './meta';
 export { isBlockedHostname, isBlockedIp, isBlockedIpv4, isBlockedIpv6 } from './ip';
 
 export type FetchFailReason =
@@ -32,7 +34,17 @@ export type FetchFailReason =
   | 'pusta_tresc';
 
 export type PageFetchResult =
-  | { ok: true; finalUrl: string; contentType: string; title: string | null; text: string; truncated: boolean; redirects: number }
+  | {
+      ok: true;
+      finalUrl: string;
+      contentType: string;
+      title: string | null;
+      text: string;
+      truncated: boolean;
+      redirects: number;
+      /** Data publikacji (YYYY-MM-DD) z jawnych znaczników strony (zad. 43); null albo brak = nie znaleziono. */
+      publishedAt?: string | null;
+    }
   | { ok: false; reason: FetchFailReason; status?: number };
 
 export type PageFetcher = (url: string) => Promise<PageFetchResult>;
@@ -256,7 +268,17 @@ export function createPageFetcher(opts: PageFetcherOptions = {}): PageFetcher {
           truncated = true;
         }
         if (!text) throw new FetchAbort('pusta_tresc');
-        return { ok: true, finalUrl: url.toString(), contentType: contentType.split(';')[0]!.trim(), title, text, truncated, redirects: hop };
+        const publishedAt = isHtml ? extractPageDate(raw) : null;
+        return {
+          ok: true,
+          finalUrl: url.toString(),
+          contentType: contentType.split(';')[0]!.trim(),
+          title,
+          text,
+          truncated,
+          redirects: hop,
+          publishedAt,
+        };
       }
     };
 
