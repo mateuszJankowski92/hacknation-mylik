@@ -20,7 +20,7 @@ import {
 } from './templates';
 import { buildResultLayout, evidenceLinkText } from './layout';
 import { knownOpSmsText } from './warning';
-import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
+import { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import {
 	decisivePage,
 	decisiveReview,
@@ -102,7 +102,7 @@ function renderShortCore(record: VerificationRecord, rawCardUrl: string, limit: 
 	const lead = leadClaim(record);
 	const asOf = asOfStamp(record.asOf);
 	const warning = knownOpSmsText(record.notices);
-	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, `${EVIDENCE_LINK_TEXT}: ${cardUrl}`).slice(0, limit);
+	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, `${ABSTAIN_LINK_TEXT}: ${cardUrl}`).slice(0, limit);
 
 	const tail = `${evidenceLinkText(lead)}: ${cardUrl}`;
 	const count = record.claims.length;

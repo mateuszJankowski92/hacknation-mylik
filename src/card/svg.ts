@@ -4,7 +4,7 @@ import {
 	type Verdict,
 	type VerificationRecord,
 } from '../contracts/index';
-import { EVIDENCE_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
+import { ABSTAIN_LINK_TEXT, buildResultLayout, pickLayoutEvidence } from '../render/layout';
 import { asOfStamp, formatDate } from '../render/templates';
 import { KNOWN_OP_INTRO, knownOpDescription, selectKnownOpWarnings } from '../render/warning';
 
@@ -144,7 +144,7 @@ export function renderCardSvg(record: VerificationRecord, options: CardOptions):
 				certainty: null,
 				uncertaintyNote: null,
 				asOf: asOfStamp(record.asOf, record.createdAt),
-				evidenceLink: EVIDENCE_LINK_TEXT,
+				evidenceLink: ABSTAIN_LINK_TEXT,
 			};
 	const claimText = claim ? truncate(claim.claim.text, MAX_CLAIM_CHARS) : '';
 	const countNote = record.claims.length > 1 ? ` To twierdzenie ${index + 1} z ${record.claims.length}.` : '';
