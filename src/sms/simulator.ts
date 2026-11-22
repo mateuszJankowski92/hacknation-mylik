@@ -100,6 +100,13 @@ export const SIMULATOR_HTML = `<!doctype html>
 		counter.textContent = input.value.length + ' / ' + MAX_CHARS;
 	});
 
+	// Enter wysyła, Shift+Enter robi nowy wiersz (jak w komunikatorach); w trakcie składania znaków (IME) Enter nie wysyła.
+	input.addEventListener('keydown', function (event) {
+		if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return;
+		event.preventDefault();
+		if (!send.disabled) form.requestSubmit ? form.requestSubmit() : send.click();
+	});
+
 	form.addEventListener('submit', function (event) {
 		event.preventDefault();
 		var text = input.value.trim();
