@@ -1,0 +1,43 @@
+.discord-note {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-1) var(--space-2);
+	max-width: var(--measure);
+	margin: var(--space-3) 0 0;
+	padding: var(--space-1) var(--space-2);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper-light);
+	box-shadow: var(--shadow-paper);
+}
+
+.discord-note__icon {
+	flex: 0 0 auto;
+	width: 28px;
+	height: 28px;
+	fill: none;
+	stroke: var(--graphite);
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.discord-note__text {
+	margin: 0;
+	flex: 1 1 14rem;
+}
+
+.discord-note__command {
+	padding: 0 0.3em;
+	border: var(--outline) dashed var(--paper-fold);
+	border-radius: var(--radius-paper);
+	font-weight: 700;
+}
+
+.discord-note__link {
+	display: inline-flex;
+	align-items: center;
+	min-height: 48px;
+	font-weight: 700;
+}

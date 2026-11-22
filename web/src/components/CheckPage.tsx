@@ -12,6 +12,7 @@ import { CheckForm } from './CheckForm';
 import { HERO_PAGE_TITLE } from './heroCopy';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
+import { DiscordNote } from './DiscordNote';
 import { ExampleQueries } from './ExampleQueries';
 import { predictedRole, recordRoleOf } from '../roles/appearance';
 import { currentForcedRole, currentRole } from '../roles/resolve';
@@ -224,6 +225,7 @@ export function CheckPage() {
 					</div>
 				</Hero>
 				{showsHome && <ExampleQueries onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))} />}
+				{showsHome && <DiscordNote />}
 				{showsHome && <HomeSections />}
 			</div>
 			{state.status === 'loading' && (

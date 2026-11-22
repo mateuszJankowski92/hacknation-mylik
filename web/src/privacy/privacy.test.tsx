@@ -247,7 +247,9 @@ describe('inwentaryzacja: bez stron trzecich, cookies i śledzenia po stronie in
 	it('kod interfejsu nie zawiera adresów cudzych serwerów (poza przestrzenią nazw SVG)', () => {
 		expect(files.length).toBeGreaterThan(20);
 		for (const file of files) {
-			const text = readFileSync(file, 'utf8').replace(/https?:\/\/www\.w3\.org\/[^'"\s)]*/g, '');
+			const text = readFileSync(file, 'utf8')
+				.replace(/https?:\/\/www\.w3\.org\/[^'"\s)]*/g, '')
+				.replace(/https:\/\/discord\.com\/oauth2\/authorize\?client_id=\d+/g, '');
 			expect(text, file).not.toMatch(/https?:\/\//);
 			expect(text, file).not.toMatch(/@import\s+url/);
 		}
