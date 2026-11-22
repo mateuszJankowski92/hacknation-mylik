@@ -28,6 +28,10 @@ export const PAGE_LICENSE =
 export const PAGE_PASSAGES_PER_CLAIM = 4;
 const MIN_CHUNK_CHARS = 40;
 const MAX_TITLE_CHARS = 200;
+/** Krótszy akapit bez znaku końca zdania przed pierwszym akapitem treści to nagłówek strony. */
+const HEADER_MAX_CHARS = 120;
+const DATE_ONLY =
+  /^(?:(?:data publikacji|opublikowano|dodano|data)\s*:?\s*)?(?:\d{1,2}\.\d{1,2}\.\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}\s+\p{L}+\s+\d{4})(?:\s*r\.?)?(?:,?\s*(?:godz\.\s*)?\d{1,2}:\d{2})?$/iu;
 
 type OkPage = Extract<PageFetchResult, { ok: true }>;
 
@@ -48,6 +52,23 @@ export function safeTitle(title: string | null | undefined): string | null {
   const t = maskPii(cleanText(title ?? '')).text.replace(/\s+/gu, ' ').trim();
   if (!t || detectInjectionSignals(t).length > 0) return null;
   return t.length > MAX_TITLE_CHARS ? `${t.slice(0, MAX_TITLE_CHARS - 1).trimEnd()}…` : t;
+}
+
+const ORGAN_START =
+  /^(?:Ministerstwo|Minister|Urząd|Kancelaria|Główny|Główna|Główne|Generalny|Generalna|Komenda|Inspekcja|Inspektorat|Agencja|Rzecznik|Biuro|Centrum|Centralny|Centralne|Centralna|Narodowy|Narodowe|Narodowa|Państwow\p{L}*|Krajow\p{L}*|Komisja|Rada|Rządow\p{L}*|Najwyższa|Najwyższy|Instytut|Straż|Policja|Komendant|Wojewod\p{L}*|Starostwo|Ambasada|Konsulat|Sekretariat|Departament|Służba|Prokuratura|Sąd|Trybunał|Parlament|Europejsk\p{L}*|European)(?=\s|$)/u;
+
+/**
+ * Nazwa organu z tytułu strony we wspólnej strefie urzędów (wpis `sufiks`, np. gov.pl): układ
+ * "<tytuł> - <organ> - <portal>", czyli przedostatni człon, tylko gdy zaczyna się jak nazwa organu
+ * (Ministerstwo, Urząd, Kancelaria...). Inaczej `null` i zostaje ogólna nazwa z listy.
+ */
+export function organFromTitle(title: string | null | undefined): string | null {
+  const t = safeTitle(title);
+  if (!t) return null;
+  const parts = t.split(/\s+[-–—|]\s+/u).map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 3) return null;
+  const organ = parts[parts.length - 2]!;
+  return organ.length >= 5 && organ.length <= 100 && ORGAN_START.test(organ) ? organ : null;
 }
 
 export function pageDomain(host: string): string {
@@ -87,7 +108,9 @@ export function describePage(
     ...(page.publishedAt ? { publishedAt: page.publishedAt } : {}),
     fetchedAt: fetchedAt.toISOString(),
     official: official !== null,
-    ...(official ? { publisher: official.entry.publisher } : {}),
+    ...(official
+      ? { publisher: (official.entry.rule === 'sufiks' ? organFromTitle(page.title) : null) ?? official.entry.publisher }
+      : {}),
   };
   return { info, url, official, leftTheList: startedOn !== null && official === null };
 }
@@ -112,8 +135,8 @@ export function buildOfficialDocument(page: OkPage, desc: PageDescription): Offi
   const meta: SourceMeta = {
     documentId,
     sourceId: PAGE_SOURCE_ID,
-    title: desc.info.title ?? entry.publisher,
-    publisher: entry.publisher,
+    title: desc.info.title ?? desc.info.publisher ?? entry.publisher,
+    publisher: desc.info.publisher ?? entry.publisher,
     domain: entry.host,
     url: desc.url,
     publishedAt: desc.info.publishedAt ?? null,
@@ -129,7 +152,19 @@ export function buildOfficialDocument(page: OkPage, desc: PageDescription): Offi
     .filter(Boolean);
   const runs: string[][] = [[]];
   const flaggedParagraphs: InjectionSignalCode[][] = [];
+  let bodyStarted = false;
   for (const p of paragraphs) {
+    // Data publikacji jako osobny akapit (np. zaraz po tytule) nie jest treścią: przerywa ciąg, żeby cytat
+    // nie zaczynał się od daty, i nie trafia do fragmentów. Krótkie akapity przed pierwszym zdaniem treści
+    // (tytuł, okruszki, "Powrót") też nie: to nagłówek strony, nie komunikat.
+    if (DATE_ONLY.test(p)) {
+      runs.push([]);
+      continue;
+    }
+    if (!bodyStarted) {
+      if (p.length < HEADER_MAX_CHARS && !/[.!?:;]$/u.test(p)) continue;
+      bodyStarted = true;
+    }
     const sig = detectInjectionSignals(p);
     if (sig.length > 0) {
       flaggedParagraphs.push(sig);
@@ -199,4 +234,53 @@ export function sameUrl(a: string, b: string): boolean {
   };
   const ka = key(a);
   return ka !== null && ka === key(b);
+}
+
+/** Wynik pierwszeństwa strony urzędu nad innymi dowodami dla twierdzenia wyodrębnionego z tej strony. */
+export interface PagePrecedence<T> {
+  accepted: T[];
+  /** Strona ma dosłowny cytat ze stanowiskiem `potwierdza`. */
+  pageConfirms: boolean;
+  /** Nowsze niż strona i sprzeczne z nią dowody (inne dokumenty, oceny redakcji): uwaga i niższa siła, nie werdykt. */
+  newer: T[];
+  /** Ile sprzecznych dowodów starszych niż strona (albo bez daty, albo przy stronie bez daty) zostało tłem. */
+  backgrounded: number;
+}
+
+type PrecedenceItem = { passage: { meta: SourceMeta }; stance: string; mismatch?: unknown };
+
+const CONTRA = new Set(['obala', 'rozbieznosc_kontekstu']);
+
+/**
+ * Zad. 44, reguła ogólna: twierdzenie wyodrębnione ze strony urzędu ocenia się dowodem z TEJ strony.
+ * - Fragmenty tej strony (warstwa `strona_urzedu` albo kopia pod tym samym adresem w zbiorze) nie mogą
+ *   przeczyć zdaniu, które z nich pochodzi: ich `obala`/`rozbieznosc_kontekstu` staje się `kontekst`.
+ * - Inne dokumenty (zbiór, indeks redakcji) sprzeczne ze stroną: starsze niż strona, bez daty albo przy
+ *   stronie bez daty są tłem (`kontekst`, "wcześniejszy komunikat"); nowszy urząd zastępuje starszy.
+ * - Nowszy niż strona sprzeczny dokument: nie zmienia werdyktu po cichu (też `kontekst` w regułach),
+ *   ale trafia do `newer` (uwaga "Nowsze źródło mówi inaczej" i niższa siła), gdy strona potwierdza.
+ * Zgodne dowody innych dokumentów zostają bez zmian.
+ */
+export function applyPagePrecedence<T extends PrecedenceItem>(accepted: T[], page: Pick<PageInfo, 'url' | 'publishedAt'>): PagePrecedence<T> {
+  const fromPage = (a: T) => a.passage.meta.layer === 'strona_urzedu' || sameUrl(a.passage.meta.url, page.url);
+  const pageConfirms = accepted.some((a) => fromPage(a) && a.stance === 'potwierdza');
+  const pageDate = page.publishedAt ?? null;
+  const newer: T[] = [];
+  let backgrounded = 0;
+  const asContext = (a: T): T => {
+    const { mismatch: _m, ...rest } = a;
+    return { ...(rest as T), stance: 'kontekst' };
+  };
+  const out = accepted.map((a) => {
+    if (!CONTRA.has(a.stance)) return a;
+    if (fromPage(a)) return asContext(a);
+    const date = a.passage.meta.publishedAt ?? null;
+    if (pageDate && date && date > pageDate) {
+      if (pageConfirms) newer.push(a);
+      return asContext(a);
+    }
+    backgrounded++;
+    return asContext(a);
+  });
+  return { accepted: out, pageConfirms, newer, backgrounded };
 }

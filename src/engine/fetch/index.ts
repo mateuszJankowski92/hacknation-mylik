@@ -17,6 +17,8 @@ import { extractPageDate } from './meta';
 import { isBlockedHostname, isBlockedIp } from './ip';
 
 export { isHiddenElement, stripHiddenHtml } from './hidden';
+import { mainContentHtml } from './content';
+export { mainContentHtml, stripChrome } from './content';
 export { extractPageDate } from './meta';
 export { isBlockedHostname, isBlockedIp, isBlockedIpv4, isBlockedIpv6 } from './ip';
 
@@ -44,6 +46,11 @@ export type PageFetchResult =
       redirects: number;
       /** Data publikacji (YYYY-MM-DD) z jawnych znaczników strony (zad. 43); null albo brak = nie znaleziono. */
       publishedAt?: string | null;
+      /**
+       * Tekst samej treści głównej (article/main bez menu, okruszków, "udostępnij"; zad. 44) albo brak, gdy
+       * strona nie ma pewnego kontenera. Używany tylko dla strony urzędu; `text` zostaje bez zmian.
+       */
+      mainText?: string | null;
     }
   | { ok: false; reason: FetchFailReason; status?: number };
 
@@ -269,6 +276,9 @@ export function createPageFetcher(opts: PageFetcherOptions = {}): PageFetcher {
         }
         if (!text) throw new FetchAbort('pusta_tresc');
         const publishedAt = isHtml ? extractPageDate(raw) : null;
+        const mainHtml = isHtml ? mainContentHtml(stripHiddenHtml(raw)) : null;
+        let mainText = mainHtml ? htmlToText(mainHtml).replace(/\r\n?/g, '\n').trim() : null;
+        if (mainText && mainText.length > maxTextChars) mainText = mainText.slice(0, maxTextChars);
         return {
           ok: true,
           finalUrl: url.toString(),
@@ -278,6 +288,7 @@ export function createPageFetcher(opts: PageFetcherOptions = {}): PageFetcher {
           truncated,
           redirects: hop,
           publishedAt,
+          ...(mainText ? { mainText } : {}),
         };
       }
     };

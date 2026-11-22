@@ -25,6 +25,7 @@ import {
 	decisivePage,
 	decisiveReview,
 	isPageEvidence,
+	NEWER_SOURCE_PREFIX,
 	missingEvidenceText,
 	pageAgeNote,
 	pageAgeNoteShort,
@@ -60,8 +61,27 @@ function dateOf(item: EvidenceItem): string {
 	return item.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty publikacji';
 }
 
+/** Twierdzenie ze strony urzędu potwierdzone dosłownym cytatem z tej strony (zad. 44). */
+function pageConfirmed(c: ClaimResult): boolean {
+	return c.verdict === 'potwierdzone' && decisivePage(c)?.stance === 'potwierdza';
+}
+
 function leadClaim(record: VerificationRecord): ClaimResult | undefined {
+	// Strona urzędu: odpowiedź prowadzi pierwsze zdanie potwierdzone cytatem (to ono niesie "To oficjalny komunikat").
+	if (record.page?.official) {
+		const confirmed = record.claims.find(pageConfirmed);
+		if (confirmed) return confirmed;
+	}
 	return record.claims.find((c) => c.claim.kind === 'faktograficzna') ?? record.claims[0];
+}
+
+/** Etykieta zbiorcza dla strony urzędu z kilkoma zdaniami: "potwierdzone: 3 z 5 zdań z cytatem". */
+export function pageSummaryLabel(record: VerificationRecord): string | null {
+	if (!record.page?.official) return null;
+	const checked = record.claims.filter((c) => c.verdict !== 'nie_podlega_weryfikacji');
+	const confirmed = checked.filter(pageConfirmed).length;
+	if (confirmed === 0 || checked.length < 2) return null;
+	return `${VERDICT_LABELS_PL.potwierdzone}: ${confirmed} z ${checked.length} zdań z cytatem`;
 }
 
 function join(...parts: string[]): string {
@@ -133,6 +153,7 @@ function renderShortCore(record: VerificationRecord, rawCardUrl: string, limit: 
 	// Strona urzędu: zdanie z dosłownym cytatem, odnośnik do strony i uwaga o wieku (gdy trzeba) mają pierwszeństwo.
 	const pageEv = decisivePage(lead);
 	if (pageEv) {
+		const summary = pageSummaryLabel(record);
 		const ageFull = pageAgeNote(pageEv.source.publishedAt, pageEv.source.fetchedAt);
 		const ageForms = ageFull ? [ageFull, pageAgeNoteShort(pageEv.source.publishedAt, pageEv.source.fetchedAt) ?? ''] : [''];
 		for (const extraPart of [extra, ''])
@@ -146,8 +167,8 @@ function renderShortCore(record: VerificationRecord, rawCardUrl: string, limit: 
 									pageSaysSentence(pageEv, { maxQuote: quote, maxPublisher: MAX_PUBLISHER_CHARS }),
 									link,
 									age,
-									`[${label}]`,
-									extraPart,
+									`[${summary ?? label}]`,
+									summary ? '' : extraPart,
 									stamp,
 									warn,
 									tail,
@@ -226,7 +247,8 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 	// Podstawa wyłącznie ze strony urzędu: zdania wyżej wystarczają, dochodzi tylko jedno zdanie o drugiej stronie.
 	const pageOnly = page !== null && claim.evidence.filter((e) => e.stance !== 'kontekst').every(isPageEvidence);
 	if (pageOnly) {
-		if (claim.verdict === 'potwierdzone') parts.push('Nie znalazłem źródła, które temu przeczy.');
+		const newer = claim.limitations.find((l) => l.startsWith(NEWER_SOURCE_PREFIX));
+		if (claim.verdict === 'potwierdzone') parts.push(newer ?? 'Nie znalazłem źródła, które temu przeczy.');
 		else if (claim.verdict === 'falszywe') parts.push('Nie znalazłem źródła, które to potwierdza.');
 		else if (claim.verdict === 'wprowadzajace_w_blad') parts.push('Źródło opisuje to samo, ale w innych okolicznościach.');
 	}

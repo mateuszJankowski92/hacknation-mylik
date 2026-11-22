@@ -162,3 +162,15 @@ export const MESSAGES = {
   clarification:
     'Nie znaleźliśmy w zgłoszeniu konkretnej informacji do sprawdzenia. Napisz, co dokładnie się wydarzyło, kogo lub czego dotyczy, gdzie i kiedy.',
 } as const;
+
+/** Zad. 44: sprzeczne dokumenty starsze niż strona urzędu (albo bez daty) są tłem, nie podstawą oceny. */
+export const PAGE_OLDER_BACKGROUND_LIMITATION =
+  'Wcześniejsze komunikaty, które opisują to inaczej, pokazuję jako tło: nowszy komunikat urzędu je zastępuje.';
+
+/** Zad. 44: nowszy dokument niż strona urzędu i sprzeczny z nią: wyraźna uwaga, siła niższa, etykieta bez zmian. */
+export { NEWER_SOURCE_PREFIX } from '../render/answer';
+import { NEWER_SOURCE_PREFIX } from '../render/answer';
+export function newerSourceNotice(publisher: string, publishedAt: string | null | undefined): string {
+  const when = publishedAt ? `, ${publishedAt.split('-').reverse().join('.')}` : '';
+  return `${NEWER_SOURCE_PREFIX} ${publisher.trim()}${when}. Sprawdź, czy komunikat urzędu jest nadal aktualny.`;
+}

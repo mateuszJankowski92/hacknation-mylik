@@ -49,6 +49,8 @@ import {
   PAGE_IS_DATA_LIMITATION,
   PAGE_LEFT_LIST_NOTICE,
   PAGE_OFFICIAL_LIMITATION,
+  PAGE_OLDER_BACKGROUND_LIMITATION,
+  newerSourceNotice,
   PAGE_TRUNCATED_NOTICE,
   scopeLimitation,
   UNDATED_LIMITATION,
@@ -90,6 +92,8 @@ import { isFactcheckFailure, selectReviewEvidence, type FactcheckLayer, type Fac
 import { annotateAnswer, answerMode, decisivePage, pageAgeNote } from '../render/answer';
 import { defaultOfficialHosts, type OfficialHostList } from './officialHosts';
 import {
+  applyPagePrecedence,
+  type PagePrecedence,
   buildOfficialDocument,
   describePage,
   firstOfficialUrl,
@@ -574,10 +578,16 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     let pageDescription: PageDescription | null = null;
     let pageDocumentRaw: OfficialPageDocument | null = null;
     let pageNotice: string | null = null;
-    const takePage = (page: Extract<PageFetchResult, { ok: true }>, requested: string): void => {
+    /** Zwraca tekst strony do analizy: dla strony urzędu sama treść główna (zad. 44), gdy ją wyodrębniono. */
+    const takePage = (page: Extract<PageFetchResult, { ok: true }>, requested: string): string => {
       pageDescription = describePage(page, requested, officialHosts, now());
-      if (pageDescription.official) pageDocumentRaw = buildOfficialDocument(page, pageDescription);
-      else if (pageDescription.leftTheList) pageNotice = PAGE_LEFT_LIST_NOTICE;
+      if (pageDescription.official) {
+        const main = page.mainText ? { ...page, text: page.mainText } : page;
+        pageDocumentRaw = buildOfficialDocument(main, pageDescription);
+        return main.text;
+      }
+      if (pageDescription.leftTheList) pageNotice = PAGE_LEFT_LIST_NOTICE;
+      return page.text;
     };
     if (prepared.kind === 'url') {
       if (!deps.fetchPage) {
@@ -606,7 +616,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
                 : MESSAGES.urlNotFetched;
         return toState(stateOutcome('brak_mozliwosci_sprawdzenia', message, `url:${page.reason}`));
       }
-      takePage(page, target);
+      const pageText = takePage(page, target);
       store.logEvent('url_fetched', {
         channel,
         detail: {
@@ -618,7 +628,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         },
       });
       // Ta sama normalizacja co dla tekstu od obywatela (znaki niewidoczne, NFKC, sterujące).
-      analysisText = maskPii(cleanText(page.text)).text;
+      analysisText = maskPii(cleanText(pageText)).text;
       pageTruncated = page.truncated;
       // Klucz obejmuje skrót treści: zmiana strony = nowe sprawdzenie, nie stary rekord. Rodzaj strony
       // (urzędowa albo zwykła) też, bo od niego zależy odpowiedź (zad. 43).
@@ -1207,6 +1217,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         rejectedCount += lr.rejected;
       }
 
+      // (6c) zad. 44: twierdzenie wyodrębnione ze strony urzędu ocenia dowód z tej strony; starsze sprzeczne
+      // dokumenty są tłem, nowszy sprzeczny dokument daje uwagę i niższą siłę (officialPage.ts).
+      let precedence: PagePrecedence<AcceptedEvidence> | null = null;
+      if (pageDocument && pageInfo && isUrl) {
+        precedence = applyPagePrecedence(accepted, pageInfo);
+        accepted = precedence.accepted;
+      }
+
       // Próba obalenia: ile dowodów przeciwnych przyniósł przebieg "przeciw".
       const refutation: Refutation = {
         performed: true,
@@ -1228,6 +1246,22 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const decision = decideVerdict(claim.kind, ruleEvidence, { refutationPerformed: refutation.performed });
       trace({ type: 'verdict', claimId: claim.id, claimText: claim.text, kind: claim.kind, verdict: decision.verdict, ...(decision.abstain ? { abstain: decision.abstain } : {}) });
       const strength = computeStrength(decision);
+      const precedenceLimitations: string[] = [];
+      if (precedence?.pageConfirms && decision.verdict === 'potwierdzone') {
+        if (precedence.backgrounded > 0) precedenceLimitations.push(PAGE_OLDER_BACKGROUND_LIMITATION);
+        const seenDocs = new Set<string>();
+        for (const a of precedence.newer) {
+          if (seenDocs.has(a.passage.documentId)) continue;
+          seenDocs.add(a.passage.documentId);
+          const text = newerSourceNotice(a.passage.meta.publisher || a.passage.meta.domain, a.passage.meta.publishedAt);
+          precedenceLimitations.push(text);
+          side.notices.push({ type: 'status_zrodla', text, passageId: a.passage.id });
+        }
+        if (precedence.newer.length > 0) {
+          strength.level = strength.level === 'wysoka' ? 'srednia' : 'niska';
+          if (!strength.reasons.includes('sprzeczne_zrodla')) strength.reasons.push('sprzeczne_zrodla');
+        }
+      }
       const evidence: EvidenceItem[] = accepted.map((a, i) => ({
         passageId: a.passage.id,
         stance: a.stance,
@@ -1239,7 +1273,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       const distinctDocs = (stance: string) =>
         new Set(ruleEvidence.filter((e) => e.stance === stance).map((e) => e.documentId)).size;
 
-      const limitations: string[] = [...baseLimitations];
+      const limitations: string[] = [...baseLimitations, ...precedenceLimitations];
       if (ruleEvidence.some((e) => e.archival)) {
         limitations.push(archivalLimitation(archivalMonths));
         for (const e of ruleEvidence)
@@ -1381,7 +1415,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     let announced = false;
     for (const r of results) {
       const st = fcStatuses.get(r.claim.id);
-      const announce = prepared.kind === 'url' && !announced && decisivePage(r) !== null;
+      const announce = prepared.kind === 'url' && !announced && r.verdict === 'potwierdzone' && decisivePage(r)?.stance === 'potwierdza';
       if (announce) announced = true;
       annotateAnswer(r, { mode, announce, indexChecked: st !== undefined && !isFactcheckFailure(st), indexFailed: st !== undefined && isFactcheckFailure(st) });
     }

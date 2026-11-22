@@ -77,8 +77,19 @@ function classPublished(html: string, now: Date): string | null {
   return null;
 }
 
+// 5. (zad. 44) Układ nagłówka artykułu bez znaczników: nagłówek <h1>/<h2>, a zaraz po nim element, którego
+// CAŁA treść to data DD.MM.RRRR (np. gov.pl). Tylko pierwszy taki nagłówek; inne daty w treści nie są brane.
+const HEADER_DATE =
+  /<h([12])\b[^>]*>(?:(?!<\/h\1>)[\s\S]){1,400}<\/h\1>\s*<(p|div|span|small|time)\b[^>]*>\s*(?:<(?:span|strong|b|small|em)\b[^>]*>\s*)*(\d{1,2})\.(\d{1,2})\.(\d{4})(?:\s*r\.?)?\s*(?:<\/(?:span|strong|b|small|em)>\s*)*<\/\2>/iu;
+
+function headerPublished(html: string, now: Date): string | null {
+  const body = html.replace(/<(script|style|nav|header|footer)\b[\s\S]*?<\/\1>/giu, ' ');
+  const m = HEADER_DATE.exec(body);
+  return m ? validDay(Number(m[5]), Number(m[4]), Number(m[3]), now) : null;
+}
+
 /** Data publikacji (YYYY-MM-DD) z surowego HTML albo null. Komentarze HTML są pomijane. */
 export function extractPageDate(rawHtml: string, now: Date = new Date()): string | null {
   const html = rawHtml.replace(/<!--[\s\S]*?-->/g, ' ');
-  return metaPublished(html, now) ?? jsonLdPublished(html, now) ?? timePublished(html, now) ?? classPublished(html, now);
+  return metaPublished(html, now) ?? jsonLdPublished(html, now) ?? timePublished(html, now) ?? classPublished(html, now) ?? headerPublished(html, now);
 }

@@ -129,6 +129,9 @@ export function decisivePage(claim: ClaimResult): EvidenceItem | null {
   return claim.evidence.find((e) => isPageEvidence(e) && DECISIVE.has(e.stance)) ?? null;
 }
 
+/** Początek uwagi o nowszym, sprzecznym źródle (zad. 44; ta sama treść w silniku, src/engine/explain.ts). */
+export const NEWER_SOURCE_PREFIX = 'Nowsze źródło mówi inaczej:';
+
 /** Pierwsze, duże zdanie dla samego adresu strony urzędu: nie było pytania, więc nie "Tak.". */
 export function officialAnnouncement(publisher: string): string {
   return `To oficjalny komunikat: ${publisher.trim()}.`;
