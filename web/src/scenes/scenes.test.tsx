@@ -157,7 +157,7 @@ describe('sceny czekania', () => {
 		expect(screen.getByRole('button', { name: SCENE_TEXTS.replay })).toBeTruthy();
 		expect(window.localStorage.length).toBe(0);
 		await screen.findByText(STATE_LABEL, undefined, { timeout: 600 });
-		fireEvent.click(screen.getByRole('link', { name: 'Mylik' }));
+		fireEvent.click(screen.getByRole('link', { name: 'Mylik, strona główna' }));
 		fireEvent.change(await screen.findByLabelText(/Wklej informację lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		await screen.findByLabelText('Postęp sprawdzania');

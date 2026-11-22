@@ -1,0 +1,15 @@
+.logo {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.logo__mark {
+	flex: none;
+	width: 32px;
+	height: 32px;
+}
+
+.logo__dot {
+	color: var(--accent);
+}

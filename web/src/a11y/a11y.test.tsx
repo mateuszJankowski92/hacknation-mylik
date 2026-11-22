@@ -201,7 +201,7 @@ describe('przejście klawiaturą', () => {
 		const order = tabOrder(container);
 		const labels = order.map(label);
 		expect(labels[0]).toBe('Przejdź do treści');
-		expect(labels.slice(1, 4)).toEqual(['Mylik', 'Źródła', A11Y_TEXTS.button]);
+		expect(labels.slice(1, 4)).toEqual(['Mylik, strona główna', 'Źródła', A11Y_TEXTS.button]);
 		const field = order.findIndex((node) => node.tagName === 'TEXTAREA');
 		const submit = order.findIndex((node) => node.getAttribute('type') === 'submit');
 		expect(field).toBeGreaterThan(3);

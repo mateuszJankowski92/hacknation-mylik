@@ -9,6 +9,8 @@ import { AccessibilityPage } from './components/AccessibilityPage';
 import { PrivacyPage } from './components/PrivacyPage';
 import { SiteFooter } from './components/SiteFooter';
 import { Link } from './components/Link';
+import { LOGO_LABEL, Logo } from './components/Logo';
+import './components/logo.css';
 import { useRoute } from './route';
 import { CharacterStage } from './stage/CharacterStage';
 import { StageProvider } from './stage/StageContext';
@@ -31,8 +33,8 @@ function AppShell() {
 			</a>
 			<header className="site-header">
 				<p className="site-header__brand">
-					<Link to="/" aria-current={isHome ? 'page' : undefined}>
-						Mylik
+					<Link to="/" aria-label={LOGO_LABEL} aria-current={isHome ? 'page' : undefined}>
+						<Logo />
 					</Link>
 				</p>
 				<div className="site-header__tools">
