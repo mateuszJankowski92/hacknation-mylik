@@ -168,10 +168,10 @@ describe('nagłówek strony głównej', () => {
 		expect(css).not.toMatch(/animation|transition: [^;]*hero__struck/);
 	});
 
-	it('mała linia ma 18 px na telefonie i 20-22 px na większych ekranach', () => {
+	it('mała linia ma 16 px na telefonie (ostatnia reguła) i 18-22 px na większych ekranach', () => {
 		const css = readUnscaled(join(HERE, 'components', 'hero.css'), 'utf8');
 		const sizes = [...css.matchAll(/\.hero__kicker \{[^}]*font-size: (\d+)px;/g)].map((match) => Number(match[1]));
-		expect(sizes).toEqual([18, 20, 22]);
+		expect(sizes).toEqual([18, 20, 22, 16]);
 	});
 
 	it('tytuł karty i opis w pliku HTML: "Mylik: informacja to nie fakt" i czyste zdanie bez przekreślenia', () => {

@@ -200,7 +200,7 @@ describe('arkusz wyniku: układ od góry', () => {
 		expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{\s*:root:not\(\[data-motion='on'\]\) \.sheet__plane,\s*:root:not\(\[data-motion='on'\]\) \.sheet__body \{\s*animation: none;/);
 		expect(css).toMatch(/\.sheet__plane \{[^}]*border: var\(--outline\) solid var\(--graphite\)/);
 		expect(css).toMatch(/\.sheet__plane \{[^}]*box-shadow: var\(--shadow-paper\)/);
-		expect(css).toContain('var(--crease)');
+		expect(css).not.toContain('var(--crease)');
 	});
 
 	it('układ przyjmuje krótkie i długie zdanie wyniku', () => {

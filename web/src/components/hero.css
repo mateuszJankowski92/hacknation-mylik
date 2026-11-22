@@ -248,3 +248,44 @@
 		font-size: calc(22px * var(--ts));
 	}
 }
+
+/* Telefon: postać dwa razy większa, a teksty hero mniejsze, żeby pole i przycisk zostały na pierwszym ekranie
+   (decyzja właściciela). Wielkości mnożone przez --ts, więc A+ i A++ z panelu Dostępność działają dalej. */
+@media (max-width: 639px) {
+	.hero {
+		--hero-art-height: clamp(230px, 30svh, 290px);
+	}
+
+	.hero__kicker {
+		font-size: calc(16px * var(--ts));
+	}
+
+	.hero__title {
+		font-size: calc(clamp(34px, 9.6vw, 40px) * var(--ts));
+		line-height: 1.08;
+	}
+
+	.hero__subtitle {
+		font-size: calc(17px * var(--ts));
+	}
+
+	.hero .check-form__label {
+		font-size: calc(16px * var(--ts));
+	}
+
+	.hero textarea {
+		min-height: 88px;
+		font-size: calc(17px * var(--ts));
+	}
+
+	.hero .button {
+		min-height: 52px;
+		font-size: calc(18px * var(--ts));
+	}
+}
+
+@media (max-width: 389px) {
+	.hero {
+		--hero-art-height: clamp(200px, 28svh, 250px);
+	}
+}

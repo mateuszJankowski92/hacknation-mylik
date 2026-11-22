@@ -10,7 +10,8 @@ const SHOTS_DIR = process.env.LAYOUT_SHOTS_DIR;
 const DESKTOP_WIDTHS = [1280, 1440, 1920, 2200];
 const MIN_STAGE_SHARE = 0.38;
 const MIN_EXAMPLES_SHARE = 0.9;
-const PHONE = { width: 393, height: 852, maxButtonTop: 600 };
+// Właściciel wybrał dwa razy większą postać na telefonie: przycisk ma zostać na pierwszym ekranie, nie wyżej niż 700 px.
+const PHONE = { width: 393, height: 852, maxButtonTop: 700 };
 const TOLERANCE = 1;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

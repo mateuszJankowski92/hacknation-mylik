@@ -19,29 +19,8 @@
 	z-index: -1;
 	border: var(--outline) solid var(--graphite);
 	border-radius: var(--radius-paper);
-	background:
-		linear-gradient(
-			90deg,
-			transparent calc(50% - 1px),
-			var(--crease) calc(50% - 1px) 50%,
-			var(--crease-light) 50% calc(50% + 1px),
-			transparent calc(50% + 1px)
-		),
-		linear-gradient(
-			180deg,
-			transparent calc(33.333% - 1px),
-			var(--crease) calc(33.333% - 1px) 33.333%,
-			var(--crease-light) 33.333% calc(33.333% + 1px),
-			transparent calc(33.333% + 1px)
-		),
-		linear-gradient(
-			180deg,
-			transparent calc(66.666% - 1px),
-			var(--crease) calc(66.666% - 1px) 66.666%,
-			var(--crease-light) 66.666% calc(66.666% + 1px),
-			transparent calc(66.666% + 1px)
-		),
-		var(--paper);
+	/* Bez linii zgięć w tle arkusza (decyzja właściciela): czysty papier. */
+	background: var(--paper);
 	box-shadow: var(--shadow-paper);
 	transform-origin: 50% 0;
 	animation: sheet-unfold var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
@@ -52,21 +31,20 @@
 	animation: sheet-reveal var(--sheet-unfold-duration) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
+/* Arkusz pojawia się samym łagodnym przenikaniem: bez pochylenia ani rozkładania w perspektywie
+   (pochylone ramki nachodziły na postać przy odświeżeniu strony). */
 @keyframes sheet-unfold {
 	from {
 		opacity: 0;
-		transform: perspective(1200px) rotateX(-12deg) scaleY(0.94);
 	}
 }
 
 @keyframes sheet-reveal {
 	from {
 		opacity: 0;
-		clip-path: inset(-48px -24px 100% -24px);
 	}
 	to {
 		opacity: 1;
-		clip-path: inset(-48px -24px -48px -24px);
 	}
 }
 
@@ -486,4 +464,24 @@
 	text-decoration: underline;
 	text-decoration-thickness: 3px;
 	text-underline-offset: 0.2em;
+}
+
+/* Pulpit: NIC nie wchodzi pod figurę stojącą przy prawej krawędzi. Każdy blok arkusza kończy się przed jej kolumną
+   (łatka tła pod figurą jest nieprzezroczysta, więc treść pod nią byłaby ucięta). Pierwsze twierdzenie rezerwuje
+   miejsce samo (wyżej), pozostałe bloki dostają tę samą rezerwę tutaj. */
+@media (min-width: 1024px) {
+	.sheet:has(> .stage-slot--corner) {
+		--figure-clear: calc(var(--figure-room) + var(--space-6));
+	}
+
+	.sheet:has(> .stage-slot--corner) .sheet__body > :not(.record-claim):not(.record__claims-list):not(.stage-slot):not(.sheet__top),
+	.sheet:has(> .stage-slot--corner) .record__claims-list > :not(.record-claim:first-child),
+	.sheet:has(> .stage-slot--corner) .record > :not(.sheet):not(.result-actions) {
+		max-width: calc(100% - var(--figure-clear));
+	}
+
+	/* Ramki u góry (stan źródeł, pytanie, „Przeczytałem”): nieco ponad połowa szerokości arkusza. */
+	.sheet:has(> .stage-slot--corner) .sheet__top > * {
+		max-width: min(60%, calc(100% - var(--figure-clear)));
+	}
 }

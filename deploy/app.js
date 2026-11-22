@@ -8,8 +8,9 @@ const defaults = {
   // Jeden zaufany pośrednik (nginx/Passenger) przed aplikacją: limit żądań liczony po adresie klienta.
   TRUSTED_PROXY_HOPS: '1',
   PUBLIC_BASE_URL: 'https://mylik.acwo.usermd.net',
-  // Domyślny model wdrożenia: Claude Haiku 5.5 (tańszy). Zmiana: ustaw ANTHROPIC_MODEL w środowisku.
-  ANTHROPIC_MODEL: 'claude-haiku-5-5',
+  // Model instancji pokazowej: Claude Opus 5.5 (decyzja właściciela z 22.11.2026: dokładniej, drożej, wolniej).
+  // Tańszy wariant: 'claude-haiku-5-5' (na nim zrobiono pełne pomiary, zob. docs/WYNIKI.md).
+  ANTHROPIC_MODEL: 'claude-opus-5-5',
 };
 for (const [k, v] of Object.entries(defaults)) {
   if (process.env[k] === undefined || process.env[k] === '') process.env[k] = v;

@@ -326,3 +326,29 @@
 	color: var(--muted);
 	font-size: 0.9375rem;
 }
+
+/* Strona wyniku: teksty o kilka pikseli mniejsze niż na stronie głównej (decyzja właściciela), nadal nie mniej niż
+   16 px przy zwykłej wielkości; ustawienia A+ i A++ z panelu Dostępność działają dalej (mnożnik niżej). */
+.record {
+	--ts: 0.92;
+	font-size: calc(18px * var(--ts));
+}
+
+html[data-text-size='large'] .record {
+	--ts: 1.15;
+}
+
+html[data-text-size='xlarge'] .record {
+	--ts: 1.38;
+}
+
+.record .record-claim__headline,
+.record .page-official__headline {
+	font-size: calc(27px * var(--ts));
+}
+
+/* Zdania strony urzędu bez cytatu: mały nagłówek, żeby nie czytało się go jak ocenę całej strony. */
+.record .record__held .record-claim__headline {
+	font-size: calc(19px * var(--ts));
+	font-weight: 600;
+}

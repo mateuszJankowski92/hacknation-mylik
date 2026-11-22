@@ -147,3 +147,12 @@
 		transition: none;
 	}
 }
+
+/* Telefon: mniejsze teksty podpowiedzi. */
+@media (max-width: 639px) {
+	.examples__label,
+	.examples__shuffle,
+	.examples__note {
+		font-size: calc(16px * var(--ts));
+	}
+}

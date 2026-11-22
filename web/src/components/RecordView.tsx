@@ -147,7 +147,9 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					{officialLayout && page && <OfficialAnnouncement page={page} cited={cited} />}
 					{officialLayout && held.length > 0 && (
 						<section className="record__held" aria-label="Twierdzenia bez cytatu">
-							<h2 className="record__held-title">Czego ta strona nie rozstrzyga</h2>
+							<h2 className="record__held-title">
+								{nb(`Bez potwierdzenia: ${held.length} z ${record.claims.length} zdań tej strony`)}
+							</h2>
 							<div className="record__claims-list">
 								{held.map((result) => (
 									<div key={result.claim.id} className="record__held-item">
