@@ -252,7 +252,8 @@ export function CheckPage() {
 						onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))}
 					/>
 				)}
-				{showsHome && <DiscordNote />}
+				{/* W trybie pokazowym kanał Discord jest odpięty, więc nie zapraszamy do niego. */}
+				{showsHome && !showcase && <DiscordNote />}
 				{showsHome && <HomeSections />}
 			</div>
 			{state.status === 'loading' && (
