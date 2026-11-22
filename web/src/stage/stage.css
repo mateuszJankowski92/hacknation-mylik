@@ -18,7 +18,7 @@
 
 .character-stage[data-animating='true'][data-travel='true'] {
 	transition-duration: var(--stage-travel);
-	transition-timing-function: cubic-bezier(0.45, 0, 0.2, 1);
+	transition-timing-function: cubic-bezier(0.62, 0, 0.32, 1);
 }
 
 .character-stage__frame {
@@ -72,6 +72,16 @@
 	opacity: 0;
 }
 
+/* Przenikanie klipu czekania w obraz wyniku w trakcie przejścia (inna postać na wyniku). */
+.character-stage[data-travel='true'][data-animating='true'] .character-stage__clip--done {
+	transition: opacity calc(var(--stage-travel) * 0.7) cubic-bezier(0.45, 0, 0.55, 1) calc(var(--stage-travel) * 0.15);
+}
+
+/* Arkusz rozkłada się razem z dojściem postaci. */
+:root[data-stage-travel='true'] .sheet {
+	--sheet-unfold-duration: 1120ms;
+}
+
 .character-stage__skip {
 	right: 0;
 	bottom: 0;
@@ -97,18 +107,33 @@
 }
 
 .sheet {
-	--figure-width: 104px;
+	--figure-width: 144px;
 	--figure-room: 0px;
 	--figure-reach: 0px;
 }
 
 .sheet > .stage-slot--corner {
 	position: absolute;
-	top: -40px;
-	right: var(--space-5);
+	top: -116px;
+	right: var(--space-1);
 	float: none;
 	width: var(--figure-width);
 	margin: 0;
+}
+
+@media (max-width: 759px) {
+	/* Telefon: postać wystaje ponad górną krawędź arkusza; pod nią jest tylko wąska metka daty. */
+	.app .sheet:has(> .stage-slot--corner) {
+		margin-top: 124px;
+	}
+
+	.app .sheet:has(> .stage-slot--corner) .sheet__top {
+		padding-right: 0;
+	}
+
+	.app .sheet:has(> .stage-slot--corner) .sheet__asof {
+		max-width: calc(100% - var(--figure-width) + var(--space-2));
+	}
 }
 
 @media (min-width: 760px) {
@@ -126,13 +151,13 @@
 
 @media (min-width: 1024px) {
 	.sheet {
-		--figure-width: 288px;
-		--figure-room: 230px;
-		--figure-reach: clamp(0px, calc((100vw - 100%) / 2 - 8px), 72px);
+		--figure-width: clamp(300px, min(48vh, 30vw), 480px);
+		--figure-reach: max(0px, min(calc(var(--figure-width) / 3), calc(max((100vw - 1080px) / 2, 24px) - 8px)));
+		--figure-room: calc(var(--figure-width) - var(--figure-reach) - 72px);
 	}
 
 	.sheet > .stage-slot--corner {
-		top: 190px;
+		top: 150px;
 	}
 }
 

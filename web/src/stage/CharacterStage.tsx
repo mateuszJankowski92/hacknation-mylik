@@ -201,12 +201,18 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 		}
 		const travel = fromForeground && mode === 'corner' && animationStartsAutomatically();
 		const duration = travel ? TRAVEL_MS : ANIMATION_MS;
+		const root = document.documentElement;
 		const begin = () => {
 			holdMeasureRef.current = false;
 			measure();
 			setTravelling(travel);
 			setAnimating(true);
-			animationTimer.current = setTimeout(() => setAnimating(false), duration);
+			// Arkusz wyniku rozkłada się w tym samym tempie, w jakim postać do niego dochodzi.
+			if (travel) root.dataset.stageTravel = 'true';
+			animationTimer.current = setTimeout(() => {
+				setAnimating(false);
+				delete root.dataset.stageTravel;
+			}, duration);
 		};
 		if (Math.abs(scrollShift) < 0.5) {
 			begin();
@@ -229,6 +235,7 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 		const finish = () => {
 			clearTimeout(animationTimer.current);
 			setAnimating(false);
+			delete document.documentElement.dataset.stageTravel;
 		};
 		const onKey = (event: KeyboardEvent) => {
 			if (event.key === 'Enter' || event.key === ' ') finish();
@@ -241,7 +248,19 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 		};
 	}, [animating]);
 
-	useEffect(() => () => clearTimeout(animationTimer.current), []);
+	useEffect(
+		() => () => {
+			clearTimeout(animationTimer.current);
+			delete document.documentElement.dataset.stageTravel;
+		},
+		[],
+	);
+
+	// Gdy wynik pokazuje inną postać niż klip czekania, przenikanie dzieje się w trakcie ruchu, a nie po dojściu.
+	const roleChanges = Boolean(stage.resultRole && stage.resultRole !== stage.waitingRole);
+	useEffect(() => {
+		if (travelling && animating && roleChanges) setClipFinished(true);
+	}, [travelling, animating, roleChanges]);
 
 	useEffect(() => {
 		if (!targetElement) return;
