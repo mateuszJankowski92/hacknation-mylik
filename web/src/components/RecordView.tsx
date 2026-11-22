@@ -6,6 +6,7 @@ import { CaseNotice } from './CaseNotice';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { SheetQuestion } from './SheetQuestion';
+import { ArticleClaims, OfficialAnnouncement, PageRead, splitOfficialClaims } from './PageRead';
 import { KnownOpWarnings } from './KnownOpWarning';
 import { type Verdict } from '../../../src/contracts/verdict';
 import { countNoun } from '../../../src/render/plural';
@@ -103,7 +104,11 @@ export function summarizeVerdicts(verdicts: Verdict[]): string {
 }
 
 export function RecordView({ record }: { record: VerificationRecord }) {
-	const single = record.claims.length === 1;
+	const page = record.page;
+	const officialPage = page?.official === true;
+	const { cited, held } = officialPage ? splitOfficialClaims(record.claims) : { cited: [], held: [] };
+	const officialLayout = officialPage && cited.length > 0;
+	const single = record.claims.length === 1 && !officialLayout;
 	const role = currentRole(recordRoleOf(record));
 	const note = topicNote(role);
 	const serious = recordSerious(record);
@@ -117,7 +122,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 				<div className="sheet__body">
 					<header className="sheet__top">
 						<p className="sheet__asof">{asOfStamp(record.asOf, record.createdAt)}</p>
-						<SheetQuestion text={record.maskedInput} />
+						{record.page ? <PageRead page={record.page} /> : <SheetQuestion text={record.maskedInput} />}
 						{note && <p className="role-note">{nb(note)}</p>}
 					</header>
 					{record.claims.length === 0 && (
@@ -130,6 +135,31 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 							)}
 						</p>
 					)}
+					{page && !page.official && <ArticleClaims claims={record.claims} asOf={record.asOf} />}
+					{officialLayout && page && <OfficialAnnouncement page={page} cited={cited} />}
+					{officialLayout && held.length > 0 && (
+						<section className="record__held" aria-label="Twierdzenia bez cytatu">
+							<h2 className="record__held-title">Czego ta strona nie rozstrzyga</h2>
+							<div className="record__claims-list">
+								{held.map((result) => (
+									<div key={result.claim.id} className="record__held-item">
+										<p className="record__held-claim">
+											<q>{nb(result.claim.text)}</q>
+										</p>
+										<RecordClaim
+											role={role}
+											serious={serious}
+											result={result}
+											asOf={record.asOf}
+											leading={false}
+											showImage={false}
+											blankSpotNote={false}
+										/>
+									</div>
+								))}
+							</div>
+						</section>
+					)}
 					{single && (
 						<RecordClaim
 							role={role}
@@ -139,7 +169,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 							extraDetails={<RecordExtras record={record} />}
 						/>
 					)}
-					{record.claims.length > 1 && (
+					{record.claims.length > 1 && !officialLayout && (
 						<div className="record__claims-list">
 							{record.claims.map((result, index) => (
 								<RecordClaim
