@@ -31,6 +31,8 @@ export interface StaticOptions {
   transformIndex?: (html: string, path: string, requestUrl: string) => string;
   /** Dodatkowe nagłówki odpowiedzi HTML dla ścieżki SPA. */
   indexHeaders?: (path: string) => Record<string, string>;
+  /** Czy ścieżka SPA to znana trasa interfejsu; nieznana dostaje ten sam index.html z kodem 404. */
+  isKnownPath?: (path: string) => boolean;
 }
 
 export function createStaticHandler(distDir: string, options: StaticOptions = {}) {
@@ -72,7 +74,8 @@ export function createStaticHandler(distDir: string, options: StaticOptions = {}
     if (path !== '/' && extname(path) !== '') return c.text('Nie znaleziono', 404);
     const raw = readFileSync(indexPath, 'utf8');
     const html = options.transformIndex ? options.transformIndex(raw, path, c.req.url) : raw;
-    return c.body(html, 200, {
+    const status = !options.isKnownPath || options.isKnownPath(path) ? 200 : 404;
+    return c.body(html, status, {
       'Content-Type': MIME['.html']!,
       'Cache-Control': 'no-cache',
       ...(options.indexHeaders?.(path) ?? {}),

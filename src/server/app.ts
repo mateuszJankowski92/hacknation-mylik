@@ -12,7 +12,7 @@ import { createClerkApp, type ClerkDeps } from './clerk';
 import { serverError } from './errors';
 import { registerExtraRoutes } from './extras';
 import { registerTrustedPublishersRoute } from './layers';
-import { injectPageMeta, isRecordPath, registerSeoRoutes, resolveBaseUrl } from './seo';
+import { injectPageMeta, isKnownPagePath, isRecordPath, registerSeoRoutes, resolveBaseUrl } from './seo';
 import { registerCaseStatusRoute } from './obieg';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
@@ -158,7 +158,9 @@ export function createApp(deps: AppDeps): Hono {
     indexHeaders: (path) => ({
       ...(isRecordPath(path) ? { 'X-Robots-Tag': 'noindex, nofollow' } : {}),
       ...(path === '/' ? { Link: '</llms.txt>; rel="service-doc"; type="text/plain"' } : {}),
+      ...(isKnownPagePath(path) ? {} : { 'X-Robots-Tag': 'noindex, nofollow' }),
     }),
+    isKnownPath: isKnownPagePath,
   });
   app.get('*', (c) => serveStatic(c));
 

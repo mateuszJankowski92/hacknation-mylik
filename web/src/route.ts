@@ -5,7 +5,8 @@ export type Route =
 	| { page: 'record'; id: string }
 	| { page: 'sources' }
 	| { page: 'accessibility' }
-	| { page: 'privacy' };
+	| { page: 'privacy' }
+	| { page: 'notFound' };
 
 const NAVIGATE_EVENT = 'mylik:navigate';
 const ID_PATTERN = /^[0-9a-f]{64}$/;
@@ -28,6 +29,7 @@ export function parseHash(hash: string): Route {
 export function parseLocation(pathname: string, hash: string): Route {
 	const fromPath = routeForPath(pathname);
 	if (fromPath) return fromPath;
+	if (pathname !== '/' && pathname !== '' && pathname !== '/index.html') return { page: 'notFound' };
 	return parseHash(hash);
 }
 

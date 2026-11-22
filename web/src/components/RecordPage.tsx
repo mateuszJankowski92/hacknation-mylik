@@ -7,18 +7,19 @@ import { isRecordId } from '../route';
 import { recallRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
 import { Link } from './Link';
+import { NOT_FOUND_TITLE, NotFoundView } from './NotFoundView';
 import { OutcomeView } from './OutcomeView';
 import { ResultActions } from './ResultActions';
 import { nb } from '../typography';
 
 export const GONE_TEXTS = {
-	title: 'Tego sprawdzenia już nie ma',
-	body: 'Mogło zostać usunięte albo minął czas, przez który je przechowujemy. Możesz sprawdzić informację jeszcze raz.',
-	back: 'Wróć na stronę główną',
+	title: 'Ten wynik już wygasł albo nie istnieje.',
+	body: 'Możesz sprawdzić tę informację jeszcze raz.',
+	back: 'Sprawdź jeszcze raz',
 } as const;
 
 export const LOADING_TITLE = `Wczytuję… - ${BASE_TITLE}`;
-export const GONE_PAGE_TITLE = `${GONE_TEXTS.title} - ${BASE_TITLE}`;
+export const GONE_PAGE_TITLE = NOT_FOUND_TITLE;
 export const ERROR_PAGE_TITLE = `Nie udało się wczytać wyniku - ${BASE_TITLE}`;
 
 type PageState =
@@ -99,16 +100,18 @@ export function RecordPage({ id }: { id: string }) {
 			(heading ?? container).focus();
 			return;
 		}
-		if (state.status === 'gone' || state.status === 'error') container.focus();
+		if (state.status === 'error') container.focus();
 	}, [state.status, showResult]);
 
 	const question = state.status === 'ready' && state.outcome.kind === 'record' ? state.outcome.record.maskedInput : '';
 
 	return (
 		<div className="record-page">
-			<h1 className={state.status === 'ready' || state.status === 'loading' ? 'visually-hidden' : 'page-title'}>
-				{nb(state.status === 'gone' ? GONE_TEXTS.title : state.status === 'error' ? 'Nie udało się wczytać wyniku' : 'Wynik sprawdzenia')}
-			</h1>
+			{state.status !== 'gone' && (
+				<h1 className={state.status === 'ready' || state.status === 'loading' ? 'visually-hidden' : 'page-title'}>
+					{nb(state.status === 'error' ? 'Nie udało się wczytać wyniku' : 'Wynik sprawdzenia')}
+				</h1>
+			)}
 			{state.status === 'loading' && (
 				<p role="status" aria-live="polite" className="record-page__loading">
 					Wczytuję…
@@ -121,14 +124,7 @@ export function RecordPage({ id }: { id: string }) {
 				data-engine-ms={showResult ? stage.timing?.engineMs : undefined}
 				data-shown-ms={showResult ? stage.timing?.shownMs : undefined}
 			>
-				{state.status === 'gone' && (
-					<section className="http-error" role="status">
-						<p>{nb(GONE_TEXTS.body)}</p>
-						<p>
-							<Link to="/">{GONE_TEXTS.back}</Link>
-						</p>
-					</section>
-				)}
+				{state.status === 'gone' && <NotFoundView title={GONE_TEXTS.title} body={GONE_TEXTS.body} action={GONE_TEXTS.back} />}
 				{state.status === 'error' && (
 					<section className="http-error" role="alert">
 						<p>{nb(state.message)}</p>

@@ -7,6 +7,7 @@ import { RecordPage } from './components/RecordPage';
 import { SourcesPage } from './components/SourcesPage';
 import { AccessibilityPage } from './components/AccessibilityPage';
 import { PrivacyPage } from './components/PrivacyPage';
+import { NotFoundView } from './components/NotFoundView';
 import { SiteFooter } from './components/SiteFooter';
 import { Link } from './components/Link';
 import { LOGO_LABEL, Logo } from './components/Logo';
@@ -53,6 +54,7 @@ function AppShell() {
 				{route.page === 'sources' && <SourcesPage />}
 				{route.page === 'accessibility' && <AccessibilityPage />}
 				{route.page === 'privacy' && <PrivacyPage />}
+				{route.page === 'notFound' && <NotFoundView />}
 			</main>
 			<SiteFooter />
 			<CharacterStage appRef={appRef} />

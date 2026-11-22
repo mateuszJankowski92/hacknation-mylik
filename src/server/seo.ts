@@ -211,7 +211,17 @@ function metaFor(path: string, baseUrl: string, deps: SeoDeps): PageMeta {
       jsonLd: jsonLdFor(baseUrl, page.path),
     };
   }
-  return { title: SITE_PAGES[0]!.title, description: SITE_DESCRIPTION, canonicalPath: null, noindex: true, jsonLd: [] };
+  return { title: NOT_FOUND_TITLE, description: SITE_DESCRIPTION, canonicalPath: null, noindex: true, jsonLd: [] };
+}
+
+export const NOT_FOUND_TITLE = `Nie znaleziono: ${SITE_NAME}`;
+
+/** Znane trasy interfejsu (200); pozostałe ścieżki stron dostają 404 z tą samą aplikacją. */
+export function isKnownPagePath(path: string): boolean {
+  if (path === '/' || path === '/index.html') return true;
+  const normalized = path.replace(/\/+$/, '');
+  if (SITE_PAGES.some((p) => p.path === normalized)) return true;
+  return /^\/r\/[^/]+\/?$/.test(path) || /^\/rekord\/[^/]+$/.test(path);
 }
 
 function jsonLdScript(data: unknown): string {

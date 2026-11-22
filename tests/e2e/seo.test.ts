@@ -145,6 +145,19 @@ describe('metadane stron', () => {
     expect(await (await b.app.request('/cos-nieznanego')).text()).toContain('noindex');
   });
 
+  it('nieznana trasa strony: 404 z tą samą aplikacją i tytułem "Nie znaleziono: Mylik"; znane trasy: 200', async () => {
+    const unknown = await b.app.request('/cos-nieznanego');
+    expect(unknown.status).toBe(404);
+    expect(unknown.headers.get('X-Robots-Tag')).toContain('noindex');
+    const html = await unknown.text();
+    expect(html).toContain('<title>Nie znaleziono: Mylik</title>');
+    expect(html).toContain('id="root"');
+    for (const path of ['/', '/zrodla', '/dostepnosc', '/prywatnosc', '/zrodla/', `/r/${'a'.repeat(64)}`]) {
+      expect((await b.app.request(path)).status, path).toBe(200);
+    }
+    expect((await b.app.request('/brak.js')).status).toBe(404);
+  });
+
   it('wejście niezaufane nie wstrzykuje znaczników', () => {
     const evil = '"><script>alert(1)</script>';
     expect(escapeHtml(evil)).toBe('&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;');
