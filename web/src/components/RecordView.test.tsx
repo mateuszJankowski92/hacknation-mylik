@@ -123,7 +123,7 @@ describe('RecordView', () => {
 		for (let i = 1; i < order.length; i++) {
 			expect(order[i - 1]!.compareDocumentPosition(order[i]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 		}
-		expect(container.querySelector('.record-claim__headline')?.textContent).toMatch(/podał .* co innego: „/);
+		expect(container.querySelector('.record-claim__headline')?.textContent).toMatch(/Źródło: .*, .*\. Co innego: „/);
 		expect(container.querySelector('.confidence__word')).toBeNull();
 		expect(container.querySelector('.verdict__label')?.closest('h1,h2,h3,h4,h5,h6')).toBeNull();
 	});

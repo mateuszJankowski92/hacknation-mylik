@@ -48,7 +48,7 @@ describe('podpowiedzi zgłoszeń na stronie głównej', () => {
 		expect(EXAMPLE_POOL.length).toBeGreaterThanOrEqual(16);
 		expect(new Set(EXAMPLE_POOL.map((example) => example.id)).size).toBe(EXAMPLE_POOL.length);
 		for (const example of EXAMPLE_POOL) {
-			expect(Object.keys(example).sort()).toEqual(['id', 'kind', 'label', 'text']);
+			expect(Object.keys(example).sort()).toEqual(['id', 'kind', 'label', 'role', 'text']);
 			expect(['redakcja', 'urzad', 'biala_plama', 'link']).toContain(example.kind);
 			expect(example.text.trim().length).toBeGreaterThan(10);
 		}

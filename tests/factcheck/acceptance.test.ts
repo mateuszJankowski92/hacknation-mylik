@@ -117,7 +117,7 @@ describe('A. fakt prosty: ocena redakcji z indeksu', () => {
     expect(c.verdict).toBe('wprowadzajace_w_blad');
     expect(c.directAnswer).toBe('Częściowo.');
     const head = buildHeadline(c);
-    expect(head).toMatch(/^Częściowo\. Ministerstwo Spraw Zagranicznych podał 18\.05\.2026/);
+    expect(head).toMatch(/^Częściowo\. Źródło: Ministerstwo Spraw Zagranicznych, 18\.05\.2026\. Ważny kontekst/);
     expect(head).toContain('zapowiedziały strajk');
   });
 });

@@ -92,9 +92,9 @@ function headlineBody(claim: ClaimResult, limits: LayoutLimits): string {
 	if (item.source.review) return reviewSentence(item, { maxThesis: quoteLimit });
 	if (isPageEvidence(item)) return pageSaysSentence(item, { maxQuote: quoteLimit, maxPublisher: publisherLimit });
 
-	const date = item.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty';
+	const date = item.source.publishedAt ? formatDate(item.source.publishedAt) : 'dokument bez daty';
 	const quote = shorten(item.quote, quoteLimit);
-	const lead = `${publisherName(item, publisherLimit)} podał ${date} ${relation}`;
+	const lead = `Źródło: ${publisherName(item, publisherLimit)}, ${date}. ${relation.charAt(0).toUpperCase()}${relation.slice(1)}`;
 	return quote ? `${lead}: „${quote}”` : `${lead}.`;
 }
 

@@ -45,7 +45,7 @@ export { averageSentenceLength, countForbiddenForms, findForbiddenForms, measure
 const MAX_PUBLISHER_CHARS = 60;
 const MIN_PUBLISHER_CHARS = 12;
 const MAX_SMS_QUOTE_CHARS = 140;
-const MIN_SMS_QUOTE_CHARS = 20;
+const SMS_QUOTE_STEPS = [140, 120, 100, 80, 60, 40, 20, 10];
 
 function toIso(asOf: string | Date | undefined): string {
 	if (asOf === undefined) return new Date().toISOString();
@@ -138,7 +138,7 @@ function renderShortCore(record: VerificationRecord, rawCardUrl: string, limit: 
 	}
 	const tryFull = (pubLink: string): string | null => {
 		for (const checkedAt of [record.createdAt, undefined]) {
-			for (let quote = MAX_SMS_QUOTE_CHARS; quote >= MIN_SMS_QUOTE_CHARS; quote -= 20) {
+			for (const quote of SMS_QUOTE_STEPS) {
 				const layout = buildResultLayout(lead, record.asOf, {
 					publisher: Math.min(MAX_PUBLISHER_CHARS, Math.max(MIN_PUBLISHER_CHARS, quote / 2)),
 					quote,

@@ -146,7 +146,7 @@ describe('render', () => {
 			expect(text).toContain(`${link}: https://mylik.pl/karta/`);
 		}
 		const text = renderShortAnswer(record([SCENARIOS[0]!]), 'https://mylik.pl/k/1');
-		expect(text).toContain('Rządowe Centrum Bezpieczeństwa podał 20.11.2026 to samo: „Cytat, który jest nietykalny i był dosłowny.”');
+		expect(text).toContain('Źródło: Rządowe Centrum Bezpieczeństwa, 20.11.2026. To samo: „Cytat, który jest nietykalny i był dosłowny.”');
 	});
 
 	it('komunikaty stanów i uzasadnienia są różne i niepuste', () => {
@@ -241,7 +241,7 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 			const t = text(c);
 			const abstain = c.verdict === 'brak_wystarczajacych_dowodow';
 			const order = [
-				t.indexOf(abstain ? 'Nie ' : 'podał'),
+				t.indexOf(abstain ? 'Nie ' : 'Źródło: '),
 				t.indexOf(`[${VERDICT_LABELS_PL[c.verdict]}]`),
 				abstain ? t.indexOf('zajrzyj na stronę właściwego urzędu') : t.indexOf('Na ile to pewne: średnio'),
 				t.indexOf('Stan źródeł na'),
@@ -253,8 +253,8 @@ describe('układ wyniku (zdanie, etykieta, pewność, data, odsyłacz)', () => {
 	});
 
 	it('trzy przykładowe odpowiedzi mają zdanie relacjonujące źródło i cytat bez zmian', () => {
-		expect(text(SCENARIOS[0]!)).toMatch(/^Rządowe Centrum Bezpieczeństwa podał 20\.11\.2026 to samo: „/);
-		expect(text(SCENARIOS[1]!)).toMatch(/^Rządowe Centrum Bezpieczeństwa podał 20\.11\.2026 co innego: „/);
+		expect(text(SCENARIOS[0]!)).toMatch(/^Źródło: Rządowe Centrum Bezpieczeństwa, 20\.11\.2026\. To samo: „/);
+		expect(text(SCENARIOS[1]!)).toMatch(/^Źródło: Rządowe Centrum Bezpieczeństwa, 20\.11\.2026\. Co innego: „/);
 		expect(text(SCENARIOS[3]!)).toMatch(/^Nie znalazłem tego w sprawdzonych źródłach\. Nie wiem, czy to prawda\. \[brak wystarczających dowodów\]/);
 	});
 

@@ -102,7 +102,7 @@ describe('układ karty', () => {
 
 	it('zdanie główne jest największe, etykieta mała, bez pewności', () => {
 		const svg = renderCardSvg(fixtureRecord('falszywe'), { cardUrl: CARD_URL });
-		const headline = sizeOf(svg, 'Przykładowy Urząd Miasta podał');
+		const headline = sizeOf(svg, 'Źródło: Przykładowy Urząd Miasta');
 		const label = sizeOf(svg, VERDICT_LABELS_PL.falszywe);
 		expect(label).toBeLessThan(headline);
 		const sizes = [...svg.matchAll(/font-size="(\d+)"/g)].map((m) => Number(m[1]));
@@ -110,13 +110,13 @@ describe('układ karty', () => {
 		expect(svg).not.toContain('Na ile to pewne');
 		expect(svg).toContain('Zobacz, skąd to wiem: ');
 		const drawn = svg.slice(svg.indexOf('</desc>'));
-		expect(drawn.indexOf('Przykładowy Urząd Miasta podał')).toBeLessThan(drawn.indexOf(VERDICT_LABELS_PL.falszywe));
+		expect(drawn.indexOf('Źródło: Przykładowy Urząd Miasta')).toBeLessThan(drawn.indexOf(VERDICT_LABELS_PL.falszywe));
 		expect(drawn.indexOf(VERDICT_LABELS_PL.falszywe)).toBeLessThan(drawn.indexOf('Stan źródeł na'));
 	});
 
 	it('zdanie główne w opisie zawiera cytat bez zmian', () => {
 		const svg = renderCardSvg(fixtureRecord('potwierdzone'), { cardUrl: CARD_URL });
-		expect(svg).toContain('Przykładowy Urząd Miasta podał 14.03.2025 to samo: „Biblioteka miejska');
+		expect(svg).toContain('Źródło: Przykładowy Urząd Miasta, 14.03.2025. To samo: „Biblioteka miejska');
 	});
 });
 
