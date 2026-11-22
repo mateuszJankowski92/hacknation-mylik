@@ -125,6 +125,15 @@ export const PAGE_INJECTION_NOTICE = 'Na tej stronie są polecenia dla mnie. Pom
 export const PAGE_IS_DATA_LIMITATION =
   'Treść pobranej strony była tylko przedmiotem analizy: z niej wzięliśmy twierdzenia, a dowodów szukaliśmy wyłącznie w zbiorze źródeł.';
 
+export const PAGE_OFFICIAL_LIMITATION =
+  'Strona urzędu spod wklejonego adresu została pobrana w chwili sprawdzenia i potraktowana jak dokument źródłowy: potwierdzamy tylko to, co da się zacytować dosłownie z tej strony. To jedno źródło, które mówi o sobie.';
+
+export const PAGE_LEFT_LIST_NOTICE =
+  'Ten adres prowadzi poza listę urzędów albo to nie jest zwykła strona internetowa, więc traktuję go jak relację, nie dokument źródłowy.';
+
+export const PAGE_EMBEDDED_FAILED_NOTICE =
+  'Nie udało się pobrać strony z podanego adresu, więc sprawdziłem samo zgłoszenie.';
+
 export const PAGE_TRUNCATED_NOTICE = 'Strona była długa, więc przeanalizowaliśmy tylko jej początkową część.';
 
 export const INJECTION_NOTICE = 'W tym tekście ze źródła są polecenia dla mnie. Nie korzystam z niego.';
@@ -145,6 +154,8 @@ export const MESSAGES = {
     'Ten adres prowadzi do zasobu lokalnego lub wewnętrznego, więc go nie pobieramy. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
   urlNoContent:
     'Pobrana strona nie zawiera tekstu, który moglibyśmy przeanalizować. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
+  urlWrongType:
+    'Ten adres prowadzi do pliku albo innego formatu niż zwykła strona internetowa (np. PDF), którego nie czytamy. To nie jest ocena zgłoszenia. Wklej treść doniesienia jako tekst.',
   /** Wiadomość zawiera tylko polecenia, bez informacji do sprawdzenia. */
   injectionOnly:
     'Sprawdzam tylko informacje. Nie wykonuję poleceń z wiadomości. Napisz jednym zdaniem, co się stało. Kto, co, gdzie i kiedy?',

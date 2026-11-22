@@ -2,7 +2,7 @@ import type { ClaimResult, EvidenceItem } from '../contracts/record';
 import { VERDICT_LABELS_PL, type Verdict } from '../contracts/verdict';
 import { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL, VERDICT_EXPLANATIONS_PL } from './plain';
 import { asOfStamp, formatDate } from './templates';
-import { missingEvidenceText, NOT_FOUND_SENTENCE, reviewSentence, similarReview, similarSentence } from './answer';
+import { isPageEvidence, missingEvidenceText, NOT_FOUND_SENTENCE, pageSaysSentence, reviewSentence, similarReview, similarSentence } from './answer';
 
 export { ABSTAIN_LINK_TEXT, EVIDENCE_LINK_TEXT } from './plain';
 
@@ -90,6 +90,7 @@ function headlineBody(claim: ClaimResult, limits: LayoutLimits): string {
 	const item = pickLayoutEvidence(claim);
 	if (!relation || !item) return VERDICT_EXPLANATIONS_PL[verdict];
 	if (item.source.review) return reviewSentence(item, { maxThesis: quoteLimit });
+	if (isPageEvidence(item)) return pageSaysSentence(item, { maxQuote: quoteLimit, maxPublisher: publisherLimit });
 
 	const date = item.source.publishedAt ? formatDate(item.source.publishedAt) : 'w dokumencie bez daty';
 	const quote = shorten(item.quote, quoteLimit);

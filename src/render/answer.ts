@@ -2,7 +2,7 @@
 // bezpośrednią odpowiedź zgodną z etykietą; ocena redakcji jest zawsze przypisana redakcji;
 // przy braku dowodów mówimy, czego nie udało się potwierdzić i jaki dokument by to rozstrzygnął.
 // Ten sam tekst trafia do WWW i (skrócony) do SMS, bo oba kanały składają go z rekordu.
-import type { ClaimResult, EvidenceItem, Verdict } from '../contracts/index';
+import type { ClaimResult, EvidenceItem, PageInfo, Verdict } from '../contracts/index';
 import { isReviewQuestion, isYesNoQuestion } from '../input/question';
 import { formatDate } from './templates';
 
@@ -116,8 +116,70 @@ export function editorial(item: EvidenceItem, lower = false): string {
   return lower ? s.charAt(0).toLowerCase() + s.slice(1) : s;
 }
 
+/** Strona starsza niż tyle dni od publikacji (albo bez daty) dostaje wyraźną uwagę o aktualności (zad. 43). */
+export const PAGE_STALE_DAYS = 180;
+
+/** Dowód ze strony urzędu wklejonej przez użytkownika (tymczasowy dokument, zad. 43). */
+export function isPageEvidence(item: EvidenceItem): boolean {
+  return item.source.layer === 'strona_urzedu';
+}
+
+/** Pierwszy dowód ze strony urzędu, który rozstrzyga (potwierdza, obala, rozbieżność), albo null. */
+export function decisivePage(claim: ClaimResult): EvidenceItem | null {
+  return claim.evidence.find((e) => isPageEvidence(e) && DECISIVE.has(e.stance)) ?? null;
+}
+
+/** Pierwsze, duże zdanie dla samego adresu strony urzędu: nie było pytania, więc nie "Tak.". */
+export function officialAnnouncement(publisher: string): string {
+  return `To oficjalny komunikat: ${publisher.trim()}.`;
+}
+
+const guillemets = (quote: string) => `«${quote.replace(/[«»]/gu, '"')}»`;
+
+/** "<Wydawca> podaje: «cytat»" (cytat dosłowny, ze strony). */
+export function pageSaysSentence(item: EvidenceItem, opts: { maxQuote?: number; maxPublisher?: number } = {}): string {
+  const pub = cut((item.source.publisher || item.source.domain || 'Strona urzędu').trim(), opts.maxPublisher ?? 80);
+  const quote = item.quote.replace(/\s+/gu, ' ').trim();
+  return `${pub} podaje: ${guillemets(opts.maxQuote ? cut(quote, opts.maxQuote) : quote)}`;
+}
+
+/**
+ * Uwaga o wieku strony: brak daty publikacji albo data starsza niż PAGE_STALE_DAYS od pobrania. Świeża
+ * strona z datą: null. Ta sama funkcja daje ostrzeżenie w rekordzie i zdanie w odpowiedzi.
+ */
+export function pageAgeNote(publishedAt: string | null | undefined, fetchedAt: string): string | null {
+  if (!publishedAt) return 'Nie znalazłem daty publikacji tej strony.';
+  const published = Date.parse(`${publishedAt}T00:00:00Z`);
+  const fetched = Date.parse(fetchedAt);
+  if (Number.isNaN(published) || Number.isNaN(fetched)) return 'Nie znalazłem daty publikacji tej strony.';
+  const fetchedDay = Math.floor(fetched / 86_400_000) * 86_400_000;
+  if ((fetchedDay - published) / 86_400_000 <= PAGE_STALE_DAYS) return null;
+  return `Ta strona pochodzi z ${formatDate(publishedAt)}; sprawdź, czy informacja jest nadal aktualna.`;
+}
+
+/** Krótka postać uwagi o wieku strony (SMS, Discord, gdy brakuje miejsca). */
+export function pageAgeNoteShort(publishedAt: string | null | undefined, fetchedAt: string): string | null {
+  const full = pageAgeNote(publishedAt, fetchedAt);
+  if (full === null) return null;
+  return publishedAt ? `Strona z ${formatDate(publishedAt)}, sprawdź aktualność.` : 'Brak daty publikacji strony.';
+}
+
+/**
+ * Zdanie otwierające dla adresu spoza listy urzędów: strona została przeczytana, ale to relacja,
+ * a nie dokument źródłowy. `maxTitle` skraca tytuł (SMS); brak tytułu = zdanie bez cudzysłowu.
+ */
+export function pageOpeningSentence(page: PageInfo, opts: { maxTitle?: number } = {}): string {
+  const date = page.publishedAt ? formatDate(page.publishedAt) : 'bez daty publikacji';
+  const where = `${page.domain}, ${date}`;
+  const title = page.title ? cut(page.title.replace(/\s+/gu, ' ').trim(), opts.maxTitle ?? 120) : null;
+  const read = title ? `Przeczytałem: ${guillemets(title)} (${where}).` : `Przeczytałem stronę (${where}).`;
+  return `${read} To relacja, nie dokument źródłowy.`;
+}
+
 export interface AnnotateOptions {
   mode: AnswerMode;
+  /** Pierwsze zdanie to zapowiedź oficjalnego komunikatu (sam adres strony urzędu, bez pytania; zad. 43). */
+  announce?: boolean;
   /** Czy indeks weryfikacji odpowiedział dla tego twierdzenia (bez awarii). */
   indexChecked: boolean;
   /** Czy indeks był niedostępny (błąd dostępu, limit, brak klucza, czas) dla tego twierdzenia. */
@@ -126,6 +188,13 @@ export interface AnnotateOptions {
 
 /** Ustawia `directAnswer` i `neededDocument` na wyniku twierdzenia (przed złożeniem zdań). */
 export function annotateAnswer(claim: ClaimResult, opts: AnnotateOptions): void {
+  if (opts.announce) {
+    const page = decisivePage(claim);
+    if (page) {
+      claim.directAnswer = officialAnnouncement(page.source.publisher);
+      return;
+    }
+  }
   const conflict = claim.evidence.some((e) => e.stance === 'potwierdza') && claim.evidence.some((e) => e.stance === 'obala');
   if (claim.verdict === 'brak_wystarczajacych_dowodow' && !conflict) {
     claim.neededDocument = neededDocumentFor(claim.claim.text);

@@ -135,7 +135,8 @@ const down = (l: StrengthLevel): StrengthLevel => (l === 'wysoka' ? 'srednia' : 
  * >= WEAK_MATCH_RANK w wynikach wyszukiwania (pozycja zamiast surowego `score`, bo skala score
  * zależy od wyszukiwarki).
  * Na końcu: gdy WSZYSTKIE zgodne dowody pochodzą z drugiej warstwy (`layer: media_i_instytucje`),
- * poziom najwyżej `srednia` i przesłanka `zrodlo_wtorne` (zad. 29).
+ * poziom najwyżej `srednia` i przesłanka `zrodlo_wtorne` (zad. 29). Podstawa wyłącznie ze strony urzędu
+ * wklejonej przez użytkownika (`layer: strona_urzedu`, zad. 43): najwyżej `srednia`.
  */
 export function computeStrength(decision: VerdictDecision): StrengthResult {
   const { verdict, abstain, aligned } = decision;
@@ -175,6 +176,9 @@ export function computeStrength(decision: VerdictDecision): StrengthResult {
   // To samo dla podstawy wyłącznie z ocen redakcji (indeks weryfikacji).
   const secondaryOnly = aligned.every((e) => e.source.layer === 'media_i_instytucje' || e.source.layer === 'weryfikacja_redakcji');
   if (secondaryOnly && level === 'wysoka') level = 'srednia';
+  // Zad. 43: podstawa wyłącznie ze strony urzędu wklejonej przez użytkownika to jedno źródło, które mówi o sobie.
+  const pageOnly = aligned.every((e) => e.source.layer === 'strona_urzedu');
+  if (pageOnly && level === 'wysoka') level = 'srednia';
 
   const reasons: StrengthReasonCode[] = [];
   if (official) reasons.push('zrodlo_urzedowe');

@@ -21,7 +21,19 @@ import {
 import { buildResultLayout, evidenceLinkText } from './layout';
 import { knownOpSmsText } from './warning';
 import { EVIDENCE_LINK_TEXT, STATE_MESSAGES_PL, VERDICT_EXPLANATIONS_PL } from './plain';
-import { decisiveReview, missingEvidenceText, reviewSentence, similarReview, similarSentence } from './answer';
+import {
+	decisivePage,
+	decisiveReview,
+	isPageEvidence,
+	missingEvidenceText,
+	pageAgeNote,
+	pageAgeNoteShort,
+	pageOpeningSentence,
+	pageSaysSentence,
+	reviewSentence,
+	similarReview,
+	similarSentence,
+} from './answer';
 
 export * from './answer';
 
@@ -60,12 +72,17 @@ function currentRecordUrl(cardUrl: string): string {
 	return cardUrl.replace('/#/rekord/', '/r/');
 }
 
-export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string): string {
+interface ShortState {
+	degraded: boolean;
+	truncated: boolean;
+}
+
+function renderShortCore(record: VerificationRecord, rawCardUrl: string, limit: number, state: ShortState): string {
 	const cardUrl = currentRecordUrl(rawCardUrl);
 	const lead = leadClaim(record);
 	const asOf = asOfStamp(record.asOf);
 	const warning = knownOpSmsText(record.notices);
-	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, `${EVIDENCE_LINK_TEXT}: ${cardUrl}`).slice(0, SHORT_ANSWER_MAX_CHARS);
+	if (!lead) return join('Nie znalazłem w zgłoszeniu nic do sprawdzenia.', asOf, `${EVIDENCE_LINK_TEXT}: ${cardUrl}`).slice(0, limit);
 
 	const tail = `${evidenceLinkText(lead)}: ${cardUrl}`;
 	const count = record.claims.length;
@@ -108,26 +125,77 @@ export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string
 				}, checkedAt);
 				const certainty = layout.certainty ? `${layout.certainty}.` : (layout.uncertaintyNote ?? '');
 				const text = join(layout.headline, pubLink, `[${layout.label}]`, certainty, extra, layout.asOf, warning, tail);
-				if (text.length <= SHORT_ANSWER_MAX_CHARS) return text;
+				if (text.length <= limit) return text;
 			}
 		}
 		return null;
 	};
+	// Strona urzędu: zdanie z dosłownym cytatem, odnośnik do strony i uwaga o wieku (gdy trzeba) mają pierwszeństwo.
+	const pageEv = decisivePage(lead);
+	if (pageEv) {
+		const ageFull = pageAgeNote(pageEv.source.publishedAt, pageEv.source.fetchedAt);
+		const ageForms = ageFull ? [ageFull, pageAgeNoteShort(pageEv.source.publishedAt, pageEv.source.fetchedAt) ?? ''] : [''];
+		for (const extraPart of [extra, ''])
+			for (const age of ageForms)
+				for (const link of [`Link do strony: ${pageEv.source.url}`, ''])
+					for (const stamp of [asOfShort, asOf, ''])
+						for (const warn of [warning, ''])
+							for (const quote of [MAX_SMS_QUOTE_CHARS, 100, 60, 30]) {
+								const text = join(
+									lead.directAnswer ?? '',
+									pageSaysSentence(pageEv, { maxQuote: quote, maxPublisher: MAX_PUBLISHER_CHARS }),
+									link,
+									age,
+									`[${label}]`,
+									extraPart,
+									stamp,
+									warn,
+									tail,
+								);
+								if (text.length <= limit) return text;
+							}
+	}
 	// Kolejność: pełne zdanie z adresem publikacji, skrót z adresem, pełne zdanie bez adresu, skróty.
 	if (review) {
-		const withLink = tryFull(pubLinks[0]!) ?? shortCandidates.find((t) => t.length <= SHORT_ANSWER_MAX_CHARS);
+		const withLink = tryFull(pubLinks[0]!) ?? shortCandidates.find((t) => t.length <= limit);
 		if (withLink) return withLink;
 	}
 	const full = tryFull('');
 	if (full) return full;
-	for (const t of shortCandidates) if (t.length <= SHORT_ANSWER_MAX_CHARS) return t;
+	for (const t of shortCandidates) if (t.length <= limit) return t;
+	state.degraded = true;
 	const layout = buildResultLayout(lead, record.asOf, { publisher: MIN_PUBLISHER_CHARS, quote: 1 }, record.createdAt);
 	const compactHead = lead.directAnswer ? join(lead.directAnswer, review ? `${review.source.publisher}: „${review.source.review!.rating}”.` : '') : VERDICT_EXPLANATIONS_PL[lead.verdict];
-	const compactWithWarning = join(compactHead, `[${layout.label}]`, layout.asOf, warning, tail);
-	if (compactWithWarning.length <= SHORT_ANSWER_MAX_CHARS) return compactWithWarning;
-	const compact = join(compactHead, `[${layout.label}]`, layout.asOf, tail);
-	if (compact.length <= SHORT_ANSWER_MAX_CHARS) return compact;
-	return join(`[${layout.label}]`, layout.asOf, tail).slice(0, SHORT_ANSWER_MAX_CHARS);
+	const stamps = [layout.asOf, asOfStamp(record.asOf)];
+	const heads = [compactHead, compactHead.split(/(?<=[.!?])\s/u)[0]!];
+	for (const head of heads)
+		for (const stamp of stamps) {
+			const compactWithWarning = join(head, `[${layout.label}]`, stamp, warning, tail);
+			if (compactWithWarning.length <= limit) return compactWithWarning;
+			const compact = join(head, `[${layout.label}]`, stamp, tail);
+			if (compact.length <= limit) return compact;
+		}
+	state.truncated = true;
+	return join(`[${layout.label}]`, layout.asOf, tail).slice(0, limit);
+}
+
+/** Krótka odpowiedź (SMS, Discord). Adres spoza listy urzędów dostaje zdanie otwierające o przeczytanej stronie. */
+export function renderShortAnswer(record: VerificationRecord, rawCardUrl: string): string {
+	const page = record.page;
+	if (page && !page.official) {
+		const forms = [
+			pageOpeningSentence(page, { maxTitle: 60 }),
+			pageOpeningSentence(page, { maxTitle: 30 }),
+			pageOpeningSentence({ ...page, title: null }),
+			'To relacja, nie dokument źródłowy.',
+		];
+		for (const open of forms) {
+			const state = { degraded: false, truncated: false };
+			const core = renderShortCore(record, rawCardUrl, SHORT_ANSWER_MAX_CHARS - open.length - 1, state);
+			if (!state.truncated) return `${open} ${core}`;
+		}
+	}
+	return renderShortCore(record, rawCardUrl, SHORT_ANSWER_MAX_CHARS, { degraded: false, truncated: false });
 }
 
 export function renderExplanation(claim: ClaimResult, asOf?: string | Date): string {
@@ -138,6 +206,15 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 	const similar = similarReview(claim);
 	if (decisive) parts.push(reviewSentence(decisive), `Link do publikacji: ${decisive.source.url}`);
 	else if (similar) parts.push(similarSentence(similar));
+	// Strona urzędu wklejona przez użytkownika: dosłowny cytat przypisany wydawcy, data, odnośnik i uwaga o wieku.
+	const page = decisivePage(claim);
+	if (page) {
+		parts.push(pageSaysSentence(page));
+		if (page.source.publishedAt) parts.push(`Publikacja z ${formatDate(page.source.publishedAt)}.`);
+		parts.push(`Link do strony: ${page.source.url}`);
+		const age = pageAgeNote(page.source.publishedAt, page.source.fetchedAt);
+		if (age) parts.push(age);
+	}
 	const confirming = claim.evidence.filter((e) => e.stance === 'potwierdza');
 	const refuting = claim.evidence.filter((e) => e.stance === 'obala');
 	const contextual = claim.evidence.filter((e) => e.stance === 'rozbieznosc_kontekstu' || e.stance === 'kontekst');
@@ -146,7 +223,14 @@ export function renderExplanation(claim: ClaimResult, asOf?: string | Date): str
 	const reviewOnly =
 		decisive !== null &&
 		claim.evidence.filter((e) => e.stance !== 'kontekst').every((e) => e.source.layer === 'weryfikacja_redakcji');
-	if (!reviewOnly) switch (claim.verdict) {
+	// Podstawa wyłącznie ze strony urzędu: zdania wyżej wystarczają, dochodzi tylko jedno zdanie o drugiej stronie.
+	const pageOnly = page !== null && claim.evidence.filter((e) => e.stance !== 'kontekst').every(isPageEvidence);
+	if (pageOnly) {
+		if (claim.verdict === 'potwierdzone') parts.push('Nie znalazłem źródła, które temu przeczy.');
+		else if (claim.verdict === 'falszywe') parts.push('Nie znalazłem źródła, które to potwierdza.');
+		else if (claim.verdict === 'wprowadzajace_w_blad') parts.push('Źródło opisuje to samo, ale w innych okolicznościach.');
+	}
+	if (!reviewOnly && !pageOnly) switch (claim.verdict) {
 		case 'nie_podlega_weryfikacji':
 			parts.push(VERDICT_SENTENCES.nie_podlega_weryfikacji('', ''));
 			break;

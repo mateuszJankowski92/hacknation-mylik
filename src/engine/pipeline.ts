@@ -44,13 +44,16 @@ import {
   injectionLimitation,
   MESSAGES,
   MODEL_INJECTION_NOTICE,
+  PAGE_EMBEDDED_FAILED_NOTICE,
   PAGE_INJECTION_NOTICE,
   PAGE_IS_DATA_LIMITATION,
+  PAGE_LEFT_LIST_NOTICE,
+  PAGE_OFFICIAL_LIMITATION,
   PAGE_TRUNCATED_NOTICE,
   scopeLimitation,
   UNDATED_LIMITATION,
 } from './explain';
-import type { PageFetcher } from './fetch/index';
+import type { PageFetcher, PageFetchResult } from './fetch/index';
 import { MAX_INCIDENT_NOTICES, type IncidentMatcher } from './incidents';
 import { containsUrl, detectInjectionSignals, screenClaim, stripInjectedSegments } from './injection';
 import { createProgressEmitter, type ProgressEmitter, type ProgressEngine } from './progress';
@@ -84,7 +87,17 @@ import {
   FACTCHECK_USED_LIMITATION,
 } from '../factcheck/text';
 import { isFactcheckFailure, selectReviewEvidence, type FactcheckLayer, type FactcheckStatus } from '../factcheck/layer';
-import { annotateAnswer, answerMode } from '../render/answer';
+import { annotateAnswer, answerMode, decisivePage, pageAgeNote } from '../render/answer';
+import { defaultOfficialHosts, type OfficialHostList } from './officialHosts';
+import {
+  buildOfficialDocument,
+  describePage,
+  firstOfficialUrl,
+  sameUrl,
+  selectPagePassages,
+  type OfficialPageDocument,
+  type PageDescription,
+} from './officialPage';
 
 export { buildShortAnswer };
 
@@ -113,6 +126,8 @@ export const LIVE_RESERVE_MS = 1_500;
 export const LIVE_MIN_BUDGET_MS = 3_000;
 /** Okno ponownego użycia rekordu przy włączonej drugiej warstwie (6 h): potem nowe sprawdzenie, nowy adres. */
 export const DEFAULT_LIVE_CACHE_WINDOW_MS = 6 * 60 * 60 * 1000;
+/** Rekord z nieudanym pobraniem strony z adresu w tekście nie jest używany ponownie po tym czasie (nowa próba). */
+export const EMBEDDED_RETRY_WINDOW_MS = 15 * 60 * 1000;
 export const DEFAULT_COUNTER_MARKERS = ['nieprawda', 'zaprzecza', 'dementuje', 'sprostowanie', 'nieprawdziwe'];
 
 export type PrepareFn = (i: VerifyInput) => PreparedInput | NeedsClarification;
@@ -191,6 +206,12 @@ export interface EngineExtraDeps {
    * w zbiorze urzędowym, dla każdego twierdzenia faktograficznego. Brak lub `null` = wyłączony.
    */
   factcheck?: FactcheckLayer | null;
+  /**
+   * Jawna lista hostów urzędowych (zad. 43, data/official-hosts.json): strona z takiego adresu staje się
+   * tymczasowym dokumentem dowodowym ("potwierdzone" z dosłownym cytatem). Brak = lista domyślna z pliku
+   * (gdy go nie ma, ścieżka wyłączona); `null` = wyłączona jawnie.
+   */
+  officialHosts?: OfficialHostList | null;
 }
 
 export type EngineDeps = ContractEngineDeps & EngineExtraDeps;
@@ -492,6 +513,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
   const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
   const live: LiveLayer | null = deps.live ?? null;
   const factcheck: FactcheckLayer | null = deps.factcheck ?? null;
+  const officialHosts: OfficialHostList | null = deps.officialHosts !== undefined ? deps.officialHosts : defaultOfficialHosts();
   const deadlineMs = deps.options?.deadlineMs ?? (live ? LIVE_DEADLINE_MS : DEFAULT_DEADLINE_MS);
   /** Liczenia w toku po kluczu rekordu (jedno liczenie na tę samą treść naraz, niezależnie od kanału). */
   const inflight = new Map<string, Promise<VerifyOutcome>>();
@@ -548,6 +570,15 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     let analysisText = prepared.kind === 'tekst' ? questionToStatement(prepared.maskedInput) : prepared.maskedInput;
     let keyInput = prepared.normalizedInput;
     let pageTruncated = false;
+    // Zad. 43: dane pobranej strony (rekord) i, dla strony z listy urzędów, tymczasowy dokument dowodowy.
+    let pageDescription: PageDescription | null = null;
+    let pageDocumentRaw: OfficialPageDocument | null = null;
+    let pageNotice: string | null = null;
+    const takePage = (page: Extract<PageFetchResult, { ok: true }>, requested: string): void => {
+      pageDescription = describePage(page, requested, officialHosts, now());
+      if (pageDescription.official) pageDocumentRaw = buildOfficialDocument(page, pageDescription);
+      else if (pageDescription.leftTheList) pageNotice = PAGE_LEFT_LIST_NOTICE;
+    };
     if (prepared.kind === 'url') {
       if (!deps.fetchPage) {
         store.logEvent('url_not_fetched', { channel, detail: {} });
@@ -568,21 +599,64 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         const message =
           page.reason === 'adres_prywatny' || page.reason === 'niedozwolony_port' || page.reason === 'niedozwolony_protokol'
             ? MESSAGES.urlBlocked
-            : page.reason === 'pusta_tresc' || page.reason === 'zly_typ_tresci'
-              ? MESSAGES.urlNoContent
-              : MESSAGES.urlNotFetched;
+            : page.reason === 'zly_typ_tresci'
+              ? MESSAGES.urlWrongType
+              : page.reason === 'pusta_tresc'
+                ? MESSAGES.urlNoContent
+                : MESSAGES.urlNotFetched;
         return toState(stateOutcome('brak_mozliwosci_sprawdzenia', message, `url:${page.reason}`));
       }
+      takePage(page, target);
       store.logEvent('url_fetched', {
         channel,
-        detail: { redirects: page.redirects, truncated: page.truncated, contentType: page.contentType },
+        detail: {
+          redirects: page.redirects,
+          truncated: page.truncated,
+          contentType: page.contentType,
+          official: pageDocumentRaw !== null,
+          dated: Boolean(page.publishedAt),
+        },
       });
       // Ta sama normalizacja co dla tekstu od obywatela (znaki niewidoczne, NFKC, sterujące).
       analysisText = maskPii(cleanText(page.text)).text;
       pageTruncated = page.truncated;
-      // Klucz obejmuje skrót treści: zmiana strony = nowe sprawdzenie, nie stary rekord.
-      keyInput = `${prepared.normalizedInput}\n#tresc:${sha256Hex(analysisText)}`;
+      // Klucz obejmuje skrót treści: zmiana strony = nowe sprawdzenie, nie stary rekord. Rodzaj strony
+      // (urzędowa albo zwykła) też, bo od niego zależy odpowiedź (zad. 43).
+      keyInput = `${prepared.normalizedInput}\n#tresc:${sha256Hex(analysisText)}\n#strona:${pageDocumentRaw ? 'urzad' : 'zwykla'}`;
+    } else if (deps.fetchPage && officialHosts) {
+      // Adres strony urzędu wklejony razem z tekstem (np. pytaniem): strona jest dowodem, nie źródłem twierdzeń.
+      const embedded = firstOfficialUrl(prepared.maskedInput, officialHosts);
+      if (embedded) {
+        let page: Awaited<ReturnType<PageFetcher>>;
+        try {
+          page = await deps.fetchPage(embedded);
+        } catch {
+          page = { ok: false, reason: 'blad_sieci' };
+        }
+        if (page.ok) {
+          takePage(page, embedded);
+          store.logEvent('url_fetched', {
+            channel,
+            detail: {
+              redirects: page.redirects,
+              truncated: page.truncated,
+              contentType: page.contentType,
+              official: pageDocumentRaw !== null,
+              dated: Boolean(page.publishedAt),
+              embedded: true,
+            },
+          });
+          keyInput = `${keyInput}\n#strona:${sha256Hex(page.text)}:${pageDocumentRaw ? 'urzad' : 'zwykla'}`;
+        } else {
+          store.logEvent('url_fetch_failed', { channel, detail: { reason: page.reason, stage: 'osadzony' } });
+          pageNotice = PAGE_EMBEDDED_FAILED_NOTICE;
+          keyInput = `${keyInput}\n#strona:brak:${Math.floor(started / EMBEDDED_RETRY_WINDOW_MS)}`;
+        }
+      }
     }
+    const pageInfo = (pageDescription as PageDescription | null)?.info;
+    const pageDocument = pageDocumentRaw as OfficialPageDocument | null;
+    const pageNoticeText = pageNotice as string | null;
 
     // Zad. 29: przy drugiej warstwie numer okna czasu wchodzi do klucza (świeże wiadomości po oknie).
     if (live) keyInput = `${keyInput}\n#warstwa2:${Math.floor(started / liveWindowMs)}`;
@@ -625,6 +699,20 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     let injectionEvents = 0;
     const isUrl = prepared.kind === 'url';
     if (pageTruncated) notices.push({ type: 'ograniczenie_techniczne', text: PAGE_TRUNCATED_NOTICE });
+    if (pageNoticeText) notices.push({ type: 'ograniczenie_techniczne', text: pageNoticeText });
+    if (pageDocument && pageInfo) {
+      // Strona urzędu starsza niż 180 dni albo bez daty: wyraźna uwaga, treść nadal tylko dane i cytat.
+      const age = pageAgeNote(pageInfo.publishedAt, pageInfo.fetchedAt);
+      if (age) notices.push({ type: pageInfo.publishedAt ? 'material_archiwalny' : 'status_zrodla', text: age });
+      // Akapity strony z poleceniami dla modelu nie są dowodem (także, gdy strona nie była źródłem twierdzeń).
+      const pageSignals = new Set(pageDocument.flagged.flatMap((f) => f.signals));
+      if (pageSignals.size > 0) {
+        for (const sig of pageSignals) injectionSignals.add(`strona:${sig}`);
+        notices.push({ type: 'ograniczenie_techniczne', text: PAGE_INJECTION_NOTICE });
+        store.logEvent('injection_signal', { recordId, channel, detail: { where: 'strona_urzedu', signals: [...pageSignals], removedSegments: pageDocument.flagged.length } });
+        injectionEvents++;
+      }
+    }
 
     // (3) podejrzane segmenty wejścia/strony nie trafiają do modelu
     const where = isUrl ? 'strona' : 'wejscie';
@@ -686,7 +774,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     const abstainCodes = new Map<string, string>();
     const nowDate = now();
     const scope = scopeLimitation(corpusVersion, documents);
-    const baseLimitations = isUrl ? [scope, PAGE_IS_DATA_LIMITATION] : [scope];
+    const baseLimitations = pageDocument ? [scope, PAGE_OFFICIAL_LIMITATION] : isUrl ? [scope, PAGE_IS_DATA_LIMITATION] : [scope];
 
     /** Ostrzeżenia i sygnały jednego twierdzenia; scalane po kolei twierdzeń (wynik deterministyczny). */
     interface ClaimSide {
@@ -957,6 +1045,16 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         }
         return { accepted: acc, rejected };
       }
+      // (3a) strona urzędu wklejona przez użytkownika: fragmenty najbliższe twierdzeniu przechodzą ten sam krok
+      // oceny i te same bramki co fragmenty zbioru (cytat dosłowny, bramka wsparcia); start równolegle z wyszukiwaniem.
+      const pageRun: Promise<{ accepted: AcceptedEvidence[]; rejected: number }> | null = pageDocument
+        ? (async () => {
+            const chosen = selectPagePassages(pageDocument, claim);
+            return chosen.length > 0 ? assessAndGate([chosen], chosen) : { accepted: [], rejected: 0 };
+          })()
+        : null;
+      pageRun?.catch(() => {});
+
       // (3b) indeks weryfikacji redakcji: startuje od razu, równolegle z wyszukiwaniem w zbiorze urzędowym.
       const fcRun: Promise<FactcheckOutcome> | null = factcheck ? runFactcheck(claim, side) : null;
       fcRun?.catch(() => {});
@@ -1066,6 +1164,18 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
           if (sel.dropped || sel.reasons)
             store.logEvent('review_selection', { recordId, channel, detail: { claimId: claim.id, where: 'zbior', dropped: sel.dropped ?? 0, ...(sel.reasons ?? {}) } });
         }
+      }
+
+      // (6a0) strona urzędu: dowody z pobranej strony dołączają do dowodów zbioru. Ta sama strona w zbiorze
+      // i pobrana teraz: zostaje świeża treść ze strony.
+      if (pageRun) {
+        const pr = await pageRun;
+        deadline.check();
+        const pageUrls = pr.accepted.map((a) => a.passage.meta.url);
+        accepted = [...accepted.filter((a) => !pageUrls.some((u) => sameUrl(u, a.passage.meta.url))), ...pr.accepted];
+        rejectedCount += pr.rejected;
+        if (pr.accepted.length > 0 || pr.rejected > 0)
+          store.logEvent('url_fetched', { recordId, channel, detail: { stage: 'strona_urzedu', claimId: claim.id, accepted: pr.accepted.length, rejected: pr.rejected } });
       }
 
       // (6a) indeks weryfikacji: dowody z ocen redakcji dołączają do dowodów zbioru urzędowego.
@@ -1260,15 +1370,20 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     // Zad. 29: gdy podstawa pochodzi z drugiej warstwy, "stan na" to czas pobrania strony.
     const liveDecisive = (r: ClaimResult) =>
       r.evidence.filter((e) => e.source.layer === 'media_i_instytucje' && DECISIVE.has(e.stance));
-    const liveFetched = results.flatMap((r) => liveDecisive(r).map((e) => e.source.fetchedAt)).sort();
+    const pageDecisive = (r: ClaimResult) => r.evidence.filter((e) => e.source.layer === 'strona_urzedu' && DECISIVE.has(e.stance));
+    const liveFetched = results.flatMap((r) => [...liveDecisive(r), ...pageDecisive(r)].map((e) => e.source.fetchedAt)).sort();
     if (liveFetched.length) asOf = new Date(liveFetched[liveFetched.length - 1]!).toISOString();
 
     // (8b') forma odpowiedzi (src/render/answer.ts, szablony): pytanie rozstrzygające dostaje na początku
     // bezpośrednią odpowiedź zgodną z wynikiem; przy braku dowodów opis brakującego dokumentu.
     const mode = answerMode(prepared.kind === 'tekst' ? prepared.maskedInput : '');
+    // Sam adres strony urzędu (bez pytania): pierwsze zdanie to "To oficjalny komunikat: <wydawca>", nie "Tak.".
+    let announced = false;
     for (const r of results) {
       const st = fcStatuses.get(r.claim.id);
-      annotateAnswer(r, { mode, indexChecked: st !== undefined && !isFactcheckFailure(st), indexFailed: st !== undefined && isFactcheckFailure(st) });
+      const announce = prepared.kind === 'url' && !announced && decisivePage(r) !== null;
+      if (announce) announced = true;
+      annotateAnswer(r, { mode, announce, indexChecked: st !== undefined && !isFactcheckFailure(st), indexFailed: st !== undefined && isFactcheckFailure(st) });
     }
 
     // (8b) zdania dla obywatela (src/render), z zapasowymi szablonami silnika
@@ -1301,6 +1416,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         latencyMs: Math.max(0, now().getTime() - started),
       },
       role: roleDecision.role,
+      ...(pageInfo ? { page: pageInfo } : {}),
       schemaVersion: RECORD_SCHEMA_VERSION,
     };
     if (renderer) record.shortAnswer = safeShortAnswer(renderer, record);
