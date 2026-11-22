@@ -2,7 +2,25 @@
 
 Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia.
 
-## Skrót: końcowy przebieg v2 (22.11.2026, silnik 108928016877, indeks weryfikacji wyłączony)
+## Skrót: przebieg v2 po zad. 43 (22.11.2026, silnik 5ac946ffce1a, indeks weryfikacji wyłączony)
+
+Zad. 43 dodało link do strony urzędu z listy hostów jako tymczasowy dowód (opis: [ZRODLA.md](ZRODLA.md), „Link do strony urzędu”). Zestaw v2 składa się ze zgłoszeń tekstowych, więc zmiana nie dotyka jego przypadków; przebieg sprawdza, że silnik się nie pogorszył. Jeden przebieg, Claude Haiku 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0, sędzia Claude Sonnet 5.5, 01:07-01:16 UTC; bez strojenia.
+
+| Miernik | Wynik | Poprzedni (108928016877) | Cel MVP |
+|---|---|---|---|
+| Trafność (macro-F1) | 0,691 (bez 27 wątpliwych 0,711) | 0,673 | 0,75, niespełniony |
+| Poprawność cytowań (sędzia) | 79,8% (162/203) | 80,2% | 85%, niespełniony |
+| Wstrzymanie się | 18/21 (85,7%) | 16/21 | 80%, spełniony |
+| Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
+| Mediana czasu | 7,5 s (p90 10,3 s) | 7,4 s | 30 s, spełniony |
+| Koszt silnika | ok. 3,6 USD na 1000 zapytań (przebieg razem z sędzią 1,21 USD) | ok. 3,6 USD | raportowany |
+| Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
+| Powtarzalność bez pamięci rekordów | 2/5 | 4/5 | - |
+| Fałszywe wstrzymania | 36/136 | 43/136 | - |
+
+Profil omylności (silnik 5ac946ffce1a, claude-haiku-5-5): średnia 13/57, niska 13/39, brak 30/74 (wysoka 1/4, za mały koszyk). Zmiany wobec poprzedniego przebiegu mieszczą się w rozrzucie między przebiegami (co najmniej 0,06 macro-F1; powtarzalność 2/5 to losowość wyodrębniania twierdzeń, bez pamięci rekordów). Warunki zatrzymania zad. 43 (dokładność poniżej 0,62 albo odporność poniżej 8/8) nie zaszły. Pełne liczby: [MIERNIKI.md](MIERNIKI.md), „Przebieg v2 po zad. 43”.
+
+## Poprzedni skrót: końcowy przebieg v2 (22.11.2026, silnik 108928016877, indeks weryfikacji wyłączony)
 
 | Miernik | Wynik | Poprzedni (dd6f303f5e02) | Cel MVP |
 |---|---|---|---|

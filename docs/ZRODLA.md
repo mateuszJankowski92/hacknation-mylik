@@ -136,3 +136,35 @@ Brak klucza (przy `FACTCHECK_LAYER=on`), błąd dostępu (400/401/403), limit (4
 - **Nie budujemy bazy z treści indeksu Google.** Warunki Google APIs (pkt 5(e)) zabraniają budowania baz danych z treści API i trzymania kopii dłużej, niż pozwala nagłówek pamięci podręcznej. Skrypt masowego pobrania (`scripts/factcheck-index-pobierz.ts`) **wymaga pisemnej zgody wydawcy lub Google; nieużywany** (odmawia działania bez `--zgoda <sygnatura>`).
 - **Zbiorczy plik ClaimReview Google** (storage.googleapis.com/datacommons-feeds/claimreview/latest/data.json, aktualizowany codziennie, 21.11.2026: 211 wpisów Pravdy z lat 2020-2024, Demagoga brak) zostaje poza zbiorem i poza wdrożeniem. Licencja CC BY 4.0 kompilacji jest podana tylko na archiwalnej kopii dawnej strony Data Commons (web.archive.org, migawka 10.11.2025); obecna strona (przekierowanie na toolbox.google.com/factcheck) jej nie podaje, a licencję każdego wpisu ma określać pole `sdLicense`, którego wpisy Pravdy nie mają. Bez jawnej licencji na żywej stronie i w rekordach nie włączamy.
 - Droga docelowa: zgoda lub eksport od redakcji (Demagog: kontakt@demagog.org.pl) albo potwierdzenie licencji pliku zbiorczego (factcheck-support@google.com). To świadoma decyzja odpowiedzialności za źródła, a nie brak w funkcjach.
+
+## Link do strony urzędu (zad. 43, 22.11.2026)
+
+**Reguła:** odnośnik do strony z jawnej listy hostów urzędowych (`data/official-hosts.json`) może dostać etykietę „potwierdzone” z dosłownym cytatem z tej strony. To nie jest werdykt z domeny. Lista ustala tylko, że wydawca jest organem władzy publicznej albo instytucją publiczną (ta sama kwalifikacja co typ `urzedowe` w `data/sources.json`); o werdykcie decyduje dosłowna treść strony, przez te same bramki i tę samą tabelę reguł co każdy inny dowód (cytat dosłowny, bramka wsparcia, stanowiska `potwierdza` i `obala`).
+
+### Co dokładnie jest potwierdzone
+
+- Potwierdzone jest to, że **ta instytucja na tej stronie tak napisała** (cytat jest dosłownym podciągiem strony, przypisanym wydawcy z listy). Nie jest potwierdzone, że strona jest aktualna ani że wszystko, co na niej stoi, jest prawdą.
+- To w praktyce **jedno źródło, które mówi o samym sobie**. Dlatego siła podstawy (`Na ile to pewne`) wynosi najwyżej „średnia”, także gdy strona jest świeża; brak daty publikacji i data starsza niż 24 miesiące obniżają ją jak przy każdym źródle.
+- Gdy strona nie zawiera dosłownego cytatu rozstrzygającego (model nie znalazł zdania albo zdanie nie przeszło bramki), wynik jest taki jak bez strony: wstrzymanie się, nie „potwierdzone”.
+- Strona jest tymczasowym dokumentem tego jednego sprawdzenia: nie trafia do zbioru źródeł ani do bazy dokumentów; w rekordzie zostaje tylko dowód (cytat, adres, wydawca, data pobrania) i pole `page`.
+
+### Lista hostów (`data/official-hosts.json`)
+
+Wpis to `{host, publisher, rule, basis}`; wersja 1 ma 19 wpisów (w tym `zus.pl`, `imgw.pl`, `policja.gov.pl`, sufiksy `gov.pl` i `europa.eu`) oraz listę `excluded` (redakcje i weryfikatorzy: `konkret24.tvn24.pl`, `tvn24.pl`, `fakenews.pl`, `demagog.org.pl`; agencja `pap.pl`; `eeas.europa.eu`; `portalpasazera.pl`, `kgsok.pl` do decyzji). Reguła wpisu (`rule`): `katalog` (domena wydawcy `urzedowe` albo `prawo` z `data/sources.json`), `sufiks` (cała strefa zarezerwowana dla organów: host równy wpisowi albo jego subdomena) i `instytucja` (instytucja spoza katalogu dodana ręcznie, z podstawą w `basis`). Przy sufiksie wydawca podawany w odpowiedzi to nazwa serwisu („Serwis gov.pl (organy administracji publicznej)”), bo z samego adresu nie wiadomo, który urząd pisał; nazwy urzędu nie bierzemy z treści strony, bo ta jest niezaufana. Wpis `excluded` wygrywa tylko jako bardziej szczegółowy. Redakcje i serwisy prasowe nigdy nie trafiają na listę (są w warstwie 2 i 3 albo poza zbiorem). Dodanie wpisu wymaga uzasadnienia kwalifikacji, jak przy każdym źródle.
+
+### Ścisłe rozpoznanie adresu (`src/engine/officialHosts.ts`)
+
+Adres jest czytany parserem WHATWG URL i musi mieć: schemat `https`, brak danych logowania (`user:haslo@`), port pusty albo 443, nazwę hosta (nie adres IP), tylko litery, cyfry i myślniki w etykietach oraz nienumeryczną końcówkę. Host musi być równy wpisowi albo być jego subdomeną (po kropce), więc `zus.pl.inny.host`, `zus.pl@inny.host`, `nie-zus.pl` i `zus.pl:8443` nie przechodzą. Host punycode (`xn--...`) jest porównywany w postaci znormalizowanej. Sprawdzany jest **host początkowy i końcowy po przekierowaniach**: strona, która po drodze wyszła poza listę (albo na nią weszła z obcego adresu), jest zwykłą stroną, nie urzędową. Treść musi być HTML (PDF, obraz i zwykły tekst z hosta urzędu nie dają dowodu; PDF dostaje osobny komunikat). Testy: `tests/engine/officialHosts.test.ts` (33), `tests/engine/officialPage.test.ts`.
+
+### Wiek strony i treść niezaufana
+
+- Data publikacji pochodzi z metadanych (`article:published_time`, `datePublished` w JSON-LD, `<time datetime>`) albo z elementu o klasie zawierającej „date” (bez dat modyfikacji, ważności i wydarzeń). Brak daty: uwaga „Nie znalazłem daty publikacji tej strony.” i niższa siła. Data starsza niż 180 dni od pobrania: uwaga „Ta strona pochodzi z DD.MM.RRRR; sprawdź, czy informacja jest nadal aktualna.” (w rekordzie jako `material_archiwalny`, w odpowiedzi i w SMS-ie).
+- Treść strony to dane, nie polecenia. Akapit z poleceniem dla modelu odpada z dowodów (sygnał `strona:<kod>` w rekordzie i komunikat „Na tej stronie są polecenia dla mnie. Pominąłem je. Nie zmieniają wyniku.”), ukryty tekst HTML jest usuwany przed analizą, a cytat musi być dosłownym podciągiem pozostałej treści.
+
+### Odpowiedź
+
+Sam adres strony urzędu (bez pytania): pierwsze zdanie to „To oficjalny komunikat: <wydawca>.” (nie „Tak.”), potem „<Wydawca> podaje: «cytat»”, data publikacji, odnośnik do strony i etykieta „potwierdzone”. Adres razem z pytaniem: zwykła odpowiedź na pytanie („Tak.” albo „Nie.”), a strona jest jednym z dowodów. Każdy adres (także spoza listy) zapisuje w rekordzie opcjonalne pole `page` (`url`, `title`, `domain`, `publishedAt`, `fetchedAt`, `official`, `publisher`); dla adresu spoza listy SMS i Discord zaczynają się od zdania „Przeczytałem: «tytuł» (domena, data). To relacja, nie dokument źródłowy.”; werdykt jest wtedy liczony jak dotąd, strona nie jest dowodem. Rekordy sprzed zad. 43 (bez `page`) wczytują się bez zmian.
+
+### Wdrożenie
+
+`data/official-hosts.json` musi trafić na serwer razem z kodem (`scripts/deploy.sh` kopiuje dziś z plików konfiguracyjnych tylko `data/factcheck.json` i `data/live-sources.json`; do pętli `for f in ...` trzeba dopisać `data/official-hosts.json`). Bez pliku silnik wypisuje ostrzeżenie i działa bez tej funkcji (adres strony urzędu jest traktowany jak każdy inny adres).

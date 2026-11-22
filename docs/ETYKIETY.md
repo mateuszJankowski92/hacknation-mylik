@@ -32,6 +32,7 @@ Tylko do zrozumienia definicji. Nie wpisujemy ich do promptów, reguł silnika a
 - Bramka wsparcia (src/engine/supportGate.ts) sprawdza osobno każdy cytat rozstrzygający według tych samych pojęć; cytat, który sam nie rozstrzyga, odpada. Bramka ustala, czy cytat przesądza i w którą stronę ("za" albo "przeciw"); gdy kierunek zgadza się z oceną, zostaje stanowisko z oceny, bo granica "obala" / "rozbieżność kontekstu" (sedno czy szczegół) wymaga całego fragmentu, a bramka widzi tylko cytat (zad. 25, diagnoza: bramka zamieniała rozbieżność na "obala").
 - Kod (src/engine/rules.ts) zamienia stanowiska na werdykt: `obala` -> fałszywe, `rozbieznosc_kontekstu` -> wprowadzające w błąd, `potwierdza` -> potwierdzone, sprzeczne dowody rozstrzygające -> brak wystarczających dowodów.
 - Rodzaj źródła wpływa tylko na siłę podstawy, nigdy na etykietę.
+- **Link do strony urzędu (zad. 43):** adres strony z listy `data/official-hosts.json` daje „potwierdzone” tylko wtedy, gdy ze strony da się wskazać dosłowny cytat, który przeszedł bramki; domena sama nie przesądza o etykiecie, a siła podstawy wynosi najwyżej „średnia” (jedno źródło mówiące o sobie). Pełny opis: [ZRODLA.md](ZRODLA.md), „Link do strony urzędu”.
 
 ## Zgłoszenia z kilkoma tezami
 

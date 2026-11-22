@@ -306,3 +306,39 @@ Profil omylności (results.json): średnia 7/48, niska 18/45, brak 35/75 (wysoka
 ### Blok „podobna sprawa” tylko przy zgodnych nazwach własnych (wiz_46)
 
 Reguła w `src/factcheck/layer.ts` (`sharesProperNames`): tło z oceną redakcji, pokazywane bez „Tak/Nie”, zostaje tylko wtedy, gdy każda nazwa własna z twierdzenia (rdzeń jak w regułach nazw, z pominięciem różnic w znakach diakrytycznych) występuje w tezie lub tytule wpisu; inne miasto, instytucja lub osoba kończy się odrzuceniem wpisu (powód `podobna_inne_nazwy`). Bez nazw własnych w twierdzeniu zachowanie bez zmian. Reguły bezpośrednich odpowiedzi nie zostały poluzowane; zmiana może tylko ukryć tło. Testy bez sieci: `tests/factcheck/similar-names.test.ts`. Próba na żywo (6 zapytań, jeden przebieg, sygnał, nie pomiar): 2 odpowiedzi wprost bez zmian („Nie.” dla Warszawy i dla Orlenu), 2 pułapki z innym miastem (Kraków, Poznań; wpis o Wrocławiu lub Warszawie już się nie pokazuje), 2 bez pokrycia (wstrzymanie bez bloku). Znane ograniczenie: różne końcówki rdzenia (np. „w Polsce” i „Polska”) ukrywają blok, czyli błąd w stronę ostrożności.
+
+## Przebieg v2 po zad. 43 (22.11.2026, silnik 5ac946ffce1a, indeks wyłączony)
+
+Zmiana silnika: link do strony urzędu z listy `data/official-hosts.json` jest tymczasowym dowodem (warstwa `strona_urzedu`, siła najwyżej „średnia”), z uwagą o wieku strony i ochroną przed poleceniami w treści; adresy spoza listy dostają pole `page` w rekordzie i zdanie otwierające w SMS-ie i Discordzie (opis: [ZRODLA.md](ZRODLA.md)). Zestaw v2 zawiera zgłoszenia tekstowe bez adresów, więc ten przebieg nie mierzy nowej funkcji, tylko to, że silnik nie stracił jakości. Funkcję sprawdzają testy bez sieci (`tests/engine/officialHosts.test.ts`, `officialPage.test.ts`, `pageDate.test.ts`, `tests/render/page.test.ts`) i jedna próba na żywo (niżej). Zestawu v2 nie użyto do strojenia.
+
+Claude Haiku 5.5, sędzia Claude Sonnet 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0 (733 dokumenty; kopia migawki z HEAD w katalogu tymczasowym, `--corpus-root`), uruchomienie z katalogu roboczego, jeden przebieg, 01:07-01:16 UTC. Koszt $0,616 + $0,597 = $1,21.
+
+| Miernik | 5ac946ffce1a (ten przebieg) | 108928016877 |
+|---|---|---|
+| macro-F1 | 0,691 (bez wątpliwych 0,711, n=145) | 0,673 (0,699) |
+| dokładność ogólna | 115/174 | - |
+| poprawność cytowań (sędzia) | 79,8% (162/203) | 80,2% (170/212) |
+| pokrycie cytowań, cytat dosłowny | 100% (116/116), 100% (203/203) | 100% |
+| wstrzymanie się | 18/21 | 16/21 |
+| odporność | 8/8 | 8/8 |
+| fałszywe wstrzymania | 36/136 | 43/136 |
+| spójność kanałów | 5/5 | 5/5 |
+| powtarzalność bez pamięci | 2/5 | 4/5 |
+| stany techniczne | 4/4, 0 pozornych | 4/4 |
+| mediana czasu (p90) | 7,5 s (10,3) | 7,4 s (9,8) |
+
+F1 klas: potwierdzone 0,774, fałszywe 0,702, wprowadzające w błąd 0,500, brak dowodów 0,523, nie podlega weryfikacji 0,955. Profil omylności (results.json, `errorProfileMeta`: set v2, silnik 5ac946ffce1a, 2026-11-22T01:16:32Z): średnia 13/57, niska 13/39, brak 30/74; „wysoka” 1/4 bez profilu; poza profilem 2 pozycje (1 stan techniczny, 1 teza niewyodrębniona). Bez wątpliwych (do wglądu): wysoka 1/3, średnia 7/47, niska 10/32, brak 26/62. `loadVerifiedErrorProfile` dla claude-haiku-5-5 i 5ac946ffce1a zwraca trzy koszyki.
+
+Uczciwie: różnice wobec poprzedniego przebiegu mieszczą się w zmierzonym rozrzucie (co najmniej 0,06 macro-F1), więc nie świadczą o poprawie ani pogorszeniu. Cele MVP na v2 nadal niespełnione: macro-F1 (0,75) i poprawność cytowań (85%); wstrzymanie się (85,7%) i odporność (8/8) osiągnięte, ale na 21 i 8 przypadkach. Dwa przypadki techniczne (F01, H01) to przypadki, których system nie obsługuje (obraz, pętla moderatora).
+
+### Próba na żywo: strona urzędu (zad. 43, jedna, sygnał, nie pomiar)
+
+Lokalny serwer testowy na porcie 8797 (osobna kopia bazy), Haiku 5.5, indeks wyłączony, trzy adresy.
+
+| Adres | Wynik |
+|---|---|
+| strona gov.pl (ustawa antymobbingowa, Ministerstwo Rodziny) | rozpoznana jako urzędowa (wydawca „Serwis gov.pl (organy administracji publicznej)”), data 05.11.2026 z klasy `event-date`; 4 twierdzenia, 3 „potwierdzone” z dosłownymi cytatami, siła „średnia”; 1 twierdzenie bez rozstrzygającego cytatu: wstrzymanie (tylko tło). Pierwsze zdanie: „To oficjalny komunikat: ...”. |
+| strona zus.pl (ulga na start, objaśnienie z 1 stycznia 2022) | rozpoznana jako urzędowa (wydawca „Zakład Ubezpieczeń Społecznych”), 5 twierdzeń „potwierdzone” z cytatami; uwaga „Ta strona pochodzi z 01.01.2022; sprawdź, czy informacja jest nadal aktualna.”, siła „niska” (materiał starszy niż 24 miesiące); SMS mieści uwagę o wieku i zdanie „Sprawdziłem 5 twierdzeń. Tu pierwsze.”. |
+| artykuł tvn24.pl (atak na rosyjski statek) | strona nieurzędowa (`official: false`), zero dowodów ze strony, wszystkie twierdzenia „brak wystarczających dowodów”; SMS zaczyna się od „Przeczytałem: «Pożar na rosyjskim statku po…» (tvn24.pl, 21.11.2026). To relacja, nie dokument źródłowy.” |
+
+Wnioski z próby: (1) data strony z gov.pl wymagała reguły dla klasy `event-date` (tam to data publikacji; wyjątek dopisany w `src/engine/fetch/meta.ts`, inne klasy wydarzeń nadal są pomijane); (2) przy materiałach starszych niż 24 miesiące uwaga o materiale archiwalnym powtarza się przy każdym fragmencie (zachowanie istniejące, nie zmieniane); (3) przy sufiksie `gov.pl` wydawcą w odpowiedzi jest nazwa serwisu, nie urzędu.
