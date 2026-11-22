@@ -171,7 +171,7 @@ describe('stan sprawy dla obywatela: zapisano a przekazano', () => {
 
 	it('zdania dla obywatela: zapisano nie mówi o przekazaniu, przekazano ma datę, brak nic nie mówi', () => {
 		expect(casePublicSentencePl('zapisano')).toBe(CASE_SAVED_SENTENCE_PL);
-		expect(CASE_SAVED_SENTENCE_PL).toContain('Jeszcze nikomu go nie przekazałem');
+		expect(CASE_SAVED_SENTENCE_PL).toContain('na liście białych plam');
 		expect(CASE_SAVED_SENTENCE_PL).not.toMatch(/dziękuj|odpowiem|odpowiedź|skontaktuj/i);
 		expect(casePublicSentencePl('przekazano', '21.11.2026')).toBe('Przekazano do sprawdzenia 21.11.2026.');
 		expect(casePublicSentencePl('przekazano')).toBeNull();

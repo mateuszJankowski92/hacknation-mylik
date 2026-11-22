@@ -1,0 +1,90 @@
+.case-notice__text {
+	margin: 0;
+}
+
+.notify {
+	display: grid;
+	gap: var(--space-1);
+	margin: var(--space-2) 0 0;
+	padding-top: var(--space-2);
+	border-top: var(--outline) dashed var(--paper-fold);
+	font-size: 1rem;
+}
+
+.notify__invite {
+	color: var(--text);
+}
+
+.notify__row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--space-1) var(--space-2);
+	align-items: stretch;
+}
+
+.notify__field {
+	--fold-max: 12px;
+	flex: 1 1 16rem;
+	min-width: 0;
+	min-height: 48px;
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper-light, #fffdf8);
+	box-shadow: var(--shadow-paper);
+}
+
+.notify__field:focus-within {
+	background: #ffffff;
+	outline: 6px double var(--focus);
+	outline-offset: 2px;
+}
+
+.notify__field:has(input[aria-invalid='true']) {
+	border-color: var(--danger-fg);
+}
+
+.notify__field input {
+	display: block;
+	width: 100%;
+	min-height: 45px;
+	padding: 0 28px 0 var(--space-2);
+	border: 0;
+	background: transparent;
+	color: var(--text);
+	font: inherit;
+}
+
+.notify__field input:focus-visible {
+	outline: none;
+}
+
+.notify__submit {
+	flex: 0 0 auto;
+}
+
+.notify__error {
+	min-height: 0;
+	margin: 0;
+	color: var(--danger-fg);
+	font-size: var(--text-small);
+}
+
+.notify--done {
+	margin: var(--space-2) 0 0;
+	padding-top: var(--space-2);
+	border-top: var(--outline) dashed var(--paper-fold);
+	color: var(--muted);
+}
+
+.notify__badge {
+	display: inline-block;
+	margin-right: 0.35em;
+	padding: 0 0.6em;
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	color: var(--text);
+	font-size: var(--text-small);
+	font-weight: 700;
+	line-height: 1.6;
+}

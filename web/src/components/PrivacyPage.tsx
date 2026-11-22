@@ -105,6 +105,7 @@ const PROVIDERS = [
 const NOT_COLLECTED = [
 	'Adresu IP nie zapisujemy na stałe. Serwer używa go tylko w pamięci, żeby ograniczyć liczbę zgłoszeń na minutę, i nie trafia on do bazy ani do logu zdarzeń.',
 	'Numeru nadawcy SMS nie zapisujemy.',
+	'Pole e-mail przy białej plamie to atrapa: adresu nie wysyłamy, nie zapisujemy na serwerze ani w przeglądarce.',
 	'Nie profilujemy użytkowników, nie mamy kont, reklam ani statystyk odwiedzin.',
 	'Strona nie wczytuje skryptów, czcionek ani obrazów z cudzych serwerów i nie wysyła zapytań do stron trzecich. Odnośniki do źródeł otwierają cudze strony dopiero po Twoim kliknięciu.',
 	'Nie ustawiamy plików cookie. Jedyny wyjątek to osobny widok urzędnika (adres /urzednik): po zalogowaniu osoba z dostępem dostaje plik cookie sesji na 8 godzin. Zwykli użytkownicy go nie widzą.',

@@ -121,7 +121,7 @@ describe('scenariusz H: brak dowodów i powtórne podobne zgłoszenie', () => {
 			expect(body).toEqual({ status: 'zapisano' });
 			expect(JSON.stringify(body)).not.toMatch(/przekaz/i);
 		}
-		expect(CASE_SAVED_SENTENCE_PL).toContain('Jeszcze nikomu go nie przekazałem');
+		expect(CASE_SAVED_SENTENCE_PL).toContain('na liście białych plam');
 	});
 
 	it('trzecie, inne twierdzenie bez dowodów to osobna sprawa; potwierdzone nie tworzy sprawy', async () => {

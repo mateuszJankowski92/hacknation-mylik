@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CASE_SAVED_SENTENCE_PL } from '../../../src/cases/texts';
 import { FIXTURE_OUTCOMES } from '../fixtures/outcomes';
-import { CaseNotice } from './CaseNotice';
+import { CaseNotice, NOTIFY_TEXTS, isEmailLike } from './CaseNotice';
 import { RecordView } from './RecordView';
 
 afterEach(() => {
@@ -29,7 +29,8 @@ describe('CaseNotice: zapisano a przekazano', () => {
 		render(<CaseNotice record={record('brak_wystarczajacych_dowodow')} />);
 		const notice = await screen.findByRole('status');
 		expect(notice.textContent).toBe(CASE_SAVED_SENTENCE_PL);
-		expect(notice.textContent).toContain('Jeszcze nikomu go nie przekazałem');
+		expect(notice.textContent).toContain('na liście białych plam');
+		expect(notice.textContent).not.toContain('Jeszcze nikomu');
 		expect(notice.textContent).not.toMatch(/Przekazano do sprawdzenia/);
 		const url = String((fetchMock.mock.calls[0] as unknown[])[0]);
 		expect(url).toMatch(/^\/api\/records\/[0-9a-f]+\/obieg$/);
@@ -64,9 +65,37 @@ describe('CaseNotice: zapisano a przekazano', () => {
 	it('widok rekordu z brakiem dowodów pokazuje zdanie, a przy potwierdzonym nie', async () => {
 		stubStatus({ status: 'zapisano' });
 		const { container } = render(<RecordView record={record('brak_wystarczajacych_dowodow')} />);
-		await waitFor(() => expect(container.querySelector('.case-notice')?.textContent).toBe(CASE_SAVED_SENTENCE_PL));
+		await waitFor(() => expect(container.querySelector('.case-notice__text')?.textContent).toBe(CASE_SAVED_SENTENCE_PL));
 		cleanup();
 		const other = render(<RecordView record={record('potwierdzone')} />);
 		expect(other.container.querySelector('.case-notice')).toBeNull();
+	});
+
+	it('atrapa e-mail: walidacja, potwierdzenie z metką Prototyp, bez sieci i bez localStorage', async () => {
+		const fetchMock = stubStatus({ status: 'zapisano' });
+		const setItem = vi.spyOn(Storage.prototype, 'setItem');
+		render(<CaseNotice record={record('brak_wystarczajacych_dowodow')} />);
+		const input = (await screen.findByLabelText(NOTIFY_TEXTS.invite)) as HTMLInputElement;
+		expect(input.type).toBe('email');
+		const callsBefore = fetchMock.mock.calls.length;
+		fireEvent.change(input, { target: { value: 'zly-adres' } });
+		fireEvent.click(screen.getByRole('button', { name: NOTIFY_TEXTS.submit }));
+		expect(screen.getByText(NOTIFY_TEXTS.invalid)).toBeTruthy();
+		expect(input.getAttribute('aria-invalid')).toBe('true');
+		fireEvent.change(input, { target: { value: 'ala@poczta.pl' } });
+		fireEvent.click(screen.getByRole('button', { name: NOTIFY_TEXTS.submit }));
+		expect(screen.getByText(NOTIFY_TEXTS.prototype)).toBeTruthy();
+		expect(screen.getByText(NOTIFY_TEXTS.confirmation)).toBeTruthy();
+		expect(screen.queryByLabelText(NOTIFY_TEXTS.invite)).toBeNull();
+		expect(fetchMock.mock.calls.length).toBe(callsBefore);
+		expect(setItem.mock.calls.some((call) => String(call[1]).includes('ala@poczta.pl'))).toBe(false);
+		expect(document.body.textContent).not.toContain('ala@poczta.pl');
+		setItem.mockRestore();
+	});
+
+	it('isEmailLike: prosta walidacja formatu', () => {
+		expect(isEmailLike('a@b.pl')).toBe(true);
+		expect(isEmailLike('a@b')).toBe(false);
+		expect(isEmailLike('ab.pl')).toBe(false);
 	});
 });

@@ -1,7 +1,7 @@
 import type { CasePublicStatus } from './types';
 
 export const CASE_SAVED_SENTENCE_PL =
-	'Zapisałem to pytanie, żeby człowiek mógł je sprawdzić. Jeszcze nikomu go nie przekazałem.';
+	'Zapisałem to pytanie na liście białych plam dla administratorów serwisu. To dla nich sygnał, że potrzebny jest oficjalny komunikat.';
 
 export function caseForwardedSentencePl(date: string): string {
 	return `Przekazano do sprawdzenia ${date}.`;
