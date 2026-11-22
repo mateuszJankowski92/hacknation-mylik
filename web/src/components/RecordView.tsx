@@ -7,7 +7,7 @@ import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { SheetQuestion } from './SheetQuestion';
 import { KnownOpWarnings } from './KnownOpWarning';
-import { VERDICT_LABELS_PL, type Verdict } from '../../../src/contracts/verdict';
+import { type Verdict } from '../../../src/contracts/verdict';
 import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
@@ -69,19 +69,37 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 	);
 }
 
+const ALL_SAME_SENTENCES: Record<Verdict, string> = {
+	potwierdzone: 'Wszystkie udało mi się potwierdzić.',
+	falszywe: 'Wszystkie okazały się fałszywe.',
+	wprowadzajace_w_blad: 'Wszystkie wprowadzają w błąd.',
+	brak_wystarczajacych_dowodow: 'Żadnego nie udało mi się potwierdzić.',
+	nie_podlega_weryfikacji: 'Żadnego nie da się sprawdzić.',
+};
+
+const COUNT_LABELS: Record<Verdict, string> = {
+	potwierdzone: 'Potwierdzonych',
+	falszywe: 'Fałszywych',
+	wprowadzajace_w_blad: 'Wprowadzających w błąd',
+	brak_wystarczajacych_dowodow: 'Niepotwierdzonych',
+	nie_podlega_weryfikacji: 'Nie do sprawdzenia',
+};
+
+const VERDICT_ORDER: Verdict[] = [
+	'potwierdzone',
+	'falszywe',
+	'wprowadzajace_w_blad',
+	'brak_wystarczajacych_dowodow',
+	'nie_podlega_weryfikacji',
+];
+
 export function summarizeVerdicts(verdicts: Verdict[]): string {
-	const order: Verdict[] = [
-		'potwierdzone',
-		'falszywe',
-		'wprowadzajace_w_blad',
-		'brak_wystarczajacych_dowodow',
-		'nie_podlega_weryfikacji',
-	];
-	return order
-		.map((verdict) => ({ verdict, count: verdicts.filter((item) => item === verdict).length }))
-		.filter((entry) => entry.count > 0)
-		.map((entry) => `${VERDICT_LABELS_PL[entry.verdict].toLowerCase()}: ${entry.count}`)
-		.join(', ');
+	const counts = VERDICT_ORDER.map((verdict) => ({ verdict, count: verdicts.filter((item) => item === verdict).length })).filter(
+		(entry) => entry.count > 0,
+	);
+	const only = counts.length === 1 ? counts[0] : undefined;
+	if (only) return ALL_SAME_SENTENCES[only.verdict];
+	return counts.map((entry) => `${COUNT_LABELS[entry.verdict]}: ${entry.count}.`).join(' ');
 }
 
 export function RecordView({ record }: { record: VerificationRecord }) {
@@ -108,7 +126,7 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					{record.claims.length > 1 && (
 						<p className="record__summary">
 							{nb(
-								`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony: ${summarizeVerdicts(record.claims.map((result) => result.verdict))}.`,
+								`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony. ${summarizeVerdicts(record.claims.map((result) => result.verdict))}`,
 							)}
 						</p>
 					)}

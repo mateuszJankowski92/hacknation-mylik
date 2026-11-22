@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react';
+import { Fragment, useRef, type ReactNode } from 'react';
 import type { ClaimResult, EvidenceItem } from '../../../src/contracts/record';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import { MISMATCH_LABELS_PL } from '../../../src/contracts/verdict';
@@ -12,6 +12,7 @@ import { usesGesture, type Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
 import './record.css';
 import { nb } from '../typography';
+import { classifyAnswer, splitNeeded, type AnswerSentence } from './answerText';
 
 export const ABSTAIN_ONE_SENTENCE =
 	'Sprawdziłem zbiór źródeł i nie znalazłem w nim tego twierdzenia. Szukaj dalej na stronie właściwego urzędu.';
@@ -114,6 +115,27 @@ function Refutation({ result }: { result: ClaimResult }) {
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
 
+function AnswerParts({ sentences }: { sentences: AnswerSentence[] }) {
+	return (
+		<>
+			{sentences.map((sentence, index) => (
+				<Fragment key={`${sentence.level}-${index}`}>
+					{index > 0 && ' '}
+					<span className={`record-claim__sentence record-claim__sentence--${sentence.level}`}>
+						{sentence.level === 'needed' ? (
+							<>
+								<span className="record-claim__needed-label">{splitNeeded(sentence.text).label}</span> {nb(splitNeeded(sentence.text).body)}
+							</>
+						) : (
+							nb(sentence.text)
+						)}
+					</span>
+				</Fragment>
+			))}
+		</>
+	);
+}
+
 interface RecordClaimProps {
 	result: ClaimResult;
 	asOf: string;
@@ -139,6 +161,9 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 	const profile = result.errorProfile;
 	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
 	const certainty = layout.certainty;
+	const answerParts = classifyAnswer(layout.headline, result.directAnswer);
+	const repeatsCaveat = answerParts.some((part) => part.level === 'caveat');
+	const leadText = answerParts.find((part) => part.level === 'lead')?.text ?? layout.headline;
 	const detailsRef = useRef<HTMLDetailsElement>(null);
 
 	function showDetails() {
@@ -158,11 +183,11 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 				<h2
 					id={headingId}
 					className="record-claim__headline"
-					data-length={headlineLength(layout.headline)}
+					data-length={headlineLength(leadText)}
 					data-result-heading={leading ? '' : undefined}
 					tabIndex={-1}
 				>
-					{nb(layout.headline)}
+					<AnswerParts sentences={answerParts} />
 				</h2>
 				{isAbstain && blankSpotNote && <p className="record-claim__blank-spot">{nb(BLANK_SPOT_NOTE)}</p>}
 				<div className="record-claim__summary">
@@ -171,14 +196,16 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 							<span className="visually-hidden">Ocena: </span>
 							<strong>{nb(layout.label)}</strong>
 						</p>
-						{layout.uncertaintyNote && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
+						{layout.uncertaintyNote && !repeatsCaveat && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
 					</div>
 
-					<p className="record-claim__evidence-link">
-						<button type="button" onClick={showDetails}>
-							{nb(layout.evidenceLink)}
-						</button>
-					</p>
+					{!isAbstain && (
+						<p className="record-claim__evidence-link">
+							<button type="button" onClick={showDetails}>
+								{nb(layout.evidenceLink)}
+							</button>
+						</p>
+					)}
 				</div>
 			</div>
 

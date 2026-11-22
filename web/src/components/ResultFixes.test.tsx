@@ -32,7 +32,7 @@ const JARGON_SCOPE =
 describe('jedno podsumowanie i jedna karta na stronę', () => {
 	it('dla 5 twierdzeń: jedno podsumowanie, jedna karta, kolejne arkusze widoczne od razu', () => {
 		const { container } = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 5)} />);
-		expect(plain(container.querySelector('.record__summary')?.textContent ?? '')).toMatch(/^Sprawdziłem 5 zdań z tej strony: /);
+		expect(plain(container.querySelector('.record__summary')?.textContent ?? '')).toMatch(/^Sprawdziłem 5 zdań z tej strony\. /);
 		expect(container.querySelectorAll('.record-card')).toHaveLength(1);
 		expect(container.querySelectorAll('img.record-card__image')).toHaveLength(1);
 		const list = container.querySelector('div.record__claims-list') as HTMLElement;

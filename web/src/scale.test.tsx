@@ -185,9 +185,10 @@ describe('wynik w skali: widok', () => {
 		expect(plain(headline?.textContent ?? '')).toMatch(/^Nie udało mi się potwierdzić tej informacji\. Do sprawdzenia potrzebuję: /u);
 		expect(plain(headline?.textContent ?? '')).not.toBe('Nie wiem.');
 		expect(headline?.getAttribute('data-length')).toMatch(/^(short|medium|long)$/);
-		const note = container.querySelector('.record-claim__summary .verdict__note');
-		expect(plain(note?.textContent ?? '')).toMatch(/Nie znalazłem tego w sprawdzonych źródłach/);
-		expect(plain(note?.textContent ?? '')).toMatch(/zajrzyj na stronę właściwego urzędu/);
+		expect(container.querySelector('.record-claim__summary .verdict__note')).toBeNull();
+		expect(plain(container.querySelector('.record-claim__sentence--lead')?.textContent ?? '')).toBe('Nie udało mi się potwierdzić tej informacji.');
+		expect(plain(container.querySelector('.record-claim__sentence--caveat')?.textContent ?? '')).toMatch(/^Brak wyniku w moich źródłach/);
+		expect(container.querySelector('.record-claim__evidence-link')).toBeNull();
 		expect(container.querySelector('.result-image')).toBeNull();
 		expect(container.querySelector('.record-claim__abstain-sentence')).toBeNull();
 		expect(container.querySelector('.record-claim__primary')).toBeNull();
