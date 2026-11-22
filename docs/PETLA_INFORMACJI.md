@@ -1,6 +1,6 @@
 # Pętla informacji: sprawy i widok urzędnika (scenariusz H)
 
-Stan na 21.11.2026. Pętla działa w warstwie serwera i interfejsu. Silnik (`src/engine`, `src/llm`, `src/contracts`) jest zamrożony i nie wie o sprawach.
+Stan na 22.11.2026. Pętla działa w warstwie serwera i interfejsu. Silnik (`src/engine`, `src/llm`, `src/contracts`) nie wie o sprawach.
 
 ## Co się dzieje
 
@@ -65,7 +65,7 @@ Token generuje administrator (np. `openssl rand -hex 24`) i ustawia w `.env` na 
 - Twierdzenie w sprawie pochodzi z zamaskowanego wejścia i jest maskowane jeszcze raz. Maskowanie to wzorce (ograniczenia: [RYZYKA.md](RYZYKA.md)), więc urzędnik może zobaczyć dane, których wzorce nie wyłapały.
 - Sprawy żyją dłużej niż rekordy (rekordy: `RETENTION_DAYS`, 30 dni). Odsyłacz do rekordu może po tym czasie prowadzić do „Tego sprawdzenia już nie ma”; twierdzenie w sprawie zostaje.
 - Liczba powtórzeń nie odróżnia osób: jedna osoba może zgłosić to samo wielokrotnie (ogranicza to tylko limit żądań).
-- Odpowiedź SMS nie zawiera zdania o zapisaniu pytania (tekst SMS składa zamrożony silnik); sprawa powstaje także z SMS-a i widać ją w kanałach.
+- Odpowiedź SMS nie zawiera zdania o zapisaniu pytania (tekst SMS składa silnik); sprawa powstaje także z SMS-a i widać ją w kanałach.
 - Deduplikacja jest prosta i ostrożna: bywa, że to samo twierdzenie opisane innymi słowami trafia do dwóch spraw. Urzędnik widzi je obok siebie na liście.
 - Stan `zamknieta` nie jest „rozstrzygnięciem”: system nie zmienia przez to wyniku sprawdzenia (to robi dopiero nowy korpus).
 

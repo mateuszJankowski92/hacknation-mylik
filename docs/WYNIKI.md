@@ -1,6 +1,75 @@
 # Wyniki testów (F7)
 
-Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia.
+Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia. **Liczby z tej strony i z README.md mają jedno źródło: tabela poniżej.** Inne dokumenty podają te same wartości albo odsyłają tutaj.
+
+## Liczby, na które się powołujemy
+
+Źródło: zapisane wyniki w `data/eval/` (`results.json`, `results_second_check.json`) i sekcje [MIERNIKI.md](MIERNIKI.md). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5 (model domyślny), korpus cb62b4255ea0 (733 dokumenty), `FACTCHECK_LAYER=off`, `LIVE_LAYER=off`, `SECOND_CHECK=off`. Jeden przebieg, więc liczby mają rozrzut co najmniej 0,06 macro-F1 ([MIERNIKI.md](MIERNIKI.md), „Rozrzut”).
+
+- **Przebieg P1** (źródło większości liczb): silnik 5fcfd41a31ea, 22.11.2026, 02:27-02:36 UTC, sędzia cytowań Claude Opus 5.5, `data/eval/results.json`.
+- **Przebieg P2**: silnik 5d88b017207b, 22.11.2026, sędzia cytowań Claude Sonnet 5.5 (commit 4d2670f). Tylko do poprawności cytowań z sędzią Sonnet.
+- **Przebieg P0**: silnik dd6f303f5e02, 21.11.2026, sędzia Claude Sonnet 5.5; z niego pochodzi próbka 20 par oceniona ręcznie.
+
+| Miernik | Wartość | Cel z wytycznych | Przebieg |
+|---|---|---|---|
+| Trafność (macro-F1) | 0,706 (bez 27 wątpliwych 0,731) | 0,75, niespełniony | P1 |
+| Dokładność ogólna | 120/174 | - | P1 |
+| Pokrycie cytowań | 100% (117/117) | 95%, spełniony (z konstrukcji silnika) | P1 |
+| Poprawność cytowań, sędzia Opus | 87,0% (180/207) | 85%, spełniony (wg tego sędziego) | P1 |
+| Poprawność cytowań, sędzia Sonnet | 79,8% (174/218) | 85%, niespełniony (wg tego sędziego) | P2 |
+| Poprawność cytowań, ręczny przegląd 20 par | 18 w pełni, 1 częściowo, 1 bez rozstrzygnięcia (z 20) | - | P0 |
+| Wstrzymanie się | 17/21 (81,0%) | 80%, spełniony na 21 przypadkach | P1 |
+| Fałszywe wstrzymania | 33/136 (24,3%) | - | P1 |
+| Odporność na prompt injection | 8/8 | 90%, spełniony na 8 atakach | P1 |
+| Stany techniczne | 4/4, 0 pozornych werdyktów | - | P1 |
+| Spójność kanałów (WWW i adapter SMS, w prototypie: symulator) | 5/5 par | 100% na 5 parach, spełniony | P1 |
+| Powtarzalność bez pamięci rekordów | 5/5 (w P2: 3/5) | - | P1 |
+| Mediana czasu | 7,8 s (p90 10,2 s) | 30 s, spełniony | P1 |
+| Koszt silnika na 1000 zapytań | **3,46 USD** = 0,6089 USD / 176 przypadków x 1000 | raportowany | P1 |
+
+Koszt: inne przebiegi tego samego zestawu liczone tym samym wzorem (koszt silnika / 176 x 1000): dd6f303f5e02 3,45 USD, 108928016877 3,52 USD, 5ac946ffce1a 3,50 USD, 5d88b017207b 3,60 USD. To wyniki innych przebiegów, nie inne wartości dla tej samej wersji. Starsze zapisy „ok. 3,6” i „ok. 3,7 USD” pochodziły z licznika `per100TestsUsd` (koszt dzielony przez 170 przypadków z pomiarem czasu, bez 6 przypadków bez wywołań modelu), więc wychodziły wyżej; zapisu „3,40” nie ma w zapisanych wynikach. Bez sędziego cytowań (działa tylko w pomiarach). Założenia i zakres: [KOSZTY.md](KOSZTY.md).
+
+Silnik wdrażany ma skrót **dc66dce5e77d**. Od P1 (5fcfd41a31ea) zmieniły się w nim tylko zdarzenia postępu (commit e203abe), więc liczby P1 traktujemy jako dotyczące wdrażanej wersji, ale przebiegu v2 na dokładnie dc66dce5e77d z `SECOND_CHECK=off` nie wykonano (do potwierdzenia). Profil omylności z P1 nie pasuje do skrótu dc66dce5e77d, więc serwer go nie pokaże bez kolejnego przebiegu.
+
+### Poprawność cytowań: trzy oceny obok siebie
+
+| Kto ocenia | Wynik | Przebieg i próba |
+|---|---|---|
+| Sędzia model: Claude Sonnet 5.5 | 79,8% (174/218) | P2, wszystkie cytaty rozstrzygające v2 |
+| Sędzia model: Claude Opus 5.5 | 87,0% (180/207) | P1, wszystkie cytaty rozstrzygające v2 |
+| Człowiek (jedna osoba z zespołu, właściciel) | 18 w pełni uzasadnionych, 1 częściowo (brak daty przy słowie „obecnie”), 1 bez rozstrzygnięcia (z 20 par) | P0, próbka 20 par ([MIERNIKI.md](MIERNIKI.md), „Ręczny przegląd”) |
+
+Co to pokazuje: sędzia-model bywa surowszy od człowieka (na 20 parach sędzia Sonnet odrzucił 5 z 18 par uznanych przez człowieka), a dwaj sędziowie-modele dają różne wartości, więc jedna liczba procentowa zależy od sędziego. Czego nie dowodzi: 20 par i jeden oceniający to za mało na wartość dla całego zestawu, a trzy oceny pochodzą z różnych przebiegów i wersji silnika, więc nie są porównywalne wprost.
+
+### Próby na pytaniach w stylu mentora (indeks redakcji na żywo)
+
+Źródło: [MIERNIKI.md](MIERNIKI.md), „Próba na pytaniach w stylu mentora, indeks na żywo” i dalsze podsekcje. Haiku 5.5, jedno uruchomienie każdej próby, małe próby: sygnał, nie pomiar.
+
+| Próba | Pytania | z tego pułapki | Błędne przypisanie oceny redakcji przed zmianą (df83667635c9) | po zmianie (108928016877) |
+|---|---|---|---|---|
+| 1 | 18 | brak danych | 0/18 | 0/18 |
+| 2 | 16 | 6 | 1/16 (T01) | 0/16 |
+| 3 (pytania niewidziane) | 8 | 4 | nie uruchamiana | 0/8 |
+| **Razem** | **42** | **10** (6 + 4) | **1/34** (próby 1 i 2) | **0/42** |
+
+„0 błędnych przypisań” znaczy więc 0 z 42 pytań po zmianie, z czego tylko 8 pytań (próba 3) powstało po obejrzeniu błędu i poprawek. Próba cofniętej zmiany reguły nazw dała 1 błędne przypisanie na te same 42 pytania (T04); zmianę cofnięto, obowiązuje reguła sprzed niej. Osobna próba z zad. 40 (14 pytań, indeks wyłączony, tematy Konkret24) miała 0 błędnych „Tak.”/„Nie.” na 14 i nie jest wliczona w 42.
+
+### Próba parowana mocniejszego modelu
+
+Pytanie: ile błędów Haiku naprawi mocniejszy model i ile dobrych odpowiedzi zepsuje. Punkt odniesienia: ostatni przebieg Haiku na v2 (silnik 5fcfd41a31ea, bez drugiej kontroli i bez warstwy żywej): 174 obsłużone przypadki, 120 zgodnych z etykietą, macro-F1 0,706. Pominięto 27 przypadków wątpliwych. Próba losowa z warstw wg etykiety (ziarno 56): 28 przypadków, w których Haiku się pomylił (pula 41), i 12, w których miał rację (pula 101). Bez sędziego cytowań, ustawienia domyślne poza modelem.
+
+| Model | Naprawione błędy Haiku | Zepsute dobre odpowiedzi | Mediana czasu (Haiku na tych samych) | Koszt na przypadek (Haiku) |
+|---|---|---|---|---|
+| Claude Sonnet 5.5 | 15 z 28 (54%) | 1 z 12 (8%) | 10,3 s (7,9 s) | 0,0726 USD (0,0038 USD) |
+| Claude Opus 5.5 | 9 z 11 (82%) | 1 z 5 (20%) | 13,7 s (7,6 s) | 0,1314 USD |
+
+Opus przerwano po 16 przypadkach z tej samej listy (limit kosztu pomiaru), dlatego jego próba to 11 + 5. Koszt całej próby 5,01 USD (Sonnet 2,91 USD, Opus 2,10 USD).
+
+Czego to nie dowodzi: próba jest mała i celowo przeważona błędami Haiku (28 z 41 w puli błędów, 12 ze 101 w puli dobrych odpowiedzi), więc nie daje wyniku na całym zestawie, nie rozstrzyga Sonneta kontra Opusa i nie pozwala oszacować odsetka zepsuć (1 z 12 i 1 z 5 to przedziały od kilku do kilkudziesięciu procent). Na przypadek Sonnet kosztuje ok. 19 razy więcej niż Haiku, a Opus ok. 35 razy (wobec kosztu Haiku na przypadkach Sonneta), a czas jest o 30-80% dłuższy. **Produkcja działa na Haiku.**
+
+## Historia przebiegów (starsze skróty, kolejno od najnowszego)
+
+Poniższe skróty zostają jako zapis historii. Wartości kosztu w nich liczono wzorem z tabeli wyżej; sędzia we wszystkich był Claude Sonnet 5.5.
 
 ## Skrót: przebieg v2 po zad. 44 (22.11.2026, silnik 5d88b017207b, indeks weryfikacji wyłączony)
 
@@ -9,11 +78,11 @@ Zad. 44: na ścieżce strony urzędu werdykt zdania ze strony wynika z cytatu z 
 | Miernik | Wynik | Poprzedni (5ac946ffce1a) | Cel MVP |
 |---|---|---|---|
 | Trafność (macro-F1) | 0,704 (bez 27 wątpliwych 0,737) | 0,691 | 0,75, niespełniony |
-| Poprawność cytowań (sędzia) | 79,8% (174/218) | 79,8% | 85%, niespełniony |
+| Poprawność cytowań (sędzia Sonnet) | 79,8% (174/218) | 79,8% | 85%, niespełniony |
 | Wstrzymanie się | 16/21 (76,2%) | 18/21 | 80%, niespełniony |
 | Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
 | Mediana czasu | 7,1 s (p90 10,3 s) | 7,5 s | 30 s, spełniony |
-| Koszt silnika | ok. 3,7 USD na 1000 zapytań (przebieg razem z sędzią 1,26 USD) | ok. 3,6 USD | raportowany |
+| Koszt silnika na 1000 zapytań | 3,60 USD (0,633 USD / 176; przebieg razem z sędzią 1,26 USD) | 3,50 USD | raportowany |
 | Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
 | Powtarzalność bez pamięci rekordów | 3/5 | 2/5 | - |
 | Fałszywe wstrzymania | 38/136 | 36/136 | - |
@@ -31,7 +100,7 @@ Zad. 43 dodało link do strony urzędu z listy hostów jako tymczasowy dowód (o
 | Wstrzymanie się | 18/21 (85,7%) | 16/21 | 80%, spełniony |
 | Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
 | Mediana czasu | 7,5 s (p90 10,3 s) | 7,4 s | 30 s, spełniony |
-| Koszt silnika | ok. 3,6 USD na 1000 zapytań (przebieg razem z sędzią 1,21 USD) | ok. 3,6 USD | raportowany |
+| Koszt silnika na 1000 zapytań | 3,50 USD (0,616 USD / 176; przebieg razem z sędzią 1,21 USD) | 3,52 USD | raportowany |
 | Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
 | Powtarzalność bez pamięci rekordów | 2/5 | 4/5 | - |
 | Fałszywe wstrzymania | 36/136 | 43/136 | - |
@@ -47,14 +116,14 @@ Profil omylności (silnik 5ac946ffce1a, claude-haiku-5-5): średnia 13/57, niska
 | Wstrzymanie się | 16/21 (76,2%) | 15/21 | 80%, niespełniony |
 | Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
 | Mediana czasu | 7,4 s (p90 9,8 s) | 7,5 s | 30 s, spełniony |
-| Koszt silnika | ok. 3,6 USD na 1000 zapytań | ok. 3,6 USD | raportowany |
+| Koszt silnika na 1000 zapytań | 3,52 USD (0,620 USD / 176) | 3,45 USD (dd6f303f5e02) | raportowany |
 | Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
 
-Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1. Profil omylności dotyczy silnika bez indeksu Google (dzienny limit API nieznany). Odpowiedzi z oceną redakcji (indeks na żywo): próby w [MIERNIKI.md](MIERNIKI.md): pełnym zdaniem indeks znajduje właściwą weryfikację w 1/14 pytań, naszymi wariantami fraz z rankingiem w 13/14; po regułach z 22.11 0 błędnych przypisań oceny redakcji w trzech próbach (34 pytania).
+Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1. Profil omylności dotyczy silnika bez indeksu Google (dzienny limit API nieznany). Odpowiedzi z oceną redakcji (indeks na żywo): próby w [MIERNIKI.md](MIERNIKI.md): pełnym zdaniem indeks znajduje właściwą weryfikację w 1/14 pytań, naszymi wariantami fraz z rankingiem w 13/14; po regułach z 22.11 0 błędnych przypisań oceny redakcji na 42 pytaniach w trzech próbach (przed zmianą 1 z 34; szczegóły w tabeli „Próby na pytaniach w stylu mentora” wyżej).
 
 ## Poprzedni skrót: zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5
 
-Końcowy przebieg (zad. 35), 21.11.2026: silnik dd6f303f5e02 (zamrożony), korpus cb62b4255ea0, bez drugiej warstwy i bez Basala, sędzia cytowań Claude Sonnet 5.5. Zestaw v2 nie jest już w pełni "czysty": posłużył do jednej decyzji o progu wstrzymania ([MIERNIKI.md](MIERNIKI.md), "Wariant przy niskiej sile brak werdyktu"). To jeden przebieg, więc czytaj go razem z rozrzutem niżej.
+Końcowy przebieg (zad. 35), 21.11.2026: silnik dd6f303f5e02 (wtedy uznany za końcowy; późniejsze zadania zmieniły skrót), korpus cb62b4255ea0, bez drugiej warstwy i bez Basala, sędzia cytowań Claude Sonnet 5.5. Zestaw v2 nie jest już w pełni "czysty": posłużył do jednej decyzji o progu wstrzymania ([MIERNIKI.md](MIERNIKI.md), "Wariant przy niskiej sile brak werdyktu"). To jeden przebieg, więc czytaj go razem z rozrzutem niżej.
 
 | Miernik | Wynik | Cel MVP |
 |---|---|---|
@@ -65,7 +134,7 @@ Końcowy przebieg (zad. 35), 21.11.2026: silnik dd6f303f5e02 (zamrożony), korpu
 | Odporność na prompt injection | 100% (8/8, tylko 8 ataków); osobny zestaw na żywym modelu 14/14 ([RYZYKA.md](RYZYKA.md)) | 90%, spełniony |
 | Stany techniczne | 4/4, 0 pozornych werdyktów | |
 | Mediana czasu | 7,5 s (p90 10,3 s, maks. 13,2 s) | 30 s, spełniony |
-| Koszt silnika | 0,36 USD na 100 testów; przebieg wszystkich zestawów ok. 2,00 USD (silnik + sędzia) | raportowany |
+| Koszt silnika | 0,36 USD na 100 testów (3,45 USD na 1000 = 0,607 USD / 176 x 1000); przebieg wszystkich zestawów ok. 2,00 USD (silnik + sędzia) | raportowany |
 | Spójność kanałów (WWW i adapter SMS, w prototypie: symulator) | 5/5 par (powtarzalność bez pamięci rekordów 3/5) | 100%, spełniony na 5 parach |
 | Fałszywe wstrzymania | 35/136 (25,7%) | koszt ostrzejszej bramki wsparcia |
 
@@ -86,6 +155,6 @@ npm run eval -- --part kontrolny_v2  # przebieg na żywym modelu (ANTHROPIC_API_
 npm run injection:live               # próby prompt injection na żywym modelu (płatny, ok. 0,005 USD)
 ```
 
-Dane: przypadki w `data/eval/cases.json` (strojeniowy, 71), `data/eval/control/cases.json` (v1, 30), `data/eval/control_v2/cases.json` (v2, 176). Wyniki naszych przebiegów z kosztem: `data/eval/results.json` (silnik dd6f303f5e02), z drugą warstwą osobno `data/eval/results_live.json` (starszy silnik 9b706cde662a, tylko do porównania; druga warstwa jest wyłączona). Ręczna kontrola cytowań: `data/eval/review_sample.md`.
+Dane: przypadki w `data/eval/cases.json` (strojeniowy, 71), `data/eval/control/cases.json` (v1, 30), `data/eval/control_v2/cases.json` (v2, 176). Wyniki naszych przebiegów z kosztem: `data/eval/results.json` (ostatni przebieg v2, silnik 5fcfd41a31ea, przebieg P1 z tabeli „Liczby, na które się powołujemy”), z drugą kontrolą osobno `data/eval/results_second_check.json` (silnik dc66dce5e77d, druga kontrola wyłączona na produkcji), z drugą warstwą źródeł osobno `data/eval/results_live.json` (starszy silnik 9b706cde662a, tylko do porównania; druga warstwa jest wyłączona). Ręczna kontrola cytowań: `data/eval/review_sample.md`.
 
 Uczciwie: jako pomiar kontrolny liczy się zestaw v2, bo zestawy strojeniowy i v1 posłużyły do zmian w silniku (v2 do jednej decyzji o progu). Wynik jednego przebiegu ma rozrzut ([MIERNIKI.md](MIERNIKI.md), "Rozrzut i ograniczenia").

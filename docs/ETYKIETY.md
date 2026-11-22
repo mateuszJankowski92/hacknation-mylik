@@ -50,4 +50,4 @@ Po niezależnym przeglądzie zestawu:
 | I01, I02 | fałszywe (jedna etykieta) | obywatelstwo: fałszywe; sympatie: brak dowodów | ocena per teza |
 | B02-B05 | wprowadzające w błąd | bez zmian | zgodne z definicją (plan jako fakt, data, miejsce, liczba); dopisane uzasadnienia |
 
-F01 (obraz) pozostaje oznaczony jako nieobsługiwany. H01 (pętla informacji) zostaje w zestawie pomiarowym silnika jako nieobsługiwany, bo silnik jest zamrożony i nie tworzy spraw; pętlę obsługuje warstwa serwera ([PETLA_INFORMACJI.md](PETLA_INFORMACJI.md)).
+F01 (obraz) pozostaje oznaczony jako nieobsługiwany. H01 (pętla informacji) zostaje w zestawie pomiarowym silnika jako nieobsługiwany, bo silnik nie tworzy spraw; pętlę obsługuje warstwa serwera ([PETLA_INFORMACJI.md](PETLA_INFORMACJI.md)).

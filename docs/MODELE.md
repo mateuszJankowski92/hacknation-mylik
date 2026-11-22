@@ -1,21 +1,22 @@
 # Modele i dostawcy
 
-Stan na 21.11.2026. Szczegóły zależności (klucze, co trafia, awaria, wymiana): [ZALEZNOSCI.md](ZALEZNOSCI.md).
+Stan na 22.11.2026. Szczegóły zależności (klucze, co trafia, awaria, wymiana): [ZALEZNOSCI.md](ZALEZNOSCI.md).
 
 | Dostawca / model | Rola | Domyślnie | Jak włączyć |
 |---|---|---|---|
 | Claude Haiku 5.5 (`claude-haiku-5-5`, API Anthropic) | wszystkie kroki modelu: twierdzenia, kandydaci, ocena, bramka wsparcia | **tak** | `LLM_PROVIDER=anthropic`, `ANTHROPIC_MODEL` pusty |
 | Claude Sonnet 5.5 (`claude-sonnet-5-5`) | to samo, dokładniej i drożej; w pomiarach także sędzia cytowań | nie | `ANTHROPIC_MODEL=claude-sonnet-5-5` |
+| Claude Opus 5.5 (`claude-opus-5-5`) | tylko pomiary: sędzia cytowań w przebiegu P1 i próba parowana; nie jest używany w produkcji | nie | `ANTHROPIC_MODEL=claude-opus-5-5` (cennik w `src/llm/pricing.ts`) |
 | Atrapa (`mock`) | testy i pokaz bez klucza i sieci; proste reguły, nie prawdziwa ocena | wartość domyślna w `src/config.ts`; `.env.example` też ustawia `mock` | `LLM_PROVIDER=mock` |
 | Druga warstwa źródeł (Haiku + narzędzie `web_search`) | szukanie na zamkniętej liście serwisów, gdy korpus nic nie rozstrzyga | nie (**eksperymentalna**) | `LIVE_LAYER=on` (opis: [ZRODLA.md](ZRODLA.md)) |
 | Basal (polski model decyzyjny, Apache-2.0, własna maszyna GPU) | bramka wsparcia; opcjonalnie ocena stanowisk | nie | `SUPPORT_GATE_PROVIDER=basal`, `BASAL_URL`, `BASAL_TOKEN` |
 | Jev (TypeSafe AI, `jev-1.14.0`, API w USA) | bramka wsparcia | nie | `SUPPORT_GATE_PROVIDER=jev`, `JEV_API_KEY` |
 
-Ceny (USD za 1 mln tokenów wejścia / wyjścia, `src/llm/pricing.ts`, cennik z 03.11.2026): Haiku 5.5 0,10 / 0,50; Sonnet 5.5 2 / 10.
+Ceny (USD za 1 mln tokenów wejścia / wyjścia, `src/llm/pricing.ts`, cennik z 03.11.2026): Haiku 5.5 0,10 / 0,50 (powyżej 100 tys. tokenów wejścia 0,50 / 2,50); Sonnet 5.5 2 / 10; Opus 5.5 4 / 20.
 
 ## Dlaczego Haiku
 
-Najtańszy, mieści się w limicie czasu. W pomiarze zad. 25 na zestawie kontrolnym v1 Sonnet miał lepsze cytowania (97,9% wobec 71,6% u Haiku), ale koszt około 20 razy wyższy i dłuższy czas. Po poprawce bramki wsparcia (zad. 35, silnik dd6f303f5e02) Haiku ma na v1 84,8%, a na v2 79,7% poprawności cytowań, macro-F1 0,701 i mediana czasu 7,5 s ([MIERNIKI.md](MIERNIKI.md)); to nadal poniżej celów MVP (0,75 i 85%). Wybór modelu to jedna zmienna, bez zmian w kodzie.
+Najtańszy, mieści się w limicie czasu. W pomiarze zad. 25 na zestawie kontrolnym v1 Sonnet miał lepsze cytowania (97,9% wobec 71,6% u Haiku), ale koszt około 20 razy wyższy i dłuższy czas. Po poprawce bramki wsparcia (zad. 35, silnik dd6f303f5e02) Haiku ma na v1 84,8%, a na v2 79,7% poprawności cytowań, macro-F1 0,701 i mediana czasu 7,5 s ([MIERNIKI.md](MIERNIKI.md)); to nadal poniżej celów MVP (0,75 i 85%). Wybór modelu to jedna zmienna, bez zmian w kodzie. Mała próba parowana (Sonnet naprawił 15 z 28 błędów Haiku i zepsuł 1 z 12 dobrych odpowiedzi; Opus 9 z 11 i 1 z 5) nie dowodzi wyniku na całym zestawie, więc produkcja zostaje na Haiku ([WYNIKI.md](WYNIKI.md), „Próba parowana mocniejszego modelu”). Liczby w tym akapicie pochodzą z przebiegów opisanych w MIERNIKI.md (inne silniki i sędzia Sonnet); aktualne wartości: [WYNIKI.md](WYNIKI.md), tabela „Liczby, na które się powołujemy”.
 
 ## Basal: stan uczciwie
 

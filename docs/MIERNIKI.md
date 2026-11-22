@@ -28,7 +28,7 @@ Pozycja to teza z oczekiwanym werdyktem: całe zgłoszenie (`expected.verdict`) 
 | Dokładność ogólna | przypadki w całości trafne / przypadki wykonane (przypadek złożony trafny, gdy każda teza trafna; przypadek ze stanem oczekiwanym trafny, gdy stan zgodny). |
 | Pokrycie cytowań | tezy faktograficzne z werdyktem rozstrzygającym, które mają dosłowny cytat zgodny z werdyktem / wszystkie takie tezy. Z konstrukcji silnika bliskie 100%: silnik nie wyda takiego werdyktu bez cytatu. |
 | Cytat dosłowny | cytaty rozstrzygające będące podciągiem fragmentu z bazy / wszystkie cytaty rozstrzygające. |
-| Poprawność cytowania | cytaty rozstrzygające dosłowne i uznane przez sędziego / cytaty ocenione przez sędziego. Sędzia: inny model niż oceniany (Haiku i Opus ocenia Sonnet, Sonneta ocenia Opus), widzi twierdzenie, przypisaną relację, cytat, tytuł dokumentu i cały fragment. Jego kryterium i prompt (src/eval/judge.ts) są inne niż bramki wsparcia w silniku: bramka pyta "czy sam cytat rozstrzyga", sędzia "czy cytat w swoim otoczeniu uczciwie uzasadnia relację". Ręczna kontrola: data/eval/review_sample.json i czytelne review_sample.md (20 par z ostatniego przebiegu); oceny człowieka dla próbki z silnika dd6f303f5e02: data/eval/review_sample_human.json (osobny wiersz, nie zmienia miernika). |
+| Poprawność cytowania | cytaty rozstrzygające dosłowne i uznane przez sędziego / cytaty ocenione przez sędziego. Sędzia: inny model niż oceniany (Haiku i Opus ocenia Sonnet, Sonneta ocenia Opus), widzi twierdzenie, przypisaną relację, cytat, tytuł dokumentu i cały fragment. Jego kryterium i prompt (src/eval/judge.ts) są inne niż bramki wsparcia w silniku: bramka pyta "czy sam cytat rozstrzyga", sędzia "czy cytat w swoim otoczeniu uczciwie uzasadnia relację". Poprawność cytowań zależy od sędziego i przebiegu; zestawienie trzech ocen (sędzia Sonnet 79,8%, sędzia Opus 87,0%, ręczny przegląd 20 par) jest w [WYNIKI.md](WYNIKI.md), „Poprawność cytowań: trzy oceny obok siebie”. Ręczna kontrola: data/eval/review_sample.json i czytelne review_sample.md (20 par z ostatniego przebiegu); oceny człowieka dla próbki z silnika dd6f303f5e02: data/eval/review_sample_human.json (osobny wiersz, nie zmienia miernika). |
 | Wstrzymanie się | przypadki kategorii `brak_dowodow` zakończone werdyktem "brak wystarczających dowodów" / przypadki tej kategorii. |
 | Fałszywe wstrzymania | przypadki z etykietą rozstrzygającą zakończone wstrzymaniem / przypadki z etykietą rozstrzygającą. |
 | Odporność | ataki odparte (polecenie zignorowane i odnotowane w logu, nic nie wyciekło) / ataki. |
@@ -132,7 +132,7 @@ Zmiana 8fbcebd776c7 -> 2aeccd3da6f9 dotyczy tylko punktu doboru dowodów drugiej
 
 ## Przebieg zadania 35 (21.11.2026): silnik dd6f303f5e02
 
-Silnik **dd6f303f5e02** (skrót src/engine, src/llm, src/contracts; ostatnia zmiana w commicie fe5ef53) jest silnikiem do zamrożenia. Claude Haiku 5.5 (model domyślny), bez drugiej warstwy (`LIVE_LAYER=off`), sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach. Uruchomienie z czystego klonu repozytorium w katalogu tymczasowym, korpus cb62b4255ea0 (733 dokumenty, ta sama zamrożona kopia, `--corpus-root`), jeden przebieg każdego zestawu, 18:25-18:41 UTC, bez strojenia po przebiegu. Wyniki: data/eval/results.json, ręczna próbka cytowań: data/eval/review_sample.md.
+Silnik **dd6f303f5e02** (skrót src/engine, src/llm, src/contracts; ostatnia zmiana w commicie fe5ef53) był wtedy silnikiem do zamrożenia (późniejsze zadania 40-45 zmieniły skrót; obecny: dc66dce5e77d). Claude Haiku 5.5 (model domyślny), bez drugiej warstwy (`LIVE_LAYER=off`), sędzia cytowań Claude Sonnet 5.5 na wszystkich cytatach. Uruchomienie z czystego klonu repozytorium w katalogu tymczasowym, korpus cb62b4255ea0 (733 dokumenty, ta sama zamrożona kopia, `--corpus-root`), jeden przebieg każdego zestawu, 18:25-18:41 UTC, bez strojenia po przebiegu. Wyniki: data/eval/results.json, ręczna próbka cytowań: data/eval/review_sample.md.
 
 | Zestaw | macro-F1 | poprawność cytowań (sędzia) | wstrzymanie się | odporność | fałszywe wstrzymania | spójność kanałów | powtarzalność bez pamięci rekordów | mediana czasu (p90 / maks.) | koszt silnik + sędzia |
 |---|---|---|---|---|---|---|---|---|---|
@@ -232,7 +232,7 @@ Zgodność z sędzią-modelem na tych samych parach: przy 18 parach uznanych prz
 
 ## Próba na pytaniach w stylu mentora, indeks na żywo (22.11.2026, silnik df83667635c9)
 
-18 pytań ułożonych w zad. 42 na weryfikacjach Demagoga z listopada 2026 **innych niż w dokumencie mentora** (fakt prosty 4, kontekst 4, parafraza 3, rozbieżność liczb 3, pytanie odwrotne do tezy 2) oraz 4 pytania bez pokrycia. Oczekiwana odpowiedź ustalona z oceny redakcji, zanim uruchomiono silnik. Indeks Google Fact Check Tools na żywo (klucz właściciela), Claude Haiku 5.5, kopia bazy, korpus cb62b4255ea0. **Mała próba (18 pytań), jeden przebieg; to sygnał, nie pomiar.** Dane: wyniki tylko w katalogu roboczym (wpisy indeksu nie trafiają do repozytorium).
+18 pytań (opis kategorii poniżej sumuje się do 16 + 4 bez pokrycia = 20, a zapytania do indeksu liczono na 14 pytaniach z pokryciem + 4 bez pokrycia = 18; dokładny podział do potwierdzenia) ułożonych w zad. 42 na weryfikacjach Demagoga z listopada 2026 **innych niż w dokumencie mentora** (fakt prosty 4, kontekst 4, parafraza 3, rozbieżność liczb 3, pytanie odwrotne do tezy 2) oraz 4 pytania bez pokrycia. Oczekiwana odpowiedź ustalona z oceny redakcji, zanim uruchomiono silnik. Indeks Google Fact Check Tools na żywo (klucz właściciela), Claude Haiku 5.5, kopia bazy, korpus cb62b4255ea0. **Mała próba (18 pytań), jeden przebieg; to sygnał, nie pomiar.** Dane: wyniki tylko w katalogu roboczym (wpisy indeksu nie trafiają do repozytorium).
 
 | Miernik | Wynik |
 |---|---|
@@ -243,7 +243,7 @@ Zgodność z sędzią-modelem na tych samych parach: przy 18 parach uznanych prz
 | błędne „Tak.” albo „Nie.” | 0/18 |
 | mediana czasu zgłoszenia | 5,8 s |
 | zapytania do indeksu na zgłoszenie | 8 (limit) |
-| koszt modelu za całą próbę | ok. /bin/zsh,06 |
+| koszt modelu za całą próbę | ok. $0,06 |
 
 Wcześniejsza próba (zad. 40, 14 pytań na tematach Konkret24, indeks wyłączony): 5/14.
 
@@ -278,6 +278,8 @@ Decyzja prowadzącego (wariant a, wzmocniony): (1) teza odwrotna („obala”) w
 | **3, nowa (niewidziana), zwykłe** | 4 | 1 | 0 | 3 |
 | **3, nowa (niewidziana), pułapki innego rodzaju niż T01** | 4 | 4 | 0 | - |
 
+**Podsumowanie liczb z trzech prób (te same wartości są w [WYNIKI.md](WYNIKI.md)):** pytań 18 + 16 + 8 = **42**, w tym pułapek 6 (próba 2) + 4 (próba 3) = **10** (w opisie próby 1 pułapek nie wyodrębniono). Błędne przypisanie oceny redakcji przed zmianą (silnik df83667635c9, próby 1 i 2): **1 z 34** (T01). Po zmianie (silnik 108928016877, próby 1 i 2 powtórzone, próba 3 nowa): **0 z 42**; z tych 42 pytań 34 poprawki już „widziały”, a 8 pytań próby 3 jest niewidzianych (0 z 8). Wcześniejsze „34 pytania” oznaczało tylko próby 1 i 2.
+
 Po zmianie: 0 błędnych przypisań oceny redakcji w żadnej próbie; koszt to więcej wstrzymań. Przyczyny wstrzymań w próbie 3 (bez poprawek): G01 indeks nic nie zwrócił dla krótkich fraz; G02 właściwy wpis nie został uznany za tę samą tezę; G03 imię „Billa” w pytaniu, a w tezie tylko „Gatesa” (reguła nazw własnych). F05 w próbie 2 dostał dwie sprzeczne oceny relacji tej samej tezy (wstrzymanie „sprzeczne źródła”). F01 i F08 bez zmian (decyzja prowadzącego). Mediana czasu 5,8-6,7 s; koszt modelu trzech prób ok. $0,14. Małe próby, jeden przebieg każda: to sygnał, nie pomiar.
 
 ### Próba zmiany reguły nazw (22.11.2026, cofnięta)
@@ -299,7 +301,7 @@ Claude Haiku 5.5, sędzia Claude Sonnet 5.5, korpus cb62b4255ea0, `FACTCHECK_LAY
 | spójność kanałów | 5/5 | 5/5 | 5/5 |
 | powtarzalność bez pamięci | 4/5 | 3/5 | 4/5 |
 | mediana czasu (p90) | 7,4 s (9,8) | 7,5 s (10,3) | 7,5 s (10,9) |
-| koszt silnika na 1000 zapytań | ok. $3,6 | ok. $3,6 | ok. $3,6 |
+| koszt silnika na 1000 zapytań (koszt / 176 x 1 000) | $3,52 | $3,45 | $3,46 (0,610 / 176; wcześniejszy zapis „ok. $3,6” pochodził z licznika na 170 przypadków) |
 
 Profil omylności (results.json): średnia 7/48, niska 18/45, brak 35/75 (wysoka 1/6, za mały koszyk). Rozrzut między przebiegami na v2: co najmniej 0,06 macro-F1 (0,673-0,733 w pięciu przebiegach), więc różnice w tabeli nie są rozstrzygające; fałszywe wstrzymania rosną od zad. 35 (ostrzejsze reguły dla ocen redakcji nie działają przy wyłączonym indeksie, więc wzrost to głównie rozrzut).
 
@@ -375,7 +377,7 @@ Zestaw kontrolny v2 (176), model oceny Claude Haiku 5.5, `FACTCHECK_LAYER=off`, 
 | Fałszywe wstrzymania | 33/136 | 50/136 |
 | Odporność | 8/8 | 8/8 |
 | Mediana czasu (p90) | 7,8 s (10,2) | 8,9 s (12,5) |
-| Koszt silnika na 1000 zapytań | ok. 3,6 USD | ok. 3,6 USD zmierzone + ok. 3-4 USD szacunek drugiej kontroli (licznik kosztu w eval nie obejmuje jeszcze wywołań drugiego modelu) |
+| Koszt silnika na 1000 zapytań (koszt silnika / 176 x 1 000) | 3,46 USD (0,6089 USD) | 3,47 USD (0,6106 USD) zmierzone + ok. 3-4 USD szacunek drugiej kontroli (licznik kosztu w eval nie obejmuje jeszcze wywołań drugiego modelu) |
 | Pary odrzucone przez drugą kontrolę | - | ok. 90 (szacunek z liczby cytatów rozstrzygających: 207 -> 119; licznik par w eval nie jest jeszcze zapisywany) |
 
 Koszt pomiaru: silnik $0,61 + sędzia Opus $1,18 (A), silnik $0,61 + sędzia $0,73 (B), plus nieopomiarowane wywołania Sonneta.
@@ -385,3 +387,7 @@ Koszt pomiaru: silnik $0,61 + sędzia Opus $1,18 (A), silnik $0,61 + sędzia $0,
 **Wynik:** cytowania +9,6 pkt (spełnione), odporność 8/8 (spełnione), mediana 8,9 s (spełnione), **trafność 0,641 < 0,66 (niespełnione)**. Druga kontrola zostaje **wyłączona** (`SECOND_CHECK=off`). Przyczyna: odbiera trafne dowody (17 fałszywych wstrzymań więcej), więc mniej błędnych cytatów kosztem wielu dodatkowych „brak wystarczających dowodów”. Możliwe dalsze kroki (niezmierzone): próg tylko dla „obala”/„rozbieżność”, albo druga kontrola tylko przy jednym dowodzie.
 
 Profil omylności serwera pochodzi z przebiegu bez drugiej kontroli (konfiguracja do wdrożenia), silnik 5fcfd41a31ea: średnia 11/58, niska 12/40, brak 28/71 (wysoka 1/5). Późniejszy commit e203abe zmienia tylko zdarzenia postępu, ale zmienia skrót silnika na dc66dce5e77d, więc ten profil nie pasuje już do skrótu wdrażanego silnika (serwer go nie pokaże bez kolejnego przebiegu).
+
+## Próba parowana mocniejszego modelu (wiz_56)
+
+Opis, wyniki i zastrzeżenia: [WYNIKI.md](WYNIKI.md), „Próba parowana mocniejszego modelu”. Wyniki surowe leżą poza repozytorium (katalog roboczy próby), a skrypty uruchamiające próbę nie weszły do repozytorium; dlatego liczby w WYNIKI.md są zapisem próby, a nie odtwarzalnym pomiarem z `data/eval/`.

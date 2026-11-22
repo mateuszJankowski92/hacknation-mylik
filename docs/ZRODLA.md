@@ -76,7 +76,7 @@ Odrzucone dowody są liczone w logu (`live_search`, `status: odrzucone_regulami`
 | zad. 29b | 2aeccd3da6f9 | bez warstwy 2 | 0,691 | 67,2% | 7,4 s | pomiar pośredni, nie końcowy |
 | zad. 29b | 9b706cde662a | z warstwą 2 i regułami doboru | 0,716 | 71,3% | 8,0 s | 0 błędnych „fałszywe” z warstwy 2; warstwa 2 dała tylko dowody tła; sędzia cytowań: atrapa (oszczędność budżetu) |
 
-Te przebiegi są historyczne (silniki sprzed zamrożenia). Końcowy silnik dd6f303f5e02 (zad. 35) mierzono tylko z wyłączoną warstwą 2 (v2: macro-F1 0,701, poprawność cytowań 79,7%, [MIERNIKI.md](MIERNIKI.md)); z warstwą 2 nie liczono go ponownie, a warstwa pozostaje wyłączona.
+Te przebiegi są historyczne (starsze silniki). Silnik dd6f303f5e02 (zad. 35) mierzono tylko z wyłączoną warstwą 2 (v2: macro-F1 0,701, poprawność cytowań 79,7%, [MIERNIKI.md](MIERNIKI.md)); z warstwą 2 nie liczono go ponownie, a warstwa pozostaje wyłączona; na obecnie wdrażanym silniku (dc66dce5e77d) jej nie mierzono.
 
 Ręczny test (mecz reprezentacji, 21.11.2026): przed regułami „fałszywe” na podstawie wcześniejszego, wrześniowego meczu (błąd); po regułach dowód przeciwny z warstwy 2 odpada i wynik to wstrzymanie się (11,7 s, 0,015 USD).
 

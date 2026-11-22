@@ -35,7 +35,7 @@ Remis między rodzinami, brak trafień albo którykolwiek powód poważny daje p
 
 Rola jest liczona raz, po odpowiedzi silnika, i zapisana w tabeli `record_roles` (`INSERT OR IGNORE`), więc ten sam adres `/r/<id>` zawsze ma tę samą rolę, nawet gdy później zmieni się lista słów. Odpowiedź API (`POST /api/verify`, strumień, `GET /api/records/:id`) ma dodatkowe pole `appearance: { role, serious }`. Awaria zapisu nie psuje odpowiedzi: pole znika, a interfejs używa pogodynka. Rekordy usunięte przez retencję zabierają ze sobą role. W logu zdarzeń jest `role_chosen` (rola i flaga, bez treści zgłoszenia).
 
-Silnik (zamrożony) nadal zapisuje własne pole `role` z trzema wartościami; interfejs czyta `appearance.role` i tylko bez niego wraca do `role`.
+Silnik nadal zapisuje własne pole `role` z trzema wartościami; interfejs czyta `appearance.role` i tylko bez niego wraca do `role`.
 
 ## Interfejs
 
