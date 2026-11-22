@@ -2,9 +2,9 @@ import { useId, useState } from 'react';
 import type { ClaimResult, EvidenceItem, PageInfo } from '../../../src/contracts/record';
 import { officialAnnouncement, pageAgeNote, decisivePage } from '../../../src/render/answer';
 import { STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL } from '../../../src/render/plain';
-import { buildResultLayout } from '../../../src/render/layout';
 import { formatDate } from '../format';
 import { nb } from '../typography';
+import { ResultTag } from './ResultTag';
 import { describeAddress } from './SheetQuestion';
 import './page.css';
 
@@ -125,8 +125,10 @@ export function OfficialAnnouncement({
 									<p>{cleanQuote(item.quote)}</p>
 								</blockquote>
 								<p className="page-quote__meta">
-									<strong className="page-quote__verdict">{PAGE_TEXTS.confirmed}</strong>
-									{`. ${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[result.strength.level]}.`}
+									<span className="page-quote__verdict">
+										<ResultTag kind="potwierdzone" size="sm" />
+									</span>
+									{` ${STRENGTH_TITLE_PL}: ${STRENGTH_PLAIN_PL[result.strength.level]}.`}
 								</p>
 							</li>
 						))}
@@ -137,7 +139,7 @@ export function OfficialAnnouncement({
 	);
 }
 
-export function ArticleClaims({ claims, asOf }: { claims: ClaimResult[]; asOf: string }) {
+export function ArticleClaims({ claims }: { claims: ClaimResult[]; asOf?: string }) {
 	if (claims.length === 0) return null;
 	return (
 		<section className="page-article" aria-label={PAGE_TEXTS.articleClaims}>
@@ -146,7 +148,9 @@ export function ArticleClaims({ claims, asOf }: { claims: ClaimResult[]; asOf: s
 				{claims.map((result) => (
 					<li key={result.claim.id} className="page-article__item">
 						<span className="page-article__text">{nb(result.claim.text)}</span>
-						<strong className="page-article__result">{nb(buildResultLayout(result, asOf).label)}</strong>
+						<span className="page-article__result">
+							<ResultTag kind={result.verdict} size="sm" />
+						</span>
 					</li>
 				))}
 			</ul>

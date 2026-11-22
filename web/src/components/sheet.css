@@ -209,8 +209,7 @@
 }
 
 .sheet .record-claim__certainty {
-	order: 3;
-	margin: 0 0 var(--space-3);
+	margin: 0;
 }
 
 .sheet .record-claim > .result-image {
@@ -229,15 +228,17 @@
 	border: 0;
 	background: none;
 	box-shadow: none;
-	gap: var(--space-1) var(--space-3);
+	gap: var(--space-1);
+	flex-direction: column;
+	align-items: flex-start;
 }
 
 .sheet .record-claim__certainty .confidence__picture {
-	width: 9rem;
+	width: 10rem;
 }
 
 .sheet .record-claim__certainty .confidence__text {
-	flex: 1 1 12rem;
+	flex: 0 0 auto;
 }
 
 .sheet .record-claim__certainty .confidence__word {
@@ -366,9 +367,8 @@
 		grid-template-areas:
 			'lead art'
 			'primary art'
-			'certainty art'
 			'details details';
-		grid-template-rows: auto auto auto auto;
+		grid-template-rows: auto auto auto;
 		column-gap: var(--space-6);
 		align-items: start;
 	}
@@ -380,10 +380,6 @@
 	.sheet .record-claim__primary {
 		grid-area: primary;
 		padding: var(--space-4) var(--space-4) var(--space-3);
-	}
-
-	.sheet .record-claim__certainty {
-		grid-area: certainty;
 	}
 
 	.sheet .record-claim > .result-image {
@@ -401,7 +397,6 @@
 		grid-template-areas:
 			'lead'
 			'primary'
-			'certainty'
 			'details';
 		column-gap: 0;
 	}
@@ -417,7 +412,7 @@
 	}
 
 	.sheet .record-claim__certainty .confidence__picture {
-		width: 10rem;
+		width: 11rem;
 	}
 
 	.sheet .record-claim--abstain::before {
@@ -506,4 +501,32 @@
 	:root:not([data-motion='on']) .sheet__body {
 		animation: none;
 	}
+}
+
+.record__fragments {
+	max-width: var(--measure);
+	margin: 0 0 var(--space-3);
+}
+
+.record__fragments > summary {
+	min-height: 48px;
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	color: var(--link);
+	text-decoration: underline;
+}
+
+.record__fragments-text {
+	margin: var(--space-1) 0 0;
+	line-height: 2.1;
+	white-space: pre-line;
+}
+
+.record__fragment-text {
+	background: none;
+	color: inherit;
+	text-decoration: underline;
+	text-decoration-thickness: 3px;
+	text-underline-offset: 0.2em;
 }

@@ -32,7 +32,10 @@ const JARGON_SCOPE =
 describe('jedno podsumowanie i jedna karta na stronę', () => {
 	it('dla 5 twierdzeń: jedno podsumowanie, jedna karta, kolejne arkusze widoczne od razu', () => {
 		const { container } = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 5)} />);
-		expect(plain(container.querySelector('.record__summary')?.textContent ?? '')).toMatch(/^Sprawdziłem 5 zdań z tej strony\. /);
+		const summary = container.querySelector('.record__summary');
+		expect(plain(summary?.textContent ?? '')).toMatch(/^5 twierdzeń:/);
+		expect(summary?.querySelectorAll('.result-tag')).toHaveLength(1);
+		expect(summary?.querySelector('.result-tag__count')?.textContent).toBe(': 5');
 		expect(container.querySelectorAll('.record-card')).toHaveLength(1);
 		expect(container.querySelectorAll('img.record-card__image')).toHaveLength(1);
 		const list = container.querySelector('div.record__claims-list') as HTMLElement;
@@ -50,12 +53,12 @@ describe('jedno podsumowanie i jedna karta na stronę', () => {
 		expect(container.querySelector('.record__summary')).toBeNull();
 	});
 
-	it('podsumowanie odmienia liczbę zdań', () => {
+	it('podsumowanie odmienia liczbę twierdzeń', () => {
 		const two = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 2)} />);
-		expect(two.container.querySelector('.record__summary')?.textContent).toContain('2 zdania');
+		expect(two.container.querySelector('.record__summary')?.textContent).toContain('2 twierdzenia:');
 		two.unmount();
 		const twentyTwo = render(<RecordView record={withClaims(baseRecord('potwierdzone'), 22)} />);
-		expect(twentyTwo.container.querySelector('.record__summary')?.textContent).toContain('22 zdania');
+		expect(twentyTwo.container.querySelector('.record__summary')?.textContent).toContain('22 twierdzenia:');
 	});
 });
 

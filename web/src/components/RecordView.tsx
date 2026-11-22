@@ -5,12 +5,12 @@ import { recordUrlPath } from '../route';
 import { CaseNotice } from './CaseNotice';
 import { howSearchedLines } from './howSearched';
 import { RecordCardImage } from './RecordCardImage';
+import { ClaimTagsSummary, SubmissionFragments } from './ClaimSummary';
 import { RecordClaim } from './RecordClaim';
 import { SheetQuestion } from './SheetQuestion';
 import { ArticleClaims, OfficialAnnouncement, PageRead, splitOfficialClaims } from './PageRead';
 import { KnownOpWarnings } from './KnownOpWarning';
 import { type Verdict } from '../../../src/contracts/verdict';
-import { countNoun } from '../../../src/render/plural';
 import { isKnownOpNotice } from '../../../src/render/warning';
 import { topicNote } from '../roles/config';
 import { recordRoleOf, recordSerious } from '../roles/appearance';
@@ -141,13 +141,8 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 					{record.claims.length === 0 && (
 						<p className="notice">{nb('Nie znalazłem w tej treści żadnego twierdzenia do sprawdzenia.')}</p>
 					)}
-					{record.claims.length > 1 && (
-						<p className="record__summary">
-							{nb(
-								`Sprawdziłem ${countNoun(record.claims.length, 'zdanie')} z tej strony. ${summarizeVerdicts(record.claims.map((result) => result.verdict))}`,
-							)}
-						</p>
-					)}
+					<ClaimTagsSummary claims={record.claims} />
+					{!page && <SubmissionFragments input={record.maskedInput} claims={record.claims} />}
 					{page && !page.official && <ArticleClaims claims={record.claims} asOf={record.asOf} />}
 					{officialLayout && page && <OfficialAnnouncement page={page} cited={cited} />}
 					{officialLayout && held.length > 0 && (

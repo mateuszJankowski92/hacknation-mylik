@@ -3,11 +3,12 @@ import type { SourceMeta } from '../../../src/contracts/source';
 import { SOURCE_TYPE_LABELS_PL } from '../../../src/contracts/source';
 import { fetchLatestSources } from '../api';
 import { formatDate, formatDateTime } from '../format';
-import { clearHistory, loadHistory, type HistoryEntry } from '../history';
+import { clearHistory, loadHistory, verdictOfEntry, type HistoryEntry } from '../history';
 import { useHistoryConsent } from '../privacy/consent';
 import { recordUrlPath } from '../route';
 import { nb } from '../typography';
 import { Link } from './Link';
+import { ResultTag } from './ResultTag';
 import './home.css';
 
 const HOME_TEXTS_RAW = {
@@ -30,6 +31,16 @@ export const HOME_TEXTS = Object.fromEntries(
 ) as typeof HOME_TEXTS_RAW;
 
 const VISIBLE_ITEMS = 3;
+
+function RecentLabel({ entry }: { entry: HistoryEntry }) {
+	const verdict = verdictOfEntry(entry);
+	if (!verdict) return <>{entry.label}, </>;
+	return (
+		<>
+			<ResultTag kind={verdict} size="sm" />{' '}
+		</>
+	);
+}
 
 export function RecentChecks() {
 	const consent = useHistoryConsent();
@@ -64,7 +75,8 @@ export function RecentChecks() {
 							<li key={entry.id} className="home-list__item">
 								<Link to={recordUrlPath(entry.id)}>{nb(entry.text)}</Link>
 								<span className="home-list__meta">
-									{entry.label}, {formatDateTime(entry.checkedAt)}
+									<RecentLabel entry={entry} />
+									{formatDateTime(entry.checkedAt)}
 								</span>
 							</li>
 						))}

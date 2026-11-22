@@ -115,9 +115,9 @@ describe('RecordView', () => {
 		expect(container.querySelector('blockquote')).toBeNull();
 	});
 
-	it('układ: zdanie główne, mała etykieta, odsyłacz, cytat z źródłem, a niżej pewność', () => {
+	it('układ: zdanie główne, duża etykieta, wskaźnik pewności, odsyłacz, a niżej cytat ze źródłem', () => {
 		const { container } = render(<RecordView record={record('falszywe')} />);
-		const order = ['.record-claim__headline', '.verdict__label', '.record-claim__evidence-link', '.record-claim__primary', '.record-claim__certainty']
+		const order = ['.record-claim__headline', '.verdict__label', '.record-claim__certainty', '.record-claim__evidence-link', '.record-claim__primary']
 			.map((selector) => container.querySelector(selector));
 		expect(order.every(Boolean)).toBe(true);
 		for (let i = 1; i < order.length; i++) {
@@ -148,10 +148,10 @@ describe('RecordView', () => {
 		for (const size of headlineSizes) expect(size).toBeGreaterThan(smallText);
 		expect(Math.min(...headlineSizes)).toBeGreaterThanOrEqual(28);
 		expect(Math.max(...headlineSizes)).toBeLessThanOrEqual(48);
-		for (const selector of ['.record-claim .verdict__label', '.record-claim .verdict__note']) {
-			const block = new RegExp(`${selector.replace(/[.]/g, '\\.')}\\s*\\{([^}]*)\\}`).exec(record);
-			expect(block?.[1]).toContain('font-size: var(--text-small)');
-		}
+		const noteBlock = /\.record-claim \.verdict__note\s*\{([^}]*)\}/.exec(record);
+		expect(noteBlock?.[1]).toContain('font-size: var(--text-small)');
+		const labelBlock = /\.record-claim \.verdict__label\s*\{([^}]*)\}/.exec(record);
+		expect(Number(/font-size: (\d+)px/.exec(labelBlock?.[1] ?? '')?.[1])).toBeLessThan(Math.min(...headlineSizes));
 	});
 
 	it('dodaje kartę do pobrania z adresem SVG', () => {

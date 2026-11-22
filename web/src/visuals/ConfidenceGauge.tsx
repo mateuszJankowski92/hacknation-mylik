@@ -10,7 +10,21 @@ import type { Strength } from '../../../src/contracts/record';
 import { REASON_PLAIN_PL, STRENGTH_PLAIN_PL, STRENGTH_TITLE_PL } from '../../../src/render/plain';
 import './visuals.css';
 
-export function ConfidenceGauge({ strength }: { strength: Strength }) {
+export function ConfidenceReasons({ strength }: { strength: Strength }) {
+	if (strength.reasons.length === 0) return null;
+	return (
+		<div className="confidence-reasons">
+			<p className="confidence__why-title">Dlaczego:</p>
+			<ul className="confidence__why">
+				{strength.reasons.map((reason) => (
+					<li key={reason}>{REASON_PLAIN_PL[reason]}</li>
+				))}
+			</ul>
+		</div>
+	);
+}
+
+export function ConfidenceGauge({ strength, showReasons = true }: { strength: Strength; showReasons?: boolean }) {
 	const titleId = useId();
 	const zone = zoneForStrength(strength.level);
 	const word = STRENGTH_PLAIN_PL[strength.level];
@@ -18,7 +32,7 @@ export function ConfidenceGauge({ strength }: { strength: Strength }) {
 	const description = `${STRENGTH_TITLE_PL}: ${word}. Wskaźnik ma trzy strefy: mało, średnio, dużo.`;
 
 	return (
-		<section className="confidence" aria-labelledby={titleId}>
+		<section className="confidence" data-compact={showReasons ? undefined : 'true'} aria-labelledby={titleId}>
 			<svg
 				className="confidence__picture"
 				viewBox={`0 0 ${GAUGE_VIEWBOX.width} ${GAUGE_VIEWBOX.height}`}
@@ -47,16 +61,7 @@ export function ConfidenceGauge({ strength }: { strength: Strength }) {
 				<h3 id={titleId} className="confidence__word">
 					{STRENGTH_TITLE_PL}: <strong>{word}</strong>
 				</h3>
-				{strength.reasons.length > 0 && (
-					<>
-						<p className="confidence__why-title">Dlaczego:</p>
-						<ul className="confidence__why">
-							{strength.reasons.map((reason) => (
-								<li key={reason}>{REASON_PLAIN_PL[reason]}</li>
-							))}
-						</ul>
-					</>
-				)}
+				{showReasons && <ConfidenceReasons strength={strength} />}
 			</div>
 		</section>
 	);

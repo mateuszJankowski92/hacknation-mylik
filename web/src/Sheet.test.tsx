@@ -61,7 +61,7 @@ function precedes(first: Element | null, second: Element | null): boolean {
 }
 
 describe('arkusz wyniku: układ od góry', () => {
-	it('pasek z pytaniem, "Stan źródeł na", zdanie wyniku, cytat ze źródłem, pewność, a ostrzeżenie na samym dole', () => {
+	it('pasek z pytaniem, "Stan źródeł na", zdanie wyniku, etykieta i pewność, cytat ze źródłem, a ostrzeżenie na samym dole', () => {
 		const { container } = render(<RecordView record={LONG.record} />);
 		const sheet = container.querySelector('.sheet')!;
 		const parts = [
@@ -69,8 +69,8 @@ describe('arkusz wyniku: układ od góry', () => {
 			'.sheet-question',
 			'.record-claim__headline',
 			'.verdict__label',
-			'.record-claim__primary',
 			'.record-claim__certainty',
+			'.record-claim__primary',
 			'details.record-claim__details',
 			'.known-op',
 		].map((selector) => sheet.querySelector(selector));

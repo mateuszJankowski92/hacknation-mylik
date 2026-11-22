@@ -1,0 +1,119 @@
+.result-tag {
+	--tag-bg: var(--paper);
+	--tag-accent: var(--graphite);
+	--tag-fg: var(--text);
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45em;
+	max-width: 100%;
+	padding: 0.2em 0.8em 0.2em 0.55em;
+	border: var(--outline) solid var(--tag-accent);
+	border-radius: var(--radius-paper);
+	background: var(--tag-bg);
+	color: var(--tag-fg);
+	font-size: var(--text-small);
+	font-weight: 700;
+	line-height: 1.3;
+	vertical-align: middle;
+}
+
+.result-tag[data-tone='confirmed'] {
+	--tag-bg: var(--tag-confirmed-bg);
+	--tag-accent: var(--tag-confirmed-accent);
+	--tag-fg: var(--tag-confirmed-fg);
+}
+
+.result-tag[data-tone='misleading'] {
+	--tag-bg: var(--tag-misleading-bg);
+	--tag-accent: var(--tag-misleading-accent);
+	--tag-fg: var(--tag-misleading-fg);
+}
+
+.result-tag[data-tone='false'] {
+	--tag-bg: var(--tag-false-bg);
+	--tag-accent: var(--tag-false-accent);
+	--tag-fg: var(--tag-false-fg);
+}
+
+.result-tag[data-tone='unproven'] {
+	--tag-bg: var(--tag-unproven-bg);
+	--tag-accent: var(--tag-unproven-accent);
+	--tag-fg: var(--tag-unproven-fg);
+}
+
+.result-tag[data-tone='unverifiable'] {
+	--tag-bg: var(--tag-unverifiable-bg);
+	--tag-accent: var(--tag-unverifiable-accent);
+	--tag-fg: var(--tag-unverifiable-fg);
+}
+
+.result-tag[data-tone='state'] {
+	--tag-bg: var(--tag-state-bg);
+	--tag-accent: var(--tag-state-accent);
+	--tag-fg: var(--tag-state-fg);
+	border-style: dashed;
+}
+
+.result-tag[data-size='sm'] {
+	font-size: 1rem;
+	padding: 0.05em 0.6em 0.05em 0.4em;
+}
+
+.result-tag[data-size='lg'] {
+	gap: 0.6em;
+	padding: 0.35em 1em 0.35em 0.75em;
+	border-width: 2px;
+	font-size: calc(24px * var(--ts));
+	box-shadow: var(--shadow-paper);
+}
+
+.result-tag__icon {
+	flex: 0 0 auto;
+	width: 1.25em;
+	height: 1.25em;
+	fill: none;
+	stroke: var(--tag-accent);
+	stroke-width: 2.4;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.result-tag[data-size='lg'] .result-tag__icon {
+	width: 1.5em;
+	height: 1.5em;
+}
+
+.result-tag__label {
+	display: inline-block;
+}
+
+.result-tag__label::first-letter {
+	text-transform: uppercase;
+}
+
+.result-tag__count {
+	display: inline-block;
+	min-width: 1.5em;
+	padding: 0 0.4em;
+	border-radius: 999px;
+	background: var(--tag-accent);
+	color: var(--tag-bg);
+	text-align: center;
+}
+
+html[data-contrast='high'] .result-tag {
+	border-width: 2px;
+}
+
+.result-tags-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--space-1);
+	margin: 0 0 var(--space-3);
+}
+
+.result-tags-row__lead {
+	margin: 0;
+	font-weight: 700;
+}

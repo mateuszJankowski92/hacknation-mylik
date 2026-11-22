@@ -41,6 +41,24 @@
 	--neutral-bg: #f1e6d3;
 	--state-fg: #3b3430;
 	--state-bg: #fbf6ec;
+	--tag-confirmed-bg: #ddebd8;
+	--tag-confirmed-accent: #3f7044;
+	--tag-confirmed-fg: #1e3a22;
+	--tag-misleading-bg: #f6e3c4;
+	--tag-misleading-accent: #94590f;
+	--tag-misleading-fg: #4a2e08;
+	--tag-false-bg: #f3d6cf;
+	--tag-false-accent: #9e4235;
+	--tag-false-fg: #5a1f16;
+	--tag-unproven-bg: #ece7de;
+	--tag-unproven-accent: #4a4540;
+	--tag-unproven-fg: #26221f;
+	--tag-unverifiable-bg: #e3e8ec;
+	--tag-unverifiable-accent: #4a5f70;
+	--tag-unverifiable-fg: #1f2c36;
+	--tag-state-bg: #ffffff;
+	--tag-state-accent: #4a4540;
+	--tag-state-fg: #26221f;
 	--outline: 1.5px;
 	--radius-paper: 3px;
 	--fold-size: 20px;
@@ -698,6 +716,24 @@ textarea::placeholder {
 	font-size: var(--text-small);
 	letter-spacing: 0.04em;
 	color: var(--muted);
+}
+
+.state__tag {
+	display: flex;
+	align-items: flex-start;
+	margin: 0 0 var(--space-2);
+}
+
+.state__tag-text > * {
+	margin: 0;
+}
+
+.state__tag .state__kicker {
+	color: var(--tag-fg);
+}
+
+.state__tag-text > h2 {
+	font-size: calc(24px * var(--ts));
 }
 
 .state__advice {

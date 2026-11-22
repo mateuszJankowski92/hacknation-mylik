@@ -6,7 +6,8 @@ import { buildResultLayout, pickLayoutEvidence } from '../../../src/render/layou
 import { citizenText, extractCheckStats } from '../../../src/render/citizen';
 import { countNoun } from '../../../src/render/plural';
 import { formatDate } from '../format';
-import { ConfidenceGauge } from '../visuals/ConfidenceGauge';
+import { ConfidenceGauge, ConfidenceReasons } from '../visuals/ConfidenceGauge';
+import { ResultTag, StanceTag } from './ResultTag';
 import { ErrorDots } from '../visuals/ErrorDots';
 import { usesGesture, type Role } from '../roles/config';
 import { ResultImage } from '../roles/ResultImage';
@@ -59,6 +60,11 @@ function EvidenceBody({ item }: { item: EvidenceItem }) {
 	const { source } = item;
 	return (
 		<>
+			{(item.stance === 'potwierdza' || item.stance === 'obala') && (
+				<p className="record-evidence__stance">
+					<StanceTag stance={item.stance} />
+				</p>
+			)}
 			{item.archival && (
 				<p className="record-evidence__archival" role="note">
 					<span aria-hidden="true">⚠ </span>
@@ -235,12 +241,19 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 				</h2>
 				{isAbstain && blankSpotNote && <p className="record-claim__blank-spot">{nb(BLANK_SPOT_NOTE)}</p>}
 				<div className="record-claim__summary">
-					<div className="verdict">
-						<p className="verdict__label">
-							<span className="visually-hidden">Ocena: </span>
-							<strong>{nb(layout.label)}</strong>
-						</p>
-						{layout.uncertaintyNote && !repeatsCaveat && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
+					<div className="record-claim__signal">
+						<div className="verdict">
+							<p className="verdict__label">
+								<span className="visually-hidden">Ocena: </span>
+								<ResultTag kind={result.verdict} size="lg" />
+							</p>
+							{layout.uncertaintyNote && !repeatsCaveat && <p className="verdict__note">{nb(layout.uncertaintyNote)}</p>}
+						</div>
+						{certainty && (
+							<div className="record-claim__certainty">
+								<ConfidenceGauge strength={result.strength} showReasons={false} />
+							</div>
+						)}
 					</div>
 
 					{!isAbstain && (
@@ -261,12 +274,6 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 
 			{!isAbstain && showImage && <ResultImage role={role} resultKey={result.verdict} serious={serious} />}
 
-			{certainty && (
-				<div className="record-claim__certainty">
-					<ConfidenceGauge strength={result.strength} />
-				</div>
-			)}
-
 			<details className="record-claim__details" ref={detailsRef}>
 				<summary>Pokaż szczegóły</summary>
 
@@ -286,6 +293,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 								</p>
 							)}
 							<p>{nb(citizenText(result.explanation))}</p>
+							{certainty && <ConfidenceReasons strength={result.strength} />}
 							<Refutation result={result} />
 							{profile && profile.total > 0 && <ErrorDots profile={profile} />}
 						</section>

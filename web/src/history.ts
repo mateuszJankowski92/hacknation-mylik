@@ -1,5 +1,5 @@
 import type { VerificationRecord } from '../../src/contracts/record';
-import { VERDICT_LABELS_PL } from '../../src/contracts/verdict';
+import { VERDICTS, VERDICT_LABELS_PL, type Verdict } from '../../src/contracts/verdict';
 import { HISTORY_STORAGE_KEY, historyMayBeSaved } from './privacy/consent';
 
 export const HISTORY_KEY = HISTORY_STORAGE_KEY;
@@ -23,6 +23,10 @@ function isEntry(value: unknown): value is HistoryEntry {
 		typeof entry.label === 'string' &&
 		typeof entry.checkedAt === 'string'
 	);
+}
+
+export function verdictOfEntry(entry: HistoryEntry): Verdict | null {
+	return VERDICTS.find((verdict) => VERDICT_LABELS_PL[verdict] === entry.label) ?? null;
 }
 
 export function loadHistory(): HistoryEntry[] {
