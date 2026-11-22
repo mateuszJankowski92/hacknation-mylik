@@ -107,17 +107,22 @@
 }
 
 .sheet {
-	--figure-width: 144px;
+	--figure-width: clamp(168px, 50vw, 240px);
+	--figure-overlap: 0px;
 	--figure-room: 0px;
 	--figure-reach: 0px;
 }
 
 .sheet > .stage-slot--corner {
 	position: absolute;
-	top: -116px;
-	right: var(--space-4);
+	top: calc(var(--figure-width) * -1.25 + var(--figure-overlap));
+	right: calc(var(--space-6) + var(--space-2));
 	/* Łatka tła pod postacią: zakrywa kontur, cień i zgięcia arkusza; nad krawędzią biel strony, niżej papier. */
-	background: linear-gradient(180deg, var(--bg) 0 116px, var(--paper) 116px);
+	background: linear-gradient(
+		180deg,
+		var(--bg) 0 calc(100% - var(--figure-overlap)),
+		var(--paper) calc(100% - var(--figure-overlap))
+	);
 	animation: stage-patch-in var(--sheet-unfold-duration, 480ms) cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 	float: none;
 	width: var(--figure-width);
@@ -125,9 +130,13 @@
 }
 
 @media (max-width: 759px) {
-	/* Telefon: postać wystaje ponad górną krawędź arkusza; pod nią jest tylko wąska metka daty. */
+	/* Telefon: duża postać (ok. połowa szerokości ekranu) stoi nad arkuszem po prawej, stopy opierają się o jego górną krawędź. */
 	.app .sheet:has(> .stage-slot--corner) {
-		margin-top: 124px;
+		margin-top: calc(var(--figure-width) * 1.25 - var(--figure-overlap) + var(--space-3));
+	}
+
+	.sheet .result-image__stage {
+		display: none;
 	}
 
 	.app .sheet:has(> .stage-slot--corner) .sheet__top {
@@ -135,7 +144,7 @@
 	}
 
 	.app .sheet:has(> .stage-slot--corner) .sheet__asof {
-		max-width: calc(100% - var(--figure-width) + var(--space-2));
+		max-width: calc(100% - var(--space-5));
 	}
 }
 
@@ -168,7 +177,7 @@
 @media (min-width: 1024px) {
 	.sheet {
 		/* Duża figura: ok. 80% wysokości okna (proporcje kadru 4:5), wyraźnie wystaje poza prawą krawędź arkusza. */
-		--figure-width: clamp(380px, min(66vh, 42vw), 760px);
+		--figure-width: clamp(360px, min(60vh, 38vw), 690px);
 		--figure-height: calc(var(--figure-width) * 1.25);
 		--figure-reach: max(0px, min(calc(var(--figure-width) * 0.42), calc(max((100vw - 1080px) / 2, 24px) - 8px)));
 		--figure-room: calc(var(--figure-width) - var(--figure-reach) - 96px);

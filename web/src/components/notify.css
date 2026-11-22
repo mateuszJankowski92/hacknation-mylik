@@ -89,3 +89,8 @@
 	font-weight: 700;
 	line-height: 1.6;
 }
+
+.sheet .case-notice .notify__field,
+.sheet .case-notice .notify__submit {
+	--fold-cover: var(--paper-light);
+}
