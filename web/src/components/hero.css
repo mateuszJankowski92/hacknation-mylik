@@ -145,6 +145,16 @@
 	max-width: 40rem;
 }
 
+@media (max-width: 639px) {
+	.hero__title {
+		font-size: 48px;
+	}
+
+	.hero textarea {
+		min-height: 96px;
+	}
+}
+
 @media (max-width: 389px) {
 	.hero {
 		--hero-art-height: clamp(120px, calc(70svh - 505px), 36svh);

@@ -130,6 +130,7 @@ main > * {
 }
 
 main > .hero,
+main > .check-home,
 main > .record-page {
 	max-width: none;
 }

@@ -12,6 +12,7 @@
     "start": "tsx src/main.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "check:layout": "node scripts/check-home-layout.mjs",
     "corpus:ingest": "tsx scripts/ingest.ts",
     "corpus:fetch": "tsx scripts/fetch-sources.ts",
     "eval": "tsx scripts/eval.ts",
