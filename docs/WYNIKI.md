@@ -20,7 +20,7 @@ Jeden przebieg zestawu kontrolnego v2 (176 przypadków), 22.11.2026, 09:22-09:31
 | Spójność kanałów | 5/5 par | 100% na 5 parach | 5/5 |
 | Powtarzalność bez pamięci rekordów | 4/5 | - | 4/5 |
 | Mediana czasu | 12,9 s (p90 17,2 s) | 30 s, spełniony | 7,5 s |
-| Koszt silnika | 26,87 USD za przebieg, ok. 158 USD na 1000 zapytań | raportowany | 3,53 USD na 1000 |
+| Koszt silnika | 26,87 USD za przebieg, ok. 153 USD na 1000 zapytań (26,87 / 176 x 1000) | raportowany | 3,53 USD na 1000 |
 
 Uczciwie: to jeden przebieg, a wynik jednego przebiegu ma rozrzut (na Haiku 0,66-0,73 między przebiegami). Zestaw ma 21 przypadków wstrzymania i 8 ataków, więc te dwa mierniki opierają się na małych liczbach. Cele spełnia dziś dopiero droższy model; tańszy (Haiku) zostaje poniżej celów trafności, cytowań i wstrzymania.
 
@@ -88,7 +88,7 @@ Pytanie: ile błędów Haiku naprawi mocniejszy model i ile dobrych odpowiedzi z
 
 Opus przerwano po 16 przypadkach z tej samej listy (limit kosztu pomiaru), dlatego jego próba to 11 + 5. Koszt całej próby 5,01 USD (Sonnet 2,91 USD, Opus 2,10 USD).
 
-Czego to nie dowodzi: próba jest mała i celowo przeważona błędami Haiku (28 z 41 w puli błędów, 12 ze 101 w puli dobrych odpowiedzi), więc nie daje wyniku na całym zestawie, nie rozstrzyga Sonneta kontra Opusa i nie pozwala oszacować odsetka zepsuć (1 z 12 i 1 z 5 to przedziały od kilku do kilkudziesięciu procent). Na przypadek Sonnet kosztuje ok. 19 razy więcej niż Haiku, a Opus ok. 35 razy (wobec kosztu Haiku na przypadkach Sonneta), a czas jest o 30-80% dłuższy. **Produkcja działa na Haiku.**
+Czego to nie dowodzi: próba jest mała i celowo przeważona błędami Haiku (28 z 41 w puli błędów, 12 ze 101 w puli dobrych odpowiedzi), więc nie daje wyniku na całym zestawie, nie rozstrzyga Sonneta kontra Opusa i nie pozwala oszacować odsetka zepsuć (1 z 12 i 1 z 5 to przedziały od kilku do kilkudziesięciu procent). Na przypadek Sonnet kosztuje ok. 19 razy więcej niż Haiku, a Opus ok. 35 razy (wobec kosztu Haiku na przypadkach Sonneta), a czas jest o 30-80% dłuższy. **Do 21.11.2026 produkcja działała na Haiku; od 22.11.2026 instancja pokazowa liczy na Opus 5.5 (przebieg na górze tego pliku).**
 
 ## Historia przebiegów (starsze skróty, kolejno od najnowszego)
 

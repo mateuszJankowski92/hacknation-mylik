@@ -19,7 +19,7 @@ Zespół: Iteracja7. Prototyp z hackathonu HackNation 2026; nie jest oficjalną 
 Wymagania: Node.js 24 lub nowszy (wbudowany `node:sqlite`; instrukcję sprawdzono na Node 26), npm. Bez Dockera, bez bazy zewnętrznej, bez klucza i bez sieci poza `localhost`.
 
 ```bash
-git clone <adres-repozytorium> mylik && cd mylik
+git clone https://github.com/mateuszJankowski92/hacknation-mylik.git mylik && cd mylik
 npm ci
 npm run corpus:ingest         # buduje korpus w data/mylik.sqlite z data/sources.json i data/raw/ (ok. 1 s)
                               # oczekiwane: documents=733 passages=3543 version=cb62b4255ea0
@@ -62,11 +62,11 @@ Uruchomienie lokalne bez Discorda: nic się nie zmienia (puste zmienne `DISCORD_
 
 Prywatność i bezpieczeństwo: identyfikator użytkownika Discorda nie jest zapisywany ani przekazywany do silnika (do limitu zgłoszeń służy skrót z losową solą, tylko w pamięci procesu); wiadomości nie pingują nikogo (`allowed_mentions` puste, znaczniki `<@...>` usuwane z tekstu); limit zgłoszeń na użytkownika to `RATE_LIMIT_PER_MIN` na minutę; załączniki i obrazki są pomijane.
 
-Pozostałe polecenia: `npm test` (102 pliki, 1620 testów i 1 pominięty, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
+Pozostałe polecenia: `npm test` (103 pliki, 1629 testów i 1 pominięty, bez sieci i bez klucza), `npm run typecheck`, `npm run dev` (serwer z przeładowaniem), `npm run dev:web` (interfejs Vite z proxy do `/api`), `bash tests/e2e/smoke.sh` (test dymny całości: build, ingest do bazy tymczasowej, start w trybie `mock`, zapytania `curl`, zatrzymanie).
 
 ## Wyniki w skrócie
 
-**Model instancji pokazowej (Claude Opus 5.5), jeden przebieg 22.11.2026 na zestawie kontrolnym v2 (176 przypadków):** trafność (macro-F1) 0,804 przy celu 0,75; poprawność cytowań 87,2% (198/227); wstrzymanie się 20/21; odporność na wstrzyknięcia 8/8; mediana 12,9 s; ok. 158 USD na 1000 zapytań. Szczegóły i zastrzeżenia: [docs/WYNIKI.md](docs/WYNIKI.md), sekcja „Przebieg na modelu instancji pokazowej”. Tabela poniżej dotyczy tańszego modelu (Claude Haiku 5.5).
+**Model instancji pokazowej (Claude Opus 5.5), jeden przebieg 22.11.2026 na zestawie kontrolnym v2 (176 przypadków):** trafność (macro-F1) 0,804 przy celu 0,75; poprawność cytowań 87,2% (198/227); wstrzymanie się 20/21; odporność na wstrzyknięcia 8/8; mediana 12,9 s; ok. 153 USD na 1000 zapytań (26,87 USD / 176 przypadków x 1000). Szczegóły i zastrzeżenia: [docs/WYNIKI.md](docs/WYNIKI.md), sekcja „Przebieg na modelu instancji pokazowej”. Tabela poniżej dotyczy tańszego modelu (Claude Haiku 5.5).
 
 Źródło wszystkich liczb: tabela „Liczby, na które się powołujemy” w [docs/WYNIKI.md](docs/WYNIKI.md) (każda wartość z przebiegiem, silnikiem, modelem i sędzią). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5, jeden przebieg (silnik dc66dce5e77d, 22.11.2026, sędzia cytowań Sonnet, indeks redakcji i druga kontrola wyłączone w pomiarze, rozrzut co najmniej 0,06 macro-F1):
 

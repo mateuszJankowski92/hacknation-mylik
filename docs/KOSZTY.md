@@ -58,3 +58,7 @@ Pomiar (zad. 45, v2, sędzia cytowań Claude Opus 5.5 w obu wariantach):
 | Koszt silnika na 1000 zapytań (koszt / 176 x 1 000) | 3,46 USD | 3,47 USD zmierzone + ok. 3-4 USD szacunku drugiej kontroli (licznik eval jej nie obejmuje) |
 
 Decyzja: wyłączona (trafność 0,641 poniżej progu 0,66; [MIERNIKI.md](MIERNIKI.md)).
+
+## Model instancji pokazowej (Claude Opus 5.5, od 22.11.2026)
+
+Instancja pokazowa liczy na Claude Opus 5.5 (`deploy/app.js`), bo dopiero ten model spełnia cele trafności, cytowań i wstrzymania (przebieg w [WYNIKI.md](WYNIKI.md)). Koszt silnika w tym przebiegu: 26,87 USD na 176 przypadków, czyli ok. 153 USD na 1000 zapytań (ok. 0,15 USD za zapytanie; pojedyncze zgłoszenia z kilkoma twierdzeniami kosztowały do ok. 0,5 USD). To ok. 43 razy więcej niż na Haiku (3,53 USD na 1000). Limit czasu zgłoszenia na instancji pokazowej to 38 s (`REQUEST_DEADLINE_MS`), mediana 12,9 s. Powtórzone pytanie bierze zapisany rekord i nie kosztuje nic. Aplikacja nie ma własnego dziennego limitu wydatków: chroni ją limit 20 zgłoszeń na minutę na adres oraz limit wydatków ustawiony u dostawcy modelu; przed pilotażem potrzebny jest globalny limit kosztu i współbieżności.
