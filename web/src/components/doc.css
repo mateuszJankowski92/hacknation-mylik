@@ -130,3 +130,7 @@ main > .doc {
 		grid-column: 2;
 	}
 }
+
+.doc__body .doc__settings h2 {
+	margin-top: 0;
+}

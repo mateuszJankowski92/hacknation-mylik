@@ -37,3 +37,7 @@ Zapis: `localStorage`, klucz `mylik:dostepnosc:v1` (ustawienia niezbędne, patrz
 - Widok urzędnika (`/urzednik`) i symulator SMS (`/sms`) to strony renderowane przez serwer; nie były objęte tym przeglądem (stopka, panel dostępności i test klawiatury dotyczą aplikacji `web/`).
 - Przy A++ hasło na stronie głównej nie rośnie (zostaje 56 px), a miernik pewności ma stały rozmiar rysunku.
 - Do działania wymagany jest JavaScript. Tylko język polski.
+
+## Układ stron informacyjnych (22.11.2026)
+
+Źródła, Dostępność i Prywatność mają szeroki kontener (jak strona główna) i tekst o szerokości do 70 znaków. Źródła są pogrupowane według wydawcy (rozwijane przyciski z `aria-expanded`, wiersze renderowane po rozwinięciu), z polem wyszukiwania, przełącznikami rodzaju (`aria-pressed`) i licznikiem wyników ogłaszanym czytnikowi (`aria-live`). Na telefonie 393 px nie ma przewijania w poziomie. Logo w nagłówku ma nazwę dostępną „Mylik, strona główna”, a znak jest ozdobny (`aria-hidden`).
