@@ -11,6 +11,7 @@ import { CheckForm } from './CheckForm';
 import { HERO_PAGE_TITLE } from './heroCopy';
 import { Hero } from './Hero';
 import { HomeSections } from './HomeSections';
+import { ExampleQueries } from './ExampleQueries';
 import { predictedRole, recordRoleOf } from '../roles/appearance';
 import { currentForcedRole, currentRole } from '../roles/resolve';
 import { rememberRecord } from '../recordCache';
@@ -52,6 +53,7 @@ export function CheckPage() {
 	const [state, dispatch] = useReducer(reducer, { status: 'idle' });
 	const [initialDraft] = useState(readDraft);
 	const [focusField] = useState(readFocusField);
+	const [fill, setFill] = useState<{ id: number; text: string } | null>(null);
 	const controllerRef = useRef<AbortController | null>(null);
 	const resultRef = useRef<HTMLDivElement>(null);
 	const stage = useStage();
@@ -162,9 +164,11 @@ export function CheckPage() {
 						initialContent={initialDraft}
 						focusOnMount={focusField}
 						onDraftChange={rememberDraft}
+						fill={fill}
 					/>
 				</div>
 			</Hero>
+			{state.status === 'idle' && <ExampleQueries onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))} />}
 			{state.status === 'idle' && <HomeSections />}
 		</>
 	);

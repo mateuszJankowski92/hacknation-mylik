@@ -1,0 +1,107 @@
+.examples {
+	display: grid;
+	gap: var(--space-1);
+	max-width: 640px;
+	margin: 0 0 var(--space-4);
+}
+
+.examples__label {
+	margin: 0;
+	color: var(--muted);
+	font-size: var(--text-small);
+}
+
+.examples__list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: var(--space-1);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.examples__item {
+	display: flex;
+	min-width: 0;
+}
+
+.examples__note {
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	min-height: 48px;
+	padding: var(--space-1) var(--space-2);
+	border: var(--outline) solid var(--graphite);
+	border-radius: var(--radius-paper);
+	background: var(--paper);
+	box-shadow: var(--shadow-paper);
+	color: var(--text);
+	font: inherit;
+	font-size: var(--text-small);
+	line-height: 1.4;
+	text-align: left;
+	cursor: pointer;
+	transition:
+		transform 120ms ease-out,
+		box-shadow 120ms ease-out,
+		background-color 120ms ease-out;
+}
+
+.examples__note::after {
+	content: '';
+	position: absolute;
+	top: calc(var(--outline) * -1);
+	right: calc(var(--outline) * -1);
+	width: 12px;
+	height: 12px;
+	border-left: var(--outline) solid var(--graphite);
+	border-bottom: var(--outline) solid var(--graphite);
+	background: linear-gradient(
+		225deg,
+		var(--bg) 0 calc(50% - var(--outline) / 2),
+		var(--graphite) calc(50% - var(--outline) / 2) calc(50% + var(--outline) / 2),
+		var(--paper-fold) calc(50% + var(--outline) / 2) 100%
+	);
+	pointer-events: none;
+}
+
+.examples__note:hover {
+	background: var(--paper-light);
+	box-shadow: var(--shadow-lift);
+	transform: translateY(-1px);
+}
+
+.examples__note:active {
+	background: var(--paper-shade);
+	box-shadow: var(--shadow-press);
+	transform: translateY(1px);
+}
+
+.examples__note:focus-visible {
+	outline: 6px double var(--focus);
+	outline-offset: 3px;
+}
+
+@media (max-width: 639px) {
+	.examples__list {
+		grid-auto-flow: column;
+		grid-template-columns: none;
+		grid-auto-columns: min(70%, 240px);
+		margin: 0 calc(var(--space-2) * -1);
+		padding: 0 var(--space-2) var(--space-1);
+		overflow-x: auto;
+		scroll-snap-type: x proximity;
+		scroll-padding: 0 var(--space-2);
+	}
+
+	.examples__item {
+		scroll-snap-align: start;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	:root:not([data-motion='on']) .examples__note {
+		transition: none;
+	}
+}

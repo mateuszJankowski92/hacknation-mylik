@@ -13,9 +13,10 @@ interface CheckFormProps {
 	initialContent?: string;
 	focusOnMount?: boolean;
 	onDraftChange?: (content: string) => void;
+	fill?: { id: number; text: string } | null;
 }
 
-export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', focusOnMount = false, onDraftChange }: CheckFormProps) {
+export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', focusOnMount = false, onDraftChange, fill = null }: CheckFormProps) {
 	const [content, setContent] = useState(initialContent);
 	const fieldRef = useRef<HTMLTextAreaElement>(null);
 	const savedRef = useRef(initialContent);
@@ -32,6 +33,15 @@ export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', fo
 		field.focus();
 		field.setSelectionRange(field.value.length, field.value.length);
 	}, [focusOnMount]);
+
+	useEffect(() => {
+		if (!fill) return;
+		setContent(fill.text);
+		const field = fieldRef.current;
+		if (!field) return;
+		field.focus();
+		field.setSelectionRange(fill.text.length, fill.text.length);
+	}, [fill]);
 
 	function saveDraft(next: string) {
 		if (!onDraftChange || savedRef.current === next) return;
