@@ -16,6 +16,13 @@ export const SIMULATOR_HTML = `<!doctype html>
 	.bubble { max-width: 82%; padding: 8px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
 	.bubble--out { align-self: flex-end; background: #2a5fd0; color: #fff; border-bottom-right-radius: 4px; }
 	.bubble--in { align-self: flex-start; background: #fff; border: 1px solid #d5dbe3; border-bottom-left-radius: 4px; }
+	.bubble a { color: #1d4fb8; text-decoration: underline; overflow-wrap: anywhere; }
+	.bubble--typing { display: inline-flex; gap: 5px; align-items: center; padding: 12px 14px; }
+	.bubble--typing span { width: 7px; height: 7px; border-radius: 50%; background: #8a94a3; animation: typing 1.1s infinite ease-in-out; }
+	.bubble--typing span:nth-child(2) { animation-delay: .18s; }
+	.bubble--typing span:nth-child(3) { animation-delay: .36s; }
+	@keyframes typing { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+	@media (prefers-reduced-motion: reduce) { .bubble--typing span { animation: none; opacity: .7; } }
 	.phone__form { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #d5dbe3; background: #fff; }
 	.phone__input { flex: 1; resize: none; font: inherit; font-size: 14px; padding: 8px 10px; border: 1px solid #b9c2cf; border-radius: 12px; }
 	.phone__send { font: inherit; font-weight: 600; padding: 0 16px; border: 0; border-radius: 12px; background: #2a5fd0; color: #fff; cursor: pointer; }
@@ -46,12 +53,47 @@ export const SIMULATOR_HTML = `<!doctype html>
 	var send = document.getElementById('send');
 	var counter = document.getElementById('counter');
 
+	// Odnośnik do wyniku (/r/...) i pełne adresy w odpowiedzi są klikalne; reszta to zwykły tekst.
+	var LINK = new RegExp('(/r/[0-9a-f]{16,64}|https?://[^ ]+)', 'g');
+
+	function fillBubble(el, text) {
+		var last = 0;
+		String(text).replace(LINK, function (match, _group, offset) {
+			if (offset > last) el.appendChild(document.createTextNode(text.slice(last, offset)));
+			var isResult = match.charAt(0) === '/';
+			var a = document.createElement('a');
+			a.href = match;
+			a.target = '_blank';
+			a.rel = 'noopener';
+			a.textContent = isResult ? location.host + match.slice(0, 15) + '…' : match;
+			if (isResult) a.setAttribute('aria-label', 'Otwórz wynik sprawdzenia (nowa karta)');
+			el.appendChild(a);
+			last = offset + match.length;
+			return match;
+		});
+		if (last < text.length) el.appendChild(document.createTextNode(text.slice(last)));
+	}
+
 	function addBubble(kind, text) {
 		var el = document.createElement('div');
 		el.className = 'bubble bubble--' + kind;
-		el.textContent = text;
+		if (kind === 'in') fillBubble(el, text); else el.textContent = text;
 		thread.appendChild(el);
 		thread.scrollTop = thread.scrollHeight;
+		return el;
+	}
+
+	function addTyping() {
+		var el = document.createElement('div');
+		el.className = 'bubble bubble--in bubble--typing';
+		el.setAttribute('role', 'status');
+		el.setAttribute('aria-label', 'Mylik sprawdza');
+		el.appendChild(document.createElement('span'));
+		el.appendChild(document.createElement('span'));
+		el.appendChild(document.createElement('span'));
+		thread.appendChild(el);
+		thread.scrollTop = thread.scrollHeight;
+		return el;
 	}
 
 	input.addEventListener('input', function () {
@@ -66,14 +108,16 @@ export const SIMULATOR_HTML = `<!doctype html>
 		input.value = '';
 		counter.textContent = '0 / ' + MAX_CHARS;
 		send.disabled = true;
+		var typing = addTyping();
+		var done = function () { if (typing.parentNode) typing.parentNode.removeChild(typing); };
 		fetch('/sms/webhook', {
 			method: 'POST',
 			headers: { 'content-type': 'application/json' },
 			body: JSON.stringify({ from: FAKE_NUMBER, text: text })
 		})
 			.then(function (res) { return res.text(); })
-			.then(function (reply) { addBubble('in', reply); })
-			.catch(function () { addBubble('in', 'Nie udało się połączyć z usługą. Zgłoszenie nie zostało ocenione. Spróbuj ponownie później.'); })
+			.then(function (reply) { done(); addBubble('in', reply); })
+			.catch(function () { done(); addBubble('in', 'Nie udało się połączyć z usługą. Zgłoszenie nie zostało ocenione. Spróbuj ponownie później.'); })
 			.then(function () { send.disabled = false; input.focus(); });
 	});
 })();
