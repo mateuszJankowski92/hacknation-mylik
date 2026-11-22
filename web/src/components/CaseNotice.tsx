@@ -9,6 +9,7 @@ import './notify.css';
 
 export const NOTIFY_TEXTS = {
 	invite: 'Chcesz dostać wiadomość, gdy się pojawi? Zostaw e-mail:',
+	neutralInvite: 'Chcesz dostać wiadomość, gdy pojawi się oficjalny komunikat w tej sprawie? Zostaw e-mail:',
 	submit: 'Powiadom mnie',
 	invalid: 'Ten adres wygląda na niepełny. Sprawdź, czy ma znak @ i domenę, np. imie@poczta.pl.',
 	prototype: 'Prototyp',
@@ -26,7 +27,7 @@ export function hasNoEvidenceClaim(record: VerificationRecord): boolean {
 }
 
 /** Atrapa powiadomienia: adres nie opuszcza tego komponentu (bez sieci, bez localStorage). */
-export function NotifyDummy() {
+export function NotifyDummy({ invite = NOTIFY_TEXTS.invite }: { invite?: string }) {
 	const inputId = useId();
 	const errorId = useId();
 	const [value, setValue] = useState('');
@@ -55,7 +56,7 @@ export function NotifyDummy() {
 	return (
 		<form className="notify" onSubmit={submit} noValidate>
 			<label className="notify__invite" htmlFor={inputId}>
-				{nb(NOTIFY_TEXTS.invite)}
+				{nb(invite)}
 			</label>
 			<div className="notify__row">
 				<div className="notify__field">
@@ -85,31 +86,38 @@ export function NotifyDummy() {
 	);
 }
 
+type CaseLoad = { loaded: false } | { loaded: true; sentence: string | null; status: CasePublicStatus | null };
+
 export function CaseNotice({ record }: { record: VerificationRecord }) {
-	const [state, setState] = useState<{ sentence: string; status: CasePublicStatus } | null>(null);
+	const [state, setState] = useState<CaseLoad>({ loaded: false });
 	const relevant = hasNoEvidenceClaim(record);
 
 	useEffect(() => {
-		if (!relevant) {
-			setState(null);
-			return;
-		}
+		setState({ loaded: false });
+		if (!relevant) return;
 		const controller = new AbortController();
 		void fetchCaseStatus(record.id, controller.signal).then((status) => {
-			if (controller.signal.aborted || !status) return;
+			if (controller.signal.aborted) return;
+			if (!status) {
+				setState({ loaded: true, sentence: null, status: null });
+				return;
+			}
 			const sentence = casePublicSentencePl(status.status, status.forwardedAt ? formatDate(status.forwardedAt) : undefined);
-			setState(sentence ? { sentence, status: status.status } : null);
+			setState({ loaded: true, sentence, status: status.status });
 		});
 		return () => controller.abort();
 	}, [record.id, relevant]);
 
-	if (!relevant || !state) return null;
+	if (!relevant || !state.loaded) return null;
+	const saved = state.status === 'zapisano';
 	return (
 		<div className="case-notice">
-			<p className="case-notice__text" role="status">
-				{nb(state.sentence)}
-			</p>
-			{state.status === 'zapisano' && <NotifyDummy />}
+			{state.sentence && (
+				<p className="case-notice__text" role="status">
+					{nb(state.sentence)}
+				</p>
+			)}
+			<NotifyDummy invite={saved ? NOTIFY_TEXTS.invite : NOTIFY_TEXTS.neutralInvite} />
 		</div>
 	);
 }

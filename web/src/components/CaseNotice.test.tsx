@@ -43,13 +43,14 @@ describe('CaseNotice: zapisano a przekazano', () => {
 		expect(notice.textContent).toBe('Przekazano do sprawdzenia 21.11.2026.');
 	});
 
-	it('brak sprawy, błąd serwera albo dziwna odpowiedź: nic nie pokazuje (żadnych domysłów)', async () => {
+	it('brak sprawy, błąd serwera albo dziwna odpowiedź: sama atrapa z neutralnym zdaniem, bez twierdzenia o zapisie', async () => {
 		for (const [body, ok] of [[{ status: 'brak' }, true], [{ status: 'zapisano' }, false], [{ status: 'cokolwiek' }, true]] as const) {
 			const fetchMock = stubStatus(body, ok);
 			const { container, unmount } = render(<CaseNotice record={record('brak_wystarczajacych_dowodow')} />);
 			await waitFor(() => expect(fetchMock).toHaveBeenCalled());
-			await new Promise((resolve) => setTimeout(resolve, 10));
-			expect(container.textContent).toBe('');
+			await screen.findByLabelText(NOTIFY_TEXTS.neutralInvite);
+			expect(container.querySelector('.case-notice__text')).toBeNull();
+			expect(container.textContent).not.toContain('Zapisałem');
 			unmount();
 		}
 	});
