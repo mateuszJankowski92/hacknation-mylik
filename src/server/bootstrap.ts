@@ -18,6 +18,7 @@ import { withLiveRole } from '../roles/track';
 import { startRetention, type RetentionScheduler } from '../security/index';
 import { CLERK_MIN_TOKEN_LENGTH } from './clerk';
 import { createApp } from './app';
+import { computeLayerStatus } from './layers';
 
 /** Katalog główny projektu (niezależny od katalogu roboczego procesu). */
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -228,6 +229,12 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     trustedProxyHops: config.trustedProxyHops,
     publicBaseUrl: config.publicBaseUrl,
     cases,
+    layers: () =>
+      computeLayerStatus({
+        liveEnabled: live !== null,
+        discordConfigured: Boolean(config.discordPublicKey),
+        projectRoot: PROJECT_ROOT,
+      }),
     clerk: {
       token: clerkToken,
       person: config.clerkPerson,

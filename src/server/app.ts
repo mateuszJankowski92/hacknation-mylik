@@ -11,6 +11,8 @@ import { SIMULATOR_HTML, createSmsApp } from '../sms/index';
 import { createClerkApp, type ClerkDeps } from './clerk';
 import { serverError } from './errors';
 import { registerExtraRoutes } from './extras';
+import { registerTrustedPublishersRoute } from './layers';
+import { injectPageMeta, isRecordPath, registerSeoRoutes, resolveBaseUrl } from './seo';
 import { registerCaseStatusRoute } from './obieg';
 import { registerApiRoutes, type RouteDeps } from './routes';
 import { createStaticHandler } from './static';
@@ -145,9 +147,19 @@ export function createApp(deps: AppDeps): Hono {
 
   registerStreamRoutes(app, deps);
   registerExtraRoutes(app, deps);
+  registerTrustedPublishersRoute(app);
   registerApiRoutes(app, deps);
 
-  const serveStatic = createStaticHandler(deps.distDir);
+  const seoDeps = { publicBaseUrl: deps.publicBaseUrl, getRecord: (id: string) => deps.engine.getRecord(id) };
+  registerSeoRoutes(app, seoDeps);
+  const serveStatic = createStaticHandler(deps.distDir, {
+    transformIndex: (html, path, requestUrl) =>
+      injectPageMeta(html, path, resolveBaseUrl(deps.publicBaseUrl, requestUrl), seoDeps),
+    indexHeaders: (path) => ({
+      ...(isRecordPath(path) ? { 'X-Robots-Tag': 'noindex, nofollow' } : {}),
+      ...(path === '/' ? { Link: '</llms.txt>; rel="service-doc"; type="text/plain"' } : {}),
+    }),
+  });
   app.get('*', (c) => serveStatic(c));
 
   app.onError((err, c) => {

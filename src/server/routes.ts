@@ -11,6 +11,7 @@ import {
 import type { Engine, Searcher, SourceMeta, SourceType, VerifyInput, VerifyOutcome } from '../contracts/index';
 import type { ProgressEngine, VerifyOptions } from '../engine/progress';
 import { MESSAGES_PL, apiError } from './errors';
+import type { LayerStatus } from './layers';
 
 export const MAX_BODY_BYTES = 16 * 1024;
 const RECORD_ID_RE = /^[0-9a-f]{64}$/;
@@ -29,6 +30,8 @@ export interface RouteDeps {
   modelName: string;
   /** Zapis zdarzenia serwera do tabeli `events` (bez treści zgłoszeń). */
   logEvent: (type: string, detail: Record<string, string | number | boolean | null>) => void;
+  /** Stan warstw dla /api/health (bez sekretów); brak = pola warstw pominięte. */
+  layers?: () => LayerStatus;
 }
 
 interface SourceRow {
@@ -133,13 +136,15 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
   });
 
   app.get(API_PATHS.health, (c) => {
-    const res: HealthResponse = {
+    const res: HealthResponse & Partial<LayerStatus> = {
       ok: true,
       provider: deps.providerName,
       model: deps.modelName,
       corpusVersion: searcher.corpusVersion(),
       documents: searcher.stats().documents,
+      ...(deps.layers?.() ?? {}),
     };
+    c.header('Cache-Control', 'no-store');
     return c.json(res, 200);
   });
 

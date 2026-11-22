@@ -20,12 +20,20 @@ const MIME: Record<string, string> = {
   '.woff2': 'font/woff2',
   '.txt': 'text/plain; charset=utf-8',
   '.map': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
 
 export const BUILD_HINT = 'Zbuduj interfejs: npm run build';
 
 /** Zwraca handler GET dla ścieżek spoza /api. */
-export function createStaticHandler(distDir: string) {
+export interface StaticOptions {
+  /** Podmiana metadanych w index.html dla ścieżki SPA (title, Open Graph, JSON-LD). */
+  transformIndex?: (html: string, path: string, requestUrl: string) => string;
+  /** Dodatkowe nagłówki odpowiedzi HTML dla ścieżki SPA. */
+  indexHeaders?: (path: string) => Record<string, string>;
+}
+
+export function createStaticHandler(distDir: string, options: StaticOptions = {}) {
   const root = resolve(distDir);
 
   function fileIn(urlPath: string): string | null {
@@ -62,9 +70,12 @@ export function createStaticHandler(distDir: string) {
     }
     // Brakujący plik zasobu (z rozszerzeniem) -> 404; ścieżka SPA -> index.html.
     if (path !== '/' && extname(path) !== '') return c.text('Nie znaleziono', 404);
-    return c.body(readFileSync(indexPath), 200, {
+    const raw = readFileSync(indexPath, 'utf8');
+    const html = options.transformIndex ? options.transformIndex(raw, path, c.req.url) : raw;
+    return c.body(html, 200, {
       'Content-Type': MIME['.html']!,
       'Cache-Control': 'no-cache',
+      ...(options.indexHeaders?.(path) ?? {}),
     });
   };
 }
