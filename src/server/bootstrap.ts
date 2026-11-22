@@ -228,6 +228,7 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     rateLimitPerMin: config.rateLimitPerMin,
     trustedProxyHops: config.trustedProxyHops,
     publicBaseUrl: config.publicBaseUrl,
+    siteIndexing: config.siteIndexing,
     cases,
     layers: () =>
       computeLayerStatus({

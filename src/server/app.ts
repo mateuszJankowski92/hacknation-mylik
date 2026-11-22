@@ -33,6 +33,8 @@ export interface AppDeps extends RouteDeps {
   trustedProxyHops?: number;
   /** Publiczny adres serwisu dla odsyłaczy na karcie SVG. */
   publicBaseUrl?: string;
+  /** `off` (domyślnie): nagłówek X-Robots-Tag noindex, nofollow na każdej odpowiedzi, robots.txt Disallow, brak mapy strony. */
+  siteIndexing?: 'off' | 'on';
   cases?: CaseStore;
   clerk?: Pick<ClerkDeps, 'token' | 'person' | 'notifyAddress' | 'secureCookie'>;
 }
@@ -75,6 +77,7 @@ const isPost = (method: string) => method !== 'GET' && method !== 'HEAD' && meth
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
   const log = deps.log === undefined ? (line: string) => console.log(line) : deps.log;
+  const indexingOff = (deps.siteIndexing ?? 'off') === 'off';
 
   // Log: metoda, ścieżka (bez query), status, czas; zdarzenie http_request dla /api (statystyki).
   // Bez treści zgłoszeń i bez nagłówków.
@@ -91,6 +94,7 @@ export function createApp(deps: AppDeps): Hono {
     c.header('X-Frame-Options', 'DENY');
     c.header('Cross-Origin-Opener-Policy', 'same-origin');
     c.header('Cross-Origin-Resource-Policy', 'same-origin');
+    if (indexingOff) c.header('X-Robots-Tag', 'noindex, nofollow');
     // Brak nagłówków CORS: API dostępne tylko z tego samego originu.
   });
 
@@ -150,7 +154,7 @@ export function createApp(deps: AppDeps): Hono {
   registerTrustedPublishersRoute(app);
   registerApiRoutes(app, deps);
 
-  const seoDeps = { publicBaseUrl: deps.publicBaseUrl, getRecord: (id: string) => deps.engine.getRecord(id) };
+  const seoDeps = { publicBaseUrl: deps.publicBaseUrl, indexing: indexingOff ? ('off' as const) : ('on' as const), getRecord: (id: string) => deps.engine.getRecord(id) };
   registerSeoRoutes(app, seoDeps);
   const serveStatic = createStaticHandler(deps.distDir, {
     transformIndex: (html, path, requestUrl) =>

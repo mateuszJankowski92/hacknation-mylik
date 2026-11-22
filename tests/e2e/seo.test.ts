@@ -15,7 +15,7 @@ const BASE = 'https://mylik.example.test';
 const TEXT = 'Zarząd zieleni poinformował, że ogród botaniczny w Lipinach jest otwarty codziennie od godziny ósmej.';
 const INDEX = 'web/index.html';
 
-function boot(publicBaseUrl?: string): Bootstrapped {
+function boot(publicBaseUrl?: string, siteIndexing: 'on' | 'off' = 'on'): Bootstrapped {
   const root = mkdtempSync(join(tmpdir(), 'mylik-seo-'));
   mkdirSync(join(root, 'data/raw'), { recursive: true });
   writeFileSync(join(root, 'data/raw/park-1.txt'), TEXT);
@@ -43,7 +43,7 @@ function boot(publicBaseUrl?: string): Bootstrapped {
   return bootstrap({
     env: {},
     db,
-    config: { llmProvider: 'mock', anthropicApiKey: undefined, publicBaseUrl, incidentsPath: join(tmpdir(), 'mylik-seo-brak-incydentow.json') },
+    config: { llmProvider: 'mock', anthropicApiKey: undefined, publicBaseUrl, siteIndexing, incidentsPath: join(tmpdir(), 'mylik-seo-brak-incydentow.json') },
     distDir: dist,
     log: null,
     warn: () => {},
@@ -168,6 +168,59 @@ describe('metadane stron', () => {
     });
     expect(out).not.toContain('<script>alert');
     expect(out).toContain('&lt;script&gt;');
+  });
+});
+
+describe('witryna nieindeksowana (SITE_INDEXING=off, wartość domyślna)', () => {
+  const b = boot(BASE, 'off');
+
+  it('domyślna konfiguracja z pustego środowiska ma indeksowanie wyłączone, on je przywraca', async () => {
+    const { loadConfig } = await import('../../src/config');
+    expect(loadConfig({}).siteIndexing).toBe('off');
+    expect(loadConfig({ SITE_INDEXING: '' }).siteIndexing).toBe('off');
+    expect(loadConfig({ SITE_INDEXING: 'on' }).siteIndexing).toBe('on');
+  });
+
+  it('robots.txt blokuje całość i nie wskazuje mapy strony', async () => {
+    const res = await b.app.request('/robots.txt');
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toBe('User-agent: *\nDisallow: /\n');
+    expect(text).not.toContain('Sitemap');
+  });
+
+  it('sitemap.xml zwraca 404', async () => {
+    expect((await b.app.request('/sitemap.xml')).status).toBe(404);
+  });
+
+  it('llms.txt zostaje', async () => {
+    const res = await b.app.request('/llms.txt');
+    expect(res.status).toBe(200);
+    expect((await res.text()).startsWith('# Mylik')).toBe(true);
+  });
+
+  it('każda odpowiedź ma X-Robots-Tag noindex, nofollow: strony, zasoby, API, robots.txt', async () => {
+    for (const path of ['/', '/zrodla', '/prywatnosc', '/dostepnosc', '/nie-ma-takiej', '/robots.txt', '/llms.txt', '/sitemap.xml', '/api/health']) {
+      const res = await b.app.request(path);
+      expect(res.headers.get('x-robots-tag'), path).toBe('noindex, nofollow');
+    }
+  });
+
+  it('HTML publicznych stron ma meta robots noindex i nie ma canonical', async () => {
+    for (const path of ['/', '/zrodla', '/dostepnosc', '/prywatnosc']) {
+      const html = await (await b.app.request(path)).text();
+      expect(html, path).toContain('<meta name="robots" content="noindex, nofollow" />');
+      expect(html, path).not.toContain('rel="canonical"');
+    }
+  });
+
+  it('SITE_INDEXING=on: robots.txt, mapa strony i brak noindex na publicznych stronach jak dotąd', async () => {
+    const on = boot(BASE, 'on');
+    expect(await (await on.app.request('/robots.txt')).text()).toContain('Allow: /');
+    expect((await on.app.request('/sitemap.xml')).status).toBe(200);
+    const res = await on.app.request('/');
+    expect(res.headers.get('x-robots-tag')).toBeNull();
+    expect(await res.text()).not.toContain('name="robots"');
   });
 });
 

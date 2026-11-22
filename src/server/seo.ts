@@ -24,6 +24,8 @@ export const AI_CRAWLERS = ['GPTBot', 'ClaudeBot', 'PerplexityBot', 'Google-Exte
 
 export interface SeoDeps {
   publicBaseUrl?: string;
+  /** `off` (domyślnie): robots.txt blokuje całość, mapa strony zwraca 404, a HTML dostaje meta robots noindex. */
+  indexing?: 'off' | 'on';
   getRecord?: (id: string) => VerificationRecord | null | undefined;
 }
 
@@ -43,6 +45,10 @@ export function resolveBaseUrl(configured: string | undefined, requestUrl: strin
 function truncate(text: string, limit: number): string {
   const clean = text.replace(/\s+/gu, ' ').trim();
   return clean.length > limit ? `${clean.slice(0, limit - 1).trimEnd()}…` : clean;
+}
+
+export function robotsTxtBlocked(): string {
+  return ['User-agent: *', 'Disallow: /', ''].join('\n');
 }
 
 export function robotsTxt(baseUrl: string): string {
@@ -232,6 +238,7 @@ function jsonLdScript(data: unknown): string {
 /** Podmienia metadane w index.html (title, opis, og/twitter) i dopisuje canonical, og:url, og:image, robots, JSON-LD. */
 export function injectPageMeta(html: string, path: string, baseUrl: string, deps: SeoDeps = {}): string {
   const meta = metaFor(path, baseUrl, deps);
+  if ((deps.indexing ?? 'off') === 'off') meta.noindex = true;
   const title = escapeHtml(meta.title);
   const description = escapeHtml(meta.description);
   const image = escapeHtml(`${baseUrl}${OG_IMAGE_PATH}`);
@@ -264,9 +271,13 @@ const TEXT_HEADERS = { 'Cache-Control': 'public, max-age=3600' };
 
 export function registerSeoRoutes(app: Hono, deps: SeoDeps): void {
   const base = (c: Context) => resolveBaseUrl(deps.publicBaseUrl, c.req.url);
-  app.get('/robots.txt', (c) => c.text(robotsTxt(base(c)), 200, { ...TEXT_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' }));
-  app.get('/sitemap.xml', (c) =>
-    c.body(sitemapXml(base(c)), 200, { ...TEXT_HEADERS, 'Content-Type': 'application/xml; charset=utf-8' }),
+  const indexingOff = (deps.indexing ?? 'off') === 'off';
+  app.get('/robots.txt', (c) =>
+    c.text(indexingOff ? robotsTxtBlocked() : robotsTxt(base(c)), 200, { ...TEXT_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' }),
   );
+  app.get('/sitemap.xml', (c) => {
+    if (indexingOff) return c.text('Nie znaleziono.', 404, { 'Cache-Control': 'no-store', 'Content-Type': 'text/plain; charset=utf-8' });
+    return c.body(sitemapXml(base(c)), 200, { ...TEXT_HEADERS, 'Content-Type': 'application/xml; charset=utf-8' });
+  });
   app.get('/llms.txt', (c) => c.text(llmsTxt(base(c)), 200, { ...TEXT_HEADERS, 'Content-Type': 'text/plain; charset=utf-8' }));
 }

@@ -23,6 +23,8 @@ const ConfigSchema = z.object({
   TRUSTED_PROXY_HOPS: z.preprocess(emptyToUndefined, z.coerce.number().int().min(0).max(5).default(0)),
   // Publiczny adres serwisu (np. https://mylik.example.pl) dla odsyłaczy na karcie SVG; pusty = względny.
   PUBLIC_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
+  // Indeksowanie witryny przez wyszukiwarki: off (domyślnie: robots.txt Disallow, noindex w nagłówku i w HTML) albo on.
+  SITE_INDEXING: z.preprocess(emptyToUndefined, z.enum(['off', 'on']).default('off')),
   // Zad. 29: druga warstwa źródeł (szukanie na żywo na jawnej liście serwisów). Domyślnie wyłączona.
   LIVE_LAYER: z.preprocess(emptyToUndefined, z.enum(['off', 'on']).default('off')),
   LIVE_SOURCES_PATH: z.preprocess(emptyToUndefined, z.string().default('data/live-sources.json')),
@@ -53,6 +55,8 @@ export interface AppConfig {
   incidentsPath?: string;
   trustedProxyHops: number;
   publicBaseUrl?: string;
+  /** `off` (domyślnie): witryna nieindeksowana (robots.txt, X-Robots-Tag, meta robots); `on`: indeksowanie dozwolone. */
+  siteIndexing: 'off' | 'on';
   /** Druga warstwa źródeł (zad. 29): `off` (domyślnie, system działa jak dotąd) albo `on`. */
   liveLayer: 'off' | 'on';
   /** Lista serwisów drugiej warstwy; względna od katalogu projektu. */
@@ -81,6 +85,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     INCIDENTS_PATH: env.INCIDENTS_PATH,
     TRUSTED_PROXY_HOPS: env.TRUSTED_PROXY_HOPS,
     PUBLIC_BASE_URL: env.PUBLIC_BASE_URL,
+    SITE_INDEXING: env.SITE_INDEXING,
     LIVE_LAYER: env.LIVE_LAYER,
     LIVE_SOURCES_PATH: env.LIVE_SOURCES_PATH,
     URZEDNIK_TOKEN: env.URZEDNIK_TOKEN,
@@ -104,6 +109,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     incidentsPath: c.INCIDENTS_PATH,
     trustedProxyHops: c.TRUSTED_PROXY_HOPS,
     publicBaseUrl: c.PUBLIC_BASE_URL,
+    siteIndexing: c.SITE_INDEXING,
     liveLayer: c.LIVE_LAYER,
     liveSourcesPath: c.LIVE_SOURCES_PATH,
     clerkToken: c.URZEDNIK_TOKEN,
@@ -131,6 +137,7 @@ export function redactedConfig(cfg: AppConfig): Record<string, string | number |
     incidentsPath: cfg.incidentsPath ?? '[domyślnie]',
     trustedProxyHops: cfg.trustedProxyHops,
     publicBaseUrl: cfg.publicBaseUrl ?? '[względny]',
+    siteIndexing: cfg.siteIndexing,
     liveLayer: cfg.liveLayer,
     liveSourcesPath: cfg.liveSourcesPath,
     clerkToken: cfg.clerkToken ? '[ustawiony]' : '[brak]',
