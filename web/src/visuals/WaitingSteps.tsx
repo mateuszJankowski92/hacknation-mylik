@@ -45,7 +45,7 @@ export function WaitingSteps({
 		setProgress(progress);
 	}, [progress, setProgress]);
 
-	const lines = cached && record ? cachedLines(record.createdAt) : waitingLines(progress, { passedQuotes: passedQuotes(record) });
+	const lines = cached && record ? cachedLines(record.createdAt, progress.checkedAt) : waitingLines(progress, { passedQuotes: passedQuotes(record) });
 	const style = {
 		'--waiting-fade': `${WAITING_TIMING.homeFadeMs}ms`,
 		'--waiting-steps-fade': `${WAITING_TIMING.stepsFadeMs}ms`,
@@ -67,7 +67,8 @@ export function WaitingSteps({
 					<ol className="waiting-steps__list">
 						{lines.map((line) => (
 							<li key={line.id} className="waiting-steps__line" data-status={line.status}>
-								{nb(line.text)}
+								<span className="waiting-steps__mark" aria-hidden="true" />
+								<span className="waiting-steps__text-line">{nb(line.text)}</span>
 							</li>
 						))}
 					</ol>
