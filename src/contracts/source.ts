@@ -16,14 +16,17 @@ export const SOURCE_TYPE_LABELS_PL: Record<SourceType, string> = {
  * Warstwa źródła (zad. 29): `urzedowe` = zamknięty zbiór urzędowy (korpus), `media_i_instytucje` =
  * druga warstwa, szukana na żywo wyłącznie na jawnej liście serwisów (data/live-sources.json).
  * Wpływa tylko na siłę podstawy (z samej drugiej warstwy najwyżej `srednia`), nigdy na werdykt.
+ * `strona_urzedu` (zad. 43): strona z jawnej listy hostów urzędowych (data/official-hosts.json), wklejona
+ * przez użytkownika i pobrana w chwili zgłoszenia; tymczasowy dokument dowodowy, nigdy zapisany w zbiorze.
  */
-export const SOURCE_LAYERS = ['urzedowe', 'media_i_instytucje', 'weryfikacja_redakcji'] as const;
+export const SOURCE_LAYERS = ['urzedowe', 'media_i_instytucje', 'weryfikacja_redakcji', 'strona_urzedu'] as const;
 export const SourceLayerSchema = z.enum(SOURCE_LAYERS);
 export type SourceLayer = z.infer<typeof SourceLayerSchema>;
 export const SOURCE_LAYER_LABELS_PL: Record<SourceLayer, string> = {
   urzedowe: 'źródło urzędowe',
   media_i_instytucje: 'media i instytucje',
   weryfikacja_redakcji: 'ocena redakcji sprawdzającej fakty',
+  strona_urzedu: 'strona urzędu wklejona przez użytkownika',
 };
 
 /**

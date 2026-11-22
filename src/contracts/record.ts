@@ -134,6 +134,30 @@ export const RoleSchema = z.enum(ROLES);
 export type Role = z.infer<typeof RoleSchema>;
 export const DEFAULT_ROLE: Role = 'pogodynka';
 
+/**
+ * Dane strony spod adresu podanego w zgłoszeniu (zad. 43): zapisywane dla KAŻDEGO zgłoszenia z adresem,
+ * którego strona została pobrana. `official`: host (i host końcowy po przekierowaniach) jest na jawnej liście
+ * data/official-hosts.json, strona HTML; wtedy `publisher` to wydawca z listy. `title` i daty pochodzą
+ * z pobieracza, nie od modelu. Brak `publishedAt` = nie znaleziono daty publikacji. Brak pola w rekordzie
+ * = zgłoszenie bez pobranej strony (także rekordy sprzed zad. 43).
+ */
+export const PageInfoSchema = z.object({
+  /** Adres strony po przekierowaniach (parametry maskowane jak wejście). */
+  url: z.string().min(1),
+  /** Tytuł strony (oczyszczony, do 200 znaków) albo null, gdy strona go nie ma. */
+  title: z.string().nullable(),
+  /** Host strony bez `www.` (np. `zus.pl`). */
+  domain: z.string().min(1),
+  /** Data publikacji (YYYY-MM-DD) ze znaczników strony; brak = nie znaleziono. */
+  publishedAt: z.iso.date().optional(),
+  /** Moment pobrania strony (ISO datetime). */
+  fetchedAt: z.iso.datetime({ offset: true }),
+  official: z.boolean(),
+  /** Wydawca z listy hostów urzędowych (tylko gdy `official`). */
+  publisher: z.string().optional(),
+});
+export type PageInfo = z.infer<typeof PageInfoSchema>;
+
 /** Wersja kontraktu rekordu. Rekordy w starszej wersji nie są odczytywane (liczone od nowa). */
 export const RECORD_SCHEMA_VERSION = 2;
 export const SHORT_ANSWER_MAX_CHARS = 320;
@@ -159,6 +183,8 @@ export const VerificationRecordSchema = z.object({
   usage: RecordUsageSchema,
   /** Rola wyglądu (zad. 28b); opcjonalna dla zgodności ze starszymi rekordami v2 (brak = `pogodynka`). */
   role: RoleSchema.optional(),
+  /** Dane pobranej strony (zad. 43); opcjonalne dla zgodności ze starszymi rekordami. */
+  page: PageInfoSchema.optional(),
   schemaVersion: z.literal(RECORD_SCHEMA_VERSION),
 });
 export type VerificationRecord = z.infer<typeof VerificationRecordSchema>;

@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "description": "Jawna lista hostów urzędowych (zad. 43): strona spod takiego adresu, wklejona przez użytkownika, jest traktowana jak dokument tego samego katalogu źródeł (pobrany w chwili zgłoszenia). Lista służy WYŁĄCZNIE do ustalenia, że źródło jest urzędem; werdykt wynika z dosłownego cytatu ze strony, nie z domeny. Host strony i host końcowy po przekierowaniach muszą być równe wpisowi albo być jego subdomeną (granica na kropce); tylko https, port domyślny, bez loginu, bez adresów IP. Redakcje, serwisy prasowe i fact-checking nie należą do tej listy (patrz excluded). Zasady: docs/ZRODLA.md, sekcja Link do strony urzędu.",
+  "qualification": "Organ władzy publicznej lub instytucja publiczna (organ administracji rządowej i samorządowej, państwowa jednostka organizacyjna z osobowością prawną, instytucja Unii Europejskiej): ta sama kwalifikacja co źródła typu urzędowe w data/sources.json.",
+  "rules": {
+    "katalog": "Domena wydawcy typu urzędowego (urzedowe lub prawo) obecnego w data/sources.json; pole basis podaje id źródeł.",
+    "sufiks": "Cała strefa domenowa zarezerwowana dla organów władzy publicznej albo instytucji publicznych (gov.pl, europa.eu); host równy wpisowi albo jego subdomena.",
+    "instytucja": "Instytucja centralna spoza katalogu, dodana ręcznie, bo spełnia zasadę kwalifikacji; pole basis podaje podstawę."
+  },
+  "hosts": [
+    {
+      "host": "gov.pl",
+      "publisher": "Serwis gov.pl (organy administracji publicznej)",
+      "rule": "sufiks",
+      "basis": "Strefa gov.pl jest przeznaczona dla organów administracji publicznej; w katalogu: msz, gov-infrastruktura, gov-kgpsp, gov-rcb, gov-gis, gov-mswia, gov-mon, gov-finanse, gov-kas, gov-cyfryzacja, gov-sanepid."
+    },
+    {
+      "host": "uokik.gov.pl",
+      "publisher": "Urząd Ochrony Konkurencji i Konsumentów",
+      "rule": "katalog",
+      "basis": "uokik"
+    },
+    {
+      "host": "api.sejm.gov.pl",
+      "publisher": "Sejm RP",
+      "rule": "katalog",
+      "basis": "sejm"
+    },
+    {
+      "host": "sejm.gov.pl",
+      "publisher": "Sejm RP",
+      "rule": "instytucja",
+      "basis": "Izba parlamentu, organ władzy ustawodawczej; ta sama instytucja co źródło sejm w katalogu."
+    },
+    {
+      "host": "policja.gov.pl",
+      "publisher": "Policja",
+      "rule": "instytucja",
+      "basis": "Komendy Policji (formacja państwowa); w katalogu: policja-mazowiecka, policja-malopolska, policja-dolnoslaska, policja-wielkopolska."
+    },
+    {
+      "host": "mazowiecka.policja.gov.pl",
+      "publisher": "Komenda Stołeczna i Wojewódzka Policja mazowiecka",
+      "rule": "katalog",
+      "basis": "policja-mazowiecka"
+    },
+    {
+      "host": "malopolska.policja.gov.pl",
+      "publisher": "Komenda Wojewódzka Policji w Krakowie",
+      "rule": "katalog",
+      "basis": "policja-malopolska"
+    },
+    {
+      "host": "dolnoslaska.policja.gov.pl",
+      "publisher": "Komenda Wojewódzka Policji we Wrocławiu",
+      "rule": "katalog",
+      "basis": "policja-dolnoslaska"
+    },
+    {
+      "host": "wielkopolska.policja.gov.pl",
+      "publisher": "Komenda Wojewódzka Policji w Poznaniu",
+      "rule": "katalog",
+      "basis": "policja-wielkopolska"
+    },
+    {
+      "host": "policja.pl",
+      "publisher": "Policja (Komenda Główna Policji)",
+      "rule": "katalog",
+      "basis": "policja"
+    },
+    {
+      "host": "cert.pl",
+      "publisher": "CERT Polska (NASK)",
+      "rule": "katalog",
+      "basis": "cert-blog, cert"
+    },
+    {
+      "host": "moje.cert.pl",
+      "publisher": "CERT Polska (NASK)",
+      "rule": "katalog",
+      "basis": "cert"
+    },
+    {
+      "host": "nask.pl",
+      "publisher": "NASK - Państwowy Instytut Badawczy (CSIRT NASK)",
+      "rule": "katalog",
+      "basis": "nask"
+    },
+    {
+      "host": "europa.eu",
+      "publisher": "Instytucje Unii Europejskiej (europa.eu)",
+      "rule": "sufiks",
+      "basis": "Strefa europa.eu jest domeną instytucji Unii Europejskiej; w katalogu: eu, ec-home, youreurope."
+    },
+    {
+      "host": "european-union.europa.eu",
+      "publisher": "Unia Europejska (portal europa.eu)",
+      "rule": "katalog",
+      "basis": "eu"
+    },
+    {
+      "host": "home-affairs.ec.europa.eu",
+      "publisher": "Komisja Europejska, DG ds. Migracji i Spraw Wewnętrznych",
+      "rule": "katalog",
+      "basis": "ec-home"
+    },
+    {
+      "host": "zus.pl",
+      "publisher": "Zakład Ubezpieczeń Społecznych",
+      "rule": "instytucja",
+      "basis": "ZUS jest państwową jednostką organizacyjną z osobowością prawną, powołaną ustawą o systemie ubezpieczeń społecznych: instytucja publiczna. Przypadek zgłoszony przez właściciela produktu (wiadomości z zus.pl)."
+    },
+    {
+      "host": "imgw.pl",
+      "publisher": "Instytut Meteorologii i Gospodarki Wodnej (IMGW-PIB)",
+      "rule": "instytucja",
+      "basis": "Państwowy instytut badawczy (służba hydrologiczno-meteorologiczna państwa); jego serwisy meteo, hydro i baltyk są na liście mentora."
+    }
+  ],
+  "excluded": [
+    {
+      "host": "konkret24.tvn24.pl",
+      "reason": "Redakcja sprawdzająca fakty w serwisie prasowym (katalog: factcheck); nie jest urzędem."
+    },
+    {
+      "host": "tvn24.pl",
+      "reason": "Serwis prasowy; nie jest urzędem."
+    },
+    {
+      "host": "fakenews.pl",
+      "reason": "Serwis weryfikacji informacji (katalog: organizacja); fact-checking, nie urząd."
+    },
+    {
+      "host": "demagog.org.pl",
+      "reason": "Organizacja sprawdzająca fakty; nie jest urzędem."
+    },
+    {
+      "host": "eeas.europa.eu",
+      "reason": "Wyjątek ze strefy europa.eu: w katalogu typ organizacja (komunikaty polityczne i analizy dezinformacji), traktowany osobno."
+    },
+    {
+      "host": "portalpasazera.pl",
+      "reason": "Serwis spółki akcyjnej (przewoźnik i zarządca infrastruktury), nie organ władzy publicznej; z listy mentora pominięty do decyzji."
+    },
+    {
+      "host": "kgsok.pl",
+      "reason": "Status instytucji niepotwierdzony; z listy mentora pominięty do decyzji."
+    },
+    {
+      "host": "pap.pl",
+      "reason": "Agencja prasowa (druga warstwa, data/live-sources.json); nie jest urzędem."
+    }
+  ]
+}
