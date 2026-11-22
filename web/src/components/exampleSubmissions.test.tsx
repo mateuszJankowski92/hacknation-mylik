@@ -61,8 +61,10 @@ describe('pickExamples', () => {
 			const second = pickExamples(undefined, random, first.map((example) => example.id));
 			const firstRoles = new Set(first.map((example) => example.role));
 			const overlap = second.filter((example) => firstRoles.has(example.role)).length;
-			expect(overlap, `seed ${seed}`).toBeLessThanOrEqual(1);
-			expect(second.map((example) => example.id).some((id) => first.some((example) => example.id === id))).toBe(false);
+			// Dwie podpowiedzi z odpowiedzią wprost mają pierwszeństwo przed świeżością ról, a takich podpowiedzi jest sześć.
+			expect(overlap, `seed ${seed}`).toBeLessThanOrEqual(2);
+			// Podpowiedzi z odpowiedzią jest mało, więc jedna może się powtórzyć.
+			expect(second.filter((example) => first.some((other) => other.id === example.id)).length, `seed ${seed}`).toBeLessThanOrEqual(1);
 		}
 	});
 
@@ -70,5 +72,23 @@ describe('pickExamples', () => {
 		const pool: ExampleQuery[] = EXAMPLE_POOL.slice(0, 2);
 		expect(pickExamples(pool, seeded(3))).toHaveLength(2);
 		expect(pickExamples([], seeded(3))).toEqual([]);
+	});
+});
+
+describe('podpowiedzi z odpowiedzią wprost', () => {
+	it('każda czwórka ma co najmniej dwie podpowiedzi, na które Mylik odpowiada (ocena redakcji i źródło urzędowe), i cztery różne role', () => {
+		let previous: string[] = [];
+		for (let seed = 1; seed <= 200; seed++) {
+			let state = seed * 2654435761;
+			const random = () => {
+				state = (state * 1664525 + 1013904223) % 4294967296;
+				return state / 4294967296;
+			};
+			const chosen = pickExamples(EXAMPLE_POOL, random, previous);
+			previous = chosen.map((example) => example.id);
+			expect(chosen.filter((example) => example.kind === 'redakcja').length, `seed ${seed}`).toBeGreaterThanOrEqual(1);
+			expect(chosen.filter((example) => example.kind === 'urzad').length, `seed ${seed}`).toBeGreaterThanOrEqual(1);
+			expect(new Set(chosen.map((example) => example.role)).size, `seed ${seed}`).toBe(4);
+		}
 	});
 });

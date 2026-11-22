@@ -28,14 +28,14 @@ function link(id: string, label: string, address: string): ExampleQuery {
 
 export const EXAMPLE_POOL: readonly ExampleQuery[] = [
 	claim('redakcja-alarm-warszawa', 'redakcja', 'pogodynka', 'Czy w Warszawie policja ogłosiła najwyższy stopień alarmowy?'),
-	claim('redakcja-ceny-paliw', 'redakcja', 'kasjer', 'Czy ceny paliw w Polsce są najwyższe w Europie?'),
+	claim('redakcja-ceny-paliw', 'biala_plama', 'kasjer', 'Czy ceny paliw w Polsce są najwyższe w Europie?'),
 	claim('redakcja-inflacja-ue', 'redakcja', 'kasjer', 'Czy Polska ma najwyższą inflację w Unii Europejskiej?'),
 	claim('urzad-allegro-uokik', 'urzad', 'pogodynka', 'Czy UOKiK nałożył karę na Allegro za greenwashing?'),
-	claim('urzad-mandat-bilet', 'urzad', 'pogodynka', 'Czy od nowego roku mandat za jazdę bez biletu wzrośnie do 2000 zł?'),
+	claim('urzad-mandat-bilet', 'biala_plama', 'pogodynka', 'Czy od nowego roku mandat za jazdę bez biletu wzrośnie do 2000 zł?'),
 	claim('urzad-woda-z-kranu', 'urzad', 'pogodynka', 'Czy woda z kranu w Polsce nie nadaje się do picia?'),
 	claim('urzad-falszywy-wnuczek', 'urzad', 'pogodynka', 'Czy policja ostrzega przed oszustwem na fałszywego wnuczka?'),
-	claim('urzad-czujniki-czadu', 'urzad', 'pogodynka', 'Czy Straż Pożarna zaleca czujniki czadu w domach?'),
-	claim('urzad-alkohol-za-kierownica', 'urzad', 'pogodynka', 'Czy w Polsce można prowadzić samochód po jednym piwie?'),
+	claim('urzad-czujniki-czadu', 'biala_plama', 'pogodynka', 'Czy Straż Pożarna zaleca czujniki czadu w domach?'),
+	claim('urzad-alkohol-za-kierownica', 'biala_plama', 'pogodynka', 'Czy w Polsce można prowadzić samochód po jednym piwie?'),
 	claim('urzad-dowod-online', 'urzad', 'bibliotekarka', 'Czy wniosek o dowód osobisty można złożyć przez internet?'),
 	claim('plama-prawo-jazdy', 'biala_plama', 'bibliotekarka', 'Czy prawo jazdy kategorii B można wymienić w dowolnym urzędzie?'),
 	claim('plama-zus-nadplata', 'biala_plama', 'bibliotekarka', 'Czy ZUS wysyła e-maile z prośbą o podanie danych do zwrotu nadpłaty?'),
@@ -83,7 +83,9 @@ const PICK_ATTEMPTS = 120;
 const SCORE_WHITE_SPOT = 1000;
 const SCORE_ROLE = 100;
 const SCORE_FRESH_ROLE = 20;
-const SCORE_KIND = 10;
+// Rodzaj (odpowiedź z oceny redakcji, odpowiedź z urzędu) waży więcej niż unikanie ról z poprzedniej czwórki:
+// w każdej czwórce mają być dwie podpowiedzi, na które Mylik odpowiada wprost (stan sprawdzony 22.11.2026 na modelu instancji pokazowej).
+const SCORE_KIND = 60;
 const SCORE_FRESH_ID = 1;
 const PENALTY_EXTRA_DEFAULT_ROLE = 10_000;
 
