@@ -18,11 +18,11 @@
 #   jej nie ma albo z --replace-db (lokalna migawka przez VACUUM INTO, spójna mimo WAL).
 # - Migawka EUvsDisinfo data/known-ops/ i data/eval/ (profil błędów) jadą zawsze.
 # - .env: kopiowany plikiem (rsync, prawa 600), nigdy wypisywany. Ustawienia jawne w deploy/app.js.
+# - Cel SSH (DEPLOY_SSH=login@host) bez wartości domyślnej: z deploy/.env.deploy (ignorowany przez git) lub ze środowiska.
 # Zakazy: skrypt nie dotyka innych domen, DNS, poczty, baz, crona ani ustawień konta.
 set -euo pipefail
 
 DOMAIN="mylik.acwo.usermd.net"
-SSH_TARGET="${DEPLOY_SSH:-acwo@s11.mydevil.net}"
 REMOTE_DIR="domains/${DOMAIN}/public_nodejs"   # względnie od katalogu domowego
 PUBLIC_URL="https://${DOMAIN}"
 
@@ -40,6 +40,11 @@ done
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
+if [ -f deploy/.env.deploy ]; then
+  set -a; . deploy/.env.deploy; set +a
+fi
+SSH_TARGET="${DEPLOY_SSH:-}"
+[ -n "$SSH_TARGET" ] || { echo "Brak DEPLOY_SSH (login@host konta hostingu). Wpisz ją do deploy/.env.deploy albo ustaw w środowisku." >&2; exit 1; }
 export PATH="$HOME/.local/bin:$PATH"
 log() { printf '\n== %s\n' "$*"; }
 ssh_run() { ssh -o BatchMode=yes -o ConnectTimeout=15 "$SSH_TARGET" "$@"; }
@@ -82,6 +87,11 @@ cp "$ROOT/deploy/app.js" "$STAGE/app/app.js"
 printf '%s\n' "$REV" > "$STAGE/app/REVISION"
 rsync -a data/known-ops "$STAGE/app/data/"
 [ -d data/eval ] && rsync -a data/eval "$STAGE/app/data/"
+# Pliki konfiguracyjne czytane w czasie działania (bez nich warstwy wyłączają się po cichu):
+# indeks weryfikacji redakcji (data/factcheck.json) i lista domen drugiej warstwy (data/live-sources.json).
+for f in data/factcheck.json data/live-sources.json; do
+  [ -f "$f" ] && cp "$f" "$STAGE/app/data/"
+done
 cd "$ROOT"
 
 log "migawka bazy (VACUUM INTO)"
@@ -147,6 +157,26 @@ for i in 1 2 3 4 5 6 7 8 9 10; do
 done
 [ "$ok" = 1 ] || { echo "Zdrowie: brak odpowiedzi." >&2; exit 1; }
 cat "$STAGE/health.json"; echo
+
+# Warstwy wyłączone po cichu to wpadka z 22.11.2026: jeśli lokalnie jest klucz indeksu weryfikacji (sprawdzamy
+# tylko niepustość, bez wypisywania), a serwer zgłasza factcheck.enabled=false, wdrożenie kończy się błędem.
+LOCAL_FACTCHECK_KEY=0
+if [ -n "${GOOGLE_FACTCHECK_API_KEY:-}" ] || { [ -f .env ] && grep -qE '^GOOGLE_FACTCHECK_API_KEY=[[:space:]]*[^[:space:]]' .env; }; then
+  LOCAL_FACTCHECK_KEY=1
+fi
+if [ "$LOCAL_FACTCHECK_KEY" = 1 ]; then
+  node -e '
+const h = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+const fc = h.factcheck;
+if (!fc) { console.error("Błąd: /api/health nie zawiera pola factcheck (stara wersja aplikacji na serwerze?)."); process.exit(1); }
+if (fc.enabled === false) {
+  console.error("Błąd: indeks weryfikacji redakcji jest wyłączony na serwerze (powód: " + (fc.reason || "nieznany") + "), a lokalnie klucz jest ustawiony.");
+  console.error("Sprawdź, czy dojechał data/factcheck.json oraz czy klucz GOOGLE_FACTCHECK_API_KEY jest w .env na serwerze.");
+  process.exit(1);
+}
+console.log("indeks weryfikacji: włączony, wydawców: " + fc.publishers);
+' "$STAGE/health.json" || exit 1
+fi
 
 if [ "$SMOKE" = 1 ]; then
   log "POST /api/verify (jedno próbne zgłoszenie)"
