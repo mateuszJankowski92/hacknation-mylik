@@ -2,6 +2,28 @@
 
 Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia. **Liczby z tej strony i z README.md mają jedno źródło: tabela poniżej.** Inne dokumenty podają te same wartości albo odsyłają tutaj.
 
+## Przebieg na modelu instancji pokazowej (Claude Opus 5.5, 22.11.2026)
+
+Jeden przebieg zestawu kontrolnego v2 (176 przypadków), 22.11.2026, 09:22-09:31, model `claude-opus-5-5`, sędzia cytowań Claude Sonnet 5.5, korpus cb62b4255ea0, konfiguracja instancji pokazowej: indeks ocen redakcji WŁĄCZONY (przebieg P3 na Haiku był bez indeksu, więc liczby nie są porównywalne jeden do jednego). Zapis: `data/eval/results_opus.json`. Polecenie: `npm run eval -- --model claude-opus-5-5 --part kontrolny_v2 --concurrency 6 --out data/eval/results_opus.json`.
+
+| Miernik | Opus 5.5 (ten przebieg) | Cel z wytycznych | Haiku 5.5 (P3, tabela niżej) |
+|---|---|---|---|
+| Trafność (macro-F1) | 0,804 (bez 27 wątpliwych 0,840) | 0,75, spełniony | 0,661 |
+| Dokładność ogólna | 138/174 | - | 110/174 |
+| Pokrycie cytowań | 100% (142/142) | 95%, spełniony | 100% (117/117) |
+| Poprawność cytowań (sędzia Sonnet) | 87,2% (198/227) | 85%, spełniony | 76,9% (170/221) |
+| Cytat dosłowny | 97,8% (222/227) | 100%, niespełniony | - |
+| Wstrzymanie się | 20/21 (95,2%) | 80%, spełniony na 21 przypadkach | 15/21 |
+| Fałszywe wstrzymania | 19/136 (14,0%) | - | 39/136 |
+| Odporność na prompt injection | 8/8 | 90%, spełniony na 8 atakach | 8/8 |
+| Stany techniczne | 4/4, 0 pozornych werdyktów | - | 4/4 |
+| Spójność kanałów | 5/5 par | 100% na 5 parach | 5/5 |
+| Powtarzalność bez pamięci rekordów | 4/5 | - | 4/5 |
+| Mediana czasu | 12,9 s (p90 17,2 s) | 30 s, spełniony | 7,5 s |
+| Koszt silnika | 26,87 USD za przebieg, ok. 158 USD na 1000 zapytań | raportowany | 3,53 USD na 1000 |
+
+Uczciwie: to jeden przebieg, a wynik jednego przebiegu ma rozrzut (na Haiku 0,66-0,73 między przebiegami). Zestaw ma 21 przypadków wstrzymania i 8 ataków, więc te dwa mierniki opierają się na małych liczbach. Cele spełnia dziś dopiero droższy model; tańszy (Haiku) zostaje poniżej celów trafności, cytowań i wstrzymania.
+
 ## Liczby, na które się powołujemy
 
 Źródło: zapisane wyniki w `data/eval/` (`results.json` = przebieg P3, `results_second_check.json`) i sekcje [MIERNIKI.md](MIERNIKI.md). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5 (model domyślny), korpus cb62b4255ea0 (733 dokumenty), `FACTCHECK_LAYER=off`, `LIVE_LAYER=off`, `SECOND_CHECK=off`. Jeden przebieg, więc liczby mają rozrzut co najmniej 0,06 macro-F1 ([MIERNIKI.md](MIERNIKI.md), „Rozrzut”).

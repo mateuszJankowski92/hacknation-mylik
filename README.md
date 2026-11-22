@@ -66,6 +66,8 @@ Pozostałe polecenia: `npm test` (102 pliki, 1620 testów i 1 pominięty, bez si
 
 ## Wyniki w skrócie
 
+**Model instancji pokazowej (Claude Opus 5.5), jeden przebieg 22.11.2026 na zestawie kontrolnym v2 (176 przypadków):** trafność (macro-F1) 0,804 przy celu 0,75; poprawność cytowań 87,2% (198/227); wstrzymanie się 20/21; odporność na wstrzyknięcia 8/8; mediana 12,9 s; ok. 158 USD na 1000 zapytań. Szczegóły i zastrzeżenia: [docs/WYNIKI.md](docs/WYNIKI.md), sekcja „Przebieg na modelu instancji pokazowej”. Tabela poniżej dotyczy tańszego modelu (Claude Haiku 5.5).
+
 Źródło wszystkich liczb: tabela „Liczby, na które się powołujemy” w [docs/WYNIKI.md](docs/WYNIKI.md) (każda wartość z przebiegiem, silnikiem, modelem i sędzią). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5, jeden przebieg (silnik dc66dce5e77d, 22.11.2026, sędzia cytowań Sonnet, indeks redakcji i druga kontrola wyłączone w pomiarze, rozrzut co najmniej 0,06 macro-F1):
 
 | Miernik | Wartość | Cel |
