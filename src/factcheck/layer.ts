@@ -264,6 +264,10 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
       // Tylko ta sama teza (potwierdza) albo teza odwrotna (obala); inna okoliczność lub tło = bez oceny.
       if (a.stance !== 'potwierdza' && a.stance !== 'obala') {
         if (a.stance === 'kontekst' || a.stance === 'rozbieznosc_kontekstu') {
+          if (!sharesProperNames(names, `${a.passage.meta.title}\n${review.claimReviewed}`)) {
+            drop('podobna_inne_nazwy');
+            continue;
+          }
           const { mismatch: _m, ...rest } = a;
           kept.push({ ...rest, stance: 'kontekst', passage: withReview(a.passage, { ...review, label: null }) });
           drop('inna_teza');
@@ -304,6 +308,21 @@ export function selectReviewEvidence(claim: ExtractedClaim, accepted: AcceptedEv
     const dropped = accepted.length - kept.length;
     return { accepted: kept, ...(Object.keys(reasons).length ? { reasons } : {}), ...(dropped ? { dropped } : {}) };
   }
+
+function foldDiacritics(text: string): string {
+  return text.toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/\p{M}/gu, '');
+}
+
+/**
+ * Bramka bloku "podobna sprawa": każda nazwa własna z twierdzenia (rdzeń, jak w regułach nazw)
+ * musi wystąpić w tezie lub tytule wpisu; bez nazw własnych w twierdzeniu bramka przepuszcza.
+ * Służy tylko do ukrywania tła, nigdy do potwierdzania.
+ */
+export function sharesProperNames(claimNames: string[], hay: string): boolean {
+  if (!claimNames.length) return true;
+  const folded = foldDiacritics(hay);
+  return claimNames.every((n) => folded.includes(foldDiacritics(n)));
+}
 
 /** Słowa zakresu i progu (kwantyfikatory), porównywane rdzeniem. */
 const DETAIL_WORDS = /^(jedyn|pierws|wszys|wszyst|każd|kazd|zawsz|nigdy|nikt|żadn|zadn|ponad|powyż|powyz|poniż|poniz|najwi|najmn)/u;
