@@ -5,6 +5,7 @@ export const ExtraProgressEventSchema = z.object({
 	type: z.literal('druga_kontrola'),
 	agreed: z.number().int().nonnegative().optional(),
 	total: z.number().int().nonnegative().optional(),
+	checked: z.number().int().nonnegative().optional(),
 });
 export type ExtraProgressEvent = z.infer<typeof ExtraProgressEventSchema>;
 export type WaitingEvent = VerifyProgressEvent | ExtraProgressEvent;
@@ -83,7 +84,7 @@ export function reduceProgress(state: ProgressState, event: WaitingEvent): Progr
 				],
 			};
 		case 'druga_kontrola':
-			return { ...state, secondCheck: { agreed: event.agreed ?? null, total: event.total ?? null } };
+			return { ...state, secondCheck: { agreed: event.agreed ?? null, total: event.total ?? event.checked ?? null } };
 		case 'gotowe':
 			return { ...state, finished: true };
 	}

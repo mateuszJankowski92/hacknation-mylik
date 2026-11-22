@@ -105,12 +105,12 @@ describe('strona główna w skali', () => {
 		expect(brand).toBeLessThanOrEqual(28);
 	});
 
-	it('pole i przycisk: telefon 120 px, 20 px, 56 px; duży ekran 140 px, 22 px, 64 px', () => {
+	it('pole i przycisk: telefon 120 px, 20 px, 56 px; duży ekran 120 px, 22 px, 64 px', () => {
 		const textarea = block(hero, '.hero textarea');
 		expect(textarea).toContain('min-height: 120px');
 		expect(textarea).toContain('font-size: 20px');
 		expect(block(hero, '.hero .button')).toContain('min-height: 56px');
-		expect(hero).toMatch(/\.hero textarea \{\s*min-height: 140px;[^}]*font-size: 22px;/);
+		expect(hero).toMatch(/\.hero textarea \{\s*min-height: 120px;[^}]*font-size: 22px;/);
 		expect(hero).toMatch(/\.hero \.button \{\s*min-height: 64px;[^}]*font-size: 22px;/);
 	});
 

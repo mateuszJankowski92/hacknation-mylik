@@ -8,7 +8,7 @@ import { findForbiddenForms } from '../../../src/render/metrics';
 import { parseSseBlock } from '../api';
 import { ConfidenceGauge } from './ConfidenceGauge';
 import { ErrorDots } from './ErrorDots';
-import { INITIAL_PROGRESS, reduceProgress, sourcesWord, type ProgressState, type WaitingEvent } from './progress';
+import { ExtraProgressEventSchema, INITIAL_PROGRESS, reduceProgress, sourcesWord, type ProgressState, type WaitingEvent } from './progress';
 import { WaitingSteps } from './WaitingSteps';
 import { waitingLines } from './waitingLines';
 
@@ -119,6 +119,15 @@ describe('WaitingSteps', () => {
 			{ type: 'druga_kontrola', agreed: 1, total: 1 },
 		]);
 		expect(waitingLines(many).length).toBeLessThanOrEqual(5);
+	});
+});
+
+describe('druga_kontrola', () => {
+	it('przyjmuje pola total oraz checked', () => {
+		const withTotal = ExtraProgressEventSchema.parse({ type: 'druga_kontrola', agreed: 2, total: 3 });
+		const withChecked = ExtraProgressEventSchema.parse({ type: 'druga_kontrola', agreed: 2, checked: 3 });
+		expect(reduceProgress(INITIAL_PROGRESS, withTotal).secondCheck).toEqual({ agreed: 2, total: 3 });
+		expect(reduceProgress(INITIAL_PROGRESS, withChecked).secondCheck).toEqual({ agreed: 2, total: 3 });
 	});
 });
 

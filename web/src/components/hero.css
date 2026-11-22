@@ -1,6 +1,6 @@
 .hero {
 	--hero-art-height: clamp(120px, calc(70svh - 465px), 36svh);
-	padding: 0 0 var(--space-3);
+	padding: 0 0 var(--space-1);
 }
 
 .hero__main {
@@ -154,7 +154,7 @@
 @media (min-width: 640px) {
 	.hero {
 		--hero-art-height: clamp(220px, 34svh, 340px);
-		padding: 0 0 var(--space-4);
+		padding: 0 0 var(--space-2);
 	}
 
 	.hero__main {
@@ -174,8 +174,8 @@
 	}
 
 	.hero textarea {
-		min-height: 140px;
-		padding: var(--space-2) 28px var(--space-2) var(--space-2);
+		min-height: 120px;
+		padding: var(--space-1) 28px var(--space-1) var(--space-2);
 		font-size: calc(22px * var(--ts));
 	}
 }
@@ -183,7 +183,7 @@
 @media (min-width: 1024px) {
 	.hero {
 		--hero-art-height: clamp(420px, 56svh, 520px);
-		padding: var(--space-3) 0 var(--space-4);
+		padding: var(--space-1) 0 0;
 	}
 
 	.hero:not(.hero--compact) .hero__main {
@@ -195,7 +195,7 @@
 			'form art'
 			'. art';
 		column-gap: var(--space-8);
-		row-gap: var(--space-3);
+		row-gap: 12px;
 		min-height: var(--hero-art-height);
 		align-items: start;
 	}
