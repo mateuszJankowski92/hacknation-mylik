@@ -46,3 +46,5 @@ Ograniczenia skali: limit żądań jest w pamięci jednego procesu, a baza to je
 ## Druga kontrola cytatów (zad. 45, opcja)
 
 Przy `SECOND_CHECK=on` każda rozstrzygająca para (średnio ok. 1-2 na zgłoszenie) to jedno wywołanie modelu drugiej kontroli (Sonnet: kilkaset tokenów wejścia, krótka odpowiedź). Zmierzony koszt i czas: [MIERNIKI.md](MIERNIKI.md), „Druga kontrola”. Domyślnie wyłączona, więc koszt podstawowy bez zmian.
+
+Pomiar (zad. 45, v2): mediana czasu 7,8 s -> 8,9 s; koszt drugiej kontroli Sonnet szacowany na ok. 3-4 USD na 1000 zapytań (licznik eval go nie obejmuje). Decyzja: wyłączona ([MIERNIKI.md](MIERNIKI.md)).

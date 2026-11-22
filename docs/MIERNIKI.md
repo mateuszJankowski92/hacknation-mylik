@@ -362,3 +362,26 @@ Lokalny serwer testowy na porcie 8797 (osobna kopia bazy), Haiku 5.5, indeks wy�
 | artykuł tvn24.pl (atak na rosyjski statek) | strona nieurzędowa (`official: false`), zero dowodów ze strony, wszystkie twierdzenia „brak wystarczających dowodów”; SMS zaczyna się od „Przeczytałem: «Pożar na rosyjskim statku po…» (tvn24.pl, 21.11.2026). To relacja, nie dokument źródłowy.” |
 
 Wnioski z próby: (1) data strony z gov.pl wymagała reguły dla klasy `event-date` (tam to data publikacji; wyjątek dopisany w `src/engine/fetch/meta.ts`, inne klasy wydarzeń nadal są pomijane); (2) przy materiałach starszych niż 24 miesiące uwaga o materiale archiwalnym powtarza się przy każdym fragmencie (zachowanie istniejące, nie zmieniane); (3) przy sufiksie `gov.pl` wydawcą w odpowiedzi jest nazwa serwisu, nie urzędu.
+
+## Druga kontrola cytatów: pomiar i decyzja (zad. 45, 22.11.2026)
+
+Zestaw kontrolny v2 (176), model oceny Claude Haiku 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0, silnik 5fcfd41a31ea (oba przebiegi z tego samego kodu; różnią się tylko `SECOND_CHECK`). **Sędzia cytowań: Claude Opus 5.5 w obu wariantach** (`EVAL_JUDGE_MODEL`), bo Sonnet jest drugą kontrolą i jako sędzia oceniałby sam siebie. Dlatego poprawności cytowań z tej tabeli nie porównuje się wprost z wcześniejszymi (sędzia Sonnet). Jeden przebieg każdego wariantu, bez strojenia. Wyniki: `data/eval/results.json` (bez drugiej kontroli), `data/eval/results_second_check.json` (z nią).
+
+| Miernik | bez drugiej kontroli | druga kontrola Sonnet 5.5 |
+|---|---|---|
+| Trafność (macro-F1) | 0,706 (bez wątpliwych 0,731) | **0,641** (0,674) |
+| Poprawność cytowań (sędzia Opus) | 87,0% (180/207) | 96,6% (115/119) |
+| Wstrzymanie się | 17/21 | 20/21 |
+| Fałszywe wstrzymania | 33/136 | 50/136 |
+| Odporność | 8/8 | 8/8 |
+| Mediana czasu (p90) | 7,8 s (10,2) | 8,9 s (12,5) |
+| Koszt silnika na 1000 zapytań | ok. 3,6 USD | ok. 3,6 USD zmierzone + ok. 3-4 USD szacunek drugiej kontroli (licznik kosztu w eval nie obejmuje jeszcze wywołań drugiego modelu) |
+| Pary odrzucone przez drugą kontrolę | - | ok. 90 (szacunek z liczby cytatów rozstrzygających: 207 -> 119; licznik par w eval nie jest jeszcze zapisywany) |
+
+Koszt pomiaru: silnik $0,61 + sędzia Opus $1,18 (A), silnik $0,61 + sędzia $0,73 (B), plus nieopomiarowane wywołania Sonneta.
+
+**Reguła decyzji (wpisana przed wynikiem):** drugą kontrolę włączamy na produkcji tylko gdy poprawność cytowań rośnie o co najmniej 3 pkt proc., trafność nie spada poniżej 0,66, odporność zostaje 8/8, a mediana czasu nie przekracza 15 s.
+
+**Wynik:** cytowania +9,6 pkt (spełnione), odporność 8/8 (spełnione), mediana 8,9 s (spełnione), **trafność 0,641 < 0,66 (niespełnione)**. Druga kontrola zostaje **wyłączona** (`SECOND_CHECK=off`). Przyczyna: odbiera trafne dowody (17 fałszywych wstrzymań więcej), więc mniej błędnych cytatów kosztem wielu dodatkowych „brak wystarczających dowodów”. Możliwe dalsze kroki (niezmierzone): próg tylko dla „obala”/„rozbieżność”, albo druga kontrola tylko przy jednym dowodzie.
+
+Profil omylności serwera pochodzi z przebiegu bez drugiej kontroli (konfiguracja do wdrożenia), silnik 5fcfd41a31ea: średnia 11/58, niska 12/40, brak 28/71 (wysoka 1/5). Późniejszy commit e203abe zmienia tylko zdarzenia postępu, ale zmienia skrót silnika na dc66dce5e77d, więc ten profil nie pasuje już do skrótu wdrażanego silnika (serwer go nie pokaże bez kolejnego przebiegu).
