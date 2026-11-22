@@ -128,6 +128,8 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 | `INCIDENTS_PATH` | brak | Plik bazy incydentów (JSON/CSV), tylko ostrzeżenia. Brak = wyszukiwanie domyślne; brak pliku nie przeszkadza. |
 | `PUBLIC_BASE_URL` | brak | Publiczny adres serwisu: odsyłacz na karcie SVG oraz adresy w `llms.txt`, Open Graph (przy `SITE_INDEXING=on` także w `robots.txt`, `sitemap.xml` i canonical); brak = adres z żądania. Instancja pokazowa: `https://mylik.acwo.usermd.net` (domyślnie w `deploy/app.js`). |
 | `SITE_INDEXING` | `off` | `off` = witryna nieindeksowana: `robots.txt` z `Disallow: /`, nagłówek `X-Robots-Tag: noindex, nofollow` na każdej odpowiedzi, `<meta name="robots" content="noindex, nofollow">` w HTML, `sitemap.xml` zwraca 404 (`llms.txt` zostaje). `on` = dotychczasowe zachowanie: strony publiczne indeksowalne, mapa strony, canonical, JSON-LD (strony wyników `/r/` zawsze `noindex`). |
+| `SHOWCASE_MODE` | `off` | `on` = tryb pokazowy po hackathonie (rozdział „Tryb pokazowy”): bez modelu, indeksu redakcji, drugiej warstwy i sieci, bez kluczy. |
+| `SHOWCASE_PATH` | `data/pokaz.json` | Plik gotowych wyników trybu pokazowego (rekordy `VerificationRecord`; błędne są pomijane z ostrzeżeniem). |
 | `SUPPORT_GATE_PROVIDER` | pusty (Haiku) | `basal`: bramka wsparcia na modelu Basal (`BASAL_URL`, `BASAL_TOKEN`, `BASAL_TIMEOUT_MS`, `BASAL_MIN_CONFIDENCE`, `BASAL_ASSESS`); przy awarii automatycznie Haiku; `jev`: bramka wsparcia na modelu Jev (TypeSafe AI; `JEV_API_KEY`, `JEV_MODEL`, `JEV_MIN_CONFIDENCE`, `JEV_TIMEOUT_MS`); przy błędzie albo niskiej pewności Haiku. Naraz jedna wartość. Szczegóły: docs/ZALEZNOSCI.md. |
 | `GOOGLE_FACTCHECK_API_KEY` | brak | Klucz Google Fact Check Tools (indeks ocen redakcji, zapytania na żywo, krótkie frazy). Bez klucza przy `FACTCHECK_LAYER=auto` warstwa jest wyłączona. |
 | `FACTCHECK_LAYER` | `auto` | `auto` (włączona, gdy jest klucz), `on` (bez klucza: stan techniczny, gdy zbiór nie rozstrzyga), `off`. Opis: `docs/ZRODLA.md`. |
@@ -150,6 +152,21 @@ Plik `.env` jest ignorowany przez git; wzór to `.env.example`. Zmienne ustawion
 `LLM_PROVIDER=mock` uruchamia deterministyczną atrapę modelu (`src/llm/mock.ts`): bez sieci, bez klucza, ten sam wynik dla tego samego wejścia. Atrapa stosuje proste reguły leksykalne i służy do testów oraz pokazu przepływu; nie jest prawdziwą oceną. Cała reszta (wyszukiwanie w korpusie, bramka cytatów, reguły werdyktu, zapis rekordu) działa tak samo jak z prawdziwym modelem.
 
 Uwaga: przy `LLM_PROVIDER=anthropic` bez klucza każde zgłoszenie kończy się stanem "awaria techniczna", nigdy werdyktem. Do pokazu bez klucza zostaw `mock`.
+
+## Tryb pokazowy
+
+Po hackathonie publiczna instancja działa jako atrapa: nie woła modelu, indeksu redakcji ani sieci i nie wymaga żadnego klucza. Każde pytanie i każdy link kończy się gotowym wynikiem z pliku `data/pokaz.json` (29 rekordów: 28 pytań i 1 strona urzędu). Włączenie: `SHOWCASE_MODE=on` (opcjonalnie `SHOWCASE_PATH`). `GET /api/health` zwraca wtedy `showcase: true`, a `GET /api/pokaz` listę gotowych pytań (poza trybem: 404). Reszta tras działa jak zwykle (`/urzednik` bez tokenu to nadal 401, `/sms` działa).
+
+Lokalnie, bez kluczy: `SHOWCASE_MODE=on PORT=8790 DB_PATH=/tmp/mylik-pokaz.sqlite npm start` (po `npm run build`, żeby serwer miał interfejs).
+
+Co widzi użytkownik:
+
+- Pytanie identyczne z jednym z gotowych (po przycięciu, zwinięciu spacji, zmianie na małe litery i usunięciu końcowej interpunkcji) dostaje jego wynik zwykłym adresem `/r/<id>`.
+- Inne pytanie z WWW dostaje wynik zastępczy: dla adresu URL jest to gotowa strona urzędu, dla tekstu rekord o największym pokryciu słów (słowa od 4 liter, miara Jaccarda; przy remisie wygrywa rekord z werdyktem innym niż `brak_wystarczajacych_dowodow`; przy zerowym pokryciu pierwszy rekord z werdyktem `potwierdzone`). Interfejs otwiera wtedy `/r/<id>?gotowy=1` i nad arkuszem pokazuje notkę „To gotowy wynik z wersji pokazowej, a nie odpowiedź na Twoje pytanie. Twojego pytania nie sprawdzałem.”, a nagłówek „Twoje pytanie” zmienia na „Pytanie, dla którego jest ten wynik”. Taki wynik nie trafia do historii „Twoje ostatnie sprawdzenia”.
+- SMS i Discord bez dokładnego trafienia dostają stan `brak_mozliwosci_sprawdzenia` z komunikatem „To wersja pokazowa po hackathonie: nowych pytań już nie sprawdzam. Gotowe przykłady są na stronie: <PUBLIC_BASE_URL>”.
+- Strona główna ma notkę o wersji pokazowej, a podpowiedzi (4, w tym link i co najmniej 2 z odpowiedzią) pochodzą z `GET /api/pokaz`. Ekran czekania trwa ok. 1,5 s.
+
+Do dziennika zdarzeń trafia tylko `showcase` z polami `match` (`exact`, `substitute`, `refused`) i `channel`, bez treści zgłoszenia. Normalizację tekstu współdzielą serwer i interfejs (`src/shared/showcaseText.ts`). Wdrożenie instancji bez kluczy: `DEPLOY_ENV_FILE=<plik z SHOWCASE_MODE=on> scripts/deploy.sh`; `data/pokaz.json` jedzie razem z konfiguracją, a kontrola po wdrożeniu nie wymaga indeksu redakcji.
 
 ## Architektura w skrócie
 

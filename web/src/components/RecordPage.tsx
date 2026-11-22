@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import type { VerifyOutcome } from '../../../src/contracts/record';
 import { ApiFailure, fetchRecord } from '../api';
 import { BASE_TITLE, resultTitle, useDocumentTitle } from '../documentTitle';
-import { addToHistory, removeFromHistory } from '../history';
+import { addToHistory as saveToHistory, removeFromHistory } from '../history';
+import { SHOWCASE_TEXTS, isReadyResultUrl } from '../showcase';
 import { isRecordId } from '../route';
 import { recallRecord } from '../recordCache';
 import { useShownMark, useStage } from '../stage/StageContext';
@@ -57,6 +58,9 @@ export function RecordPage({ id }: { id: string }) {
 	const stage = useStage();
 	const [state, setState] = useState<PageState>(() => initialState(id, stage.resultId === id));
 	const resultRef = useRef<HTMLDivElement>(null);
+	const noteRef = useRef<HTMLParagraphElement>(null);
+	const readyResult = isReadyResultUrl(window.location.search);
+	const addToHistory = readyResult ? () => undefined : saveToHistory;
 	const { reset } = stage;
 	const stageRef = useRef(stage);
 	stageRef.current = stage;
@@ -100,6 +104,11 @@ export function RecordPage({ id }: { id: string }) {
 	useEffect(() => {
 		const container = resultRef.current;
 		if (!container) return;
+		if (showResult && readyResult && noteRef.current) {
+			noteRef.current.focus({ preventScroll: true });
+			if (!window.location.hash) window.scrollTo?.(0, 0);
+			return;
+		}
 		if (showResult) {
 			const heading = container.querySelector<HTMLElement>('[data-result-heading]');
 			// Fokus dla czytników ekranu bez przewijania: nagłówek bywa niżej na stronie (kilka twierdzeń, strona urzędu),
@@ -109,7 +118,7 @@ export function RecordPage({ id }: { id: string }) {
 			return;
 		}
 		if (state.status === 'error') container.focus({ preventScroll: true });
-	}, [state.status, showResult]);
+	}, [state.status, showResult, readyResult]);
 
 	const question = state.status === 'ready' && state.outcome.kind === 'record' ? state.outcome.record.maskedInput : '';
 
@@ -143,7 +152,13 @@ export function RecordPage({ id }: { id: string }) {
 				)}
 				{showResult && state.status === 'ready' && (
 					<>
-						<OutcomeView outcome={state.outcome} />
+						{readyResult && state.outcome.kind === 'record' && (
+							<p className="showcase-ready-note" role="note" ref={noteRef} tabIndex={-1} data-showcase-ready-note>
+								<strong className="showcase-ready-note__label">{SHOWCASE_TEXTS.readyNoteLabel}. </strong>
+								{nb(SHOWCASE_TEXTS.readyNote)}
+							</p>
+						)}
+						<OutcomeView outcome={state.outcome} questionLabel={readyResult ? SHOWCASE_TEXTS.readyQuestionLabel : undefined} />
 						{state.outcome.kind === 'record' && <ResultActions record={state.outcome.record} question={question} />}
 					</>
 				)}

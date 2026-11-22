@@ -120,6 +120,17 @@
 	gap: var(--space-1);
 }
 
+.showcase-note {
+	margin: var(--space-2) 0 0;
+	padding: var(--space-1) var(--space-2);
+	border: var(--outline) dashed var(--border);
+	border-radius: var(--radius-paper);
+	background: var(--paper-shade);
+	color: var(--text);
+	font-size: var(--text-small);
+	line-height: 1.45;
+}
+
 .hero .check-form__label {
 	font-size: 1rem;
 }

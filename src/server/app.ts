@@ -15,6 +15,7 @@ import { registerTrustedPublishersRoute } from './layers';
 import { injectPageMeta, isKnownPagePath, isRecordPath, registerSeoRoutes, resolveBaseUrl } from './seo';
 import { registerCaseStatusRoute } from './obieg';
 import { registerApiRoutes, type RouteDeps } from './routes';
+import { addShowcaseMeta } from './showcase';
 import { createStaticHandler } from './static';
 import { registerStreamRoutes } from './stream';
 
@@ -157,8 +158,10 @@ export function createApp(deps: AppDeps): Hono {
   const seoDeps = { publicBaseUrl: deps.publicBaseUrl, indexing: indexingOff ? ('off' as const) : ('on' as const), getRecord: (id: string) => deps.engine.getRecord(id) };
   registerSeoRoutes(app, seoDeps);
   const serveStatic = createStaticHandler(deps.distDir, {
-    transformIndex: (html, path, requestUrl) =>
-      injectPageMeta(html, path, resolveBaseUrl(deps.publicBaseUrl, requestUrl), seoDeps),
+    transformIndex: (html, path, requestUrl) => {
+      const page = injectPageMeta(html, path, resolveBaseUrl(deps.publicBaseUrl, requestUrl), seoDeps);
+      return deps.showcase ? addShowcaseMeta(page) : page;
+    },
     indexHeaders: (path) => ({
       ...(isRecordPath(path) ? { 'X-Robots-Tag': 'noindex, nofollow' } : {}),
       ...(path === '/' ? { Link: '</llms.txt>; rel="service-doc"; type="text/plain"' } : {}),

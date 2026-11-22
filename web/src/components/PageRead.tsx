@@ -27,7 +27,7 @@ function safeHref(url: string): string | null {
 	return /^https?:\/\//iu.test(url.trim()) ? url.trim() : null;
 }
 
-export function PageRead({ page }: { page: PageInfo }) {
+export function PageRead({ page, label = PAGE_TEXTS.label }: { page: PageInfo; label?: string }) {
 	const [expanded, setExpanded] = useState(false);
 	const labelId = useId();
 	const addressId = useId();
@@ -37,7 +37,7 @@ export function PageRead({ page }: { page: PageInfo }) {
 	return (
 		<section className="page-read" aria-labelledby={labelId} data-official={page.official ? 'true' : 'false'}>
 			<p id={labelId} className="page-read__label">
-				{PAGE_TEXTS.label}
+				{label}
 			</p>
 			<p className="page-read__title">{title ? <q>{title}</q> : PAGE_TEXTS.noTitle}</p>
 			<p className="page-read__meta">

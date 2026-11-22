@@ -12,6 +12,7 @@ import type { Engine, Searcher, SourceMeta, SourceType, VerifyInput, VerifyOutco
 import type { ProgressEngine, VerifyOptions } from '../engine/progress';
 import { MESSAGES_PL, apiError } from './errors';
 import type { LayerStatus } from './layers';
+import { SHOWCASE_PATH_API, type ShowcaseQuestion } from './showcase';
 
 export const MAX_BODY_BYTES = 16 * 1024;
 const RECORD_ID_RE = /^[0-9a-f]{64}$/;
@@ -32,6 +33,8 @@ export interface RouteDeps {
   logEvent: (type: string, detail: Record<string, string | number | boolean | null>) => void;
   /** Stan warstw dla /api/health (bez sekretów); brak = pola warstw pominięte. */
   layers?: () => LayerStatus;
+  /** Tryb pokazowy: lista gotowych pytań dla GET /api/pokaz; brak = tryb wyłączony. */
+  showcase?: () => ShowcaseQuestion[];
 }
 
 interface SourceRow {
@@ -136,8 +139,9 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
   });
 
   app.get(API_PATHS.health, (c) => {
-    const res: HealthResponse & Partial<LayerStatus> = {
+    const res: HealthResponse & Partial<LayerStatus> & { showcase: boolean } = {
       ok: true,
+      showcase: deps.showcase !== undefined,
       provider: deps.providerName,
       model: deps.modelName,
       corpusVersion: searcher.corpusVersion(),
@@ -146,6 +150,12 @@ export function registerApiRoutes(app: Hono, deps: RouteDeps): void {
     };
     c.header('Cache-Control', 'no-store');
     return c.json(res, 200);
+  });
+
+  app.get(SHOWCASE_PATH_API, (c) => {
+    if (!deps.showcase) return apiError(c, 404, 'nie_znaleziono', MESSAGES_PL.apiNotFound);
+    c.header('Cache-Control', 'no-store');
+    return c.json({ questions: deps.showcase() }, 200);
   });
 
   app.all('/api/*', (c) => apiError(c, 404, 'nie_znaleziono', MESSAGES_PL.apiNotFound));

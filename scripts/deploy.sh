@@ -18,6 +18,8 @@
 #   jej nie ma albo z --replace-db (lokalna migawka przez VACUUM INTO, spójna mimo WAL).
 # - Migawka EUvsDisinfo data/known-ops/ i data/eval/ (profil błędów) jadą zawsze.
 # - .env: kopiowany plikiem (rsync, prawa 600), nigdy wypisywany. Ustawienia jawne w deploy/app.js.
+#   DEPLOY_ENV_FILE=<plik> (domyślnie .env): inny plik wysyłany na serwer jako .env, np. plik instancji
+#   pokazowej bez kluczy (SHOWCASE_MODE=on). data/pokaz.json jedzie zawsze razem z plikami konfiguracyjnymi.
 # - Cel SSH (DEPLOY_SSH=login@host) bez wartości domyślnej: z deploy/.env.deploy (ignorowany przez git) lub ze środowiska.
 # Zakazy: skrypt nie dotyka innych domen, DNS, poczty, baz, crona ani ustawień konta.
 set -euo pipefail
@@ -49,7 +51,8 @@ export PATH="$HOME/.local/bin:$PATH"
 log() { printf '\n== %s\n' "$*"; }
 ssh_run() { ssh -o BatchMode=yes -o ConnectTimeout=15 "$SSH_TARGET" "$@"; }
 
-[ -f .env ] || { echo "Brak .env w katalogu projektu." >&2; exit 1; }
+ENV_FILE="${DEPLOY_ENV_FILE:-.env}"
+[ -f "$ENV_FILE" ] || { echo "Brak pliku środowiska ${ENV_FILE} w katalogu projektu." >&2; exit 1; }
 
 # 1. Czysta kopia zatwierdzonego HEAD (nie bieżącego drzewa: inni mogą mieć tam niezatwierdzone zmiany)
 STAGE="$(mktemp -d "${TMPDIR:-/tmp}/mylik-deploy.XXXXXX")"
@@ -89,7 +92,7 @@ rsync -a data/known-ops "$STAGE/app/data/"
 [ -d data/eval ] && rsync -a data/eval "$STAGE/app/data/"
 # Pliki konfiguracyjne czytane w czasie działania (bez nich warstwy wyłączają się po cichu):
 # indeks weryfikacji redakcji (data/factcheck.json) i lista domen drugiej warstwy (data/live-sources.json).
-for f in data/factcheck.json data/live-sources.json data/official-hosts.json; do
+for f in data/factcheck.json data/live-sources.json data/official-hosts.json data/pokaz.json; do
   [ -f "$f" ] && cp "$f" "$STAGE/app/data/"
 done
 cd "$ROOT"
@@ -118,10 +121,10 @@ log "rsync aplikacji$( [ "$DRY_RUN" = 1 ] && echo ' (na sucho)' || true)"
 ssh_run "test -d ${REMOTE_DIR}" || { echo "Brak katalogu strony na serwerze." >&2; exit 1; }
 rsync "${RSYNC_FLAGS[@]}" "$STAGE/app/" "${SSH_TARGET}:${REMOTE_DIR}/" | { [ "$DRY_RUN" = 1 ] && tail -n 40 || cat; }
 
-log ".env (prawa 600, bez wypisywania)"
+log ".env z ${ENV_FILE} (prawa 600, bez wypisywania)"
 if [ "$DRY_RUN" = 0 ]; then
   # Strumień przez stdin ssh (umask 077: plik od początku 600), podmiana atomowa; treść nie trafia na ekran.
-  ssh_run "umask 077 && cat > ${REMOTE_DIR}/.env.new && chmod 600 ${REMOTE_DIR}/.env.new && mv -f ${REMOTE_DIR}/.env.new ${REMOTE_DIR}/.env && stat -f '%Sp' ${REMOTE_DIR}/.env" < .env
+  ssh_run "umask 077 && cat > ${REMOTE_DIR}/.env.new && chmod 600 ${REMOTE_DIR}/.env.new && mv -f ${REMOTE_DIR}/.env.new ${REMOTE_DIR}/.env && stat -f '%Sp' ${REMOTE_DIR}/.env" < "$ENV_FILE"
 fi
 
 HAS_DB="$(ssh_run "test -s ${REMOTE_DIR}/data/mylik.sqlite && echo tak || echo nie")"
@@ -161,8 +164,14 @@ cat "$STAGE/health.json"; echo
 # Warstwy wyłączone po cichu to wpadka z 22.11.2026: jeśli lokalnie jest klucz indeksu weryfikacji (sprawdzamy
 # tylko niepustość, bez wypisywania), a serwer zgłasza factcheck.enabled=false, wdrożenie kończy się błędem.
 LOCAL_FACTCHECK_KEY=0
-if [ -n "${GOOGLE_FACTCHECK_API_KEY:-}" ] || { [ -f .env ] && grep -qE '^GOOGLE_FACTCHECK_API_KEY=[[:space:]]*[^[:space:]]' .env; }; then
+if [ -n "${GOOGLE_FACTCHECK_API_KEY:-}" ] || grep -qE '^GOOGLE_FACTCHECK_API_KEY=[[:space:]]*[^[:space:]]' "$ENV_FILE"; then
   LOCAL_FACTCHECK_KEY=1
+fi
+# Instancja pokazowa (health.showcase=true) nie ma indeksu redakcji i go nie wymaga.
+SHOWCASE_INSTANCE="$(node -e 'const h = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(h.showcase === true ? "tak" : "nie");' "$STAGE/health.json")"
+if [ "$SHOWCASE_INSTANCE" = tak ]; then
+  LOCAL_FACTCHECK_KEY=0
+  echo "tryb pokazowy: włączony (indeks redakcji nie jest wymagany)"
 fi
 if [ "$LOCAL_FACTCHECK_KEY" = 1 ]; then
   node -e '
@@ -179,16 +188,17 @@ console.log("indeks weryfikacji: włączony, wydawców: " + fc.publishers);
 fi
 
 if [ "$SMOKE" = 1 ]; then
-  log "POST /api/verify (jedno próbne zgłoszenie)"
+  log "POST /api/verify (jedno próbne zgłoszenie$( [ "$SHOWCASE_INSTANCE" = tak ] && echo ', tryb pokazowy: bez modelu' || true))"
   curl -sS --max-time 120 -H 'content-type: application/json' \
     -d '{"text":"Od 1 stycznia 2026 roku 800 plus wypłacane jest tylko dzieciom do 10 lat.","channel":"www"}' \
     -o "$STAGE/verify.json" -w 'HTTP %{http_code}, %{time_total}s\n' "${PUBLIC_URL}/api/verify"
   node -e '
 const o = JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8"));
+if (process.argv[2] === "tak" && o.kind !== "record") { console.error("Błąd: tryb pokazowy nie zwrócił gotowego wyniku:", o.kind ?? "?", o.state ?? ""); process.exit(1); }
 if (o.kind === "record") {
   const r = o.record;
   console.log("wynik: rekord", r.id.slice(0, 12), "| twierdzeń:", r.claims.length, "| werdykty:", r.claims.map((c) => c.verdict).join(", "));
 } else console.log("wynik:", o.kind ?? "?", o.state ?? o.code ?? "", (o.message ?? "").slice(0, 160));
-' "$STAGE/verify.json"
+' "$STAGE/verify.json" "$SHOWCASE_INSTANCE" || exit 1
 fi
 log "gotowe: ${PUBLIC_URL}"

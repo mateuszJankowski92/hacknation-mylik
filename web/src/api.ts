@@ -8,6 +8,7 @@ import { ExtraProgressEventSchema, type WaitingEvent } from './visuals/progress'
 import type { CasePublicResponse } from '../../src/cases/types';
 import type { VerificationRecord, VerifyOutcome } from '../../src/contracts/record';
 import type { LatestSourcesResponse, VerifyKeyResponse } from '../../src/server/extras';
+import type { ShowcaseQuestion } from './showcase';
 
 export const MAX_INPUT_LENGTH = 2000;
 export const REQUEST_TIMEOUT_MS = 45000;
@@ -281,4 +282,16 @@ export function verifyWithFallback(
 		if (error instanceof ApiFailure && error.kind === 'not_found') return verifyContent(content, signal);
 		throw error;
 	});
+}
+
+export async function fetchShowcaseQuestions(signal?: AbortSignal): Promise<ShowcaseQuestion[]> {
+	const response = await requestJson<{ questions?: ShowcaseQuestion[] }>('/api/pokaz', { method: 'GET' }, signal);
+	if (!response || !Array.isArray(response.questions)) throw new ApiFailure('unexpected');
+	return response.questions.filter(
+		(question) =>
+			typeof question?.id === 'string' &&
+			typeof question.text === 'string' &&
+			(question.inputKind === 'tekst' || question.inputKind === 'url') &&
+			typeof question.answered === 'boolean',
+	);
 }

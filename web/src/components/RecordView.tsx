@@ -116,7 +116,7 @@ export function summarizeVerdicts(verdicts: Verdict[]): string {
 	return counts.map((entry) => `${COUNT_LABELS[entry.verdict]}: ${entry.count}.`).join(' ');
 }
 
-export function RecordView({ record }: { record: VerificationRecord }) {
+export function RecordView({ record, questionLabel }: { record: VerificationRecord; questionLabel?: string }) {
 	const page = record.page;
 	const officialPage = page?.official === true;
 	const { cited, held } = officialPage ? splitOfficialClaims(record.claims) : { cited: [], held: [] };
@@ -135,7 +135,11 @@ export function RecordView({ record }: { record: VerificationRecord }) {
 				<div className="sheet__body">
 					<header className="sheet__top">
 						<p className="sheet__asof">{asOfStamp(record.asOf, record.createdAt)}</p>
-						{record.page ? <PageRead page={record.page} /> : <SheetQuestion text={record.maskedInput} />}
+						{record.page ? (
+							<PageRead page={record.page} label={questionLabel} />
+						) : (
+							<SheetQuestion text={record.maskedInput} label={questionLabel} />
+						)}
 						{note && <p className="role-note">{nb(note)}</p>}
 					</header>
 					{record.claims.length === 0 && (

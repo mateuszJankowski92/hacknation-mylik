@@ -8,6 +8,17 @@ export const WAITING_TIMING = {
 	cachedLineMs: 650,
 } as const;
 
+export const SHOWCASE_WAITING_TIMING = {
+	...WAITING_TIMING,
+	cachedLineMs: 300,
+	readyHoldMs: 200,
+	travelMs: 1000,
+} as const;
+
+export function waitingTiming(showcase: boolean): { [K in keyof typeof WAITING_TIMING]: number } {
+	return showcase ? SHOWCASE_WAITING_TIMING : WAITING_TIMING;
+}
+
 export const MAX_STEP_LINES = 5;
 
 export const WAITING_TEXTS = {

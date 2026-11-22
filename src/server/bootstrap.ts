@@ -19,6 +19,7 @@ import { startRetention, type RetentionScheduler } from '../security/index';
 import { CLERK_MIN_TOKEN_LENGTH } from './clerk';
 import { createApp } from './app';
 import { computeLayerStatus } from './layers';
+import { createShowcaseEngine, loadShowcase, showcaseQuestions } from './showcase';
 
 /** Katalog główny projektu (niezależny od katalogu roboczego procesu). */
 export const PROJECT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -127,24 +128,31 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
   const db = opts.db ?? openDb(resolveDbPath(config.dbPath));
   const searcher = createSearcher(db);
 
+  const showcaseOn = config.showcaseMode === 'on';
   let llm: LlmProvider;
-  try {
-    llm = createLlmProvider(config);
-  } catch (e) {
-    warn(`Uwaga: ${e instanceof Error ? e.message : 'błąd konfiguracji dostawcy modelu'}`);
-    llm = new UnavailableProvider(config.llmProvider);
+  if (showcaseOn) {
+    llm = new UnavailableProvider('pokaz');
+  } else {
+    try {
+      llm = createLlmProvider(config);
+    } catch (e) {
+      warn(`Uwaga: ${e instanceof Error ? e.message : 'błąd konfiguracji dostawcy modelu'}`);
+      llm = new UnavailableProvider(config.llmProvider);
+    }
   }
   const model = (llm as { model?: unknown }).model;
   const modelName = typeof model === 'string' && model ? model : llm.name;
 
   const sources =
-    opts.incidents !== undefined
+    showcaseOn
+      ? { matcher: null, incidents: false, knownOps: 0 }
+      : opts.incidents !== undefined
       ? { matcher: opts.incidents, incidents: opts.incidents !== null, knownOps: 0 }
       : loadIncidentSources(config, warn);
 
   // Zad. 29: druga warstwa tylko przy LIVE_LAYER=on i dostawcy anthropic (wyszukiwarka web_search API).
   let live: LiveLayer | null = null;
-  if (config.liveLayer === 'on') {
+  if (!showcaseOn && config.liveLayer === 'on') {
     if (config.llmProvider !== 'anthropic' || !config.anthropicApiKey)
       warn('Uwaga: LIVE_LAYER=on wymaga LLM_PROVIDER=anthropic i klucza; druga warstwa wyłączona.');
     else
@@ -159,18 +167,19 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
       }
   }
 
-  // Profil błędów z EVAL_RESULTS_PATH (plik opcjonalny: brak = bez profilu).
-  const coreEngine = createEngine({
-    db,
-    searcher,
-    llm,
-    live,
-    incidents: sources.matcher,
-    options: {
-      errorProfilePath: resolveProjectPath(config.evalResultsPath),
-      ...(config.requestDeadlineMs ? { deadlineMs: config.requestDeadlineMs } : {}),
-    },
-  });
+  const coreEngine = showcaseOn
+    ? null
+    : createEngine({
+        db,
+        searcher,
+        llm,
+        live,
+        incidents: sources.matcher,
+        options: {
+          errorProfilePath: resolveProjectPath(config.evalResultsPath),
+          ...(config.requestDeadlineMs ? { deadlineMs: config.requestDeadlineMs } : {}),
+        },
+      });
 
   const insertEvent = db.prepare('INSERT INTO events(ts, record_id, channel, type, detail) VALUES (?, NULL, ?, ?, ?)');
   const eventLogger =
@@ -180,7 +189,10 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
   const logEvent = eventLogger('www');
 
   const cases = createCaseStore(db);
-  const engine = withLiveRole(withCaseTracking(coreEngine, cases, logEvent), createRoleStore(db), logEvent);
+  const showcaseRecords = showcaseOn ? loadShowcase(resolveProjectPath(config.showcasePath), warn) : [];
+  const engine: Engine = coreEngine
+    ? withLiveRole(withCaseTracking(coreEngine, cases, logEvent), createRoleStore(db), logEvent)
+    : createShowcaseEngine(showcaseRecords, { logEvent, publicBaseUrl: config.publicBaseUrl });
   const clerkToken =
     config.clerkToken && config.clerkToken.length >= CLERK_MIN_TOKEN_LENGTH ? config.clerkToken : undefined;
   if (config.clerkToken && !clerkToken)
@@ -210,7 +222,7 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
   }
 
   try {
-    if (searcher.stats().documents === 0) warn('Korpus pusty: uruchom npm run corpus:ingest');
+    if (!showcaseOn && searcher.stats().documents === 0) warn('Korpus pusty: uruchom npm run corpus:ingest');
   } catch {
     warn('Korpus pusty: uruchom npm run corpus:ingest');
   }
@@ -233,8 +245,10 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     publicBaseUrl: config.publicBaseUrl,
     siteIndexing: config.siteIndexing,
     cases,
+    showcase: showcaseOn ? () => showcaseQuestions(showcaseRecords) : undefined,
     layers: () =>
       computeLayerStatus({
+        ...(showcaseOn ? { env: { FACTCHECK_LAYER: 'off' } } : {}),
         liveEnabled: live !== null,
         discordConfigured: Boolean(config.discordPublicKey),
         projectRoot: PROJECT_ROOT,

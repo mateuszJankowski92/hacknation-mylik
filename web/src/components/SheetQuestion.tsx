@@ -44,7 +44,7 @@ export function describeAddress(text: string): QuestionAddress | null {
 	return { domain, shortAddress: short, fullAddress: decodeAddress(trimmed) };
 }
 
-export function SheetQuestion({ text }: { text: string }) {
+export function SheetQuestion({ text, label = QUESTION_TEXTS.label }: { text: string; label?: string }) {
 	const [expanded, setExpanded] = useState(false);
 	const [overflowing, setOverflowing] = useState(false);
 	const textRef = useRef<HTMLParagraphElement>(null);
@@ -67,11 +67,11 @@ export function SheetQuestion({ text }: { text: string }) {
 
 	if (!text.trim()) return null;
 	const address = describeAddress(text);
-	if (address) return <AddressQuestion address={address} />;
+	if (address) return <AddressQuestion address={address} label={label} />;
 	return (
 		<section className="sheet-question" aria-labelledby={labelId}>
 			<p id={labelId} className="sheet-question__label">
-				{QUESTION_TEXTS.label}
+				{label}
 			</p>
 			<p id={textId} ref={textRef} className="sheet-question__text" data-expanded={expanded ? 'true' : 'false'}>
 				{nb(text)}
@@ -91,7 +91,7 @@ export function SheetQuestion({ text }: { text: string }) {
 	);
 }
 
-function AddressQuestion({ address }: { address: QuestionAddress }) {
+function AddressQuestion({ address, label }: { address: QuestionAddress; label: string }) {
 	const [expanded, setExpanded] = useState(false);
 	const labelId = useId();
 	const textId = useId();
@@ -99,7 +99,7 @@ function AddressQuestion({ address }: { address: QuestionAddress }) {
 	return (
 		<section className="sheet-question sheet-question--address" aria-labelledby={labelId}>
 			<p id={labelId} className="sheet-question__label">
-				{QUESTION_TEXTS.label}
+				{label}
 			</p>
 			<p className="sheet-question__domain">{address.domain}</p>
 			<p id={textId} className="sheet-question__text sheet-question__text--address" data-expanded={expanded ? 'true' : 'false'}>

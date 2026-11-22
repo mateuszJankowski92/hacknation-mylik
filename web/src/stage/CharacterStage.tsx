@@ -5,7 +5,8 @@ import { RoleArt } from '../roles/RoleArt';
 import { SCENE_START_TIMEOUT_MS, type SceneSpec } from '../scenes/config';
 import { PlaybackButton } from '../scenes/PlaybackButton';
 import { animationStartsAutomatically } from '../scenes/preferences';
-import { WAITING_TIMING } from '../visuals/waitingConfig';
+import { isShowcase } from '../showcase';
+import { waitingTiming } from '../visuals/waitingConfig';
 import { useStage, type StageSlotInfo } from './StageContext';
 import './stage.css';
 
@@ -18,7 +19,6 @@ interface Box {
 
 const HOLD_AFTER_SLOT_LOSS_MS = 900;
 const ANIMATION_MS = 520;
-const TRAVEL_MS = WAITING_TIMING.travelMs;
 
 function sameBox(a: Box | null, b: Box | null): boolean {
 	if (!a || !b) return a === b;
@@ -119,6 +119,7 @@ function targetSlot(phase: string, foreground: StageSlotInfo | null, corner: Sta
 }
 
 export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | null> }) {
+	const TRAVEL_MS = waitingTiming(isShowcase()).travelMs;
 	const stage = useStage();
 	const [stopped, setStopped] = useState(false);
 	const [replayed, setReplayed] = useState(false);

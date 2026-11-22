@@ -1,11 +1,13 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import type { VerifyOutcome } from '../../../src/contracts/record';
-import { ApiFailure, verifyWithFallback } from '../api';
+import { ApiFailure, fetchShowcaseQuestions, verifyWithFallback } from '../api';
 import { BASE_TITLE, useDocumentTitle } from '../documentTitle';
 import { addToHistory } from '../history';
 import { navigate, readDraft, readFocusField, recordUrlPath, rememberDraft } from '../route';
 import { INITIAL_PROGRESS, reduceProgress, type WaitingEvent, type ProgressState } from '../visuals/progress';
-import { WAITING_TIMING } from '../visuals/waitingConfig';
+import { waitingTiming } from '../visuals/waitingConfig';
+import { SHOWCASE_TEXTS, differsFromTyped, isShowcase, pickShowcaseExamples, readyResultPath } from '../showcase';
+import type { ExampleQuery } from './exampleSubmissions';
 import { WaitingSteps } from '../visuals/WaitingSteps';
 import type { VerificationRecord } from '../../../src/contracts/record';
 import { CheckForm } from './CheckForm';
@@ -66,6 +68,9 @@ export function CheckPage() {
 	const holdTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 	const showReadyRef = useRef<(() => void) | null>(null);
 	const stage = useStage();
+	const [showcase] = useState(isShowcase);
+	const [showcaseExamples, setShowcaseExamples] = useState<ExampleQuery[] | 'pending' | 'failed'>(showcase ? 'pending' : 'failed');
+	const timing = waitingTiming(showcase);
 	const waiting = state.status === 'loading';
 	const showsNotice = state.status === 'notice';
 	useShownMark(showsNotice);
@@ -90,6 +95,21 @@ export function CheckPage() {
 			dispatch({ type: 'notice', outcome });
 		});
 	}, []);
+
+	useEffect(() => {
+		if (!showcase) return;
+		const controller = new AbortController();
+		fetchShowcaseQuestions(controller.signal).then(
+			(questions) => {
+				if (controller.signal.aborted) return;
+				setShowcaseExamples(questions.length > 0 ? pickShowcaseExamples(questions) : 'failed');
+			},
+			() => {
+				if (!controller.signal.aborted) setShowcaseExamples('failed');
+			},
+		);
+		return () => controller.abort();
+	}, [showcase]);
 
 	useEffect(() => {
 		const container = resultRef.current;
@@ -133,14 +153,15 @@ export function CheckPage() {
 				const record = outcome.record;
 				const readyAt = Date.now();
 				const resultRole = currentRole(recordRoleOf(record));
+				const substituted = showcase && differsFromTyped(content, record.maskedInput);
 				const showRecord = () => {
 					if (controllerRef.current !== controller) return;
 					clearHold();
 					rememberRecord(record);
-					addToHistory(record);
+					if (!substituted) addToHistory(record);
 					stage.resolve(resultRole, record.id, readyAt);
 					rememberDraft(content);
-					navigate(recordUrlPath(record.id));
+					navigate(substituted ? readyResultPath(recordUrlPath(record.id)) : recordUrlPath(record.id));
 				};
 				if (!animationStartsAutomatically()) {
 					showRecord();
@@ -152,9 +173,9 @@ export function CheckPage() {
 					if (controllerRef.current !== controller) return;
 					dispatch({ type: 'ready' });
 					stage.resolve(resultRole, record.id, readyAt);
-					holdTimerRef.current = setTimeout(showRecord, WAITING_TIMING.readyHoldMs);
+					holdTimerRef.current = setTimeout(showRecord, timing.readyHoldMs);
 				};
-				if (outcome.cached) holdTimerRef.current = setTimeout(markReady, WAITING_TIMING.cachedLineMs);
+				if (outcome.cached) holdTimerRef.current = setTimeout(markReady, timing.cachedLineMs);
 				else markReady();
 				return;
 			}
@@ -222,9 +243,15 @@ export function CheckPage() {
 							onDraftChange={rememberDraft}
 							fill={fill}
 						/>
+						{showcase && <p className="showcase-note">{nb(SHOWCASE_TEXTS.homeNote)}</p>}
 					</div>
 				</Hero>
-				{showsHome && <ExampleQueries onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))} />}
+				{showsHome && showcaseExamples !== 'pending' && (
+					<ExampleQueries
+						examples={Array.isArray(showcaseExamples) ? showcaseExamples : undefined}
+						onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))}
+					/>
+				)}
 				{showsHome && <DiscordNote />}
 				{showsHome && <HomeSections />}
 			</div>

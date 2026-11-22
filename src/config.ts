@@ -30,6 +30,9 @@ const ConfigSchema = z.object({
   // Zad. 29: druga warstwa źródeł (szukanie na żywo na jawnej liście serwisów). Domyślnie wyłączona.
   LIVE_LAYER: z.preprocess(emptyToUndefined, z.enum(['off', 'on']).default('off')),
   LIVE_SOURCES_PATH: z.preprocess(emptyToUndefined, z.string().default('data/live-sources.json')),
+  // Tryb pokazowy po hackathonie: gotowe wyniki z pliku, bez modelu, indeksu i sieci.
+  SHOWCASE_MODE: z.preprocess(emptyToUndefined, z.enum(['off', 'on']).default('off')),
+  SHOWCASE_PATH: z.preprocess(emptyToUndefined, z.string().default('data/pokaz.json')),
   URZEDNIK_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
   URZEDNIK_OSOBA: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
   URZEDNIK_ADRES_POWIADOMIEN: z.preprocess(emptyToUndefined, z.string().max(200).optional()),
@@ -65,6 +68,10 @@ export interface AppConfig {
   liveLayer: 'off' | 'on';
   /** Lista serwisów drugiej warstwy; względna od katalogu projektu. */
   liveSourcesPath: string;
+  /** `on`: atrapa bez modelu i sieci, wyniki z `showcasePath`; `off` (domyślnie): zwykły silnik. */
+  showcaseMode: 'off' | 'on';
+  /** Plik gotowych wyników trybu pokazowego; względny od katalogu projektu. */
+  showcasePath: string;
   clerkToken?: string;
   clerkPerson?: string;
   clerkNotifyAddress?: string;
@@ -93,6 +100,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     SITE_INDEXING: env.SITE_INDEXING,
     LIVE_LAYER: env.LIVE_LAYER,
     LIVE_SOURCES_PATH: env.LIVE_SOURCES_PATH,
+    SHOWCASE_MODE: env.SHOWCASE_MODE,
+    SHOWCASE_PATH: env.SHOWCASE_PATH,
     URZEDNIK_TOKEN: env.URZEDNIK_TOKEN,
     URZEDNIK_OSOBA: env.URZEDNIK_OSOBA,
     URZEDNIK_ADRES_POWIADOMIEN: env.URZEDNIK_ADRES_POWIADOMIEN,
@@ -118,6 +127,8 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     siteIndexing: c.SITE_INDEXING,
     liveLayer: c.LIVE_LAYER,
     liveSourcesPath: c.LIVE_SOURCES_PATH,
+    showcaseMode: c.SHOWCASE_MODE,
+    showcasePath: c.SHOWCASE_PATH,
     clerkToken: c.URZEDNIK_TOKEN,
     clerkPerson: c.URZEDNIK_OSOBA,
     clerkNotifyAddress: c.URZEDNIK_ADRES_POWIADOMIEN,
@@ -146,6 +157,8 @@ export function redactedConfig(cfg: AppConfig): Record<string, string | number |
     siteIndexing: cfg.siteIndexing,
     liveLayer: cfg.liveLayer,
     liveSourcesPath: cfg.liveSourcesPath,
+    showcaseMode: cfg.showcaseMode,
+    showcasePath: cfg.showcasePath,
     clerkToken: cfg.clerkToken ? '[ustawiony]' : '[brak]',
     clerkPerson: cfg.clerkPerson ?? '[brak]',
     clerkNotifyAddress: cfg.clerkNotifyAddress ? '[ustawiony]' : '[brak]',

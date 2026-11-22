@@ -508,3 +508,19 @@
 	line-height: inherit;
 	letter-spacing: 0;
 }
+
+.showcase-ready-note {
+	max-width: 720px;
+	margin: 0 0 var(--space-2);
+	padding: var(--space-1) var(--space-2);
+	border: var(--outline) dashed var(--border);
+	border-radius: var(--radius-paper);
+	background: var(--paper-shade);
+	color: var(--text);
+	font-size: var(--text-small);
+	line-height: 1.45;
+}
+
+.showcase-ready-note__label {
+	font-weight: 700;
+}
