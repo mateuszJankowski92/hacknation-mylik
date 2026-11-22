@@ -89,7 +89,7 @@ rsync -a data/known-ops "$STAGE/app/data/"
 [ -d data/eval ] && rsync -a data/eval "$STAGE/app/data/"
 # Pliki konfiguracyjne czytane w czasie działania (bez nich warstwy wyłączają się po cichu):
 # indeks weryfikacji redakcji (data/factcheck.json) i lista domen drugiej warstwy (data/live-sources.json).
-for f in data/factcheck.json data/live-sources.json; do
+for f in data/factcheck.json data/live-sources.json data/official-hosts.json; do
   [ -f "$f" ] && cp "$f" "$STAGE/app/data/"
 done
 cd "$ROOT"
