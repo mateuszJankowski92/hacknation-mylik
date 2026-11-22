@@ -386,7 +386,29 @@ Koszt pomiaru: silnik $0,61 + sędzia Opus $1,18 (A), silnik $0,61 + sędzia $0,
 
 **Wynik:** cytowania +9,6 pkt (spełnione), odporność 8/8 (spełnione), mediana 8,9 s (spełnione), **trafność 0,641 < 0,66 (niespełnione)**. Druga kontrola zostaje **wyłączona** (`SECOND_CHECK=off`). Przyczyna: odbiera trafne dowody (17 fałszywych wstrzymań więcej), więc mniej błędnych cytatów kosztem wielu dodatkowych „brak wystarczających dowodów”. Możliwe dalsze kroki (niezmierzone): próg tylko dla „obala”/„rozbieżność”, albo druga kontrola tylko przy jednym dowodzie.
 
-Profil omylności serwera pochodzi z przebiegu bez drugiej kontroli (konfiguracja do wdrożenia), silnik 5fcfd41a31ea: średnia 11/58, niska 12/40, brak 28/71 (wysoka 1/5). Późniejszy commit e203abe zmienia tylko zdarzenia postępu, ale zmienia skrót silnika na dc66dce5e77d, więc ten profil nie pasuje już do skrótu wdrażanego silnika (serwer go nie pokaże bez kolejnego przebiegu).
+Profil omylności serwera pochodzi z przebiegu bez drugiej kontroli (konfiguracja do wdrożenia), silnik 5fcfd41a31ea: średnia 11/58, niska 12/40, brak 28/71 (wysoka 1/5). Późniejszy commit e203abe zmienia tylko zdarzenia postępu, ale zmienia skrót silnika na dc66dce5e77d, więc ten profil nie pasuje już do skrótu wdrażanego silnika (serwer go nie pokaże bez kolejnego przebiegu). **Zastąpione przebiegiem P3 (niżej): serwer pokazuje teraz profil dla dc66dce5e77d.**
+
+
+## Przebieg końcowy v2 na wdrażanym silniku dc66dce5e77d (P3, 22.11.2026)
+
+Cel: profil omylności serwera wymaga zgodnego skrótu silnika, a wdrażany silnik (dc66dce5e77d) różni się od P1 (5fcfd41a31ea) tylko zdarzeniami postępu (commit e203abe). Zestaw kontrolny v2 (176), Claude Haiku 5.5, sędzia cytowań Claude Sonnet 5.5 (standardowy sędzia dla Haiku, `judgeModelFor`; Opus kosztowałby ok. 1,2 USD samego sędziego), `FACTCHECK_LAYER=off`, `SECOND_CHECK=off`, `LIVE_LAYER=off`, korpus cb62b4255ea0 (733 dokumenty, kopia z HEAD w katalogu tymczasowym, `--corpus-root`), uruchomienie z katalogu roboczego, jeden przebieg, 03:48-03:57 UTC. Polecenie: `FACTCHECK_LAYER=off SECOND_CHECK=off LIVE_LAYER=off npx tsx scripts/eval.ts --part kontrolny_v2 --model claude-haiku-5-5 --corpus-root <kopia HEAD>`. Bez strojenia, kodu nie zmieniano. Koszt $0,6223 + $0,6388 = $1,26 (plus ok. $0,04 na 7 przypadków przerwanego pierwszego startu). Wyniki: `data/eval/results.json`, `data/eval/review_sample.json`, `data/eval/review_sample.md`.
+
+| Miernik | P3 (dc66dce5e77d, sędzia Sonnet) | P1 (5fcfd41a31ea, sędzia Opus) |
+|---|---|---|
+| Trafność (macro-F1) | 0,661 (bez wątpliwych 0,688) | 0,706 (0,731) |
+| Dokładność ogólna | 110/174 | 120/174 |
+| Poprawność cytowań | 76,9% (170/221) | 87,0% (180/207), inny sędzia |
+| Pokrycie cytowań | 100% (117/117) | 100% (117/117) |
+| Wstrzymanie się | 15/21 | 17/21 |
+| Fałszywe wstrzymania | 39/136 | 33/136 |
+| Odporność | 8/8 | 8/8 |
+| Powtarzalność | 4/5 | 5/5 |
+| Mediana czasu (p90) | 7,5 s (10,8 s) | 7,8 s (10,2 s) |
+| Koszt silnika na 1000 zapytań | 3,53 USD (0,6223 USD) | 3,46 USD (0,6089 USD) |
+
+Profil omylności (`errorProfileMeta`: set v2, claude-haiku-5-5, silnik dc66dce5e77d, 2026-11-22T03:57:42Z): średnia 11/52, niska 15/40, brak 34/75; „wysoka” 2/7 bez profilu; poza profilem 2 pozycje (1 stan techniczny, 1 teza niewyodrębniona). Bez wątpliwych (do wglądu): wysoka 1/5, średnia 8/45, niska 10/31, brak 28/63. Sprawdzone na lokalnym serwerze testowym (port 8793, `FACTCHECK_LAYER=off`, `SECOND_CHECK=off`, `LIVE_LAYER=off`): dwa zapytania na żywo zwróciły `errorProfile` {sila_srednia, 11 błędów na 52}, więc serwer pokazuje zdanie o omylności dla bieżącego silnika.
+
+Różnica macro-F1 wobec P1 (0,045) mieści się w rozrzucie co najmniej 0,06, ale 0,661 leży poniżej dotychczasowego zakresu 0,673-0,733, więc to jego dolny koniec. Wstrzymanie się 17/21 -> 15/21 to 2 przypadki. Poprawności cytowań nie porównuje się wprost z P1 (inny sędzia); wobec poprzednich przebiegów z sędzią Sonnet (79,8% w 5d88b017207b) różnica 2,9 pkt proc. jest bliska znanemu rozrzutowi ok. 2,5 pkt proc.
 
 ## Próba parowana mocniejszego modelu (wiz_56)
 

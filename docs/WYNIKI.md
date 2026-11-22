@@ -4,38 +4,39 @@ Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNI
 
 ## Liczby, na które się powołujemy
 
-Źródło: zapisane wyniki w `data/eval/` (`results.json`, `results_second_check.json`) i sekcje [MIERNIKI.md](MIERNIKI.md). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5 (model domyślny), korpus cb62b4255ea0 (733 dokumenty), `FACTCHECK_LAYER=off`, `LIVE_LAYER=off`, `SECOND_CHECK=off`. Jeden przebieg, więc liczby mają rozrzut co najmniej 0,06 macro-F1 ([MIERNIKI.md](MIERNIKI.md), „Rozrzut”).
+Źródło: zapisane wyniki w `data/eval/` (`results.json` = przebieg P3, `results_second_check.json`) i sekcje [MIERNIKI.md](MIERNIKI.md). Zestaw kontrolny v2 (176 przypadków), Claude Haiku 5.5 (model domyślny), korpus cb62b4255ea0 (733 dokumenty), `FACTCHECK_LAYER=off`, `LIVE_LAYER=off`, `SECOND_CHECK=off`. Jeden przebieg, więc liczby mają rozrzut co najmniej 0,06 macro-F1 ([MIERNIKI.md](MIERNIKI.md), „Rozrzut”).
 
-- **Przebieg P1** (źródło większości liczb): silnik 5fcfd41a31ea, 22.11.2026, 02:27-02:36 UTC, sędzia cytowań Claude Opus 5.5, `data/eval/results.json`.
+- **Przebieg P3** (źródło większości liczb): silnik **dc66dce5e77d** (silnik wdrażany), 22.11.2026, 03:48-03:57 UTC, sędzia cytowań Claude Sonnet 5.5 (standardowy sędzia dla Haiku), `data/eval/results.json`.
+- **Przebieg P1**: silnik 5fcfd41a31ea, 22.11.2026, 02:27-02:36 UTC, sędzia cytowań Claude Opus 5.5 (poprzednio w `data/eval/results.json`; zapis w historii gita). Jedyne źródło poprawności cytowań wg sędziego Opus.
 - **Przebieg P2**: silnik 5d88b017207b, 22.11.2026, sędzia cytowań Claude Sonnet 5.5 (commit 4d2670f). Tylko do poprawności cytowań z sędzią Sonnet.
 - **Przebieg P0**: silnik dd6f303f5e02, 21.11.2026, sędzia Claude Sonnet 5.5; z niego pochodzi próbka 20 par oceniona ręcznie.
 
 | Miernik | Wartość | Cel z wytycznych | Przebieg |
 |---|---|---|---|
-| Trafność (macro-F1) | 0,706 (bez 27 wątpliwych 0,731) | 0,75, niespełniony | P1 |
-| Dokładność ogólna | 120/174 | - | P1 |
-| Pokrycie cytowań | 100% (117/117) | 95%, spełniony (z konstrukcji silnika) | P1 |
+| Trafność (macro-F1) | 0,661 (bez 27 wątpliwych 0,688) | 0,75, niespełniony | P3 |
+| Dokładność ogólna | 110/174 | - | P3 |
+| Pokrycie cytowań | 100% (117/117) | 95%, spełniony (z konstrukcji silnika) | P3 |
 | Poprawność cytowań, sędzia Opus | 87,0% (180/207) | 85%, spełniony (wg tego sędziego) | P1 |
-| Poprawność cytowań, sędzia Sonnet | 79,8% (174/218) | 85%, niespełniony (wg tego sędziego) | P2 |
+| Poprawność cytowań, sędzia Sonnet | 76,9% (170/221) | 85%, niespełniony (wg tego sędziego) | P3 |
 | Poprawność cytowań, ręczny przegląd 20 par | 18 w pełni, 1 częściowo, 1 bez rozstrzygnięcia (z 20) | - | P0 |
-| Wstrzymanie się | 17/21 (81,0%) | 80%, spełniony na 21 przypadkach | P1 |
-| Fałszywe wstrzymania | 33/136 (24,3%) | - | P1 |
-| Odporność na prompt injection | 8/8 | 90%, spełniony na 8 atakach | P1 |
-| Stany techniczne | 4/4, 0 pozornych werdyktów | - | P1 |
-| Spójność kanałów (WWW i adapter SMS, w prototypie: symulator) | 5/5 par | 100% na 5 parach, spełniony | P1 |
-| Powtarzalność bez pamięci rekordów | 5/5 (w P2: 3/5) | - | P1 |
-| Mediana czasu | 7,8 s (p90 10,2 s) | 30 s, spełniony | P1 |
-| Koszt silnika na 1000 zapytań | **3,46 USD** = 0,6089 USD / 176 przypadków x 1000 | raportowany | P1 |
+| Wstrzymanie się | 15/21 (71,4%) | 80%, niespełniony na 21 przypadkach | P3 |
+| Fałszywe wstrzymania | 39/136 (28,6%) | - | P3 |
+| Odporność na prompt injection | 8/8 | 90%, spełniony na 8 atakach | P3 |
+| Stany techniczne | 4/4, 0 pozornych werdyktów | - | P3 |
+| Spójność kanałów (WWW i adapter SMS, w prototypie: symulator) | 5/5 par | 100% na 5 parach, spełniony | P3 |
+| Powtarzalność bez pamięci rekordów | 4/5 (w P1: 5/5, w P2: 3/5) | - | P3 |
+| Mediana czasu | 7,5 s (p90 10,8 s) | 30 s, spełniony | P3 |
+| Koszt silnika na 1000 zapytań | **3,53 USD** = 0,6223 USD / 176 przypadków x 1000 | raportowany | P3 |
 
-Koszt: inne przebiegi tego samego zestawu liczone tym samym wzorem (koszt silnika / 176 x 1000): dd6f303f5e02 3,45 USD, 108928016877 3,52 USD, 5ac946ffce1a 3,50 USD, 5d88b017207b 3,60 USD. To wyniki innych przebiegów, nie inne wartości dla tej samej wersji. Starsze zapisy „ok. 3,6” i „ok. 3,7 USD” pochodziły z licznika `per100TestsUsd` (koszt dzielony przez 170 przypadków z pomiarem czasu, bez 6 przypadków bez wywołań modelu), więc wychodziły wyżej; zapisu „3,40” nie ma w zapisanych wynikach. Bez sędziego cytowań (działa tylko w pomiarach). Założenia i zakres: [KOSZTY.md](KOSZTY.md).
+Koszt przebiegu P3: silnik 0,6223 USD + sędzia Sonnet 0,6388 USD = 1,2611 USD (nie wlicza się ok. 0,04 USD na 7 przypadków przerwanego pierwszego startu). Koszt: inne przebiegi tego samego zestawu liczone tym samym wzorem (koszt silnika / 176 x 1000): 5fcfd41a31ea (P1) 3,46 USD, dd6f303f5e02 3,45 USD, 108928016877 3,52 USD, 5ac946ffce1a 3,50 USD, 5d88b017207b 3,60 USD. To wyniki innych przebiegów, nie inne wartości dla tej samej wersji. Starsze zapisy „ok. 3,6” i „ok. 3,7 USD” pochodziły z licznika `per100TestsUsd` (koszt dzielony przez 170 przypadków z pomiarem czasu, bez 6 przypadków bez wywołań modelu), więc wychodziły wyżej; zapisu „3,40” nie ma w zapisanych wynikach. Bez sędziego cytowań (działa tylko w pomiarach). Założenia i zakres: [KOSZTY.md](KOSZTY.md).
 
-Silnik wdrażany ma skrót **dc66dce5e77d**. Od P1 (5fcfd41a31ea) zmieniły się w nim tylko zdarzenia postępu (commit e203abe), więc liczby P1 traktujemy jako dotyczące wdrażanej wersji, ale przebiegu v2 na dokładnie dc66dce5e77d z `SECOND_CHECK=off` nie wykonano (do potwierdzenia). Profil omylności z P1 nie pasuje do skrótu dc66dce5e77d, więc serwer go nie pokaże bez kolejnego przebiegu.
+Silnik wdrażany ma skrót **dc66dce5e77d**, i na nim wykonano przebieg P3 (jeden przebieg, `SECOND_CHECK=off`, `FACTCHECK_LAYER=off`, `LIVE_LAYER=off`, korpus cb62b4255ea0 z kopii HEAD, `--corpus-root`). Profil omylności z P3 (silnik dc66dce5e77d, claude-haiku-5-5): średnia 11/52, niska 15/40, brak 34/75 (wysoka 2/7, za mały koszyk); lokalny serwer testowy zwraca go dla bieżącego silnika. Wobec P1 (5fcfd41a31ea; zmieniły się tylko zdarzenia postępu) macro-F1 spadło z 0,706 do 0,661, wstrzymanie się z 17/21 do 15/21 (2 przypadki), fałszywe wstrzymania z 33/136 do 39/136: różnica macro-F1 0,045 mieści się w znanym rozrzucie (co najmniej 0,06), ale 0,661 leży poniżej dotychczasowego zakresu 0,673-0,733, więc to jego dolny koniec, a nie poprawa ani wyraźna regresja. Poprawności cytowań (Sonnet 76,9% wobec Opus 87,0% w P1) nie porównuje się wprost, bo sędzia jest inny; wobec P2 (Sonnet, 79,8%) różnica 2,9 pkt proc. jest w zakresie rozrzutu ok. 2,5 pkt proc. i więcej.
 
 ### Poprawność cytowań: trzy oceny obok siebie
 
 | Kto ocenia | Wynik | Przebieg i próba |
 |---|---|---|
-| Sędzia model: Claude Sonnet 5.5 | 79,8% (174/218) | P2, wszystkie cytaty rozstrzygające v2 |
+| Sędzia model: Claude Sonnet 5.5 | 76,9% (170/221) | P3, wszystkie cytaty rozstrzygające v2 (w P2: 79,8%, 174/218) |
 | Sędzia model: Claude Opus 5.5 | 87,0% (180/207) | P1, wszystkie cytaty rozstrzygające v2 |
 | Człowiek (jedna osoba z zespołu, właściciel) | 18 w pełni uzasadnionych, 1 częściowo (brak daty przy słowie „obecnie”), 1 bez rozstrzygnięcia (z 20 par) | P0, próbka 20 par ([MIERNIKI.md](MIERNIKI.md), „Ręczny przegląd”) |
 
@@ -56,7 +57,7 @@ Co to pokazuje: sędzia-model bywa surowszy od człowieka (na 20 parach sędzia 
 
 ### Próba parowana mocniejszego modelu
 
-Pytanie: ile błędów Haiku naprawi mocniejszy model i ile dobrych odpowiedzi zepsuje. Punkt odniesienia: ostatni przebieg Haiku na v2 (silnik 5fcfd41a31ea, bez drugiej kontroli i bez warstwy żywej): 174 obsłużone przypadki, 120 zgodnych z etykietą, macro-F1 0,706. Pominięto 27 przypadków wątpliwych. Próba losowa z warstw wg etykiety (ziarno 56): 28 przypadków, w których Haiku się pomylił (pula 41), i 12, w których miał rację (pula 101). Bez sędziego cytowań, ustawienia domyślne poza modelem.
+Pytanie: ile błędów Haiku naprawi mocniejszy model i ile dobrych odpowiedzi zepsuje. Punkt odniesienia: przebieg Haiku na v2 z chwili próby, P1 (silnik 5fcfd41a31ea, bez drugiej kontroli i bez warstwy żywej): 174 obsłużone przypadki, 120 zgodnych z etykietą, macro-F1 0,706. Pominięto 27 przypadków wątpliwych. Próba losowa z warstw wg etykiety (ziarno 56): 28 przypadków, w których Haiku się pomylił (pula 41), i 12, w których miał rację (pula 101). Bez sędziego cytowań, ustawienia domyślne poza modelem.
 
 | Model | Naprawione błędy Haiku | Zepsute dobre odpowiedzi | Mediana czasu (Haiku na tych samych) | Koszt na przypadek (Haiku) |
 |---|---|---|---|---|
@@ -155,6 +156,6 @@ npm run eval -- --part kontrolny_v2  # przebieg na żywym modelu (ANTHROPIC_API_
 npm run injection:live               # próby prompt injection na żywym modelu (płatny, ok. 0,005 USD)
 ```
 
-Dane: przypadki w `data/eval/cases.json` (strojeniowy, 71), `data/eval/control/cases.json` (v1, 30), `data/eval/control_v2/cases.json` (v2, 176). Wyniki naszych przebiegów z kosztem: `data/eval/results.json` (ostatni przebieg v2, silnik 5fcfd41a31ea, przebieg P1 z tabeli „Liczby, na które się powołujemy”), z drugą kontrolą osobno `data/eval/results_second_check.json` (silnik dc66dce5e77d, druga kontrola wyłączona na produkcji), z drugą warstwą źródeł osobno `data/eval/results_live.json` (starszy silnik 9b706cde662a, tylko do porównania; druga warstwa jest wyłączona). Ręczna kontrola cytowań: `data/eval/review_sample.md`.
+Dane: przypadki w `data/eval/cases.json` (strojeniowy, 71), `data/eval/control/cases.json` (v1, 30), `data/eval/control_v2/cases.json` (v2, 176). Wyniki naszych przebiegów z kosztem: `data/eval/results.json` (ostatni przebieg v2, silnik dc66dce5e77d, przebieg P3 z tabeli „Liczby, na które się powołujemy”), z drugą kontrolą osobno `data/eval/results_second_check.json` (silnik dc66dce5e77d, druga kontrola włączona w tym pomiarze, na produkcji wyłączona), z drugą warstwą źródeł osobno `data/eval/results_live.json` (starszy silnik 9b706cde662a, tylko do porównania; druga warstwa jest wyłączona). Ręczna kontrola cytowań: `data/eval/review_sample.md`.
 
 Uczciwie: jako pomiar kontrolny liczy się zestaw v2, bo zestawy strojeniowy i v1 posłużyły do zmian w silniku (v2 do jednej decyzji o progu). Wynik jednego przebiegu ma rozrzut ([MIERNIKI.md](MIERNIKI.md), "Rozrzut i ograniczenia").
