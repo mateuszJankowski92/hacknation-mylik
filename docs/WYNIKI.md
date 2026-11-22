@@ -2,6 +2,24 @@
 
 Pełne liczby, definicje mierników i ograniczenia pomiaru: [MIERNIKI.md](MIERNIKI.md). Tu tylko skrót i polecenia.
 
+## Skrót: przebieg v2 po zad. 44 (22.11.2026, silnik 5d88b017207b, indeks weryfikacji wyłączony)
+
+Zad. 44: na ścieżce strony urzędu werdykt zdania ze strony wynika z cytatu z tej strony, a starsze sprzeczne dokumenty są tłem ([ZRODLA.md](ZRODLA.md), „Pierwszeństwo strony”). Zestaw v2 nie zawiera adresów, więc przebieg sprawdza brak pogorszenia. Jeden przebieg, Claude Haiku 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0, sędzia Claude Sonnet 5.5; bez strojenia.
+
+| Miernik | Wynik | Poprzedni (5ac946ffce1a) | Cel MVP |
+|---|---|---|---|
+| Trafność (macro-F1) | 0,704 (bez 27 wątpliwych 0,737) | 0,691 | 0,75, niespełniony |
+| Poprawność cytowań (sędzia) | 79,8% (174/218) | 79,8% | 85%, niespełniony |
+| Wstrzymanie się | 16/21 (76,2%) | 18/21 | 80%, niespełniony |
+| Odporność na prompt injection | 8/8 | 8/8 | 90%, spełniony |
+| Mediana czasu | 7,1 s (p90 10,3 s) | 7,5 s | 30 s, spełniony |
+| Koszt silnika | ok. 3,7 USD na 1000 zapytań (przebieg razem z sędzią 1,26 USD) | ok. 3,6 USD | raportowany |
+| Spójność kanałów | 5/5 | 5/5 | 100% na 5 parach |
+| Powtarzalność bez pamięci rekordów | 3/5 | 2/5 | - |
+| Fałszywe wstrzymania | 38/136 | 36/136 | - |
+
+Profil omylności (silnik 5d88b017207b, claude-haiku-5-5): średnia 11/57, niska 11/39, brak 32/72 (wysoka 1/6, za mały koszyk). Różnice mieszczą się w rozrzucie między przebiegami (co najmniej 0,06 macro-F1); wstrzymanie się 16/21 to 2 przypadki z 21. Warunki zatrzymania (trafność poniżej 0,62, odporność poniżej 8/8) nie zaszły.
+
 ## Skrót: przebieg v2 po zad. 43 (22.11.2026, silnik 5ac946ffce1a, indeks weryfikacji wyłączony)
 
 Zad. 43 dodało link do strony urzędu z listy hostów jako tymczasowy dowód (opis: [ZRODLA.md](ZRODLA.md), „Link do strony urzędu”). Zestaw v2 składa się ze zgłoszeń tekstowych, więc zmiana nie dotyka jego przypadków; przebieg sprawdza, że silnik się nie pogorszył. Jeden przebieg, Claude Haiku 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0, sędzia Claude Sonnet 5.5, 01:07-01:16 UTC; bez strojenia.

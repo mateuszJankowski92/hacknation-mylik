@@ -307,6 +307,26 @@ Profil omylności (results.json): średnia 7/48, niska 18/45, brak 35/75 (wysoka
 
 Reguła w `src/factcheck/layer.ts` (`sharesProperNames`): tło z oceną redakcji, pokazywane bez „Tak/Nie”, zostaje tylko wtedy, gdy każda nazwa własna z twierdzenia (rdzeń jak w regułach nazw, z pominięciem różnic w znakach diakrytycznych) występuje w tezie lub tytule wpisu; inne miasto, instytucja lub osoba kończy się odrzuceniem wpisu (powód `podobna_inne_nazwy`). Bez nazw własnych w twierdzeniu zachowanie bez zmian. Reguły bezpośrednich odpowiedzi nie zostały poluzowane; zmiana może tylko ukryć tło. Testy bez sieci: `tests/factcheck/similar-names.test.ts`. Próba na żywo (6 zapytań, jeden przebieg, sygnał, nie pomiar): 2 odpowiedzi wprost bez zmian („Nie.” dla Warszawy i dla Orlenu), 2 pułapki z innym miastem (Kraków, Poznań; wpis o Wrocławiu lub Warszawie już się nie pokazuje), 2 bez pokrycia (wstrzymanie bez bloku). Znane ograniczenie: różne końcówki rdzenia (np. „w Polsce” i „Polska”) ukrywają blok, czyli błąd w stronę ostrożności.
 
+## Przebieg v2 po zad. 44 (22.11.2026, silnik 5d88b017207b, indeks wyłączony)
+
+Zmiana silnika: pierwszeństwo strony urzędu nad starszymi sprzecznymi dokumentami (tło), uwaga i niższa siła przy nowszym sprzecznym dokumencie, treść główna i data strony po tytule, wydawca z tytułu w strefie gov.pl, etykieta zbiorcza w krótkiej odpowiedzi ([ZRODLA.md](ZRODLA.md)). Zestaw v2 nie ma adresów; funkcję sprawdzają testy bez sieci (`tests/engine/officialPagePrecedence.test.ts`). Claude Haiku 5.5, sędzia Claude Sonnet 5.5, `FACTCHECK_LAYER=off`, korpus cb62b4255ea0 (733 dokumenty, kopia z HEAD 515bf18, `--corpus-root`), jeden przebieg. Koszt $0,633 + $0,631 = $1,26.
+
+| Miernik | 5d88b017207b (ten przebieg) | 5ac946ffce1a |
+|---|---|---|
+| macro-F1 | 0,704 (bez wątpliwych 0,737, n=145) | 0,691 (0,711) |
+| dokładność ogólna | 117/174 | 115/174 |
+| poprawność cytowań (sędzia) | 79,8% (174/218) | 79,8% (162/203) |
+| pokrycie cytowań, cytat dosłowny | 100% (119/119), 100% (218/218) | 100% |
+| wstrzymanie się | 16/21 | 18/21 |
+| odporność | 8/8 | 8/8 |
+| fałszywe wstrzymania | 38/136 | 36/136 |
+| spójność kanałów | 5/5 | 5/5 |
+| powtarzalność bez pamięci | 3/5 | 2/5 |
+| stany techniczne | 4/4, 0 pozornych | 4/4 |
+| mediana czasu (p90) | 7,1 s (10,3) | 7,5 s (10,3) |
+
+Profil omylności (results.json, `errorProfileMeta`: set v2, silnik 5d88b017207b): średnia 11/57, niska 11/39, brak 32/72; „wysoka” 1/6 bez profilu. Bez wątpliwych (do wglądu): wysoka 1/5, średnia 7/47, niska 6/30, brak 27/62. Różnice wobec 5ac946ffce1a mieszczą się w rozrzucie; zestaw v2 nie dotyka zmienionej ścieżki (adresy stron).
+
 ## Przebieg v2 po zad. 43 (22.11.2026, silnik 5ac946ffce1a, indeks wyłączony)
 
 Zmiana silnika: link do strony urzędu z listy `data/official-hosts.json` jest tymczasowym dowodem (warstwa `strona_urzedu`, siła najwyżej „średnia”), z uwagą o wieku strony i ochroną przed poleceniami w treści; adresy spoza listy dostają pole `page` w rekordzie i zdanie otwierające w SMS-ie i Discordzie (opis: [ZRODLA.md](ZRODLA.md)). Zestaw v2 zawiera zgłoszenia tekstowe bez adresów, więc ten przebieg nie mierzy nowej funkcji, tylko to, że silnik nie stracił jakości. Funkcję sprawdzają testy bez sieci (`tests/engine/officialHosts.test.ts`, `officialPage.test.ts`, `pageDate.test.ts`, `tests/render/page.test.ts`) i jedna próba na żywo (niżej). Zestawu v2 nie użyto do strojenia.
