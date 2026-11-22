@@ -42,3 +42,7 @@ Adapter SMS (w prototypie: symulator). Pokaz działa w przeglądarce pod `/sms` 
 | Wielkość wejścia | JSON do 16 KB, tekst do 2000 znaków, SMS do 480, Discord do 2000 | `src/server`, `src/input`, `src/sms`, `src/discord` |
 
 Ograniczenia skali: limit żądań jest w pamięci jednego procesu, a baza to jeden plik SQLite. Więcej mocy to mocniejsza maszyna. Kilka serwerów naraz wymaga wspólnego limitu i wspólnej bazy. Głównym ograniczeniem przepustowości są limity konta u dostawcy modelu.
+
+## Druga kontrola cytatów (zad. 45, opcja)
+
+Przy `SECOND_CHECK=on` każda rozstrzygająca para (średnio ok. 1-2 na zgłoszenie) to jedno wywołanie modelu drugiej kontroli (Sonnet: kilkaset tokenów wejścia, krótka odpowiedź). Zmierzony koszt i czas: [MIERNIKI.md](MIERNIKI.md), „Druga kontrola”. Domyślnie wyłączona, więc koszt podstawowy bez zmian.

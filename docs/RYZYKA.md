@@ -115,3 +115,10 @@ Nie pobieramy stron Demagoga (blokada automatów, zastrzeżenie TDM, licencja wy
 - **Znane luki:** dopasowanie po słowach nie rozumie sensu (np. zaprzeczenia); progi dobrane na danych
   testowych, nie na pełnym zbiorze. Bez `englishTerms` (np. atrapa modelu) działa tylko słabsze
   dopasowanie po nazwach własnych i liczbach z polskiego tekstu.
+
+## R-druga-kontrola. Zależność od drugiego modelu (zad. 45)
+
+- Druga kontrola dokłada wywołania drugiego dostawcy (Sonnet albo Jev) do każdego twierdzenia z rozstrzygającym dowodem: dłuższy czas i wyższy koszt, plus druga zależność zewnętrzna.
+- Awaria, limit lub przekroczenie `SECOND_CHECK_TIMEOUT_MS`: dowody zostają jak były, rekord dostaje jawną notę, że druga kontrola była niedostępna; nigdy cicha zmiana werdyktu i nigdy stan techniczny z tego powodu.
+- Krok może tylko odebrać dowód, więc jego błędy przesuwają wynik w stronę wstrzymania („brak wystarczających dowodów”), a nie fałszywego potwierdzenia; koszt to więcej fałszywych wstrzymań.
+- Ten sam model co ocena = brak niezależności: krok wyłącza się sam. Pomiar z drugą kontrolą Sonnet wymaga innego sędziego (Opus).

@@ -30,8 +30,11 @@ flowchart TD
   CIT --> GATE["10. Bramka wsparcia (model, każdy cytat osobno)<br/>Haiku albo Basal albo Jev (opcje)"]
   GATE --> LIVE{"LIVE_LAYER=on i brak<br/>rozstrzygającego dowodu?"}
   LIVE -- tak --> L2["Druga warstwa: szukanie na zamkniętej liście serwisów<br/>(eksperymentalna, src/live)"]
-  LIVE -- nie --> RULES
-  L2 --> RULES["11. Reguły (kod, src/engine/rules.ts):<br/>etykieta i siła podstawy"]
+  LIVE -- nie --> SC
+  L2 --> SC{"SECOND_CHECK=on?<br/>10b. Druga kontrola (inny model, każda rozstrzygająca para osobno)"}
+  SC -- "tak: zgoda zostaje, niezgoda lub nie wiem = tło" --> RULES
+  SC -- nie --> RULES
+  RULES["11. Reguły (kod, src/engine/rules.ts):<br/>etykieta i siła podstawy"]
   RULES --> ANS["Forma odpowiedzi (src/render/answer.ts):<br/>Tak. / Nie. / Częściowo. / Nie udało mi się tego potwierdzić.<br/>przypisanie oceny redakcji, link, brakujący dokument"]
   ANS --> NOTE["Ostrzeżenia neutralne: znane operacje (EUvsDisinfo), incydenty<br/>nigdy podstawa etykiety"]
   NOTE --> REC["12. Rekord w SQLite (retencja 30 dni)<br/>/r/&lt;id&gt;, karta SVG"]
@@ -50,6 +53,7 @@ WWW / adapter SMS (w prototypie: symulator) / adapter Discord
   -> wyszukiwanie w korpusie (kod) -> kandydaci (model) -> ocena (model)
   -> bramka cytatów (kod) -> bramka wsparcia (model)
   -> [druga warstwa, domyślnie wyłączona]
+  -> [druga kontrola innym modelem, domyślnie wyłączona: tylko odbiera dowody]
   -> reguły: etykieta i siła (kod) -> rekord -> odpowiedź w kanale
 ```
 
@@ -91,3 +95,12 @@ Brak klucza, limit API, błąd, przekroczony czas (22 s, `DEFAULT_DEADLINE_MS`),
 `src/input` wejście i maskowanie, `src/engine` potok i reguły, `src/llm` dostawcy modelu, `src/corpus` korpus, `src/live` druga warstwa, `src/server` WWW i API, `src/sms` adapter SMS, `src/discord` adapter Discord (trzeci adapter, ten sam `engine.verify` i ten sam rekord), `src/render` teksty dla obywatela, `src/security` limit żądań i retencja, `src/cases` sprawy urzędnika (pętla informacji), `src/server/clerk.ts` widok urzędnika, `src/obs` log i statystyki (`GET /api/stats`).
 
 Zależności zewnętrzne i jak je wymienić: [ZALEZNOSCI.md](ZALEZNOSCI.md). Modele: [MODELE.md](MODELE.md).
+
+## Druga kontrola cytatów (zad. 45)
+
+Krok `druga_kontrola` (`src/engine/secondCheck.ts`, fabryka `secondCheckFactory.ts`) działa po zbudowaniu dowodów (zbiór, strona urzędu, indeks redakcji, pierwszeństwo strony) i przed tabelą reguł. Każda rozstrzygająca para (twierdzenie, dosłowny cytat, stanowisko) idzie osobno, równolegle, do innego modelu niż model oceny, przez ten sam interfejs i prompt co bramka wsparcia (twierdzenie i cytat jako dane, bez fragmentu, źródła i oceny pierwszego modelu). Relacja zgodna ze stanowiskiem = „tak”; `nie_rozstrzyga` = „nie wiem”; inna = „nie”. Poza „tak” dowód zostaje w rekordzie jako tło (`kontekst`), a werdykt liczą reguły z reszty. Krok nie dodaje dowodów i nie zmienia stanowiska na inne rozstrzygające, więc nie podnosi werdyktu. Pomijana jest tylko teza z oceny redakcji uznana za „tę samą tezę” (jej cytat to sprawdzana teza, nie zdanie uzasadniające); uzasadnienia redakcji i strona urzędu przechodzą normalnie.
+
+- Zmienne: `SECOND_CHECK=off|on` (domyślnie off), `SECOND_CHECK_PROVIDER=anthropic|jev`, `SECOND_CHECK_MODEL` (domyślnie `claude-sonnet-5-5`), `SECOND_CHECK_TIMEOUT_MS` (domyślnie 8000, jeden limit na wszystkie pary twierdzenia). Ten sam model co ocena: krok wyłączony z ostrzeżeniem w logu.
+- Błąd lub czas: dowody bez zmian, nota „Druga kontrola cytatów (inny model) była niedostępna...” (ograniczenie techniczne).
+- Rekord: opcjonalne pole `secondCheck {model, checked, agreed, ms, status: ok|niedostepna}`; klucz rekordu zawiera model drugiej kontroli.
+- Zdarzenia postępu w strumieniu pod nazwą `progress_detail` (stary interfejs je pomija): `druga_kontrola {claim, checked, agreed, ok}` i `twierdzenie_ocenione {claim, candidates, passed, decisive, sources}`: fragmenty do sprawdzenia, dowody po kontroli (wszystkie w rekordzie), rozstrzygające, różne dokumenty wśród rozstrzygających. Zdarzenia `fragment_oceniony` opisują stan PRZED drugą kontrolą i regułą strony urzędu, więc liczba „źródeł” w interfejsie powinna pochodzić z `twierdzenie_ocenione`.

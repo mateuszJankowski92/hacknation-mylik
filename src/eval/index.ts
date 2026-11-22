@@ -85,7 +85,7 @@ export async function runEval(opts: EvalOptions): Promise<EvalResult> {
   const llm: LlmProvider =
     opts.llm ?? (opts.provider === 'mock' ? new MockLlmProvider() : new AnthropicProvider({ apiKey: opts.apiKey, model }));
   const judge: CitationJudge =
-    opts.judge ?? (opts.provider === 'mock' ? new MockJudge() : new AnthropicJudge(judgeModelFor(model), opts.apiKey));
+    opts.judge ?? (opts.provider === 'mock' ? new MockJudge() : new AnthropicJudge(process.env.EVAL_JUDGE_MODEL?.trim() || judgeModelFor(model), opts.apiKey));
   const startedAt = new Date().toISOString();
   log(`Przebieg ${model} (zestaw ${part}): ${cases.length} przypadków, korpus ${corpus.version} (${corpus.documents} dokumentów), sędzia ${judge.name}`);
 

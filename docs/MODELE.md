@@ -37,3 +37,7 @@ Każdy krok modelu idzie przez interfejsy `LlmProvider` i `SupportGate` (`src/co
 ## Miejsce przetwarzania
 
 API Anthropic to dostawca spoza EOG. Trafia tam tylko tekst po maskowaniu danych osobowych i fragmenty korpusu. Basal działa na maszynie wskazanej przez operatora (`BASAL_URL`), więc może być w EOG albo u siebie. Jev (TypeSafe AI) jest hostowany w USA (poza EOG); do niego trafia tylko twierdzenie po maskowaniu i dosłowny cytat ze źródła publicznego.
+
+## Druga kontrola (zad. 45)
+
+Opcjonalny drugi, niezależny model sprawdza każdą rozstrzygającą parę (twierdzenie, cytat, stanowisko) po zbudowaniu dowodów; poza zgodą dowód staje się tłem. Domyślnie wyłączona (`SECOND_CHECK=off`). Dostawca: `anthropic` (domyślnie `claude-sonnet-5-5`, inny niż Haiku w ocenie) albo `jev` (bez zapasu w Haiku: niepewna lub nieudana odpowiedź = druga kontrola niedostępna, dowody bez zmian). Model musi różnić się od modelu oceny; przy tym samym krok się wyłącza. W pomiarze z drugą kontrolą Sonnet sędzią cytowań jest Opus (sędzia nie może być tym samym modelem co kontrola). Wyniki i decyzja: [MIERNIKI.md](MIERNIKI.md), „Druga kontrola”.
