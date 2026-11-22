@@ -194,15 +194,14 @@ html:has(.waiting-steps) {
 }
 
 .waiting-steps__line[data-status='done'] .waiting-steps__mark::after {
+	/* Znak "gotowe" jako maska wyśrodkowana w kółku: nie zależy od zaokrągleń pikseli przy obrocie ramki. */
+	--tick: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.6 8.5l3 3 5.8-6.6' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 	content: '';
 	position: absolute;
-	left: 28%;
-	top: 10%;
-	width: 26%;
-	height: 52%;
-	border: solid var(--graphite);
-	border-width: 0 2px 2px 0;
-	transform: rotate(40deg);
+	inset: 0;
+	background: var(--graphite);
+	-webkit-mask: var(--tick) center / 72% 72% no-repeat;
+	mask: var(--tick) center / 72% 72% no-repeat;
 }
 
 .waiting-steps__line[data-status='current'] .waiting-steps__mark {

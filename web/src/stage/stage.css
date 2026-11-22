@@ -230,3 +230,9 @@
 html[data-contrast='high'] .sheet > .stage-slot--corner {
 	background: none;
 }
+
+/* Klipy postaci mają tło o ton ciemniejsze od bieli strony (#f6f4f5): lekkie rozjaśnienie zrównuje je z tłem, żeby nie było widać prostokąta kadru. */
+.hero__video,
+.character-stage .character-stage__clip {
+	filter: brightness(1.045);
+}
