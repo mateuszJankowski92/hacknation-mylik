@@ -1,10 +1,10 @@
 // Zdarzenia postępu sprawdzania. Silnik zgłasza wyłącznie kroki, które naprawdę wykonał
 // (bez zegara, bez zdarzeń "na zapas"). Zdarzenia nie zawierają treści zgłoszenia, fragmentów
 // ani odpowiedzi modelu; wydawca i data pochodzą z metadanych bazy źródeł.
-import type { ProgressStance, VerifyProgressEvent } from '../contracts/api';
+import type { EngineProgressEvent, ProgressStance } from '../contracts/api';
 import type { Engine, SourceMeta, Stance, VerifyInput, VerifyOutcome } from '../contracts/index';
 
-export type ProgressFn = (event: VerifyProgressEvent) => void;
+export type ProgressFn = (event: EngineProgressEvent) => void;
 
 export interface VerifyOptions {
   /** Wołane synchronicznie w trakcie sprawdzania. Wyjątek z callbacku nie zmienia wyniku. */
@@ -47,12 +47,14 @@ export interface ProgressEmitter {
   counterSearchStart(claim: number): void;
   counterSearchDone(claim: number, count: number): void;
   passageAssessed(claim: number, meta: SourceMeta, stance: Exclude<Stance, 'bez_zwiazku'>): void;
+  claimChecked(claim: number, counts: { candidates: number; passed: number; decisive: number; sources: number }): void;
+  secondCheck(claim: number, checked: number, agreed: number, ok: boolean): void;
   done(recordId: string, cached: boolean): void;
 }
 
 /** Bezpieczny nadajnik: brak callbacku = nic; wyjątek z callbacku jest połykany. */
 export function createProgressEmitter(onProgress?: ProgressFn): ProgressEmitter {
-  const emit = (e: VerifyProgressEvent) => {
+  const emit = (e: EngineProgressEvent) => {
     if (!onProgress) return;
     try {
       onProgress(e);
@@ -74,6 +76,8 @@ export function createProgressEmitter(onProgress?: ProgressFn): ProgressEmitter 
         publishedAt: date(meta.publishedAt),
         stance: progressStance(stance),
       }),
+    claimChecked: (claim, c) => emit({ type: 'twierdzenie_ocenione', claim, ...c }),
+    secondCheck: (claim, checked, agreed, ok) => emit({ type: 'druga_kontrola', claim, checked, agreed, ok }),
     done: (recordId, cached) => emit({ type: 'gotowe', recordId, cached }),
   };
 }

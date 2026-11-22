@@ -61,6 +61,9 @@ export { defaultRenderer, type EngineRenderer } from './render';
  * moduł zdań src/render, profil błędów z `EVAL_RESULTS_PATH` albo data/eval/results.json.
  * Baza incydentów jest opcjonalna (`incidents`, np. `loadIncidentMatcher()`).
  */
+import { createSecondCheckFromEnv } from './secondCheckFactory';
+import { llmModelName as modelNameOf } from './pipeline';
+
 export function createEngine(deps: EngineDeps): Engine {
   const errorProfilePath = deps.options?.errorProfilePath ?? process.env.EVAL_RESULTS_PATH ?? DEFAULT_EVAL_RESULTS_PATH;
   return createEngineCore({
@@ -71,6 +74,8 @@ export function createEngine(deps: EngineDeps): Engine {
     // Indeks weryfikacji redakcji: z konfiguracji i środowiska (FACTCHECK_LAYER, GOOGLE_FACTCHECK_API_KEY);
     // `null` w zależnościach wyłącza go jawnie.
     factcheck: deps.factcheck !== undefined ? deps.factcheck : createFactcheckFromEnv(),
+    // Druga kontrola cytatów innym modelem (zad. 45): SECOND_CHECK=on, domyślnie wyłączona.
+    secondCheck: deps.secondCheck !== undefined ? deps.secondCheck : createSecondCheckFromEnv(modelNameOf(deps.llm)),
     options: {
       // Rekordy z wpisami z indeksu Google: krótki czas życia (warunki API), FACTCHECK_RECORD_TTL_HOURS.
       indexRecordTtlMs: factcheckRecordTtlHours() * 3_600_000,

@@ -33,7 +33,12 @@ function setup(table: Record<string, 'potwierdza' | 'obala' | 'kontekst' | 'bez_
 
 async function collect(engine: ReturnType<typeof setup>['engine'], text = INPUT) {
   const seen: VerifyProgressEvent[] = [];
-  const out = await engine.verify({ text, channel: 'www' }, { onProgress: (e) => seen.push(e) });
+  const out = await engine.verify({ text, channel: 'www' }, {
+    // Zdarzenia szczegółowe (zad. 45) mają osobny test (tests/engine/secondCheck.test.ts).
+    onProgress: (e) => {
+      if (e.type !== 'twierdzenie_ocenione' && e.type !== 'druga_kontrola') seen.push(e);
+    },
+  });
   return { out, seen };
 }
 

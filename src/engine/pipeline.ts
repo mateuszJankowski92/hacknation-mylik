@@ -56,6 +56,13 @@ import {
   UNDATED_LIMITATION,
 } from './explain';
 import type { PageFetcher, PageFetchResult } from './fetch/index';
+import {
+  runSecondCheck,
+  sameModel,
+  SECOND_CHECK_UNAVAILABLE_NOTICE,
+  secondCheckDroppedLimitation,
+  type SecondCheck,
+} from './secondCheck';
 import { MAX_INCIDENT_NOTICES, type IncidentMatcher } from './incidents';
 import { containsUrl, detectInjectionSignals, screenClaim, stripInjectedSegments } from './injection';
 import { createProgressEmitter, type ProgressEmitter, type ProgressEngine } from './progress';
@@ -195,6 +202,11 @@ export interface EngineExtraDeps {
    * jeśli sam ją implementuje (`checkSupport`); `null` = wyłączona.
    */
   supportGate?: SupportGate | null;
+  /**
+   * Druga kontrola cytatów innym modelem (zad. 45, src/engine/secondCheck.ts): po dowodach, przed regułami.
+   * Brak albo `null` = wyłączona. Model musi być inny niż model oceny (inaczej krok jest pomijany).
+   */
+  secondCheck?: SecondCheck | null;
   /**
    * Wybór kandydatów do oceny (tanie wywołanie modelu nad szerszą pulą). Brak = dostawca modelu,
    * jeśli sam go implementuje (`rankPassages`); `null` = kolejność z wyszukiwania.
@@ -514,6 +526,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
     list.map((a) => ({ passageId: a.passage.id, documentId: a.passage.documentId, stance: a.stance as string }));
   const supportGate: SupportGate | null =
     deps.supportGate !== undefined ? deps.supportGate : isSupportGate(llm) ? llm : null;
+  const secondCheck: SecondCheck | null =
+    deps.secondCheck && !sameModel(deps.secondCheck.model, llmModelName(llm)) ? deps.secondCheck : null;
   const ranker: PassageRanker | null = deps.ranker !== undefined ? deps.ranker : isPassageRanker(llm) ? llm : null;
   const live: LiveLayer | null = deps.live ?? null;
   const factcheck: FactcheckLayer | null = deps.factcheck ?? null;
@@ -670,6 +684,8 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
 
     // Zad. 29: przy drugiej warstwie numer okna czasu wchodzi do klucza (świeże wiadomości po oknie).
     if (live) keyInput = `${keyInput}\n#warstwa2:${Math.floor(started / liveWindowMs)}`;
+    // Zad. 45: druga kontrola zmienia dowody, więc rekord z nią i bez niej to różne rekordy.
+    if (secondCheck) keyInput = `${keyInput}\n#druga_kontrola:${secondCheck.model}`;
     // Indeks weryfikacji: odpowiedź zależy od stanu indeksu, więc okno czasu wchodzi do klucza (jak wyżej).
     if (factcheck) keyInput = `${keyInput}\n#indeks:${Math.floor(started / liveWindowMs)}`;
 
@@ -1225,6 +1241,42 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         accepted = precedence.accepted;
       }
 
+      // (6d) zad. 45: druga kontrola innym modelem. Każda rozstrzygająca para (twierdzenie, cytat, stanowisko)
+      // dostaje "tak" / "nie" / "nie wiem"; poza "tak" dowód staje się tłem. Tylko odbiera, nigdy nie dodaje.
+      // Teza z oceny redakcji ("ta sama teza", bez uzasadnienia) jest pomijana: jej cytat to sprawdzana teza,
+      // nie zdanie uzasadniające, więc pytanie "czy cytat sam uzasadnia stanowisko" jej nie dotyczy.
+      let secondDropped = 0;
+      if (secondCheck) {
+        const idx = accepted.flatMap((a, i) =>
+          DECISIVE.has(a.stance) && !(a.passage.meta.review && a.passage.meta.review.role !== 'uzasadnienie') ? [i] : [],
+        );
+        if (idx.length > 0) {
+          const pairs = idx.map((i) => ({ claim: claim.text, quote: accepted[i]!.quote, stance: accepted[i]!.stance as 'potwierdza' | 'obala' | 'rozbieznosc_kontekstu' }));
+          const sc = await runSecondCheck(secondCheck, pairs);
+          for (const u of sc.usage) addUsage(usage, u);
+          deadline.check();
+          if (sc.ok) {
+            const agreed = sc.answers.filter((x) => x === 'tak').length;
+            const next = [...accepted];
+            idx.forEach((i, k) => {
+              if (sc.answers[k] === 'tak') return;
+              const { mismatch: _m, ...rest } = next[i]!;
+              next[i] = { ...rest, stance: 'kontekst' };
+              secondDropped++;
+            });
+            accepted = next;
+            secondStats.checked += idx.length;
+            secondStats.agreed += agreed;
+            progress.secondCheck(claimIndex, idx.length, agreed, true);
+          } else {
+            secondStats.failed = true;
+            progress.secondCheck(claimIndex, idx.length, 0, false);
+          }
+          secondStats.ms = Math.max(secondStats.ms, sc.ms);
+          store.logEvent('second_check', { recordId, channel, detail: { claimId: claim.id, model: secondCheck.model, checked: idx.length, ok: sc.ok, dropped: secondDropped, ...(sc.ok ? {} : { reason: sc.reason }) } });
+        }
+      }
+
       // Próba obalenia: ile dowodów przeciwnych przyniósł przebieg "przeciw".
       const refutation: Refutation = {
         performed: true,
@@ -1274,6 +1326,7 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         new Set(ruleEvidence.filter((e) => e.stance === stance).map((e) => e.documentId)).size;
 
       const limitations: string[] = [...baseLimitations, ...precedenceLimitations];
+      if (secondDropped > 0) limitations.push(secondCheckDroppedLimitation(secondDropped));
       if (ruleEvidence.some((e) => e.archival)) {
         limitations.push(archivalLimitation(archivalMonths));
         for (const e of ruleEvidence)
@@ -1324,6 +1377,14 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
         refutation,
       };
       if (fcStatus) fcStatuses.set(claim.id, fcStatus);
+      // Zad. 45: liczby zgodne z rekordem (fragmenty do sprawdzenia, dowody po kontroli, różne dokumenty).
+      const decisiveEv = evidence.filter((e) => DECISIVE.has(e.stance));
+      progress.claimChecked(claimIndex, {
+        candidates: considered,
+        passed: evidence.length,
+        decisive: decisiveEv.length,
+        sources: new Set(decisiveEv.map((e) => e.source.documentId)).size,
+      });
       const profile = errorProfileFor(errorTable, strength.level);
       if (profile) result.errorProfile = profile;
       if (decision.abstain) {
@@ -1335,10 +1396,12 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       return result;
     }
 
+    const secondStats = { checked: 0, agreed: 0, ms: 0, failed: false };
     // Twierdzenia są niezależne: sprawdzamy je równolegle, wynik i ostrzeżenia w kolejności twierdzeń.
     const sides: ClaimSide[] = checkable.map(() => ({ notices: [], signals: [], injectionEvents: 0 }));
     const results: ClaimResult[] = await Promise.all(checkable.map((claim, i) => checkClaim(claim, i, sides[i]!)));
     deadline.check();
+    if (secondStats.failed) notices.push({ type: 'ograniczenie_techniczne', text: SECOND_CHECK_UNAVAILABLE_NOTICE });
     for (const side of sides) {
       notices.push(...side.notices);
       for (const s of side.signals) injectionSignals.add(s);
@@ -1451,6 +1514,17 @@ export function createEngineCore(deps: CoreEngineDeps): ProgressEngine {
       },
       role: roleDecision.role,
       ...(pageInfo ? { page: pageInfo } : {}),
+      ...(secondCheck && (secondStats.checked > 0 || secondStats.failed)
+        ? {
+            secondCheck: {
+              model: secondCheck.model.slice(0, 80),
+              checked: secondStats.checked,
+              agreed: secondStats.agreed,
+              ms: secondStats.ms,
+              status: secondStats.failed ? ('niedostepna' as const) : ('ok' as const),
+            },
+          }
+        : {}),
       schemaVersion: RECORD_SCHEMA_VERSION,
     };
     if (renderer) record.shortAnswer = safeShortAnswer(renderer, record);

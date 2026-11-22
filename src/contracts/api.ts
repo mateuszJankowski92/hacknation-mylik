@@ -89,11 +89,30 @@ export const VerifyProgressEventSchema = z.discriminatedUnion('type', [
 export type VerifyProgressEvent = z.infer<typeof VerifyProgressEventSchema>;
 
 /**
+ * Zad. 45: zdarzenia szczegółowe, wysyłane w strumieniu pod osobną nazwą (`progress_detail`), żeby
+ * interfejs, który ich nie zna, działał bez zmian.
+ */
+export const VerifyProgressDetailEventSchema = z.discriminatedUnion('type', [
+  /**
+   * Zad. 45: liczby jednego twierdzenia zgodne z rekordem, po wszystkich kontrolach (przed złożeniem odpowiedzi).
+   * `candidates`: fragmenty znalezione do sprawdzenia (za i przeciw), `passed`: dowody, które przeszły kontrolę
+   * cytatów (wszystkie w rekordzie, także tło), `decisive`: z nich rozstrzygające (to samo / co innego /
+   * inna data lub miejsce), `sources`: różne dokumenty wśród rozstrzygających (to liczy siła podstawy jako źródła).
+   */
+  z.object({ type: z.literal('twierdzenie_ocenione'), claim: claimIndex, candidates: count, passed: count, decisive: count, sources: count }),
+  /** Zad. 45: druga kontrola innym modelem dla twierdzenia: ile par sprawdzono, ile uznano (`ok: false` = niedostępna). */
+  z.object({ type: z.literal('druga_kontrola'), claim: claimIndex, checked: count, agreed: count, ok: z.boolean() })
+]);
+export type VerifyProgressDetailEvent = z.infer<typeof VerifyProgressDetailEventSchema>;
+/** Wszystkie zdarzenia postępu silnika (zwykłe i szczegółowe). */
+export type EngineProgressEvent = VerifyProgressEvent | VerifyProgressDetailEvent;
+
+/**
  * POST /api/verify/stream (text/event-stream): zero lub więcej `event: progress`
  * (dane: VerifyProgressEvent), na końcu dokładnie jedno `event: result` (dane: VerifyOutcome,
  * ten sam co z POST /api/verify). Błędy wejścia: zwykła odpowiedź JSON ApiError jak w /api/verify.
  */
-export const VERIFY_STREAM_EVENTS = { progress: 'progress', result: 'result' } as const;
+export const VERIFY_STREAM_EVENTS = { progress: 'progress', progressDetail: 'progress_detail', result: 'result' } as const;
 
 /** GET /api/verify/eta: 200. Mediana czasu ostatnich pełnych sprawdzeń (bez odpowiedzi z pamięci). */
 export const VerifyEtaResponseSchema = z.object({

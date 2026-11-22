@@ -185,6 +185,19 @@ export const VerificationRecordSchema = z.object({
   role: RoleSchema.optional(),
   /** Dane pobranej strony (zad. 43); opcjonalne dla zgodności ze starszymi rekordami. */
   page: PageInfoSchema.optional(),
+  /**
+   * Druga kontrola cytatów innym modelem (zad. 45); brak = krok wyłączony (także stare rekordy).
+   * `checked`: rozstrzygające pary sprawdzone, `agreed`: uznane, `status`: `niedostepna` przy błędzie lub czasie.
+   */
+  secondCheck: z
+    .object({
+      model: z.string().max(80),
+      checked: z.number().int().nonnegative(),
+      agreed: z.number().int().nonnegative(),
+      ms: z.number().nonnegative(),
+      status: z.enum(['ok', 'niedostepna']),
+    })
+    .optional(),
   schemaVersion: z.literal(RECORD_SCHEMA_VERSION),
 });
 export type VerificationRecord = z.infer<typeof VerificationRecordSchema>;

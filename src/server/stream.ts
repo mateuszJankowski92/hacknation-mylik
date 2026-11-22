@@ -3,7 +3,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Hono } from 'hono';
 import { streamSSE } from 'hono/streaming';
-import { API_PATHS, VERIFY_STREAM_EVENTS, type VerifyEtaResponse, type VerifyProgressEvent } from '../contracts/api';
+import { API_PATHS, VERIFY_STREAM_EVENTS, type EngineProgressEvent, type VerifyEtaResponse } from '../contracts/api';
 import { parseVerifyRequest, safeVerify, verifyBodyLimit, type RouteDeps } from './routes';
 
 /** Wartość domyślna, gdy pomiarów jest za mało. */
@@ -62,7 +62,9 @@ export function registerStreamRoutes(app: Hono, deps: RouteDeps): void {
         });
       };
       const outcome = await safeVerify(deps, input, {
-        onProgress: (e: VerifyProgressEvent) => write(VERIFY_STREAM_EVENTS.progress, e),
+        // Zdarzenia szczegółowe (zad. 45) pod osobną nazwą: interfejs, który ich nie zna, je pomija.
+        onProgress: (e: EngineProgressEvent) =>
+          write(e.type === 'twierdzenie_ocenione' || e.type === 'druga_kontrola' ? VERIFY_STREAM_EVENTS.progressDetail : VERIFY_STREAM_EVENTS.progress, e),
       });
       write(VERIFY_STREAM_EVENTS.result, outcome);
       await chain;
