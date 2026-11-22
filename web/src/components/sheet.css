@@ -488,7 +488,7 @@
 
 /* Zdania strony urzędu bez cytatu: sekcja jest już zwężona, jej pozycje nie zwężają się drugi raz. */
 @media (min-width: 1024px) {
-	.sheet:has(> .stage-slot--corner) .record__held .record__claims-list > * {
+	.sheet:has(> .stage-slot--corner) .record__held .record__claims-list > .record__held-item:not(.record-claim:first-child) {
 		max-width: none;
 	}
 }
@@ -499,5 +499,12 @@
 	font-size: calc(19px * var(--ts));
 	font-weight: 600;
 	line-height: 1.3;
+	letter-spacing: 0;
+}
+
+.sheet .record__held .record-claim .record-claim__headline .record-claim__sentence--lead {
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
 	letter-spacing: 0;
 }
