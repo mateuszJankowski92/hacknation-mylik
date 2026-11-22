@@ -1,12 +1,13 @@
 import { useEffect, useReducer, useRef, useState, type ReactNode } from 'react';
 import type { VerifyOutcome } from '../../../src/contracts/record';
-import { ApiFailure, DEFAULT_ETA_SECONDS, fetchEtaSeconds, verifyWithFallback } from '../api';
+import { ApiFailure, verifyWithFallback } from '../api';
 import { BASE_TITLE, useDocumentTitle } from '../documentTitle';
 import { addToHistory } from '../history';
 import { navigate, readDraft, readFocusField, recordUrlPath, rememberDraft } from '../route';
-import { INITIAL_PROGRESS, reduceProgress, type ProgressState } from '../visuals/progress';
+import { INITIAL_PROGRESS, reduceProgress, type WaitingEvent, type ProgressState } from '../visuals/progress';
+import { WAITING_TIMING } from '../visuals/waitingConfig';
 import { WaitingSteps } from '../visuals/WaitingSteps';
-import type { VerifyProgressEvent } from '../../../src/contracts/api';
+import type { VerificationRecord } from '../../../src/contracts/record';
 import { CheckForm } from './CheckForm';
 import { HERO_PAGE_TITLE } from './heroCopy';
 import { Hero } from './Hero';
@@ -15,7 +16,6 @@ import { ExampleQueries } from './ExampleQueries';
 import { predictedRole, recordRoleOf } from '../roles/appearance';
 import { currentForcedRole, currentRole } from '../roles/resolve';
 import { rememberRecord } from '../recordCache';
-import { WAITING_SCENE_MIN_MS } from '../scenes/config';
 import { animationStartsAutomatically } from '../scenes/preferences';
 import { useShownMark, useStage } from '../stage/StageContext';
 import { OutcomeView } from './OutcomeView';
@@ -26,14 +26,14 @@ export const READY_TITLE = `Wynik gotowy - ${BASE_TITLE}`;
 
 type CheckState =
 	| { status: 'idle' }
-	| { status: 'loading'; progress: ProgressState; etaSeconds: number; ready: boolean }
+	| { status: 'loading'; progress: ProgressState; ready: boolean; record: VerificationRecord | null; cached: boolean }
 	| { status: 'notice'; outcome: VerifyOutcome }
 	| { status: 'error'; message: string };
 
 type CheckAction =
 	| { type: 'start' }
-	| { type: 'progress'; event: VerifyProgressEvent }
-	| { type: 'eta'; seconds: number }
+	| { type: 'progress'; event: WaitingEvent }
+	| { type: 'outcome'; record: VerificationRecord; cached: boolean }
 	| { type: 'ready' }
 	| { type: 'notice'; outcome: VerifyOutcome }
 	| { type: 'error'; message: string };
@@ -41,11 +41,11 @@ type CheckAction =
 function reducer(state: CheckState, action: CheckAction): CheckState {
 	switch (action.type) {
 		case 'start':
-			return { status: 'loading', progress: INITIAL_PROGRESS, etaSeconds: DEFAULT_ETA_SECONDS, ready: false };
+			return { status: 'loading', progress: INITIAL_PROGRESS, ready: false, record: null, cached: false };
 		case 'progress':
 			return state.status === 'loading' ? { ...state, progress: reduceProgress(state.progress, action.event) } : state;
-		case 'eta':
-			return state.status === 'loading' ? { ...state, etaSeconds: action.seconds } : state;
+		case 'outcome':
+			return state.status === 'loading' ? { ...state, record: action.record, cached: action.cached } : state;
 		case 'ready':
 			return state.status === 'loading' ? { ...state, ready: true } : state;
 		case 'notice':
@@ -112,7 +112,7 @@ export function CheckPage() {
 	}
 
 	function verifyWithProgress(content: string, controller: AbortController): Promise<VerifyOutcome> {
-		const onProgress = (event: VerifyProgressEvent) => {
+		const onProgress = (event: WaitingEvent) => {
 			if (controllerRef.current === controller) dispatch({ type: 'progress', event });
 		};
 		return verifyWithFallback(content, onProgress, controller.signal);
@@ -123,36 +123,38 @@ export function CheckPage() {
 		clearHold();
 		const controller = new AbortController();
 		controllerRef.current = controller;
-		const startedAt = Date.now();
 		dispatch({ type: 'start' });
 		stage.begin(currentForcedRole() ?? predictedRole(content));
 		try {
-			const pending = verifyWithProgress(content, controller);
-			void fetchEtaSeconds(controller.signal).then((seconds) => {
-				if (controllerRef.current === controller) dispatch({ type: 'eta', seconds });
-			});
-			const outcome = await pending;
+			const outcome = await verifyWithProgress(content, controller);
 			if (controllerRef.current !== controller) return;
 			if (outcome.kind === 'record') {
 				const record = outcome.record;
 				const readyAt = Date.now();
+				const resultRole = currentRole(recordRoleOf(record));
 				const showRecord = () => {
 					if (controllerRef.current !== controller) return;
 					clearHold();
 					rememberRecord(record);
 					addToHistory(record);
-					stage.resolve(currentRole(recordRoleOf(record)), record.id, readyAt);
+					stage.resolve(resultRole, record.id, readyAt);
 					rememberDraft(content);
 					navigate(recordUrlPath(record.id));
 				};
-				const remainingMs = WAITING_SCENE_MIN_MS - (readyAt - startedAt);
-				if (remainingMs <= 0 || !animationStartsAutomatically()) {
+				if (!animationStartsAutomatically()) {
 					showRecord();
 					return;
 				}
+				dispatch({ type: 'outcome', record, cached: outcome.cached });
 				showReadyRef.current = showRecord;
-				holdTimerRef.current = setTimeout(showRecord, remainingMs);
-				dispatch({ type: 'ready' });
+				const markReady = () => {
+					if (controllerRef.current !== controller) return;
+					dispatch({ type: 'ready' });
+					stage.resolve(resultRole, record.id, readyAt);
+					holdTimerRef.current = setTimeout(showRecord, WAITING_TIMING.readyHoldMs);
+				};
+				if (outcome.cached) holdTimerRef.current = setTimeout(markReady, WAITING_TIMING.cachedLineMs);
+				else markReady();
 				return;
 			}
 			stage.resolve(null, null);
@@ -171,58 +173,69 @@ export function CheckPage() {
 		if (holding) dispatch({ type: 'error', message: new ApiFailure('cancelled').message });
 	}
 
-	function handleShowNow() {
-		showReadyRef.current?.();
-	}
+	const skippable = state.status === 'loading' && state.ready;
+	useEffect(() => {
+		if (!skippable) return;
+		const skip = () => showReadyRef.current?.();
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === 'Enter' || event.key === ' ') skip();
+		};
+		window.addEventListener('pointerdown', skip);
+		window.addEventListener('keydown', onKey);
+		return () => {
+			window.removeEventListener('pointerdown', skip);
+			window.removeEventListener('keydown', onKey);
+		};
+	}, [skippable]);
 
-	let heroArt: ReactNode | null | undefined;
-	if (state.status === 'loading')
-		heroArt = (
-			<WaitingSteps
-				layout="hero"
-				role={stage.waitingRole}
-				progress={state.progress}
-				etaSeconds={state.etaSeconds}
-				ready={state.ready}
-				onShowNow={handleShowNow}
-			/>
-		);
-	else if (state.status === 'notice') heroArt = null;
+	const heroArt: ReactNode | null | undefined = state.status === 'notice' ? null : undefined;
+	const showsHome = state.status === 'idle' || state.status === 'loading';
 
 	return (
 		<>
-			<Hero role={currentForcedRole() ?? undefined} art={heroArt}>
-				<div className="hero__panel">
-					<div
-						className="result"
-						ref={resultRef}
-						tabIndex={-1}
-						data-engine-ms={showsNotice ? stage.timing?.engineMs : undefined}
-						data-shown-ms={showsNotice ? stage.timing?.shownMs : undefined}
-					>
-						{state.status === 'error' && (
-							<section className="http-error" role="alert">
-								<h2 tabIndex={-1} data-result-heading>
-									Nie udało się sprawdzić
-								</h2>
-								<p>{nb(state.message)}</p>
-							</section>
-						)}
-						{state.status === 'notice' && <OutcomeView outcome={state.outcome} />}
+			<div className="check-home" inert={waiting} aria-hidden={waiting ? true : undefined}>
+				<Hero role={currentForcedRole() ?? undefined} art={heroArt}>
+					<div className="hero__panel">
+						<div
+							className="result"
+							ref={resultRef}
+							tabIndex={-1}
+							data-engine-ms={showsNotice ? stage.timing?.engineMs : undefined}
+							data-shown-ms={showsNotice ? stage.timing?.shownMs : undefined}
+						>
+							{state.status === 'error' && (
+								<section className="http-error" role="alert">
+									<h2 tabIndex={-1} data-result-heading>
+										Nie udało się sprawdzić
+									</h2>
+									<p>{nb(state.message)}</p>
+								</section>
+							)}
+							{state.status === 'notice' && <OutcomeView outcome={state.outcome} />}
+						</div>
+						<CheckForm
+							loading={waiting}
+							onSubmit={handleSubmit}
+							initialContent={initialDraft}
+							focusOnMount={focusField}
+							onDraftChange={rememberDraft}
+							fill={fill}
+						/>
 					</div>
-					<CheckForm
-						loading={waiting}
-						onSubmit={handleSubmit}
-						onCancel={handleCancel}
-						initialContent={initialDraft}
-						focusOnMount={focusField}
-						onDraftChange={rememberDraft}
-						fill={fill}
-					/>
-				</div>
-			</Hero>
-			{state.status === 'idle' && <ExampleQueries onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))} />}
-			{state.status === 'idle' && <HomeSections />}
+				</Hero>
+				{showsHome && <ExampleQueries onPick={(example) => setFill((current) => ({ id: (current?.id ?? 0) + 1, text: example.text }))} />}
+				{showsHome && <HomeSections />}
+			</div>
+			{state.status === 'loading' && (
+				<WaitingSteps
+					role={stage.waitingRole}
+					progress={state.progress}
+					record={state.record}
+					cached={state.cached}
+					ready={state.ready}
+					onCancel={handleCancel}
+				/>
+			)}
 		</>
 	);
 }

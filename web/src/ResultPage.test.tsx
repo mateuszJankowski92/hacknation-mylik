@@ -44,7 +44,7 @@ const ok = (body: unknown) => new Response(JSON.stringify(body), { status: 200 }
 const LATEST = { corpusVersion: 'x', documents: [] };
 
 describe('strona wyniku /r/<id>', () => {
-	it('po kliknięciu "Sprawdź" formularz zostaje, scena czeka w hero, a gotowy wynik otwiera /r/<id>', async () => {
+	it('po kliknięciu "Sprawdź" formularz znika pod sceną czekania, a gotowy wynik otwiera /r/<id>', async () => {
 		stubReducedMotion(true);
 		let release: (response: Response) => void = () => undefined;
 		const fetchMock = stubApi({
@@ -58,7 +58,7 @@ describe('strona wyniku /r/<id>', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
 		await screen.findByLabelText('Postęp sprawdzania');
 		expect(window.location.pathname).toBe('/');
-		expect(container.querySelector('.hero .waiting-steps--hero')).not.toBeNull();
+		expect(container.querySelector('.waiting-steps .stage-slot--foreground')).not.toBeNull();
 		const field = screen.getByLabelText(/Wklej informację lub link/) as HTMLTextAreaElement;
 		expect(field.value).toBe('Biblioteka jest czynna od 9 do 17.');
 		expect(field.readOnly).toBe(true);

@@ -449,7 +449,7 @@ describe('scena przy pracy w hero', () => {
 });
 
 describe('duża scena roli', () => {
-	it('w czasie czekania scena roli zajmuje miejsce postaci startowej w hero', async () => {
+	it('w czasie czekania scena roli stoi na środku ekranu, a formularz jest ukryty', async () => {
 		vi.stubGlobal(
 			'fetch',
 			vi.fn(async (path: string) => {
@@ -463,10 +463,9 @@ describe('duża scena roli', () => {
 		expect(container.querySelector('.hero__stage')).not.toBeNull();
 		fireEvent.change(screen.getByLabelText(/Wklej informację lub link/), { target: { value: 'Biblioteka jest czynna od 9 do 17.' } });
 		fireEvent.click(screen.getByRole('button', { name: 'Sprawdź' }));
-		await waitFor(() => expect(container.querySelector('.hero .waiting-steps--hero')).not.toBeNull());
-		expect(container.querySelector('.hero__stage')).toBeNull();
-		expect(container.querySelectorAll('.hero textarea')).toHaveLength(1);
-		expect(container.querySelector('.hero .stage-slot--foreground')).not.toBeNull();
+		await waitFor(() => expect(container.querySelector('.waiting-steps')).not.toBeNull());
+		expect(container.querySelector('.check-home')?.hasAttribute('inert')).toBe(true);
+		expect(container.querySelector('.waiting-steps .stage-slot--foreground')).not.toBeNull();
 		const stage = container.querySelector('.character-stage') as HTMLElement;
 		expect(stage.getAttribute('data-mode')).toBe('foreground');
 		const video = stage.querySelector('video');

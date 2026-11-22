@@ -3,6 +3,7 @@ import { formatDateTime, shortId } from '../format';
 import { asOfStamp } from '../../../src/render/templates';
 import { recordUrlPath } from '../route';
 import { CaseNotice } from './CaseNotice';
+import { howSearchedLines } from './howSearched';
 import { RecordCardImage } from './RecordCardImage';
 import { RecordClaim } from './RecordClaim';
 import { SheetQuestion } from './SheetQuestion';
@@ -22,6 +23,7 @@ import './sheet.css';
 function RecordExtras({ record }: { record: VerificationRecord }) {
 	const maskedTotal = record.piiMasked.reduce((sum, item) => sum + item.count, 0);
 	const otherNotices = record.notices.filter((notice) => !isKnownOpNotice(notice));
+	const searchedLines = howSearchedLines(record);
 
 	return (
 		<>
@@ -29,6 +31,17 @@ function RecordExtras({ record }: { record: VerificationRecord }) {
 				<h2>Krótka odpowiedź</h2>
 				<p>{nb(record.shortAnswer)}</p>
 			</section>
+
+			{searchedLines.length > 0 && (
+				<section className="record-claim__group-block record__searched" aria-label="Jak szukałem">
+					<h2>Jak szukałem</h2>
+					<ul>
+						{searchedLines.map((line) => (
+							<li key={line}>{nb(line)}</li>
+						))}
+					</ul>
+				</section>
+			)}
 
 			{otherNotices.length > 0 && (
 				<section className="record-claim__group-block record__notices" aria-label="Dodatkowe uwagi">

@@ -12,7 +12,6 @@ export interface SceneSpec {
 
 export const SCENE_BASE_PATH = '/postacie';
 export const SCENE_START_TIMEOUT_MS = 3000;
-export const WAITING_SCENE_MIN_MS = 7000;
 
 export const SCENE_TEXTS = {
 	skip: 'Zatrzymaj animację',

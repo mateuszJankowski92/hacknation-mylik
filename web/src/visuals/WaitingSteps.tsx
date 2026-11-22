@@ -1,79 +1,82 @@
-import { useEffect, useState } from 'react';
-import { DEFAULT_ETA_SECONDS } from '../api';
+import { useEffect, useRef, type CSSProperties } from 'react';
+import type { VerificationRecord } from '../../../src/contracts/record';
 import type { Role } from '../roles/config';
 import { currentRole } from '../roles/resolve';
 import { useStage } from '../stage/StageContext';
 import { StageSlot } from '../stage/StageSlot';
 import { nb } from '../typography';
-import { INITIAL_PROGRESS, describeProgress, type ProgressState } from './progress';
-import './visuals.css';
+import { INITIAL_PROGRESS, type ProgressState } from './progress';
+import { WAITING_TEXTS, WAITING_TIMING } from './waitingConfig';
+import { cachedLines, waitingLines } from './waitingLines';
+import './waiting.css';
 
-export const WAITING_TEXTS = {
-	overtime: 'To trwa dłużej niż zwykle. Jeszcze chwila.',
-	ready: 'Wynik gotowy.',
-	showNow: 'Pokaż wynik teraz',
-} as const;
-
-export function etaSentence(etaSeconds: number): string {
-	return `Sprawdzam. Zwykle trwa to około ${etaSeconds} sekund.`;
-}
-
-function useElapsedSeconds(): number {
-	const [seconds, setSeconds] = useState(0);
-	useEffect(() => {
-		const startedAt = Date.now();
-		const timer = setInterval(() => setSeconds(Math.floor((Date.now() - startedAt) / 1000)), 1000);
-		return () => clearInterval(timer);
-	}, []);
-	return seconds;
-}
+export { WAITING_TEXTS };
 
 export interface WaitingStepsProps {
 	progress?: ProgressState;
-	etaSeconds?: number;
-	elapsedSeconds?: number;
 	role?: Role;
-	layout?: 'page' | 'hero';
+	record?: VerificationRecord | null;
+	cached?: boolean;
 	ready?: boolean;
-	onShowNow?: () => void;
+	onCancel?: () => void;
+}
+
+function passedQuotes(record: VerificationRecord | null | undefined): number | undefined {
+	if (!record) return undefined;
+	return record.claims.reduce((sum, result) => sum + result.evidence.length, 0);
 }
 
 export function WaitingSteps({
 	progress = INITIAL_PROGRESS,
-	etaSeconds = DEFAULT_ETA_SECONDS,
-	elapsedSeconds,
 	role = currentRole(),
-	layout = 'page',
+	record = null,
+	cached = false,
 	ready = false,
-	onShowNow,
+	onCancel,
 }: WaitingStepsProps) {
 	const { setProgress } = useStage();
-	const clock = useElapsedSeconds();
-	const elapsed = elapsedSeconds ?? clock;
-	const overtime = elapsed > etaSeconds;
+	const sectionRef = useRef<HTMLElement>(null);
+
+	useEffect(() => {
+		sectionRef.current?.focus({ preventScroll: true });
+	}, []);
 
 	useEffect(() => {
 		setProgress(progress);
 	}, [progress, setProgress]);
 
+	const lines = cached && record ? cachedLines(record.createdAt) : waitingLines(progress, { passedQuotes: passedQuotes(record) });
+	const style = {
+		'--waiting-fade': `${WAITING_TIMING.homeFadeMs}ms`,
+		'--waiting-steps-fade': `${WAITING_TIMING.stepsFadeMs}ms`,
+	} as CSSProperties;
+
 	return (
-		<section className={`waiting-steps waiting-steps--${layout}`} aria-label="Postęp sprawdzania" data-role={role}>
+		<section ref={sectionRef} tabIndex={-1} className="waiting-steps" aria-label={WAITING_TEXTS.region} data-role={role} data-ready={ready ? 'true' : 'false'} style={style}>
 			<div className="waiting-steps__scene">
 				<StageSlot kind="foreground" />
 			</div>
 			<div className="waiting-steps__text">
-				<div className="waiting-steps__row">
-					<p className="waiting-steps__status" role="status" aria-live="polite">
-						{nb(ready ? WAITING_TEXTS.ready : describeProgress(progress))}
-					</p>
-					<p className="waiting-steps__elapsed">Minęło: {elapsed} s</p>
+				<div className="waiting-steps__stack" role="status" aria-live="polite">
+					{lines.length === 0 && !ready && (
+						<p className="waiting-steps__pending">
+							<span className="visually-hidden">{WAITING_TEXTS.working}</span>
+							<span className="waiting-steps__dots" aria-hidden="true" />
+						</p>
+					)}
+					<ol className="waiting-steps__list">
+						{lines.map((line) => (
+							<li key={line.id} className="waiting-steps__line" data-status={line.status}>
+								{nb(line.text)}
+							</li>
+						))}
+					</ol>
+					{ready && <p className="waiting-steps__ready">{WAITING_TEXTS.ready}</p>}
 				</div>
-				{ready ? (
-					<button type="button" className="button button--primary waiting-steps__show-now" onClick={onShowNow}>
-						{WAITING_TEXTS.showNow}
+				{!ready && onCancel && (
+					<button type="button" className="waiting-steps__cancel" onClick={onCancel}>
+						{WAITING_TEXTS.cancel}
 					</button>
-				) : (
-					<p className="waiting-steps__eta">{nb(overtime ? WAITING_TEXTS.overtime : etaSentence(etaSeconds))}</p>
 				)}
 			</div>
 		</section>

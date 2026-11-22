@@ -8,12 +8,13 @@ import { findForbiddenForms } from '../../../src/render/metrics';
 import { parseSseBlock } from '../api';
 import { ConfidenceGauge } from './ConfidenceGauge';
 import { ErrorDots } from './ErrorDots';
-import { INITIAL_PROGRESS, describeProgress, progressSteps, reduceProgress, sourcesWord, type ProgressState } from './progress';
+import { INITIAL_PROGRESS, reduceProgress, sourcesWord, type ProgressState, type WaitingEvent } from './progress';
 import { WaitingSteps } from './WaitingSteps';
+import { waitingLines } from './waitingLines';
 
 afterEach(cleanup);
 
-function play(events: VerifyProgressEvent[]): ProgressState {
+function play(events: WaitingEvent[]): ProgressState {
 	return events.reduce(reduceProgress, INITIAL_PROGRESS);
 }
 
@@ -57,18 +58,24 @@ describe('postęp', () => {
 		expect(sourcesWord(22)).toBe('22 źródła');
 	});
 
-	it('opisuje stan zdaniem bez żargonu', () => {
+	it('buduje kroki z danych zdarzeń, bez żargonu i bez zakazanych form', () => {
 		const middle = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 2 },
-			judged('GIS', 'to_samo'),
-			judged('Urząd', 'to_samo'),
 			{ type: 'szukanie_przeciw_start', claim: 0 },
+			{ type: 'szukanie_przeciw_koniec', claim: 0, count: 1 },
 		]);
-		expect(describeProgress(middle)).toBe('Znalazłem 2 źródła. Szukam jeszcze takich, które mówią co innego.');
-		const finished = reduceProgress(middle, { type: 'szukanie_przeciw_koniec', claim: 0, count: 0 });
-		expect(describeProgress(finished)).toContain('Mówią co innego: 0.');
-		for (const state of [INITIAL_PROGRESS, middle, finished]) expect(findForbiddenForms(describeProgress(state))).toEqual([]);
+		expect(waitingLines(middle).map((line) => line.text)).toEqual([
+			'Przeczytałem zgłoszenie.',
+			'Znalazłem 3 fragmenty do sprawdzenia.',
+			'Sprawdzam cytaty…',
+		]);
+		const judgedState = reduceProgress(middle, judged('GIS', 'to_samo'));
+		const texts = waitingLines(judgedState).map((line) => line.text);
+		expect(texts.at(-1)).toBe('Sprawdziłem cytaty: 1 przeszedł kontrolę.');
+		for (const state of [INITIAL_PROGRESS, middle, judgedState]) {
+			for (const line of waitingLines(state)) expect(findForbiddenForms(line.text)).toEqual([]);
+		}
 	});
 
 	it('parsuje blok SSE', () => {
@@ -78,52 +85,40 @@ describe('postęp', () => {
 });
 
 describe('WaitingSteps', () => {
-	it('pokazuje postać przy pracy, jedno zdanie o postępie i czas', () => {
-		const { container, rerender } = render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={12} elapsedSeconds={2} role="pogodynka" />);
-		expect(screen.getByText('Sprawdzam. Zwykle trwa to około 12 sekund.')).toBeTruthy();
-		expect(screen.getByText('Minęło: 2 s')).toBeTruthy();
-		expect(screen.getByText('Czytam Twoje zgłoszenie.')).toBeTruthy();
-		expect(container.querySelector('ol')).toBeNull();
-		expect(container.querySelector('.stage-slot--foreground')).not.toBeNull();
+	it('pokazuje scenę, kroki i Anuluj, bez licznika czasu i zapowiedzi', () => {
 		const middle = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
 			{ type: 'fragmenty_za', claim: 0, count: 2 },
-			judged('GIS', 'to_samo'),
 		]);
-		rerender(<WaitingSteps progress={middle} etaSeconds={12} elapsedSeconds={3} role="sport" />);
+		const { container } = render(<WaitingSteps progress={middle} role="sport" onCancel={() => undefined} />);
 		expect(container.querySelector('.waiting-steps')?.getAttribute('data-role')).toBe('sport');
-		expect(container.querySelector('[role="status"]')?.textContent).toBe(describeProgress(middle));
+		expect(container.querySelector('.stage-slot--foreground')).not.toBeNull();
+		expect(container.querySelectorAll('li')).toHaveLength(2);
+		expect(screen.getByRole('button', { name: 'Anuluj' })).toBeTruthy();
+		expect(container.textContent).not.toMatch(/Minęło|Zwykle trwa|dłużej niż zwykle/);
 	});
 
-	it('kroki w stanie postępu zostają dostępne jako dane', () => {
-		const done = play([
+	it('bez zdarzeń nie wymyśla kroków: tylko ukryty komunikat dla czytnika', () => {
+		const { container } = render(<WaitingSteps progress={INITIAL_PROGRESS} />);
+		expect(container.querySelectorAll('li')).toHaveLength(0);
+		expect(container.querySelector('[role="status"][aria-live="polite"]')?.textContent).toBe('Sprawdzam…');
+	});
+
+	it('po gotowości pokazuje "Wynik gotowy." w regionie aria-live i chowa Anuluj', () => {
+		const { container } = render(<WaitingSteps progress={INITIAL_PROGRESS} ready onCancel={() => undefined} />);
+		expect(container.querySelector('[role="status"][aria-live="polite"]')?.textContent).toContain('Wynik gotowy.');
+		expect(screen.queryByRole('button', { name: 'Anuluj' })).toBeNull();
+	});
+
+	it('nie pokazuje więcej niż 5 linii', () => {
+		const many = play([
 			{ type: 'zgloszenie_przeczytane', claims: 1 },
-			{ type: 'fragmenty_za', claim: 0, count: 0 },
-			{ type: 'szukanie_przeciw_koniec', claim: 0, count: 0 },
+			{ type: 'fragmenty_za', claim: 0, count: 2 },
+			{ type: 'szukanie_przeciw_koniec', claim: 0, count: 1 },
+			judged('GIS', 'to_samo'),
+			{ type: 'druga_kontrola', agreed: 1, total: 1 },
 		]);
-		const steps = progressSteps(done);
-		expect(steps.map((step) => step.status)).toEqual(['done', 'done', 'done', 'current']);
-		expect(steps[1]!.text).toBe('Szukałem źródeł. Nic nie znalazłem');
-		expect(progressSteps(play([{ type: 'zgloszenie_przeczytane', claims: 0 }]))).toHaveLength(1);
-	});
-
-	it('teksty postępu nie zawierają zakazanych form', () => {
-		const states = [INITIAL_PROGRESS, play([{ type: 'zgloszenie_przeczytane', claims: 1 }, judged('GIS', 'to_samo')])];
-		for (const state of states) {
-			expect(findForbiddenForms(describeProgress(state))).toEqual([]);
-			for (const step of progressSteps(state)) expect(findForbiddenForms(step.text)).toEqual([]);
-		}
-	});
-
-	it('po przekroczeniu mediany pokazuje komunikat o dłuższym czasie', () => {
-		render(<WaitingSteps progress={INITIAL_PROGRESS} etaSeconds={10} elapsedSeconds={11} />);
-		expect(screen.getByText('To trwa dłużej niż zwykle. Jeszcze chwila.')).toBeTruthy();
-	});
-
-	it('stan jest ogłaszany jako tekst w regionie aria-live', () => {
-		const { container } = render(<WaitingSteps progress={INITIAL_PROGRESS} elapsedSeconds={0} />);
-		const live = [...container.querySelectorAll('[aria-live="polite"]')].map((node) => node.textContent);
-		expect(live).toContain('Czytam Twoje zgłoszenie.');
+		expect(waitingLines(many).length).toBeLessThanOrEqual(5);
 	});
 });
 

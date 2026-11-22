@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { useMotionSetting } from '../a11y/settings';
 import { artAlt, type Role } from '../roles/config';
 import { RoleArt } from '../roles/RoleArt';
 import { SCENE_START_TIMEOUT_MS, type SceneSpec } from '../scenes/config';
 import { PlaybackButton } from '../scenes/PlaybackButton';
 import { animationStartsAutomatically } from '../scenes/preferences';
-import { SceneMarks } from '../scenes/SceneStage';
+import { WAITING_TIMING } from '../visuals/waitingConfig';
 import { useStage, type StageSlotInfo } from './StageContext';
 import './stage.css';
 
@@ -18,6 +18,7 @@ interface Box {
 
 const HOLD_AFTER_SLOT_LOSS_MS = 900;
 const ANIMATION_MS = 520;
+const TRAVEL_MS = WAITING_TIMING.travelMs;
 
 function sameBox(a: Box | null, b: Box | null): boolean {
 	if (!a || !b) return a === b;
@@ -124,11 +125,16 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 	const [playId, setPlayId] = useState(0);
 	const [box, setBox] = useState<Box | null>(null);
 	const [animating, setAnimating] = useState(false);
+	const [travelling, setTravelling] = useState(false);
 	const [hidden, setHidden] = useState(true);
 	const [clipFailed, setClipFailed] = useState(false);
 	const [clipPlaying, setClipPlaying] = useState(false);
 	const [clipFinished, setClipFinished] = useState(false);
 	const placedRef = useRef(false);
+	const wasForegroundRef = useRef(false);
+	const scrollRef = useRef(0);
+	const boxRef = useRef<Box | null>(null);
+	const holdMeasureRef = useRef(false);
 	const motionSetting = useMotionSetting();
 	useEffect(() => {
 		setReplayed(false);
@@ -138,7 +144,7 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 
 	const target = targetSlot(stage.phase, stage.foregroundSlot, stage.cornerSlot);
 	const targetElement = target?.element ?? null;
-	const mode = stage.phase === 'working' ? 'foreground' : 'corner';
+	const mode = target && target === stage.foregroundSlot ? 'foreground' : 'corner';
 	const scene = stage.scene;
 	const clipAvailable = Boolean(scene?.file) && !clipFailed && stage.phase !== 'idle';
 	const mayPlay = animationStartsAutomatically() || replayed;
@@ -169,24 +175,71 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 
 	const measure = useCallback(() => {
 		const app = appRef.current;
-		if (!app || !targetElement) return;
+		if (!app || !targetElement || holdMeasureRef.current) return;
 		const appRect = app.getBoundingClientRect();
 		const rect = targetElement.getBoundingClientRect();
 		const next: Box = { top: rect.top - appRect.top, left: rect.left - appRect.left, width: rect.width, height: rect.height };
+		scrollRef.current = window.scrollY;
 		setBox((current) => (sameBox(current, next) ? current : next));
 	}, [appRef, targetElement]);
+
+	boxRef.current = box;
 
 	useLayoutEffect(() => {
 		if (!targetElement) return;
 		const wasPlaced = placedRef.current;
-		measure();
+		const fromForeground = wasForegroundRef.current;
+		const current = boxRef.current;
+		const scrollShift = window.scrollY - scrollRef.current;
+		wasForegroundRef.current = mode === 'foreground';
 		placedRef.current = true;
 		setHidden(false);
-		if (!wasPlaced) return;
-		setAnimating(true);
 		clearTimeout(animationTimer.current);
-		animationTimer.current = setTimeout(() => setAnimating(false), ANIMATION_MS);
-	}, [targetElement, measure]);
+		if (!wasPlaced || !current) {
+			measure();
+			return;
+		}
+		const travel = fromForeground && mode === 'corner' && animationStartsAutomatically();
+		const duration = travel ? TRAVEL_MS : ANIMATION_MS;
+		const begin = () => {
+			holdMeasureRef.current = false;
+			measure();
+			setTravelling(travel);
+			setAnimating(true);
+			animationTimer.current = setTimeout(() => setAnimating(false), duration);
+		};
+		if (Math.abs(scrollShift) < 0.5) {
+			begin();
+			return;
+		}
+		holdMeasureRef.current = true;
+		setAnimating(false);
+		setBox({ ...current, top: current.top + scrollShift });
+		let frame = requestAnimationFrame(() => {
+			frame = requestAnimationFrame(begin);
+		});
+		return () => {
+			cancelAnimationFrame(frame);
+			holdMeasureRef.current = false;
+		};
+	}, [targetElement, measure, mode]);
+
+	useEffect(() => {
+		if (!animating) return;
+		const finish = () => {
+			clearTimeout(animationTimer.current);
+			setAnimating(false);
+		};
+		const onKey = (event: KeyboardEvent) => {
+			if (event.key === 'Enter' || event.key === ' ') finish();
+		};
+		window.addEventListener('pointerdown', finish);
+		window.addEventListener('keydown', onKey);
+		return () => {
+			window.removeEventListener('pointerdown', finish);
+			window.removeEventListener('keydown', onKey);
+		};
+	}, [animating]);
 
 	useEffect(() => () => clearTimeout(animationTimer.current), []);
 
@@ -224,9 +277,10 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 			data-mode={mode}
 			data-phase={stage.phase}
 			data-animating={animating ? 'true' : 'false'}
+			data-travel={travelling ? 'true' : 'false'}
 			data-clip={clipVisible ? (clipPlaying ? 'playing' : 'loading') : 'none'}
 			data-control={control}
-			style={{ top: box.top, left: box.left, width: box.width, height: box.height }}
+			style={{ top: box.top, left: box.left, width: box.width, height: box.height, '--stage-travel': `${TRAVEL_MS}ms` } as CSSProperties}
 		>
 			<div
 				className="character-stage__frame stage"
@@ -247,7 +301,6 @@ export function CharacterStage({ appRef }: { appRef: RefObject<HTMLElement | nul
 						onPlaying={() => setClipPlaying(true)}
 					/>
 				)}
-				{stage.phase === 'working' && <SceneMarks progress={stage.progress} />}
 			</div>
 			{control === 'skip' && <PlaybackButton className="character-stage__skip" running onClick={() => setStopped(true)} />}
 			{control === 'replay' && <PlaybackButton className="character-stage__skip" running={false} onClick={handleReplay} />}

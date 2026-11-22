@@ -115,6 +115,7 @@ function Refutation({ result }: { result: ClaimResult }) {
 }
 
 const WEB_HEADLINE_QUOTE_CHARS = 300;
+const WEB_HEADLINE_PUBLISHER_CHARS = 200;
 
 function LinkedText({ text }: { text: string }) {
 	return (
@@ -202,7 +203,7 @@ export function RecordClaim({ result, asOf, extraDetails, role, serious = false,
 	const stats = result.abstainReason ? extractCheckStats(result.abstainReason) : null;
 	const limitations = rawLimitations.map(citizenText).filter(Boolean);
 	const profile = result.errorProfile;
-	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS });
+	const layout = buildResultLayout(result, asOf, { quote: WEB_HEADLINE_QUOTE_CHARS, publisher: WEB_HEADLINE_PUBLISHER_CHARS });
 	const certainty = layout.certainty;
 	const answerParts = classifyAnswer(layout.headline, result.directAnswer);
 	const repeatsCaveat = answerParts.some((part) => part.level === 'caveat');

@@ -9,14 +9,13 @@ const DRAFT_SAVE_DELAY_MS = 300;
 interface CheckFormProps {
 	loading: boolean;
 	onSubmit: (content: string) => void;
-	onCancel: () => void;
 	initialContent?: string;
 	focusOnMount?: boolean;
 	onDraftChange?: (content: string) => void;
 	fill?: { id: number; text: string } | null;
 }
 
-export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', focusOnMount = false, onDraftChange, fill = null }: CheckFormProps) {
+export function CheckForm({ loading, onSubmit, initialContent = '', focusOnMount = false, onDraftChange, fill = null }: CheckFormProps) {
 	const [content, setContent] = useState(initialContent);
 	const fieldRef = useRef<HTMLTextAreaElement>(null);
 	const savedRef = useRef(initialContent);
@@ -109,15 +108,8 @@ export function CheckForm({ loading, onSubmit, onCancel, initialContent = '', fo
 						{shortcutHint}
 					</span>
 				)}
-				{loading && (
-					<button type="button" className="button" onClick={onCancel}>
-						Anuluj
-					</button>
-				)}
 			</div>
-			<p className="check-form__status" role="status" aria-live="polite">
-				{loading ? 'Sprawdzam…' : ''}
-			</p>
+			<p className="check-form__status" role="status" aria-live="polite" />
 		</form>
 	);
 }

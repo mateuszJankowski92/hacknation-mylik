@@ -29,7 +29,7 @@ describe('skrót wysyłania w polu tekstowym', () => {
 		for (const platform of ['MacIntel', 'Win32', 'Linux x86_64']) {
 			stubPlatform(platform);
 			const onSubmit = vi.fn();
-			const view = render(<CheckForm loading={false} onSubmit={onSubmit} onCancel={() => undefined} />);
+			const view = render(<CheckForm loading={false} onSubmit={onSubmit} />);
 			fireEvent.change(field(), { target: { value: 'Biblioteka jest czynna w weekendy.' } });
 			fireEvent.keyDown(field(), { key: 'Enter', metaKey: true });
 			fireEvent.keyDown(field(), { key: 'Enter', ctrlKey: true });
@@ -41,7 +41,7 @@ describe('skrót wysyłania w polu tekstowym', () => {
 
 	it('sam Enter dodaje nowy wiersz i niczego nie wysyła', () => {
 		const onSubmit = vi.fn();
-		render(<CheckForm loading={false} onSubmit={onSubmit} onCancel={() => undefined} />);
+		render(<CheckForm loading={false} onSubmit={onSubmit} />);
 		fireEvent.change(field(), { target: { value: 'Pierwszy wiersz' } });
 		const notPrevented = fireEvent.keyDown(field(), { key: 'Enter' });
 		expect(notPrevented).toBe(true);
@@ -51,7 +51,7 @@ describe('skrót wysyłania w polu tekstowym', () => {
 
 	it('skrót nie wysyła pustego pola ani samych spacji', () => {
 		const onSubmit = vi.fn();
-		render(<CheckForm loading={false} onSubmit={onSubmit} onCancel={() => undefined} />);
+		render(<CheckForm loading={false} onSubmit={onSubmit} />);
 		fireEvent.keyDown(field(), { key: 'Enter', metaKey: true });
 		fireEvent.change(field(), { target: { value: '   \n  ' } });
 		fireEvent.keyDown(field(), { key: 'Enter', ctrlKey: true });
@@ -60,22 +60,22 @@ describe('skrót wysyłania w polu tekstowym', () => {
 
 	it('skrót nie wysyła drugi raz w trakcie sprawdzania ani zbyt długiej treści', () => {
 		const onSubmit = vi.fn();
-		const view = render(<CheckForm loading={false} onSubmit={onSubmit} onCancel={() => undefined} />);
+		const view = render(<CheckForm loading={false} onSubmit={onSubmit} />);
 		fireEvent.change(field(), { target: { value: 'Biblioteka jest czynna w weekendy.' } });
 		fireEvent.keyDown(field(), { key: 'Enter', metaKey: true });
 		expect(onSubmit).toHaveBeenCalledTimes(1);
-		view.rerender(<CheckForm loading onSubmit={onSubmit} onCancel={() => undefined} />);
+		view.rerender(<CheckForm loading onSubmit={onSubmit} />);
 		fireEvent.keyDown(field(), { key: 'Enter', metaKey: true });
 		fireEvent.keyDown(field(), { key: 'Enter', ctrlKey: true });
 		expect(onSubmit).toHaveBeenCalledTimes(1);
-		view.rerender(<CheckForm loading={false} onSubmit={onSubmit} onCancel={() => undefined} />);
+		view.rerender(<CheckForm loading={false} onSubmit={onSubmit} />);
 		fireEvent.change(field(), { target: { value: 'a'.repeat(2001) } });
 		fireEvent.keyDown(field(), { key: 'Enter', metaKey: true });
 		expect(onSubmit).toHaveBeenCalledTimes(1);
 	});
 
 	it('pole ogłasza skrót czytnikom ekranu, a logika zna tylko klawisze, nie system', () => {
-		render(<CheckForm loading={false} onSubmit={() => undefined} onCancel={() => undefined} />);
+		render(<CheckForm loading={false} onSubmit={() => undefined} />);
 		expect(field().getAttribute('aria-keyshortcuts')).toBe('Control+Enter Meta+Enter');
 		expect(isSubmitShortcut({ key: 'Enter', metaKey: true, ctrlKey: false })).toBe(true);
 		expect(isSubmitShortcut({ key: 'Enter', metaKey: false, ctrlKey: true })).toBe(true);
@@ -88,27 +88,27 @@ describe('skrót wysyłania w polu tekstowym', () => {
 describe('podpowiedź skrótu przy przycisku', () => {
 	it('na Macu pokazuje "⌘ Enter"', () => {
 		stubPlatform('MacIntel');
-		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} onCancel={() => undefined} />);
+		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} />);
 		expect(container.querySelector('.check-form__hint')?.textContent).toBe(SUBMIT_SHORTCUT_LABELS.apple);
 		expect(SUBMIT_SHORTCUT_LABELS.apple).toBe('⌘ Enter');
 	});
 
 	it('w innych systemach pokazuje "Ctrl + Enter"', () => {
 		stubPlatform('Win32');
-		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} onCancel={() => undefined} />);
+		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} />);
 		expect(container.querySelector('.check-form__hint')?.textContent).toBe('Ctrl + Enter');
 	});
 
 	it('na urządzeniu dotykowym nie pokazuje nic, także na iPadzie', () => {
 		stubPlatform('iPad', true);
-		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} onCancel={() => undefined} />);
+		const { container } = render(<CheckForm loading={false} onSubmit={() => undefined} />);
 		expect(container.querySelector('.check-form__hint')).toBeNull();
 		expect(submitShortcutHint()).toBeNull();
 	});
 
 	it('znika w trakcie sprawdzania', () => {
 		stubPlatform('Win32');
-		const { container } = render(<CheckForm loading onSubmit={() => undefined} onCancel={() => undefined} />);
+		const { container } = render(<CheckForm loading onSubmit={() => undefined} />);
 		expect(container.querySelector('.check-form__hint')).toBeNull();
 	});
 });

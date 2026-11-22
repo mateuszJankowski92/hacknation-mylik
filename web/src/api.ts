@@ -3,8 +3,8 @@ import {
 	VerifyProgressEventSchema,
 	type SourcesResponse,
 	type VerifyEtaResponse,
-	type VerifyProgressEvent,
 } from '../../src/contracts/api';
+import { ExtraProgressEventSchema, type WaitingEvent } from './visuals/progress';
 import type { CasePublicResponse } from '../../src/cases/types';
 import type { VerificationRecord, VerifyOutcome } from '../../src/contracts/record';
 import type { LatestSourcesResponse, VerifyKeyResponse } from '../../src/server/extras';
@@ -187,7 +187,7 @@ export function parseSseBlock(block: string): SseMessage | null {
 
 export async function verifyContentStream(
 	content: string,
-	onProgress: (event: VerifyProgressEvent) => void,
+	onProgress: (event: WaitingEvent) => void,
 	signal?: AbortSignal,
 ): Promise<VerifyOutcome> {
 	const controller = new AbortController();
@@ -236,7 +236,12 @@ export async function verifyContentStream(
 			}
 			if (message.event === VERIFY_STREAM_EVENTS.progress) {
 				const event = VerifyProgressEventSchema.safeParse(parsed);
-				if (event.success) onProgress(event.data);
+				if (event.success) {
+					onProgress(event.data);
+					return;
+				}
+				const extra = ExtraProgressEventSchema.safeParse(parsed);
+				if (extra.success) onProgress(extra.data);
 			} else if (message.event === VERIFY_STREAM_EVENTS.result) {
 				const candidate = parsed as VerifyOutcome;
 				if (candidate && (candidate.kind === 'record' || candidate.kind === 'state')) outcome = candidate;
@@ -269,7 +274,7 @@ export async function verifyContentStream(
 
 export function verifyWithFallback(
 	content: string,
-	onProgress: (event: VerifyProgressEvent) => void,
+	onProgress: (event: WaitingEvent) => void,
 	signal?: AbortSignal,
 ): Promise<VerifyOutcome> {
 	return verifyContentStream(content, onProgress, signal).catch((error: unknown) => {

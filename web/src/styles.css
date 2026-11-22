@@ -112,7 +112,6 @@ main > * {
 }
 
 main > .hero,
-main > .waiting-steps,
 main > .record-page {
 	max-width: none;
 }

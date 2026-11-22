@@ -125,14 +125,14 @@ describe('strona główna w skali', () => {
 });
 
 describe('czekanie i wynik w skali', () => {
-	const visuals = readCss('visuals/visuals.css');
+	const waiting = readCss('visuals/waiting.css');
 	const roles = readCss('roles/roles.css');
 	const styles = readCss('styles.css');
 
-	it('zdanie postępu ma 22 px, a scena zajmuje większość ekranu', () => {
-		expect(block(visuals, '.waiting-steps__status')).toContain('font-size: 22px');
-		expect(block(visuals, '.waiting-steps')).toContain('--waiting-scene-width: min(100%, calc((100svh - 340px) * 0.8), 640px)');
-		expect(block(visuals, '.waiting-steps__scene')).toContain('width: var(--waiting-scene-width)');
+	it('scena czekania zajmuje do 60% wysokości okna, a kroki mają 17 px', () => {
+		expect(block(waiting, '.waiting-steps')).toContain('--waiting-scene-height: min(60svh, calc((100vw - 32px) * 1.25))');
+		expect(block(waiting, '.waiting-steps__scene')).toContain('width: calc(var(--waiting-scene-height) * 0.8)');
+		expect(block(waiting, '.waiting-steps__line')).toContain('font-size: 17px');
 	});
 
 	it('postać w rogu wyniku ma 104 px na telefonie, 288 px na dużym ekranie i przebija prawą krawędź arkusza, a miejsce na nią jest zarezerwowane', () => {
