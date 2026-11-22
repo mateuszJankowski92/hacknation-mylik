@@ -11,6 +11,8 @@ const defaults = {
   // Model instancji pokazowej: Claude Opus 5.5 (decyzja właściciela z 22.11.2026: dokładniej, drożej, wolniej).
   // Tańszy wariant: 'claude-haiku-5-5' (na nim zrobiono pełne pomiary, zob. docs/WYNIKI.md).
   ANTHROPIC_MODEL: 'claude-opus-5-5',
+  // Większy model liczy dłużej (strona urzędu z pięcioma zdaniami: ok. 22 s); przeglądarka czeka 45 s.
+  REQUEST_DEADLINE_MS: '38000',
 };
 for (const [k, v] of Object.entries(defaults)) {
   if (process.env[k] === undefined || process.env[k] === '') process.env[k] = v;

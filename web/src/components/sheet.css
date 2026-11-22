@@ -485,3 +485,19 @@
 		max-width: min(60%, calc(100% - var(--figure-clear)));
 	}
 }
+
+/* Zdania strony urzędu bez cytatu: sekcja jest już zwężona, jej pozycje nie zwężają się drugi raz. */
+@media (min-width: 1024px) {
+	.sheet:has(> .stage-slot--corner) .record__held .record__claims-list > * {
+		max-width: none;
+	}
+}
+
+/* Zdanie o braku potwierdzenia w tej sekcji: mały krój, żeby nie czytało się go jak ocenę całej strony. */
+.sheet .record__held .record-claim .record-claim__lead .record-claim__headline,
+.sheet .record__held .record-claim .record-claim__lead .record-claim__headline[data-short] {
+	font-size: calc(19px * var(--ts));
+	font-weight: 600;
+	line-height: 1.3;
+	letter-spacing: 0;
+}

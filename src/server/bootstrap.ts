@@ -166,7 +166,10 @@ export function bootstrap(opts: BootstrapOptions = {}): Bootstrapped {
     llm,
     live,
     incidents: sources.matcher,
-    options: { errorProfilePath: resolveProjectPath(config.evalResultsPath) },
+    options: {
+      errorProfilePath: resolveProjectPath(config.evalResultsPath),
+      ...(config.requestDeadlineMs ? { deadlineMs: config.requestDeadlineMs } : {}),
+    },
   });
 
   const insertEvent = db.prepare('INSERT INTO events(ts, record_id, channel, type, detail) VALUES (?, NULL, ?, ?, ?)');

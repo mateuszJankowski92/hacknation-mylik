@@ -17,6 +17,8 @@ const ConfigSchema = z.object({
   RETENTION_DAYS: z.preprocess(emptyToUndefined, z.coerce.number().int().positive().default(30)),
   // Integracja fali 2 (zad. I): pliki opcjonalne; brak pliku nie wywraca serwera.
   EVAL_RESULTS_PATH: z.preprocess(emptyToUndefined, z.string().default('data/eval/results.json')),
+  // Limit czasu na zgłoszenie w ms (puste: wartość silnika, 22 s). Większy model potrzebuje więcej czasu.
+  REQUEST_DEADLINE_MS: z.preprocess(emptyToUndefined, z.coerce.number().int().min(5_000).max(44_000).optional()),
   KNOWN_OPS_DIR: z.preprocess(emptyToUndefined, z.string().default('data/known-ops')),
   INCIDENTS_PATH: z.preprocess(emptyToUndefined, z.string().optional()),
   // Liczba zaufanych proxy przed serwerem (np. 1 za Passengerem/nginx); 0 = X-Forwarded-For ignorowany.
@@ -49,6 +51,8 @@ export interface AppConfig {
   retentionDays: number;
   /** Plik wyników zestawu testowego (profil błędów); względny od katalogu projektu. */
   evalResultsPath: string;
+  /** Limit czasu na zgłoszenie w ms; brak = domyślny limit silnika. */
+  requestDeadlineMs?: number;
   /** Katalog znanych operacji informacyjnych (EUvsDisinfo); względny od katalogu projektu. */
   knownOpsDir: string;
   /** Plik bazy incydentów; brak = wyszukiwanie domyślne (findIncidentsFile). */
@@ -81,6 +85,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     RATE_LIMIT_PER_MIN: env.RATE_LIMIT_PER_MIN,
     RETENTION_DAYS: env.RETENTION_DAYS,
     EVAL_RESULTS_PATH: env.EVAL_RESULTS_PATH,
+    REQUEST_DEADLINE_MS: env.REQUEST_DEADLINE_MS,
     KNOWN_OPS_DIR: env.KNOWN_OPS_DIR,
     INCIDENTS_PATH: env.INCIDENTS_PATH,
     TRUSTED_PROXY_HOPS: env.TRUSTED_PROXY_HOPS,
@@ -105,6 +110,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     rateLimitPerMin: c.RATE_LIMIT_PER_MIN,
     retentionDays: c.RETENTION_DAYS,
     evalResultsPath: c.EVAL_RESULTS_PATH,
+    requestDeadlineMs: c.REQUEST_DEADLINE_MS,
     knownOpsDir: c.KNOWN_OPS_DIR,
     incidentsPath: c.INCIDENTS_PATH,
     trustedProxyHops: c.TRUSTED_PROXY_HOPS,
