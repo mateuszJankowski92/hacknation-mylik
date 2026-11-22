@@ -43,17 +43,17 @@ export function NotFoundView({ title = NOT_FOUND_TEXTS.title, body = NOT_FOUND_T
 	const Heading = headingLevel;
 	return (
 		<section className="not-found" ref={ref} tabIndex={-1} aria-labelledby="not-found-title">
-			<div className="not-found__plane" aria-hidden="true" />
+			<div className="not-found__plane paper-fold--sheet" aria-hidden="true" />
 			<div className="not-found__text">
 				<Heading id="not-found-title" className="not-found__title">
 					{nb(title)}
 				</Heading>
 				{body && <p className="not-found__body">{nb(body)}</p>}
-				<p className="not-found__action">
+				<div className="not-found__action">
 					<Link to="/" className="button button--primary">
 						{action}
 					</Link>
-				</p>
+				</div>
 			</div>
 			<img className="not-found__art" src={NOT_FOUND_IMAGE} alt="" aria-hidden="true" width={720} height={900} decoding="async" />
 		</section>

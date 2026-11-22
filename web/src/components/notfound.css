@@ -70,3 +70,24 @@
 html[data-contrast='high'] .not-found__art {
 	mix-blend-mode: normal;
 }
+
+/* Przycisk-apaszka jak „Sprawdź następną”: te same odstępy, bez podkreślenia odnośnika. */
+.not-found__action .button--primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 56px;
+	padding: var(--space-1) var(--space-4);
+	text-decoration: none;
+}
+
+@media (max-width: 759px) {
+	.not-found__art {
+		width: min(160px, 45%);
+	}
+
+	/* Gdy widać baner prywatności, karta ma pod sobą miejsce, by baner nie zasłaniał przycisku. */
+	.app:has(.consent-banner) main > .not-found {
+		margin-bottom: 240px;
+	}
+}
